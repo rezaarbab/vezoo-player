@@ -85,7 +85,6 @@ ThemeData buildVezooTheme() {
       activeTrackColor: Vz.accent,
       inactiveTrackColor: Color(0x29E3DDE5),
       thumbColor: Colors.white,
-      overlayShape: SliderComponentShape.noOverlay,
       trackHeight: 3,
     ),
     switchTheme: SwitchThemeData(
@@ -100,14 +99,14 @@ ThemeData buildVezooTheme() {
       side: BorderSide(color: Vz.border, width: 0.6),
       labelStyle: TextStyle(fontSize: 12, color: Vz.text),
     ),
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: const TabBarThemeData(
       indicatorColor: Vz.accent,
       labelColor: Vz.accentHi,
       unselectedLabelColor: Vz.textDim,
       indicatorSize: TabBarIndicatorSize.label,
     ),
     dividerColor: Vz.border.withOpacity(0.55),
-    dialogTheme: const DialogTheme(
+    dialogTheme: const DialogThemeData(
       backgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Vz.text),

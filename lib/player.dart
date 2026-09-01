@@ -2582,7 +2582,7 @@ class _PlayerState extends State<PlayerScreen>{
               activeTrackColor:const Color(0xFFC08CA9),
               inactiveTrackColor:Colors.white.withOpacity(0.15),
               thumbColor:Colors.white,
-              thumbShape:const RoundSliderThumbShape(enabledThumbRadius:6,elevation:3,shadowColor:Color(0x66A26592)),
+              thumbShape:const RoundSliderThumbShape(enabledThumbRadius:6,elevation:3),
               overlayShape:SliderComponentShape.noOverlay,
               trackHeight:3.0,
             ),
