@@ -51,7 +51,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1D1220),
+        backgroundColor: const Color(0xFF120B09),
         title: Text(isStart ? L.startTime : L.endTime,
           style: const TextStyle(color: Colors.white, fontSize: 14)),
         content: TextField(
@@ -101,7 +101,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
     onPopInvokedWithResult: (didPop, _) async {
       if (didPop) return;
       final leave = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1D1220),
+        backgroundColor: const Color(0xFF120B09),
         title: Text(L.unsavedChanges, style: TextStyle(color: Colors.white, fontSize: 15)),
         content: Text(L.exitWithoutSave, style: TextStyle(color: Colors.white70)),
         actions: [
@@ -113,15 +113,15 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
       if (leave == true && context.mounted) Navigator.pop(context);
     },
     child: Scaffold(
-      backgroundColor: const Color(0xFF1D1220),
+      backgroundColor: const Color(0xFF120B09),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D1220),
+        backgroundColor: const Color(0xFF120B09),
         title: Text('${L.editSrtTitle} (${_entries.length})', style: const TextStyle(color: Colors.white, fontSize: 14)),
         actions: [
           if (_dirty) IconButton(
             icon: _saving
               ? const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color:Colors.white))
-              : const Icon(Icons.save, color: Color(0xFFA26592)),
+              : const Icon(Icons.save, color: Color(0xFFD64531)),
             onPressed: _saving ? null : _save,
           ),
         ],
@@ -134,16 +134,16 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
             itemBuilder: (_, i) => Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: const Color(0xFF1D1220), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: const Color(0xFF120B09), borderRadius: BorderRadius.circular(12)),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
                   Text('#${i + 1}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
                   const Spacer(),
                   GestureDetector(onTap: () => _editTime(i, true),
-                    child: Text(_fmt(_entries[i].from), style: const TextStyle(color: Color(0xFFA26592), fontSize: 12))),
+                    child: Text(_fmt(_entries[i].from), style: const TextStyle(color: Color(0xFFD64531), fontSize: 12))),
                   const Text('  →  ', style: TextStyle(color: Colors.white38, fontSize: 12)),
                   GestureDetector(onTap: () => _editTime(i, false),
-                    child: Text(_fmt(_entries[i].to), style: const TextStyle(color: Color(0xFFA26592), fontSize: 12))),
+                    child: Text(_fmt(_entries[i].to), style: const TextStyle(color: Color(0xFFD64531), fontSize: 12))),
                   const SizedBox(width: 8),
                   GestureDetector(onTap: () => _deleteEntry(i),
                     child: const Icon(Icons.delete_outline, color: Colors.red, size: 16)),
@@ -169,7 +169,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
           onPressed: _saving ? null : _save,
           icon: const Icon(Icons.save),
           label: Text(L.saveChanges),
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFFA26592), padding: const EdgeInsets.symmetric(vertical: 14)),
+          style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531), padding: const EdgeInsets.symmetric(vertical: 14)),
         )),
       )) : null,
     ),

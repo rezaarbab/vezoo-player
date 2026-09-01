@@ -21,7 +21,7 @@ class AiSubtitleSheet extends StatefulWidget {
   }) =>
     showModalBottomSheet(
       context:ctx, isScrollControlled:true,
-      backgroundColor:const Color(0xFF1D1220),
+      backgroundColor:const Color(0xFF120B09),
       shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
       builder:(_)=>AiSubtitleSheet(videoPath:videoPath, onDone:onDone, onPreview:onPreview),
     );
@@ -91,7 +91,7 @@ class _State extends State<AiSubtitleSheet> {
       final fullErr = '$e\n\n$st';
       if(mounted) setState((){ _running=false; _mode='new'; _status=fullErr; });
       if(mounted) showDialog(context:context, builder:(_)=>AlertDialog(
-        backgroundColor:const Color(0xFF241627),
+        backgroundColor:const Color(0xFF1A1210),
         title:const Text('خطا', style:TextStyle(color:Colors.red)),
         content:SingleChildScrollView(child:SelectableText(fullErr, style:const TextStyle(color:Colors.white70, fontSize:11, fontFamily:'monospace'))),
         actions:[TextButton(onPressed:()=>Navigator.pop(context), child:const Text('بستن'))],
@@ -107,7 +107,7 @@ class _State extends State<AiSubtitleSheet> {
     try {
       final improved = await WhisperService.improveSrt(_srtPath!);
       setState((){ _srtPath=improved; _improving=false; });
-      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFA26592));
+      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFD64531));
     } catch(e){
       setState(()=>_improving=false);
       if(mounted) showSnack(context, L.errorMsg(e));
@@ -119,7 +119,7 @@ class _State extends State<AiSubtitleSheet> {
     setState(()=>_improvingLang=lang);
     try {
       await WhisperService.improveSrt(WhisperService.bestSrtPath(widget.videoPath, lang));
-      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFA26592));
+      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFD64531));
     } catch(e){
       if(mounted) showSnack(context, L.errorMsg(e));
     } finally {
@@ -129,7 +129,7 @@ class _State extends State<AiSubtitleSheet> {
 
   Future<void> _deleteLang(String lang) async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF1D1220),
+      backgroundColor:const Color(0xFF120B09),
       title:Text(L.deleteSubtitle,style:TextStyle(color:Colors.white,fontSize:15)),
       content:Text('${kLanguages[lang]??lang}?',style:const TextStyle(color:Colors.white70)),
       actions:[
@@ -146,7 +146,7 @@ class _State extends State<AiSubtitleSheet> {
 
   Future<void> _deleteAll() async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF1D1220),
+      backgroundColor:const Color(0xFF120B09),
       title:Text(L.deleteAllSubtitles,style:TextStyle(color:Colors.white,fontSize:15)),
       content:Text(L.deleteAllSubtitles,
         style:const TextStyle(color:Colors.white70)),
@@ -180,7 +180,7 @@ class _State extends State<AiSubtitleSheet> {
         const SizedBox(height:20),
         FilledButton(
           onPressed: () => Navigator.pop(ctx),
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFFA26592)),
+          style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531)),
           child: Text(L.close)),
       ]),
     ));  // end online SafeArea
@@ -191,12 +191,12 @@ class _State extends State<AiSubtitleSheet> {
       child:SingleChildScrollView(
         padding:EdgeInsets.only(left:16,right:16,top:16,bottom:MediaQuery.of(ctx).viewInsets.bottom+16),
         child:_loading
-          ? SizedBox(height:120,child:Center(child:CircularProgressIndicator(color: const Color(0xFFA26592))))
+          ? SizedBox(height:120,child:Center(child:CircularProgressIndicator(color: const Color(0xFFD64531))))
           : Column(mainAxisSize:MainAxisSize.min,children:[
             const VzSheetHandle(),
             const SizedBox(height:14),
             Row(children:[
-              const Icon(Icons.auto_awesome,color: const Color(0xFFA26592),size:20),
+              const Icon(Icons.auto_awesome,color: const Color(0xFFD64531),size:20),
               const SizedBox(width:8),
               Text(L.aiSubLabel,style:TextStyle(color:Colors.white,fontSize:17,fontWeight:FontWeight.bold)),
               const Spacer(),
@@ -230,7 +230,7 @@ class _State extends State<AiSubtitleSheet> {
       return Container(
         margin:const EdgeInsets.only(bottom:8),
         padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
-        decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+        decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(12)),
         child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Row(children:[
             const Icon(Icons.star,color:Colors.amber,size:16),
@@ -239,8 +239,8 @@ class _State extends State<AiSubtitleSheet> {
             if(improved)...[
               const SizedBox(width:6),
               Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                decoration:BoxDecoration(color:const Color(0xFFA26592).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
-                child:Text(L.improved,style:TextStyle(color: const Color(0xFFA26592),fontSize:10))),
+                decoration:BoxDecoration(color:const Color(0xFFD64531).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                child:Text(L.improved,style:TextStyle(color: const Color(0xFFD64531),fontSize:10))),
             ],
           ]),
           const SizedBox(height:8),
@@ -249,7 +249,7 @@ class _State extends State<AiSubtitleSheet> {
               scrollDirection:Axis.horizontal,
               child:Row(children:[
                 IconButton(
-                  icon:const Icon(Icons.share,color: const Color(0xFFA26592),size:18),
+                  icon:const Icon(Icons.share,color: const Color(0xFFD64531),size:18),
                   tooltip:L.share,
                   onPressed:()=>SharePlus.instance.share(ShareParams(
                     files:[XFile(WhisperService.bestSrtPath(widget.videoPath, lang))],
@@ -268,9 +268,9 @@ class _State extends State<AiSubtitleSheet> {
                 ),
                 improving
                   ? Padding(padding:EdgeInsets.all(8),
-                      child:SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFA26592))))
+                      child:SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFD64531))))
                   : IconButton(
-                      icon:const Icon(Icons.auto_fix_high,color: const Color(0xFFA26592),size:18),
+                      icon:const Icon(Icons.auto_fix_high,color: const Color(0xFFD64531),size:18),
                       tooltip:L.improveSubtitle,
                       onPressed:()=>_improveLang(lang),
                       constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
@@ -289,7 +289,7 @@ class _State extends State<AiSubtitleSheet> {
                 widget.onDone(WhisperService.bestSrtPath(widget.videoPath, lang));
                 Navigator.pop(context);
               },
-              style:FilledButton.styleFrom(backgroundColor:const Color(0xFFA26592),
+              style:FilledButton.styleFrom(backgroundColor:const Color(0xFFD64531),
                 minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:14),
                 shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8))),
               child:Text(L.use,style:TextStyle(fontSize:12)),
@@ -303,9 +303,9 @@ class _State extends State<AiSubtitleSheet> {
     Row(children:[
       Expanded(child:OutlinedButton.icon(
         onPressed:()=>setState(()=>_mode='new'),
-        icon:const Icon(Icons.add,size:16,color: const Color(0xFFA26592)),
-        label:Text(L.createNewLang,style:TextStyle(color: const Color(0xFFA26592),fontSize:13)),
-        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFA26592)),
+        icon:const Icon(Icons.add,size:16,color: const Color(0xFFD64531)),
+        label:Text(L.createNewLang,style:TextStyle(color: const Color(0xFFD64531),fontSize:13)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFD64531)),
           padding:const EdgeInsets.symmetric(vertical:12),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
       )),
@@ -328,13 +328,13 @@ class _State extends State<AiSubtitleSheet> {
         trailing:FilledButton.icon(
           onPressed:(){ Navigator.pop(context); Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())); },
           icon:const Icon(Icons.download,size:14),label:Text(L.download,style:TextStyle(fontSize:12)),
-          style:FilledButton.styleFrom(backgroundColor:const Color(0xFFA26592),
+          style:FilledButton.styleFrom(backgroundColor:const Color(0xFFD64531),
             minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:12)),
         ))
     else _row(
       icon:Icons.memory,
       child:DropdownButton<WhisperModelDef>(
-        value:_selected, dropdownColor:const Color(0xFF2C1B2E),
+        value:_selected, dropdownColor:const Color(0xFF231813),
         underline:const SizedBox(), isExpanded:true,
         style:const TextStyle(color:Colors.white,fontSize:13),
         items:_downloaded.map((m)=>DropdownMenuItem(value:m,
@@ -345,7 +345,7 @@ class _State extends State<AiSubtitleSheet> {
     const SizedBox(height:10),
 
     _row(icon:Icons.language, child:DropdownButton<String>(
-      value:_lang, dropdownColor:const Color(0xFF2C1B2E),
+      value:_lang, dropdownColor:const Color(0xFF231813),
       underline:const SizedBox(), isExpanded:true,
       style:const TextStyle(color:Colors.white,fontSize:13),
       items:kLanguages.entries.map((e){
@@ -362,13 +362,13 @@ class _State extends State<AiSubtitleSheet> {
     // ── ترجمه به انگلیسی (همیشه در دسترس) ──
     Container(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
-        const Icon(Icons.translate,color: const Color(0xFFA26592),size:18),
+        const Icon(Icons.translate,color: const Color(0xFFD64531),size:18),
         const SizedBox(width:10),
         Expanded(child:Text(L.translateToEn,
           style:TextStyle(color:Colors.white,fontSize:12))),
-        Switch(value:_translate,activeColor:const Color(0xFFA26592),
+        Switch(value:_translate,activeColor:const Color(0xFFD64531),
           onChanged:(v)=>setState(()=>_translate=v)),
       ]),
     ),
@@ -377,10 +377,10 @@ class _State extends State<AiSubtitleSheet> {
     // ── انتخاب موتور — V1 و V2 همیشه هر دو در دسترس‌اند ──
     Container(
       padding:const EdgeInsets.all(10),
-      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(12)),
       child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
         Row(children:[
-          Icon(Icons.settings_suggest,color: const Color(0xFFA26592),size:16),
+          Icon(Icons.settings_suggest,color: const Color(0xFFD64531),size:16),
           SizedBox(width:8),
           Text(L.aiModel,style:TextStyle(color:Colors.white70,fontSize:12)),
         ]),
@@ -396,12 +396,12 @@ class _State extends State<AiSubtitleSheet> {
 
     Container(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
-        const Icon(Icons.graphic_eq,color: const Color(0xFFA26592),size:18),
+        const Icon(Icons.graphic_eq,color: const Color(0xFFD64531),size:18),
         const SizedBox(width:10),
         Expanded(child:Text(L.vadMode,style:TextStyle(color:Colors.white,fontSize:13))),
-        Switch(value:_useVad,activeColor:const Color(0xFFA26592),
+        Switch(value:_useVad,activeColor:const Color(0xFFD64531),
           onChanged:(v)=>setState(()=>_useVad=v)),
       ]),
     ),
@@ -425,10 +425,10 @@ class _State extends State<AiSubtitleSheet> {
       Container(
         margin:const EdgeInsets.only(bottom:10),
         padding:const EdgeInsets.symmetric(horizontal:10,vertical:8),
-        decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(10)),
+        decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(10)),
         child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Row(children:[
-            const Icon(Icons.insights,color: const Color(0xFFA26592),size:16),
+            const Icon(Icons.insights,color: const Color(0xFFD64531),size:16),
             const SizedBox(width:8),
             Text('${L.accuracy}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
             Text(estimateAccuracy(_selected!,_lang),
@@ -437,7 +437,7 @@ class _State extends State<AiSubtitleSheet> {
           if(_videoDurationMs>0)...[
             const SizedBox(height:4),
             Row(children:[
-              const Icon(Icons.timer_outlined,color: const Color(0xFFA26592),size:16),
+              const Icon(Icons.timer_outlined,color: const Color(0xFFD64531),size:16),
               const SizedBox(width:8),
               Text('${L.sleepTimer}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
               Text(WhisperService.estimateProcessingTime(_videoDurationMs,_selected!,_engine),
@@ -463,7 +463,7 @@ class _State extends State<AiSubtitleSheet> {
         icon:const Icon(Icons.subtitles),
         label:Text(L.aiSubtitle,style:TextStyle(fontSize:15)),
         style:FilledButton.styleFrom(
-          backgroundColor:const Color(0xFFA26592),
+          backgroundColor:const Color(0xFFD64531),
           padding:const EdgeInsets.symmetric(vertical:14),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
         ),
@@ -482,8 +482,8 @@ class _State extends State<AiSubtitleSheet> {
     const SizedBox(height:12),
     LinearProgressIndicator(
       value:_progress>0&&_progress<=1 ? _progress : null,
-      backgroundColor:const Color(0xFF2C1B2E),
-      color:const Color(0xFFA26592), minHeight:6,
+      backgroundColor:const Color(0xFF231813),
+      color:const Color(0xFFD64531), minHeight:6,
       borderRadius:BorderRadius.circular(3),
     ),
     const SizedBox(height:4),
@@ -515,12 +515,12 @@ class _State extends State<AiSubtitleSheet> {
     SizedBox(width:double.infinity,child:OutlinedButton.icon(
       onPressed:_improving?null:_improve,
       icon:_improving
-        ? const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFA26592)))
-        : const Icon(Icons.auto_fix_high,size:16,color: const Color(0xFFA26592)),
+        ? const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFD64531)))
+        : const Icon(Icons.auto_fix_high,size:16,color: const Color(0xFFD64531)),
       label:Text(_improving?L.improving:L.improveSubtitle,
-        style:const TextStyle(color: const Color(0xFFA26592),fontSize:13)),
+        style:const TextStyle(color: const Color(0xFFD64531),fontSize:13)),
       style:OutlinedButton.styleFrom(
-        side:const BorderSide(color: const Color(0xFFA26592)),
+        side:const BorderSide(color: const Color(0xFFD64531)),
         padding:const EdgeInsets.symmetric(vertical:12),
         shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
       ),
@@ -531,9 +531,9 @@ class _State extends State<AiSubtitleSheet> {
     Row(children:[
       Expanded(child:OutlinedButton.icon(
         onPressed:()=>SharePlus.instance.share(ShareParams(files:[XFile(_srtPath!)],text:L.vezooSubtitle)),
-        icon:const Icon(Icons.share,size:15,color: const Color(0xFFA26592)),
-        label:Text(L.share,style:TextStyle(color: const Color(0xFFA26592),fontSize:12,fontWeight:FontWeight.bold)),
-        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFA26592)),
+        icon:const Icon(Icons.share,size:15,color: const Color(0xFFD64531)),
+        label:Text(L.share,style:TextStyle(color: const Color(0xFFD64531),fontSize:12,fontWeight:FontWeight.bold)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFD64531)),
           padding:const EdgeInsets.symmetric(vertical:10),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
       )),
@@ -554,7 +554,7 @@ class _State extends State<AiSubtitleSheet> {
         Expanded(child:OutlinedButton.icon(
           onPressed:(){
             widget.onPreview!(_srtPath!);
-            showSnack(context, L.previewLoaded, color: const Color(0xFFA26592), seconds: 2);
+            showSnack(context, L.previewLoaded, color: const Color(0xFFD64531), seconds: 2);
           },
           icon:const Icon(Icons.visibility,size:15,color:Colors.white70),
           label:Text(L.preview,style:TextStyle(color:Colors.white70,fontSize:12)),
@@ -571,7 +571,7 @@ class _State extends State<AiSubtitleSheet> {
       icon:const Icon(Icons.subtitles),
       label:Text(L.loadSubtitle),
       style:FilledButton.styleFrom(
-        backgroundColor:const Color(0xFFA26592),
+        backgroundColor:const Color(0xFFD64531),
         padding:const EdgeInsets.symmetric(vertical:14),
         shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
       ),
@@ -588,9 +588,9 @@ class _State extends State<AiSubtitleSheet> {
       child:Container(
         padding:const EdgeInsets.symmetric(vertical:8,horizontal:8),
         decoration:BoxDecoration(
-          color:active?const Color(0xFFA26592):const Color(0xFF1D1220),
+          color:active?const Color(0xFFD64531):const Color(0xFF120B09),
           borderRadius:BorderRadius.circular(10),
-          border:Border.all(color:active?const Color(0xFFA26592):Colors.white12),
+          border:Border.all(color:active?const Color(0xFFD64531):Colors.white12),
         ),
         child:Column(children:[
           Text(label,style:TextStyle(color:active?Colors.white:Colors.white70,fontSize:13,fontWeight:FontWeight.bold)),
@@ -603,9 +603,9 @@ class _State extends State<AiSubtitleSheet> {
 
   Widget _row({required IconData icon, required Widget child, Widget? trailing})=>Container(
     padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
-    decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+    decoration:BoxDecoration(color:const Color(0xFF231813),borderRadius:BorderRadius.circular(12)),
     child:Row(children:[
-      Icon(icon,color:const Color(0xFFA26592),size:18),
+      Icon(icon,color:const Color(0xFFD64531),size:18),
       const SizedBox(width:10),
       Expanded(child:child),
       if(trailing!=null) trailing,

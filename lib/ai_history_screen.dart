@@ -24,7 +24,7 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
 
   Future<void> _remove(String path) async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF1D1220),
+      backgroundColor:const Color(0xFF120B09),
       title:Text(L.deleteFromHistory,style:TextStyle(color:Colors.white,fontSize:15)),
       content:Text(L.deleteFromHistoryDesc,
         style:TextStyle(color:Colors.white70,fontSize:12)),
@@ -45,14 +45,14 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor:const Color(0xFF1D1220),
+    backgroundColor:const Color(0xFF120B09),
     appBar:AppBar(
-      backgroundColor:const Color(0xFF1D1220),
+      backgroundColor:const Color(0xFF120B09),
       title:Text(L.aiHistory,style:TextStyle(color:Colors.white,fontSize:15)),
       leading:IconButton(icon:const Icon(Icons.arrow_back,color:Colors.white),onPressed:()=>Navigator.pop(context)),
     ),
     body: _loading
-      ? Center(child:CircularProgressIndicator(color:Color(0xFFA26592)))
+      ? Center(child:CircularProgressIndicator(color:Color(0xFFD64531)))
       : _videos.isEmpty
         ? Center(child:Padding(
             padding:EdgeInsets.all(24),
@@ -66,16 +66,16 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
               final langs = WhisperService.existingLanguages(path);
               return Container(
                 margin:const EdgeInsets.only(bottom:8),
-                decoration:BoxDecoration(color:const Color(0xFF1D1220),borderRadius:BorderRadius.circular(12)),
+                decoration:BoxDecoration(color:const Color(0xFF120B09),borderRadius:BorderRadius.circular(12)),
                 child:ListTile(
                   onTap:()=>_openVideo(path),
-                  leading:const Icon(Icons.movie_outlined,color:Color(0xFFA26592)),
+                  leading:const Icon(Icons.movie_outlined,color:Color(0xFFD64531)),
                   title:Text(p.basename(path),style:const TextStyle(color:Colors.white,fontSize:13),
                     overflow:TextOverflow.ellipsis),
                   subtitle:Wrap(spacing:4,runSpacing:2,children:langs.map((l)=>Container(
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                    decoration:BoxDecoration(color:const Color(0xFFA26592).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
-                    child:Text(kLanguages[l]??l,style:const TextStyle(color:Color(0xFFA26592),fontSize:10)),
+                    decoration:BoxDecoration(color:const Color(0xFFD64531).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                    child:Text(kLanguages[l]??l,style:const TextStyle(color:Color(0xFFD64531),fontSize:10)),
                   )).toList()),
                   trailing:IconButton(
                     icon:const Icon(Icons.close,color:Colors.white38,size:18),

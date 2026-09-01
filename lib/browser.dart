@@ -20,30 +20,30 @@ import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
 
-const kBg      = Color(0xFF140C15);
-const kSurface = Color(0xFF1D1220);
-const kCard    = Color(0xFF241627);
-const kBorder  = Color(0xFF3A2537);
-const kAccent  = Color(0xFFA26592);
-const kCyan    = Color(0xFFA78BC0);
-const kGreen   = Color(0xFF7BC49A);
-const kAmber   = Color(0xFFE2A65B);
-const kRed     = Color(0xFFE06C6C);
-const kPink    = Color(0xFFC76B93);
-const kTextSec = Color(0xFFB4A3B4);
-const kTextDim = Color(0xFF7C6B80);
+const kBg      = Color(0xFF050303);
+const kSurface = Color(0xFF120B09);
+const kCard    = Color(0xFF1A1210);
+const kBorder  = Color(0xFF33241D);
+const kAccent  = Color(0xFFD64531);
+const kCyan    = Color(0xFF30F6C2);
+const kGreen   = Color(0xFF7FB89A);
+const kAmber   = Color(0xFFD99A4E);
+const kRed     = Color(0xFFD64531);
+const kPink    = Color(0xFFD66A4A);
+const kTextSec = Color(0xFFB8AEA6);
+const kTextDim = Color(0xFF7D7066);
 
 enum _SortBy{name,date,size,type}
 
 LinearGradient _extGrad(String ext){
   switch(ext){
-    case 'mp4': return const LinearGradient(colors:[Color(0xFFA26592),Color(0xFF953637)]);
-    case 'mkv': return const LinearGradient(colors:[Color(0xFFA78BC0),Color(0xFF7A5B80)]);
-    case 'avi': return const LinearGradient(colors:[Color(0xFF7BC49A),Color(0xFF5FA47C)]);
-    case 'mov': return const LinearGradient(colors:[Color(0xFFC95A5A),Color(0xFF7A2E3A)]);
-    case 'webm':return const LinearGradient(colors:[Color(0xFF953637),Color(0xFF6E2430)]);
-    case 'flv': return const LinearGradient(colors:[Color(0xFF7A2E3A),Color(0xFF531931)]);
-    default:    return const LinearGradient(colors:[Color(0xFF2C1B2E),Color(0xFF1D1220)]);
+    case 'mp4': return const LinearGradient(colors:[Color(0xFFD64531),Color(0xFF950707)]);
+    case 'mkv': return const LinearGradient(colors:[Color(0xFF30F6C2),Color(0xFF8FA396)]);
+    case 'avi': return const LinearGradient(colors:[Color(0xFF7FB89A),Color(0xFF4E8F6F)]);
+    case 'mov': return const LinearGradient(colors:[Color(0xFFC4472F),Color(0xFF7E1E10)]);
+    case 'webm':return const LinearGradient(colors:[Color(0xFF950707),Color(0xFF6E140A)]);
+    case 'flv': return const LinearGradient(colors:[Color(0xFF7E1E10),Color(0xFF5C100C)]);
+    default:    return const LinearGradient(colors:[Color(0xFF231813),Color(0xFF120B09)]);
   }
 }
 
@@ -411,23 +411,23 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
   }
 
   Widget _buildFABs()=>ClipRRect(
-    borderRadius:BorderRadius.circular(30),
+    borderRadius:BorderRadius.circular(32),
     child:BackdropFilter(
-      filter:ImageFilter.blur(sigmaX:22,sigmaY:22),
+      filter:ImageFilter.blur(sigmaX:24,sigmaY:24),
       child:Container(
-        padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
+        padding:const EdgeInsets.symmetric(horizontal:8,vertical:8),
         decoration:BoxDecoration(
-          color:kSurface.withOpacity(0.78),
-          borderRadius:BorderRadius.circular(30),
-          border:Border.all(color:kBorder.withOpacity(0.9)),
-          boxShadow:[BoxShadow(color:kAccent.withOpacity(0.14),blurRadius:28,offset:const Offset(0,8))],
+          color:const Color(0xFF120B09).withOpacity(0.82),
+          borderRadius:BorderRadius.circular(32),
+          border:Border.all(color:const Color(0xFF33241D).withOpacity(0.95)),
+          boxShadow:[BoxShadow(color:const Color(0xFF950707).withOpacity(0.22),blurRadius:32,offset:const Offset(0,10))],
         ),
         child:Row(mainAxisSize:MainAxisSize.min,children:[
           _fabBtn(Icons.history_rounded,L.history,kTextSec,()=>_openPanel(0)),
-          const SizedBox(width:2),_fabBtn(Icons.bookmark_rounded,L.bookmarks,kAmber,()=>_openPanel(1)),
-          const SizedBox(width:2),_fabBtn(Icons.favorite_rounded,L.favorites,kPink,()=>_openPanel(2)),
-          const SizedBox(width:2),_fabBtn(Icons.push_pin_rounded,L.folders,kGreen,()=>_openPanel(3)),
-          const SizedBox(width:2),_fabBtn(Icons.tune_rounded,L.settings,kTextSec,()=>_openPanel(4)),
+          const SizedBox(width:6),_fabBtn(Icons.bookmark_rounded,L.bookmarks,kAmber,()=>_openPanel(1)),
+          const SizedBox(width:6),_fabBtn(Icons.favorite_rounded,L.favorites,kPink,()=>_openPanel(2)),
+          const SizedBox(width:6),_fabBtn(Icons.push_pin_rounded,L.folders,kGreen,()=>_openPanel(3)),
+          const SizedBox(width:6),_fabBtn(Icons.tune_rounded,L.settings,kTextSec,()=>_openPanel(4)),
         ]),
       ),
     ),
@@ -435,26 +435,49 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
 
   Widget _fabBtn(IconData icon,String tip,Color color,VoidCallback fn)=>Tooltip(
     message:tip,
-    child:InkWell(onTap:fn,borderRadius:BorderRadius.circular(20),
-        child:Padding(padding:const EdgeInsets.all(10),child:Icon(icon,size:22,color:color))),
+    child:Material(
+      color:Colors.transparent,
+      child:InkWell(
+        onTap:fn,
+        borderRadius:BorderRadius.circular(18),
+        child:Container(
+          padding:const EdgeInsets.all(9),
+          decoration:BoxDecoration(
+            color:color.withOpacity(0.1),
+            borderRadius:BorderRadius.circular(18),
+            border:Border.all(color:color.withOpacity(0.22),width:0.8),
+          ),
+          child:Icon(icon,size:22,color:color),
+        ),
+      ),
+    ),
   );
 
   PreferredSizeWidget _normalBar(bool isSaved)=>AppBar(
     automaticallyImplyLeading:false,
     leading:_path!=root?IconButton(icon:const Icon(Icons.arrow_back_ios_new_rounded,size:18),onPressed:_goUp):null,
     title:_searching
-        ?Row(children:[
+        ?Container(
+          padding:const EdgeInsets.symmetric(horizontal:14,vertical:6),
+          decoration:BoxDecoration(
+            color:kCard,
+            borderRadius:BorderRadius.circular(14),
+            border:Border.all(color:kAccent.withOpacity(0.25)),
+          ),
+          child:Row(children:[
+            const Icon(Icons.search_rounded,size:16,color:kTextDim),
+            const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
-                style:const TextStyle(fontSize:14),
-                decoration:InputDecoration(
+                style:const TextStyle(fontSize:14,color:Color(0xFFEBE8E6)),
+                decoration:InputDecoration.collapsed(
                   hintText:_globalSearch?L.searchingGlobal:L.searchHere,
-                  border:InputBorder.none,hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
+                  hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
                 onChanged:(v){setState(()=>_searchQuery=v);if(_globalSearch)_runGlobalSearch(v);})),
             if(_searchRunning)const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
-          ])
+          ]))
         :Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
             Text(_path==root?L.internalStorage:p.basename(_path),overflow:TextOverflow.ellipsis,
-                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w600)),
+                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFEBE8E6))),
             if(_path!=root)Text(p.dirname(_path),overflow:TextOverflow.ellipsis,
                 style:const TextStyle(fontSize:10,color:kTextDim,height:1.2)),
           ]),
@@ -491,7 +514,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
         tooltip:L.onlineVideo,
         onPressed:()=>showModalBottomSheet(context:context,isScrollControlled:true,backgroundColor:Colors.transparent,builder:(_)=>const OnlinePlayerSheet())),
       if(!_searching)IconButton(
-        icon:const Icon(Icons.video_library_rounded,size:20,color:Color(0xFF7BC49A)),
+        icon:const Icon(Icons.video_library_rounded,size:20,color:Color(0xFF7FB89A)),
         tooltip:'IPTV',
         onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const IptvScreen()))),
       if(!_searching)...[
@@ -646,9 +669,10 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
         snapSizes:const[0.35,0.55,0.97],
         shouldCloseOnMinExtent:false,
         builder:(bctx,sc)=>Container(
-          decoration:const BoxDecoration(
-            color:Color(0xFF1D1220),
-            borderRadius:BorderRadius.vertical(top:Radius.circular(18))),
+          decoration:BoxDecoration(
+            color:const Color(0xFF120B09).withOpacity(0.97),
+            borderRadius:const BorderRadius.vertical(top:Radius.circular(26)),
+            border:Border.all(color:const Color(0xFF33241D).withOpacity(0.8),width:0.6)),
           child:Column(children:[
             // ── handle — drag اینجا کار میکنه ──
             GestureDetector(
@@ -687,11 +711,11 @@ class _DirTile extends StatelessWidget{
         border:Border.all(color:kBorder.withOpacity(0.7))),
       child:Row(children:[
         Container(width:46,height:46,decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF7A5B80),Color(0xFF5D4662)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          gradient:const LinearGradient(colors:[Color(0xFF8FA396),Color(0xFF8A6D56)],begin:Alignment.topLeft,end:Alignment.bottomRight),
           borderRadius:BorderRadius.circular(14)),
-          child:const Icon(Icons.folder_rounded,color:Color(0xFFE3DDE5),size:22)),
+          child:const Icon(Icons.folder_rounded,color:Color(0xFFEBE8E6),size:22)),
         const SizedBox(width:14),
-        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:14,color:Color(0xFFE3DDE5)),maxLines:1,overflow:TextOverflow.ellipsis)),
+        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:14,color:Color(0xFFEBE8E6)),maxLines:1,overflow:TextOverflow.ellipsis)),
         const Icon(Icons.chevron_left_rounded,color:kTextDim,size:22),
       ]),
     ),
@@ -739,7 +763,7 @@ class _VideoTile extends StatelessWidget{
               child:selectMode
                   ?AnimatedContainer(duration:const Duration(milliseconds:150),width:48,height:48,
                       decoration:BoxDecoration(
-                        gradient:selected?const LinearGradient(colors:[Color(0xFFC08CA9),Color(0xFFA26592)]):null,
+                        gradient:selected?const LinearGradient(colors:[Color(0xFFE8664F),Color(0xFFD64531)]):null,
                         color:selected?null:kBorder,
                         borderRadius:BorderRadius.circular(13)),
                       child:Icon(selected?Icons.check_rounded:Icons.circle_outlined,color:Colors.white,size:20))
@@ -761,7 +785,7 @@ class _VideoTile extends StatelessWidget{
                           child:snap.connectionState==ConnectionState.waiting
                               ?const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white38))
                               :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
-                                  style:const TextStyle(fontSize:11,fontWeight:FontWeight.w800,color:Color(0xFFE3DDE5))),
+                                  style:const TextStyle(fontSize:11,fontWeight:FontWeight.w800,color:Color(0xFFEBE8E6))),
                         );
                       },
                     )),
@@ -770,7 +794,7 @@ class _VideoTile extends StatelessWidget{
             // ── اطلاعات ──
             Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
               Text(name,style:TextStyle(fontSize:14,fontWeight:FontWeight.w600,
-                  color:seen?kGreen:const Color(0xFFE3DDE5),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
+                  color:seen?kGreen:const Color(0xFFEBE8E6),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
               if(showPath)Text(p.dirname(file.path),style:const TextStyle(fontSize:10,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis),
               const SizedBox(height:5),
               Row(children:[
@@ -789,11 +813,11 @@ class _VideoTile extends StatelessWidget{
               decoration:BoxDecoration(
                 gradient:seen
                     ?null
-                    :const LinearGradient(colors:[Color(0xFFC08CA9),Color(0xFF953637)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+                    :const LinearGradient(colors:[Color(0xFFE8664F),Color(0xFF950707)],begin:Alignment.topLeft,end:Alignment.bottomRight),
                 color:seen?kGreen.withOpacity(0.14):null,
                 borderRadius:BorderRadius.circular(13),
                 border:seen?Border.all(color:kGreen.withOpacity(0.35)):null,
-                boxShadow:seen?null:[BoxShadow(color:const Color(0xFFA26592).withOpacity(0.25),blurRadius:12,offset:const Offset(0,3))],
+                boxShadow:seen?null:[BoxShadow(color:const Color(0xFFD64531).withOpacity(0.25),blurRadius:12,offset:const Offset(0,3))],
               ),
               child:Icon(Icons.play_arrow_rounded,color:seen?kGreen:Colors.white,size:22),
             ),
@@ -944,7 +968,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
         onLongPress:(){
           if(isUrl){
             Clipboard.setData(ClipboardData(text:path));
-            showSnack(context, L.linkCopied, color: Color(0xFFA26592), seconds: 2);
+            showSnack(context, L.linkCopied, color: Color(0xFFD64531), seconds: 2);
           } else if(onLongPress!=null) onLongPress(path);
         });
     });
@@ -1074,7 +1098,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
                 // آواتار
                 Container(width:56,height:56,
                   decoration:BoxDecoration(
-                    gradient:LinearGradient(colors:isFemale?[const Color(0xFFC76B93),const Color(0xFFC76B93)]:[const Color(0xFFA26592),const Color(0xFFA78BC0)]),
+                    gradient:LinearGradient(colors:isFemale?[const Color(0xFFD66A4A),const Color(0xFFD66A4A)]:[const Color(0xFFD64531),const Color(0xFF30F6C2)]),
                     borderRadius:BorderRadius.circular(28)),
                   child:(s['avatar_url']??'').isNotEmpty
                     ?ClipRRect(borderRadius:BorderRadius.circular(28),child:Image.network(s['avatar_url'],width:56,height:56,fit:BoxFit.cover,errorBuilder:(_,__,___)=>Icon(isFemale?Icons.face_rounded:Icons.face_rounded,color:Colors.white,size:28)))
@@ -1115,18 +1139,20 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
 
       return ListView(padding:const EdgeInsets.all(16),children:[
         // هدر اپ
-        Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF531931),Color(0xFF953637),Color(0xFFA26592)],begin:Alignment.topLeft,end:Alignment.bottomRight),
-          borderRadius:BorderRadius.circular(20),border:Border.all(color:Color(0xFFC08CA9).withOpacity(0.25)),
-          boxShadow:[BoxShadow(color:const Color(0xFFA26592).withOpacity(0.2),blurRadius:24,offset:const Offset(0,6))]),
+        Container(padding:const EdgeInsets.all(18),decoration:BoxDecoration(
+          gradient:const LinearGradient(colors:[Color(0xFF5C100C),Color(0xFF950707),Color(0xFFD64531)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          borderRadius:BorderRadius.circular(24),border:Border.all(color:Color(0xFFE8664F).withOpacity(0.3)),
+          boxShadow:[BoxShadow(color:const Color(0xFF950707).withOpacity(0.35),blurRadius:32,offset:const Offset(0,10))]),
           child:Row(children:[
-            Container(padding:const EdgeInsets.all(8),decoration:BoxDecoration(color:Colors.white.withOpacity(0.14),borderRadius:BorderRadius.circular(12)),
-                child:const Icon(Icons.play_circle_rounded,color:Colors.white,size:24)),
-            const SizedBox(width:12),
+            Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(
+              color:Colors.white.withOpacity(0.12),borderRadius:BorderRadius.circular(14),
+              border:Border.all(color:Colors.white.withOpacity(0.15))),
+                child:const Icon(Icons.play_arrow_rounded,color:Colors.white,size:26)),
+            const SizedBox(width:14),
             Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-              const Text('Vezoo',style:TextStyle(fontWeight:FontWeight.w800,fontSize:16,color:Colors.white,letterSpacing:0.5)),
+              const Text('Vezoo',style:TextStyle(fontWeight:FontWeight.w800,fontSize:17,color:Colors.white,letterSpacing:0.6)),
               Text('v${ApiService.appVersion}',
-                  style:const TextStyle(fontSize:11,color:Color(0xFFE3DDE5))),
+                  style:const TextStyle(fontSize:11,color:Color(0xFFF3D5CB))),
             ])),
             if(snap.connectionState==ConnectionState.waiting)
               const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:2,color:Colors.white)),
@@ -1149,7 +1175,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
 
         // زیرنویس AI
         _appBtn(
-          icon:Icons.auto_awesome_rounded,color:const Color(0xFFA26592),
+          icon:Icons.auto_awesome_rounded,color:const Color(0xFFD64531),
           label:L.aiModels,
           onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())),
         ),
@@ -1221,10 +1247,10 @@ class _LangPickerState extends State<_LangPicker> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: L.current == lang ? const Color(0xFFA26592) : const Color(0xFF2C1B2E),
+                color: L.current == lang ? const Color(0xFFD64531) : const Color(0xFF231813),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: L.current == lang ? const Color(0xFFA26592) : Colors.white30)),
+                  color: L.current == lang ? const Color(0xFFD64531) : Colors.white30)),
               child: Text(kLangNames[lang]!,
                 style: TextStyle(
                   fontSize: 12,

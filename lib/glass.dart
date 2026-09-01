@@ -66,7 +66,7 @@ class VzGlass extends StatelessWidget {
   }
 }
 
-/// دکمه گرد گرادیانتی — اکشن‌های اصلی
+/// دکمه گرد گرادیانتی ember — اکشن‌های اصلی
 class VzGradButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -87,6 +87,40 @@ class VzGradButton extends StatelessWidget {
         gradient: Vz.accentGrad,
         borderRadius: BorderRadius.circular(radius),
         boxShadow: const [Vz.glow],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(radius),
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+/// دکمه گرد نئون نعنایی — اکشن‌های دوم
+class VzMintButton extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+  const VzMintButton({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    this.radius = 16,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: Vz.mintGrad,
+        borderRadius: BorderRadius.circular(radius),
+        boxShadow: const [Vz.mintGlow],
       ),
       child: Material(
         color: Colors.transparent,

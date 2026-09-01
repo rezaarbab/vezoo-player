@@ -96,7 +96,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
 
   Color _statusColor(_ItemStatus s) => switch (s) {
     _ItemStatus.pending => Colors.white38,
-    _ItemStatus.running => const Color(0xFFA26592),
+    _ItemStatus.running => const Color(0xFFD64531),
     _ItemStatus.done => Colors.green,
     _ItemStatus.error => Colors.red,
     _ItemStatus.skipped => Colors.orange,
@@ -115,9 +115,9 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
     final doneCount = _queue.where((q) => q.status == _ItemStatus.done).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1D1220),
+      backgroundColor: const Color(0xFF120B09),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D1220),
+        backgroundColor: const Color(0xFF120B09),
         title: Text('${L.batchQueue} (${_queue.length})', style: const TextStyle(color: Colors.white, fontSize: 14)),
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: _running ? null : () => Navigator.pop(context)),
@@ -128,14 +128,14 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
           child: Column(children: [
             Row(children: [
               if (_downloaded.isNotEmpty) Expanded(child: DropdownButton<WhisperModelDef>(
-                value: _selected, isExpanded: true, dropdownColor: const Color(0xFF2C1B2E),
+                value: _selected, isExpanded: true, dropdownColor: const Color(0xFF231813),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 items: _downloaded.map((m) => DropdownMenuItem(value: m, child: Text(m.name))).toList(),
                 onChanged: _running ? null : (v) { if (v != null) setState(() => _selected = v); },
               )),
               const SizedBox(width: 8),
               Flexible(child: DropdownButton<String>(
-                value: _lang, dropdownColor: const Color(0xFF2C1B2E), isExpanded: false,
+                value: _lang, dropdownColor: const Color(0xFF231813), isExpanded: false,
                 style: const TextStyle(color: Colors.white, fontSize: 12),
                 items: kLanguages.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: _running ? null : (v) { if (v != null) setState(() => _lang = v); },
@@ -147,14 +147,14 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                 onPressed: _running ? null : _addVideos,
                 icon: const Icon(Icons.add, size: 16),
                 label: Text(L.addVideo, style: TextStyle(fontSize: 12)),
-                style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFA26592))),
+                style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFD64531))),
               )),
               const SizedBox(width: 8),
               Expanded(child: FilledButton.icon(
                 onPressed: (_running || _queue.isEmpty || _selected == null) ? (_running ? _cancelQueue : null) : _startQueue,
                 icon: Icon(_running ? Icons.stop : Icons.play_arrow, size: 16),
                 label: Text(_running ? L.cancelQueue : L.startProcessing, style: const TextStyle(fontSize: 12)),
-                style: FilledButton.styleFrom(backgroundColor: _running ? Colors.red : const Color(0xFFA26592)),
+                style: FilledButton.styleFrom(backgroundColor: _running ? Colors.red : const Color(0xFFD64531)),
               )),
             ]),
             if (_running) Padding(
@@ -176,8 +176,8 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1D1220), borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: _currentIndex == i ? const Color(0xFFA26592) : Colors.white12),
+                      color: const Color(0xFF120B09), borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: _currentIndex == i ? const Color(0xFFD64531) : Colors.white12),
                     ),
                     child: Row(children: [
                       Icon(_statusIcon(item.status), color: _statusColor(item.status), size: 18),

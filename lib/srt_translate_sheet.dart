@@ -32,7 +32,7 @@ class SrtTranslateSheet extends StatefulWidget {
     void Function(String)? onSrtUpdated,
   }) => showModalBottomSheet(
     context: ctx, isScrollControlled: true,
-    backgroundColor: const Color(0xFF1D1220),
+    backgroundColor: const Color(0xFF120B09),
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (_) => SrtTranslateSheet(srtPath: srtPath, srtContent: srtContent, onDone: onDone, onDoneSecondary: onDoneSecondary, onSrtUpdated: onSrtUpdated),
   );
@@ -74,7 +74,7 @@ class _State extends State<SrtTranslateSheet> {
       },
     );
 
-    showSnack(context, L.startTranslate, color: const Color(0xFFA26592), seconds: 3);
+    showSnack(context, L.startTranslate, color: const Color(0xFFD64531), seconds: 3);
   }
 
   @override
@@ -87,7 +87,7 @@ class _State extends State<SrtTranslateSheet> {
           Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 14),
           Row(children: [
-            const Icon(Icons.translate, color: Color(0xFFA26592), size: 20),
+            const Icon(Icons.translate, color: Color(0xFFD64531), size: 20),
             const SizedBox(width: 8),
             Text(L.translateSub, style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
             const Spacer(),
@@ -101,12 +101,12 @@ class _State extends State<SrtTranslateSheet> {
           // ── انتخاب زبان مقصد ──
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFF2C1B2E), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: const Color(0xFF231813), borderRadius: BorderRadius.circular(12)),
             child: Row(children: [
               Text(L.targetLang, style: TextStyle(color: Colors.white60, fontSize: 13)),
               const SizedBox(width: 8),
               Expanded(child: DropdownButton<String>(
-                value: _targetLang, isExpanded: true, dropdownColor: const Color(0xFF2C1B2E),
+                value: _targetLang, isExpanded: true, dropdownColor: const Color(0xFF231813),
                 style: const TextStyle(color: Colors.white, fontSize: 13),
                 items: kTranslateLangDisplay.entries.map((e) =>
                   DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
@@ -133,7 +133,7 @@ class _State extends State<SrtTranslateSheet> {
             icon: const Icon(Icons.translate),
             label: Text(L.startTranslate),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFA26592),
+              backgroundColor: const Color(0xFFD64531),
               padding: const EdgeInsets.symmetric(vertical: 14)),
           )),
         ]),
@@ -146,7 +146,7 @@ class _State extends State<SrtTranslateSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: _subTarget == idx ? const Color(0xFFA26592) : const Color(0xFF2C1B2E),
+        color: _subTarget == idx ? const Color(0xFFD64531) : const Color(0xFF231813),
         borderRadius: BorderRadius.circular(16)),
       child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Colors.white60, fontSize: 11)),
     ),

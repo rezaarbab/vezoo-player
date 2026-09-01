@@ -4,10 +4,10 @@ import 'iptv_service.dart';
 import 'player.dart';
 import 'l10n.dart';
 
-const kAccent = Color(0xFFA26592);
-const kBg = Color(0xFF140C15);
-const kCard = Color(0xFF241627);
-const kBorder = Color(0xFF3A2537);
+const kAccent = Color(0xFFD64531);
+const kBg = Color(0xFF050303);
+const kCard = Color(0xFF1A1210);
+const kBorder = Color(0xFF33241D);
 
 class IptvScreen extends StatefulWidget {
   const IptvScreen({super.key});
@@ -123,7 +123,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: !isM3u ? kAccent : const Color(0xFF2C1B2E),
+                  color: !isM3u ? kAccent : const Color(0xFF231813),
                   borderRadius: BorderRadius.circular(8)),
                 child: const Text('Xtream Codes', textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))))),
@@ -133,7 +133,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isM3u ? kAccent : const Color(0xFF2C1B2E),
+                  color: isM3u ? kAccent : const Color(0xFF231813),
                   borderRadius: BorderRadius.circular(8)),
                 child: const Text('M3U Playlist', textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))))),
@@ -199,7 +199,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
     TextField(controller: c, obscureText: obscure, style: const TextStyle(color: Colors.white, fontSize: 13),
       decoration: InputDecoration(hintText: hint, hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
         prefixIcon: Icon(icon, size: 18, color: Colors.white38),
-        filled: true, fillColor: const Color(0xFF241627),
+        filled: true, fillColor: const Color(0xFF1A1210),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none)));
 
   @override Widget build(BuildContext context) => Scaffold(
@@ -224,7 +224,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
             final confirm = await showDialog<bool>(
               context: context,
               builder: (_) => AlertDialog(
-                backgroundColor: const Color(0xFF241627),
+                backgroundColor: const Color(0xFF1A1210),
                 title: const Text('Delete Account?', style: TextStyle(color: Colors.white, fontSize: 16)),
                 content: Text('Remove "${_current!.name}"?\nThis cannot be undone.',
                   style: const TextStyle(color: Colors.white70, fontSize: 13)),
