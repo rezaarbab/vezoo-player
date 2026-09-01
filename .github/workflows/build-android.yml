@@ -1,5 +1,8 @@
 name: ساخت اپ اندروید
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
@@ -260,10 +263,14 @@ jobs:
           echo "build=$BUILD" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Grant push permission
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Create Git Tag
         run: |
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
+          git remote set-url origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
           git tag -f v${{ steps.version.outputs.version }}
           git push -f origin v${{ steps.version.outputs.version }}
 
