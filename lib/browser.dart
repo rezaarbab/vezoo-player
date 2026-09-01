@@ -19,31 +19,32 @@ import 'player.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
+import 'theme.dart' show Vz, VzScanLine;
 
-const kBg      = Color(0xFF050303);
-const kSurface = Color(0xFF120B09);
-const kCard    = Color(0xFF1A1210);
-const kBorder  = Color(0xFF33241D);
-const kAccent  = Color(0xFFD64531);
-const kCyan    = Color(0xFF30F6C2);
-const kGreen   = Color(0xFF7FB89A);
-const kAmber   = Color(0xFFD99A4E);
-const kRed     = Color(0xFFD64531);
-const kPink    = Color(0xFFD66A4A);
-const kTextSec = Color(0xFFB8AEA6);
-const kTextDim = Color(0xFF7D7066);
+const kBg      = Color(0xFF070908);
+const kSurface = Color(0xFF0E1210);
+const kCard    = Color(0xFF141A17);
+const kBorder  = Color(0xFF26322C);
+const kAccent  = Color(0xFF35F2A2);
+const kCyan    = Color(0xFFE8B44C);
+const kGreen   = Color(0xFF5FD0A0);
+const kAmber   = Color(0xFFE8B44C);
+const kRed     = Color(0xFFE8745C);
+const kPink    = Color(0xFFE8B44C);
+const kTextSec = Color(0xFFA9B8AE);
+const kTextDim = Color(0xFF6E7F74);
 
 enum _SortBy{name,date,size,type}
 
 LinearGradient _extGrad(String ext){
   switch(ext){
-    case 'mp4': return const LinearGradient(colors:[Color(0xFFD64531),Color(0xFF950707)]);
-    case 'mkv': return const LinearGradient(colors:[Color(0xFF30F6C2),Color(0xFF8FA396)]);
-    case 'avi': return const LinearGradient(colors:[Color(0xFF7FB89A),Color(0xFF4E8F6F)]);
-    case 'mov': return const LinearGradient(colors:[Color(0xFFC4472F),Color(0xFF7E1E10)]);
-    case 'webm':return const LinearGradient(colors:[Color(0xFF950707),Color(0xFF6E140A)]);
-    case 'flv': return const LinearGradient(colors:[Color(0xFF7E1E10),Color(0xFF5C100C)]);
-    default:    return const LinearGradient(colors:[Color(0xFF231813),Color(0xFF120B09)]);
+    case 'mp4': return const LinearGradient(colors:[Color(0xFF35F2A2),Color(0xFF1F8A5F)]);
+    case 'mkv': return const LinearGradient(colors:[Color(0xFF35F2A2),Color(0xFF7FA893)]);
+    case 'avi': return const LinearGradient(colors:[Color(0xFF5FD0A0),Color(0xFF3E9B72)]);
+    case 'mov': return const LinearGradient(colors:[Color(0xFF2FA981),Color(0xFF14684A)]);
+    case 'webm':return const LinearGradient(colors:[Color(0xFF1F8A5F),Color(0xFF0F3D2C)]);
+    case 'flv': return const LinearGradient(colors:[Color(0xFF14684A),Color(0xFF0F4A33)]);
+    default:    return const LinearGradient(colors:[Color(0xFF1B231F),Color(0xFF0E1210)]);
   }
 }
 
@@ -417,10 +418,10 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
       child:Container(
         padding:const EdgeInsets.symmetric(horizontal:8,vertical:8),
         decoration:BoxDecoration(
-          color:const Color(0xFF120B09).withOpacity(0.82),
+          color:const Color(0xFF0E1210).withOpacity(0.82),
           borderRadius:BorderRadius.circular(32),
-          border:Border.all(color:const Color(0xFF33241D).withOpacity(0.95)),
-          boxShadow:[BoxShadow(color:const Color(0xFF950707).withOpacity(0.22),blurRadius:32,offset:const Offset(0,10))],
+          border:Border.all(color:const Color(0xFF26322C).withOpacity(0.95)),
+          boxShadow:[BoxShadow(color:const Color(0xFF1F8A5F).withOpacity(0.22),blurRadius:32,offset:const Offset(0,10))],
         ),
         child:Row(mainAxisSize:MainAxisSize.min,children:[
           _fabBtn(Icons.history_rounded,L.history,kTextSec,()=>_openPanel(0)),
@@ -468,7 +469,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
             const Icon(Icons.search_rounded,size:16,color:kTextDim),
             const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
-                style:const TextStyle(fontSize:14,color:Color(0xFFEBE8E6)),
+                style:const TextStyle(fontSize:14,color:Color(0xFFE8EFE9)),
                 decoration:InputDecoration.collapsed(
                   hintText:_globalSearch?L.searchingGlobal:L.searchHere,
                   hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
@@ -477,7 +478,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
           ]))
         :Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
             Text(_path==root?L.internalStorage:p.basename(_path),overflow:TextOverflow.ellipsis,
-                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFEBE8E6))),
+                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFE8EFE9))),
             if(_path!=root)Text(p.dirname(_path),overflow:TextOverflow.ellipsis,
                 style:const TextStyle(fontSize:10,color:kTextDim,height:1.2)),
           ]),
@@ -514,7 +515,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
         tooltip:L.onlineVideo,
         onPressed:()=>showModalBottomSheet(context:context,isScrollControlled:true,backgroundColor:Colors.transparent,builder:(_)=>const OnlinePlayerSheet())),
       if(!_searching)IconButton(
-        icon:const Icon(Icons.video_library_rounded,size:20,color:Color(0xFF7FB89A)),
+        icon:const Icon(Icons.video_library_rounded,size:20,color:Color(0xFF5FD0A0)),
         tooltip:'IPTV',
         onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const IptvScreen()))),
       if(!_searching)...[
@@ -625,31 +626,64 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
       CircularProgressIndicator(),SizedBox(height:16),Text(L.searchingGlobal,style:TextStyle(color:kTextSec)),
     ]));
     if(total==0)return Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-      Icon(Icons.video_library_outlined,size:48,color:kTextDim),const SizedBox(height:12),
-      Text(L.noFilesFound,style:TextStyle(color:kTextSec)),
+      Container(padding:const EdgeInsets.all(18),
+        decoration:BoxDecoration(
+          color:kCard.withOpacity(0.6),shape:BoxShape.circle,
+          border:Border.all(color:kBorder.withOpacity(0.8))),
+        child:Icon(Icons.grid_view_rounded,size:34,color:kTextDim)),
+      const SizedBox(height:16),
+      Text(L.noFilesFound,style:const TextStyle(color:kTextSec,fontSize:14)),
     ]));
+
+    // ── Bento Grid layout ──
+    final cols = MediaQuery.of(context).size.width>600?3:2;
+    final header = _path!=root
+      ? Padding(
+        padding:const EdgeInsets.fromLTRB(4,10,4,4),
+        child:Row(children:[
+          Icon(Icons.folder_rounded,size:15,color:kAccent),
+          const SizedBox(width:6),
+          Expanded(child:Text(_path,style:const TextStyle(fontSize:11,color:kTextDim),overflow:TextOverflow.ellipsis)),
+        ]))
+      : const SizedBox.shrink();
 
     return RefreshIndicator(
       onRefresh:()async{if(!_globalSearch){_loadDir(_path);}else if(_searchQuery.isNotEmpty){_runGlobalSearch(_searchQuery);}},
       color:kAccent,
       backgroundColor:kCard,
-      child:ListView.builder(
+      child:CustomScrollView(
       physics:const AlwaysScrollableScrollPhysics(),
-      padding:EdgeInsets.only(bottom:MediaQuery.of(context).viewPadding.bottom+90,top:8,left:12,right:12),
-      itemCount:total,
-      itemBuilder:(ctx,i){
-        if(i<fDirs.length){
-          final d=fDirs[i];
-          return _DirTile(dir:d,onTap:()=>_loadDir(d.path));
-        }
-        final v=fVids[i-fDirs.length];
-        return _VideoTile(
-          file:v,selectMode:_selectMode,selected:_selected.contains(v.path),
-          onTap:_selectMode?()=>setState(()=>_selected.contains(v.path)?_selected.remove(v.path):_selected.add(v.path)):()=>_openVideo(v,fVids,i-fDirs.length),
-          onLongPress:_selectMode?null:()=>_showVideoMenu(v),
-          showPath:_globalSearch,
-        );
-      },
+      slivers:[
+        SliverPadding(padding:EdgeInsets.only(top:4,left:16,right:16,bottom:4),sliver:SliverToBoxAdapter(child:header)),
+        if(fDirs.isNotEmpty)SliverPadding(
+          padding:const EdgeInsets.symmetric(horizontal:16),
+          sliver:SliverGrid(
+            gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+              childAspectRatio:1.85),
+            delegate:SliverChildBuilderDelegate(
+              (ctx,i)=>_DirTile(dir:fDirs[i],onTap:()=>_loadDir(fDirs[i].path)),
+              childCount:fDirs.length))),
+        SliverPadding(
+          padding:const EdgeInsets.fromLTRB(16,10,16,0),
+          sliver:SliverGrid(
+            gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+              childAspectRatio:0.72),
+            delegate:SliverChildBuilderDelegate(
+              (ctx,i){
+                final v=fVids[i];
+                return _VideoTile(
+                  file:v,selectMode:_selectMode,selected:_selected.contains(v.path),
+                  onTap:_selectMode?()=>setState(()=>_selected.contains(v.path)?_selected.remove(v.path):_selected.add(v.path)):()=>_openVideo(v,fVids,i),
+                  onLongPress:_selectMode?null:()=>_showVideoMenu(v),
+                  showPath:_globalSearch,
+                  compact:true,
+                );
+              },
+              childCount:fVids.length))),
+        const SliverPadding(padding:EdgeInsets.only(bottom:110)),
+      ],
     ),);
   }
 
@@ -670,9 +704,9 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
         shouldCloseOnMinExtent:false,
         builder:(bctx,sc)=>Container(
           decoration:BoxDecoration(
-            color:const Color(0xFF120B09).withOpacity(0.97),
+            color:const Color(0xFF0E1210).withOpacity(0.97),
             borderRadius:const BorderRadius.vertical(top:Radius.circular(26)),
-            border:Border.all(color:const Color(0xFF33241D).withOpacity(0.8),width:0.6)),
+            border:Border.all(color:const Color(0xFF26322C).withOpacity(0.8),width:0.6)),
           child:Column(children:[
             // ── handle — drag اینجا کار میکنه ──
             GestureDetector(
@@ -698,37 +732,38 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
   }
 }
 
-// ── تایل پوشه ──
+// ── تایل پوشه — Bento افقی ──
 class _DirTile extends StatelessWidget{
   final Directory dir;final VoidCallback onTap;
   const _DirTile({required this.dir,required this.onTap});
   @override Widget build(BuildContext context)=>GestureDetector(
     onTap:onTap,
-    child:Container(margin:const EdgeInsets.only(bottom:8),padding:const EdgeInsets.symmetric(horizontal:14,vertical:12),
+    child:Container(
       decoration:BoxDecoration(
-        gradient:LinearGradient(colors:[kCard.withOpacity(0.9),kCard],begin:Alignment.centerLeft,end:Alignment.centerRight),
+        color:kCard.withOpacity(0.72),
         borderRadius:BorderRadius.circular(18),
         border:Border.all(color:kBorder.withOpacity(0.7))),
+      padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
       child:Row(children:[
-        Container(width:46,height:46,decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF8FA396),Color(0xFF8A6D56)],begin:Alignment.topLeft,end:Alignment.bottomRight),
-          borderRadius:BorderRadius.circular(14)),
-          child:const Icon(Icons.folder_rounded,color:Color(0xFFEBE8E6),size:22)),
-        const SizedBox(width:14),
-        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:14,color:Color(0xFFEBE8E6)),maxLines:1,overflow:TextOverflow.ellipsis)),
-        const Icon(Icons.chevron_left_rounded,color:kTextDim,size:22),
+        Container(width:34,height:34,decoration:BoxDecoration(
+          gradient:const LinearGradient(colors:[Color(0xFF7FA893),Color(0xFF6B7F73)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          borderRadius:BorderRadius.circular(10)),
+          child:const Icon(Icons.folder_rounded,color:Color(0xFFE8EFE9),size:17)),
+        const SizedBox(width:10),
+        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Color(0xFFE8EFE9)),maxLines:1,overflow:TextOverflow.ellipsis)),
+        const Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
       ]),
     ),
   );
 }
 
-// ── تایل ویدیو با thumbnail ──
+// ── تایل ویدیو — کارت عمودی Bento با پوستر بزرگ ──
 class _VideoTile extends StatelessWidget{
   final File file;
-  final bool selectMode,selected,showPath;
+  final bool selectMode,selected,showPath,compact;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
-  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false});
+  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false,this.compact=false});
 
   @override Widget build(BuildContext context){
     final name=p.basename(file.path);
@@ -738,7 +773,6 @@ class _VideoTile extends StatelessWidget{
     final fav=Store.favorited.contains(file.path);
     final hasSub=matchSubtitle(file.path)!=null;
     final rating=Store.ratings[file.path]??0;
-    final hasNote=Store.notes.containsKey(file.path);
     final grad=_extGrad(ext);
     final dur=Store.getCachedDur(file.path);
 
@@ -747,82 +781,100 @@ class _VideoTile extends StatelessWidget{
       child:AnimatedContainer(
         duration:const Duration(milliseconds:180),
         curve:Curves.easeOut,
-        margin:const EdgeInsets.only(bottom:8),
         decoration:BoxDecoration(
-          color:selected?kAccent.withOpacity(0.16):kCard.withOpacity(0.85),
-          borderRadius:BorderRadius.circular(18),
-          border:Border.all(color:selected?kAccent.withOpacity(0.65):kBorder.withOpacity(0.7)),
-          boxShadow:selected?[BoxShadow(color:kAccent.withOpacity(0.18),blurRadius:18,offset:const Offset(0,4))]:null,
+          color:selected?kAccent.withOpacity(0.14):kCard.withOpacity(0.72),
+          borderRadius:BorderRadius.circular(20),
+          border:Border.all(color:selected?kAccent.withOpacity(0.7):kBorder.withOpacity(0.75)),
+          boxShadow:selected?[BoxShadow(color:kAccent.withOpacity(0.2),blurRadius:20,offset:const Offset(0,6))]:null,
         ),
-        child:Padding(
-          padding:const EdgeInsets.all(12),
-          child:Row(children:[
-            // ── پوستر ویدیو (thumbnail) ──
-            ClipRRect(
-              borderRadius:BorderRadius.circular(13),
-              child:selectMode
-                  ?AnimatedContainer(duration:const Duration(milliseconds:150),width:48,height:48,
-                      decoration:BoxDecoration(
-                        gradient:selected?const LinearGradient(colors:[Color(0xFFE8664F),Color(0xFFD64531)]):null,
-                        color:selected?null:kBorder,
-                        borderRadius:BorderRadius.circular(13)),
-                      child:Icon(selected?Icons.check_rounded:Icons.circle_outlined,color:Colors.white,size:20))
-                  :SizedBox(width:66,height:50,child:FutureBuilder<Uint8List?>(
-                      future:_loadThumb(file.path),
-                      builder:(ctx,snap){
-                        if(snap.hasData&&snap.data!=null){
-                          return Stack(fit:StackFit.expand,children:[
-                            Image.memory(snap.data!,fit:BoxFit.cover),
-                            // overlay: اگه دیده شده
-                            if(seen)Container(color:kGreen.withOpacity(0.25),alignment:Alignment.center,
-                                child:const Icon(Icons.check_circle_rounded,color:kGreen,size:20)),
-                          ]);
-                        }
-                        // در حال بارگذاری یا خطا: نمایش ext badge
-                        return Container(
-                          decoration:BoxDecoration(gradient:grad),
-                          alignment:Alignment.center,
-                          child:snap.connectionState==ConnectionState.waiting
-                              ?const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white38))
-                              :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
-                                  style:const TextStyle(fontSize:11,fontWeight:FontWeight.w800,color:Color(0xFFEBE8E6))),
-                        );
-                      },
-                    )),
-            ),
-            const SizedBox(width:12),
-            // ── اطلاعات ──
-            Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-              Text(name,style:TextStyle(fontSize:14,fontWeight:FontWeight.w600,
-                  color:seen?kGreen:const Color(0xFFEBE8E6),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
-              if(showPath)Text(p.dirname(file.path),style:const TextStyle(fontSize:10,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis),
-              const SizedBox(height:5),
-              Row(children:[
-                Text(sizeStr(file),style:const TextStyle(fontSize:11,color:kTextDim)),
-                if(dur!=null&&dur>0)...[const Text(' · ',style:TextStyle(fontSize:11,color:kTextDim)),Text(fmt(Duration(seconds:dur)),style:const TextStyle(fontSize:11,color:kTextDim))],
-                if(hasSub)...[const SizedBox(width:5),_badge('SUB',kGreen)],
-                if(bkm)...[const SizedBox(width:4),_badge('★',kAmber)],
-                if(fav)...[const SizedBox(width:4),_badge('❤',kPink)],
-                if(hasNote)...[const SizedBox(width:4),_badge('📝',kTextSec)],
-                if(rating>0)...[const SizedBox(width:4),Text('${'★'*rating}',style:const TextStyle(fontSize:10,color:kAmber))],
+        child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+          // ── پوستر ──
+          Expanded(
+            child:ClipRRect(
+              borderRadius:const BorderRadius.vertical(top:Radius.circular(19)),
+              child:Stack(fit:StackFit.expand,children:[
+                if(selectMode)
+                  Container(color:kBorder,child:Icon(
+                    selected?Icons.check_rounded:Icons.circle_outlined,
+                    color:selected?kAccent:Colors.white38,size:30))
+                else FutureBuilder<Uint8List?>(
+                  future:_loadThumb(file.path),
+                  builder:(ctx,snap){
+                    if(snap.hasData&&snap.data!=null){
+                      return Stack(fit:StackFit.expand,children:[
+                        Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true),
+                        // گرادیانت پایین برای خوانایی
+                        Container(decoration:const BoxDecoration(
+                          gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
+                            colors:[Color(0xB30E1210),Colors.transparent]))),
+                        if(seen)Align(alignment:Alignment.topLeft,child:Padding(
+                          padding:const EdgeInsets.all(7),
+                          child:Icon(Icons.check_circle_rounded,color:kAccent,size:19))),
+                      ]);
+                    }
+                    return Container(
+                      decoration:BoxDecoration(gradient:grad),
+                      alignment:Alignment.center,
+                      child:snap.connectionState==ConnectionState.waiting
+                          ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
+                          :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
+                              style:const TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Color(0xFFE8EFE9),letterSpacing:1.5)),
+                    );
+                  },
+                ),
+                // مدت زمان — مونو بج
+                if(dur!=null&&dur>0&&!selectMode)Align(
+                  alignment:Alignment.bottomRight,
+                  child:Padding(padding:const EdgeInsets.all(7),child:Container(
+                    padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
+                    decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(6)),
+                    child:Text(fmt(Duration(seconds:dur)),
+                      style:const TextStyle(fontSize:10,color:Color(0xFFE8EFE9),fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
+                // انتخاب‌چک باکس
+                if(selectMode)Align(
+                  alignment:Alignment.topLeft,
+                  child:Padding(padding:const EdgeInsets.all(7),child:AnimatedContainer(
+                    duration:const Duration(milliseconds:150),width:24,height:24,
+                    decoration:BoxDecoration(
+                      gradient:selected?const LinearGradient(colors:[Color(0xFF5CF6C2),Color(0xFF1F8A5F)]):null,
+                      color:selected?null:Colors.black.withOpacity(0.45),
+                      shape:BoxShape.circle,
+                      border:selected?null:Border.all(color:Colors.white38,width:1.4)),
+                    child:selected?const Icon(Icons.check_rounded,color:Color(0xFF070908),size:17):null))),
+                // دکمه پخش شیشه‌ای وسط
+                if(!selectMode)Center(child:Container(
+                  width:44,height:44,
+                  decoration:BoxDecoration(
+                    color:Colors.black.withOpacity(0.35),
+                    shape:BoxShape.circle,
+                    border:Border.all(color:Colors.white.withOpacity(0.25)),
+                  ),
+                  child:Icon(Icons.play_arrow_rounded,
+                    color:seen?kAccent:Colors.white,size:28),
+                )),
               ]),
-            ])),
-            // ── دکمه پخش ──
-            if(!selectMode)Container(
-              width:38,height:38,
-              decoration:BoxDecoration(
-                gradient:seen
-                    ?null
-                    :const LinearGradient(colors:[Color(0xFFE8664F),Color(0xFF950707)],begin:Alignment.topLeft,end:Alignment.bottomRight),
-                color:seen?kGreen.withOpacity(0.14):null,
-                borderRadius:BorderRadius.circular(13),
-                border:seen?Border.all(color:kGreen.withOpacity(0.35)):null,
-                boxShadow:seen?null:[BoxShadow(color:const Color(0xFFD64531).withOpacity(0.25),blurRadius:12,offset:const Offset(0,3))],
-              ),
-              child:Icon(Icons.play_arrow_rounded,color:seen?kGreen:Colors.white,size:22),
             ),
-          ]),
-        ),
+          ),
+          // ── اطلاعات ──
+          Padding(
+            padding:const EdgeInsets.fromLTRB(10,9,10,10),
+            child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+              Text(name,style:TextStyle(fontSize:12.5,fontWeight:FontWeight.w600,
+                  color:seen?kGreen:const Color(0xFFE8EFE9),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
+              if(showPath)Padding(padding:const EdgeInsets.only(top:2),
+                child:Text(p.dirname(file.path),style:const TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
+              const SizedBox(height:6),
+              Row(children:[
+                if(hasSub)_badge('SUB',kGreen),
+                if(bkm)...[const SizedBox(width:4),_badge('★',kAmber)],
+                if(fav)...[const SizedBox(width:4),_badge('◆',kPink)],
+                if(rating>0)...[const SizedBox(width:4),Text('${'★'*rating}',style:const TextStyle(fontSize:9.5,color:kAmber))],
+                const Spacer(),
+                Text(sizeStr(file),style:const TextStyle(fontSize:10,color:kTextDim)),
+              ]),
+            ]),
+          ),
+        ]),
       ),
     );
   }
@@ -968,7 +1020,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
         onLongPress:(){
           if(isUrl){
             Clipboard.setData(ClipboardData(text:path));
-            showSnack(context, L.linkCopied, color: Color(0xFFD64531), seconds: 2);
+            showSnack(context, L.linkCopied, color: Color(0xFF35F2A2), seconds: 2);
           } else if(onLongPress!=null) onLongPress(path);
         });
     });
@@ -1028,7 +1080,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
         final paths=playlists[name]!;
         return ListTile(dense:true,
           leading:Container(width:32,height:32,decoration:BoxDecoration(
-              gradient:LinearGradient(colors:[kAccent,kCyan]),borderRadius:BorderRadius.circular(8)),
+              gradient:const LinearGradient(colors:[kAccent,Color(0xFF1F8A5F)]),borderRadius:BorderRadius.circular(8)),
               child:const Icon(Icons.queue_music_rounded,size:16,color:Colors.white)),
           title:Text(name,style:const TextStyle(fontSize:13,fontWeight:FontWeight.w500)),
           subtitle:Text('${paths.length}',style:const TextStyle(fontSize:11,color:kTextDim)),
@@ -1098,7 +1150,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
                 // آواتار
                 Container(width:56,height:56,
                   decoration:BoxDecoration(
-                    gradient:LinearGradient(colors:isFemale?[const Color(0xFFD66A4A),const Color(0xFFD66A4A)]:[const Color(0xFFD64531),const Color(0xFF30F6C2)]),
+                    gradient:LinearGradient(colors:isFemale?[const Color(0xFF63D9A8),const Color(0xFF63D9A8)]:[const Color(0xFF35F2A2),const Color(0xFF35F2A2)]),
                     borderRadius:BorderRadius.circular(28)),
                   child:(s['avatar_url']??'').isNotEmpty
                     ?ClipRRect(borderRadius:BorderRadius.circular(28),child:Image.network(s['avatar_url'],width:56,height:56,fit:BoxFit.cover,errorBuilder:(_,__,___)=>Icon(isFemale?Icons.face_rounded:Icons.face_rounded,color:Colors.white,size:28)))
@@ -1138,24 +1190,28 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
       final hasUpdate=remoteVer.isNotEmpty&&ApiService.isNewer(remoteVer,ApiService.appVersion);
 
       return ListView(padding:const EdgeInsets.all(16),children:[
-        // هدر اپ
-        Container(padding:const EdgeInsets.all(18),decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF5C100C),Color(0xFF950707),Color(0xFFD64531)],begin:Alignment.topLeft,end:Alignment.bottomRight),
-          borderRadius:BorderRadius.circular(24),border:Border.all(color:Color(0xFFE8664F).withOpacity(0.3)),
-          boxShadow:[BoxShadow(color:const Color(0xFF950707).withOpacity(0.35),blurRadius:32,offset:const Offset(0,10))]),
-          child:Row(children:[
-            Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(
-              color:Colors.white.withOpacity(0.12),borderRadius:BorderRadius.circular(14),
-              border:Border.all(color:Colors.white.withOpacity(0.15))),
-                child:const Icon(Icons.play_arrow_rounded,color:Colors.white,size:26)),
-            const SizedBox(width:14),
-            Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-              const Text('Vezoo',style:TextStyle(fontWeight:FontWeight.w800,fontSize:17,color:Colors.white,letterSpacing:0.6)),
-              Text('v${ApiService.appVersion}',
-                  style:const TextStyle(fontSize:11,color:Color(0xFFF3D5CB))),
-            ])),
-            if(snap.connectionState==ConnectionState.waiting)
-              const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:2,color:Colors.white)),
+        // هدر اپ — کارت Carbon-Scanner با scan line
+        ClipRRect(
+          borderRadius:BorderRadius.circular(24),
+          child:Stack(children:[
+            Container(padding:const EdgeInsets.all(18),decoration:const BoxDecoration(
+              gradient:LinearGradient(colors:[Color(0xFF0F4A33),Color(0xFF124A36),Color(0xFF0E1210)],begin:Alignment.topLeft,end:Alignment.bottomRight)),
+              child:Row(children:[
+                Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(
+                  color:Vz.accent.withOpacity(0.14),borderRadius:BorderRadius.circular(14),
+                  border:Border.all(color:Vz.accent.withOpacity(0.35))),
+                    child:const Icon(Icons.play_arrow_rounded,color:Vz.accent,size:26)),
+                const SizedBox(width:14),
+                Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+                  const Text('VEZOO',style:TextStyle(fontWeight:FontWeight.w800,fontSize:17,color:Color(0xFFE8EFE9),letterSpacing:2.5)),
+                  const SizedBox(height:2),
+                  Text('v${ApiService.appVersion} — PLAYER',
+                      style:const TextStyle(fontSize:10,color:Color(0xFF6E7F74),letterSpacing:1.2,fontFeatures:[FontFeature.tabularFigures()])),
+                ])),
+                if(snap.connectionState==ConnectionState.waiting)
+                  const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:2,color:Vz.accent)),
+              ])),
+            Positioned(left:0,right:0,bottom:0,child:VzScanLine(height:2)),
           ])),
 
         const SizedBox(height:12),
@@ -1175,7 +1231,7 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
 
         // زیرنویس AI
         _appBtn(
-          icon:Icons.auto_awesome_rounded,color:const Color(0xFFD64531),
+          icon:Icons.auto_awesome_rounded,color:const Color(0xFF35F2A2),
           label:L.aiModels,
           onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())),
         ),
@@ -1213,17 +1269,19 @@ class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStat
 Widget _appBtn({required IconData icon,required Color color,required String label,VoidCallback? onTap}){
   return InkWell(
     onTap:onTap,
-    borderRadius:BorderRadius.circular(12),
+    borderRadius:BorderRadius.circular(16),
     child:Container(
-      padding:const EdgeInsets.symmetric(horizontal:16,vertical:12),
-      decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(12),
-          border:Border.all(color:onTap!=null?color.withOpacity(0.3):kBorder)),
+      padding:const EdgeInsets.symmetric(horizontal:16,vertical:13),
+      decoration:BoxDecoration(color:kCard.withOpacity(0.72),borderRadius:BorderRadius.circular(16),
+          border:Border.all(color:onTap!=null?color.withOpacity(0.28):kBorder.withOpacity(0.7))),
       child:Row(children:[
-        Icon(icon,color:onTap!=null?color:kTextDim,size:20),
+        Container(width:32,height:32,decoration:BoxDecoration(
+          color:color.withOpacity(0.12),borderRadius:BorderRadius.circular(10),
+          border:Border.all(color:color.withOpacity(0.25),width:0.7)),
+          child:Icon(icon,color:onTap!=null?color:kTextDim,size:17)),
         const SizedBox(width:12),
-        Text(label,style:TextStyle(fontSize:13,color:onTap!=null?Colors.white:kTextSec)),
-        const Spacer(),
-        if(onTap!=null)Icon(Icons.arrow_forward_ios_rounded,size:12,color:kTextDim),
+        Expanded(child:Text(label,style:TextStyle(fontSize:13,color:onTap!=null?const Color(0xFFE8EFE9):kTextSec))),
+        if(onTap!=null)Icon(Icons.arrow_back_ios_new_rounded,size:12,color:kTextDim),
       ]),
     ),
   );
@@ -1247,14 +1305,14 @@ class _LangPickerState extends State<_LangPicker> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: L.current == lang ? const Color(0xFFD64531) : const Color(0xFF231813),
-                borderRadius: BorderRadius.circular(16),
+                color: L.current == lang ? const Color(0xFF35F2A2) : const Color(0xFF1B231F),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: L.current == lang ? const Color(0xFFD64531) : Colors.white30)),
+                  color: L.current == lang ? const Color(0xFF35F2A2) : const Color(0xFF26322C))),
               child: Text(kLangNames[lang]!,
                 style: TextStyle(
                   fontSize: 12,
-                  color: L.current == lang ? Colors.white : Colors.white60,
+                  color: L.current == lang ? const Color(0xFF070908) : Colors.white60,
                   fontWeight: L.current == lang ? FontWeight.w600 : FontWeight.normal))),
         )).toList()),
       ]),

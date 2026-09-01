@@ -1,85 +1,73 @@
-// lib/theme.dart — Vezoo Design System (warm noir / ember / mint palette)
+// lib/theme.dart — Vezoo Design System v3 "Carbon Scanner"
+// Glass-Tech: کاربن مشکی + گرید فنی + سبز Diagnostic + کهربایی Audit
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Vz {
-  static const bg       = Color(0xFF050303);
-  static const bgDeep   = Color(0xFF030202);
-  static const surface  = Color(0xFF120B09);
-  static const card     = Color(0xFF1A1210);
-  static const cardHi   = Color(0xFF231813);
-  static const border   = Color(0xFF33241D);
-  static const borderHi = Color(0xFF473228);
-  static const accent   = Color(0xFFD64531);   // ember red
-  static const accentHi = Color(0xFFE8664F);
-  static const rose     = Color(0xFF950707);   // deep red
-  static const wine     = Color(0xFF5C100C);   // dark wine
-  static const mauve    = Color(0xFF8A6D56);   // caramel
-  static const lav      = Color(0xFF30F6C2);   // mint neon
-  static const sand     = Color(0xFFA68672);   // warm sand
-  static const text     = Color(0xFFEBE8E6);
-  static const textSec  = Color(0xFFB8AEA6);
-  static const textDim  = Color(0xFF7D7066);
-  static const green    = Color(0xFF7FB89A);
-  static const amber    = Color(0xFFD99A4E);
-  static const red      = Color(0xFFD64531);
-  static const pink     = Color(0xFFD66A4A);
+  static const bg       = Color(0xFF070908);   // کاربن
+  static const bgDeep   = Color(0xFF050605);
+  static const surface  = Color(0xFF0E1210);
+  static const card     = Color(0xFF141A17);
+  static const cardHi   = Color(0xFF1B231F);
+  static const border   = Color(0xFF26322C);
+  static const borderHi = Color(0xFF36453D);
+  static const accent   = Color(0xFF35F2A2);   // Diagnostic Green
+  static const accentHi = Color(0xFF5CF6C2);
+  static const deep     = Color(0xFF1F8A5F);   // سبز عمیق
+  static const deepBg   = Color(0xFF0F4A33);
+  static const mauve    = Color(0xFF6B7F73);   // sage خنثی
+  static const mint     = Color(0xFF35F2A2);
+  static const amber    = Color(0xFFE8B44C);   // Audit Amber
+  static const sand     = Color(0xFFE8B44C);
+  static const text     = Color(0xFFE8EFE9);
+  static const textSec  = Color(0xFFA9B8AE);
+  static const textDim  = Color(0xFF6E7F74);
+  static const green    = Color(0xFF5FD0A0);
+  static const red      = Color(0xFFE8745C);   // خطا — گرم ولی ملایم
+  static const pink     = Color(0xFF63D9A8);
 
   static const heroGrad = LinearGradient(
-    colors: [wine, rose, accent],
+    colors: [deepBg, deep, accent],
     stops: [0.0, 0.55, 1.0],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
   static const accentGrad = LinearGradient(
-    colors: [Color(0xFFE8664F), Color(0xFFD64531), Color(0xFF950707)],
-    begin: Alignment.topLeft, end: Alignment.bottomRight,
-  );
-  static const mintGrad = LinearGradient(
-    colors: [Color(0xFF5CF6D2), Color(0xFF30F6C2)],
+    colors: [accentHi, accent, deep],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
   static const glow = BoxShadow(
-    color: Color(0x4DD64531), blurRadius: 28, offset: Offset(0, 8),
+    color: Color(0x4035F2A2), blurRadius: 28, offset: Offset(0, 8),
   );
-  static const mintGlow = BoxShadow(
-    color: Color(0x3330F6C2), blurRadius: 24, offset: Offset(0, 6),
+  static const amberGlow = BoxShadow(
+    color: Color(0x33E8B44C), blurRadius: 24, offset: Offset(0, 6),
   );
 }
 
-/// پس‌زمینه محیطی — گرمای ملایم قرمز پایین‌صفحه + نفس نعنایی بالا
-/// مثل ambient lighting اپ‌های smart-home؛ روی Scaffold.wrap استفاده میشه
+/// پس‌زمینه محیطی Carbon-Scanner:
+/// گرید فنی کم‌رنگ + هاله سبز پایین + هاله کهربایی بالا
 class VzAmbientBg extends StatelessWidget {
   final Widget child;
-  final bool withBlur;
-  const VzAmbientBg({super.key, required this.child, this.withBlur = false});
+  const VzAmbientBg({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final body = DecoratedBox(
+    return DecoratedBox(
       decoration: const BoxDecoration(color: Vz.bg),
       child: Stack(children: [
-        // هاله قرمز پایین-چپ
-        Positioned(
-          left: -120, bottom: -140,
-          child: _blob(const Color(0x2E950707), 380),
-        ),
-        // هاله نعنایی خیلی ملایم بالا-راست
-        Positioned(
-          right: -140, top: -160,
-          child: _blob(const Color(0x1430F6C2), 340),
-        ),
-        // هاله مرکزی گرم
-        Positioned(
-          right: -80, bottom: 80,
-          child: _blob(const Color(0x1A5C100C), 300),
-        ),
+        // گرید فنی — خطوط 40px با opacity خیلی کم
+        Positioned.fill(child: IgnorePointer(child: CustomPaint(
+          painter: _GridPainter(),
+        ))),
+        // هاله سبز پایین-چپ (نفس Diagnostic)
+        Positioned(left: -140, bottom: -160, child: _blob(const Color(0x2635F2A2), 420)),
+        // هاله کهربایی بالا-راست (نفس Audit)
+        Positioned(right: -140, top: -170, child: _blob(const Color(0x1AE8B44C), 360)),
+        // هاله سبز عمیق مرکز-راست
+        Positioned(right: -100, bottom: 60, child: _blob(const Color(0x141F8A5F), 320)),
         child,
       ]),
     );
-    if (!withBlur) return body;
-    return ClipRect(child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 0.001, sigmaY: 0.001), child: body));
   }
 
   Widget _blob(Color color, double size) => IgnorePointer(
@@ -87,19 +75,64 @@ class VzAmbientBg extends StatelessWidget {
       width: size, height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: RadialGradient(
-          colors: [color, color.withOpacity(0)],
-        ),
+        gradient: RadialGradient(colors: [color, color.withOpacity(0)]),
       ),
     ),
   );
 }
 
+class _GridPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0x0DE8EFE9)   // ~5% سفیدسبز
+      ..strokeWidth = 1;
+    const step = 44.0;
+    for (double x = 0; x < size.width; x += step) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
+    for (double y = 0; y < size.height; y += step) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+/// موتیف Scan Line — خط اسکن متحرک برای هدر و کارت‌های فعال
+class VzScanLine extends StatefulWidget {
+  final double height;
+  final Color color;
+  const VzScanLine({super.key, this.height = 2, this.color = Vz.accent});
+  @override State<VzScanLine> createState()=>_VzScanLineState();
+}
+class _VzScanLineState extends State<VzScanLine> with SingleTickerProviderStateMixin{
+  late final AnimationController _c = AnimationController(
+    vsync:this,duration:const Duration(seconds:3))..repeat();
+  @override void dispose(){_c.dispose();super.dispose();}
+  @override Widget build(BuildContext context){
+    return AnimatedBuilder(animation:_c,builder:(ctx,_){
+      return LayoutBuilder(builder:(ctx,box){
+        final w=box.maxWidth;
+        final x=(w+80)*_c.value-40;
+        return SizedBox(height:widget.height,child:Stack(children:[
+          Positioned(left:x.clamp(-40,w+40)-20,top:0,bottom:0,width:60,
+            child:Container(decoration:BoxDecoration(
+              gradient:LinearGradient(colors:[
+                widget.color.withOpacity(0),widget.color.withOpacity(0.7),widget.color.withOpacity(0)])),
+            )),
+        ]));
+      });
+    });
+  }
+}
+
 ThemeData buildVezooTheme() {
   const scheme = ColorScheme.dark(
     primary: Vz.accent,
-    onPrimary: Colors.white,
-    secondary: Vz.lav,
+    onPrimary: Vz.bg,
+    secondary: Vz.amber,
     onSecondary: Vz.bg,
     surface: Vz.surface,
     onSurface: Vz.text,
@@ -112,8 +145,8 @@ ThemeData buildVezooTheme() {
     colorScheme: scheme,
     scaffoldBackgroundColor: Colors.transparent,
     canvasColor: Colors.transparent,
-    splashColor: Vz.accent.withOpacity(0.14),
-    highlightColor: Vz.accent.withOpacity(0.07),
+    splashColor: Vz.accent.withOpacity(0.12),
+    highlightColor: Vz.accent.withOpacity(0.06),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -127,7 +160,7 @@ ThemeData buildVezooTheme() {
       ),
       titleTextStyle: TextStyle(
         fontSize: 17, fontWeight: FontWeight.w700,
-        letterSpacing: 0.3, color: Vz.text,
+        letterSpacing: 0.4, color: Vz.text,
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
@@ -140,7 +173,7 @@ ThemeData buildVezooTheme() {
     ),
     sliderTheme: const SliderThemeData(
       activeTrackColor: Vz.accent,
-      inactiveTrackColor: Color(0x24EBE8E6),
+      inactiveTrackColor: Color(0x24E8EFE9),
       thumbColor: Colors.white,
       trackHeight: 3,
     ),
@@ -148,7 +181,7 @@ ThemeData buildVezooTheme() {
       thumbColor: MaterialStateProperty.resolveWith(
         (s) => s.contains(MaterialState.selected) ? Vz.bg : Vz.mauve),
       trackColor: MaterialStateProperty.resolveWith(
-        (s) => s.contains(MaterialState.selected) ? Vz.lav : Vz.cardHi),
+        (s) => s.contains(MaterialState.selected) ? Vz.accent : Vz.cardHi),
       trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
     ),
     chipTheme: const ChipThemeData(
@@ -201,7 +234,7 @@ ThemeData buildVezooTheme() {
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
       backgroundColor: Vz.accent,
-      foregroundColor: Colors.white,
+      foregroundColor: Vz.bg,
       elevation: 0, focusElevation: 0, hoverElevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(18)),
@@ -210,7 +243,7 @@ ThemeData buildVezooTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: Vz.accent,
-        foregroundColor: Colors.white,
+        foregroundColor: Vz.bg,
         textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         shape: const RoundedRectangleBorder(
@@ -228,7 +261,7 @@ ThemeData buildVezooTheme() {
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: Vz.lav),
+      style: TextButton.styleFrom(foregroundColor: Vz.accent),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,

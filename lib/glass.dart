@@ -3,6 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 
+/// موتیف Scan Line از theme
+export 'theme.dart' show VzScanLine;
+
 /// کارت شیشه‌ای با استروک نرم — پایه هویت بصری اپ
 class VzGlass extends StatelessWidget {
   final Widget child;

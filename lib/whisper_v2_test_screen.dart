@@ -96,9 +96,9 @@ class _State extends State<WhisperV2TestScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor: const Color(0xFF120B09),
+    backgroundColor: const Color(0xFF0E1210),
     appBar: AppBar(
-      backgroundColor: const Color(0xFF120B09),
+      backgroundColor: const Color(0xFF0E1210),
       title: const Text('تست AI v2 (native)', style: TextStyle(color: Colors.white, fontSize: 15)),
       leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
     ),
@@ -112,11 +112,11 @@ class _State extends State<WhisperV2TestScreen> {
               icon: const Icon(Icons.video_file, size: 16),
               label: Text(_videoPath == null ? 'انتخاب ویدیو' : _videoPath!.split('/').last,
                 overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12)),
-              style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFD64531))),
+              style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFF35F2A2))),
             )),
             const SizedBox(width: 8),
             DropdownButton<String>(
-              value: _lang, dropdownColor: const Color(0xFF231813),
+              value: _lang, dropdownColor: const Color(0xFF1B231F),
               style: const TextStyle(color: Colors.white, fontSize: 13),
               items: const [
                 DropdownMenuItem(value: 'en', child: Text('English')),
@@ -132,7 +132,7 @@ class _State extends State<WhisperV2TestScreen> {
               ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
               : const Icon(Icons.play_arrow),
             label: Text(_running ? 'در حال اجرا...' : 'اجرای تست'),
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531), padding: const EdgeInsets.symmetric(vertical: 14)),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2), padding: const EdgeInsets.symmetric(vertical: 14)),
           )),
         ]),
       ),

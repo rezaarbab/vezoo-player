@@ -15,7 +15,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldKey = GlobalKey<ScaffoldMess
 
 /// نمایش snackbar که همیشه بالای navbar میاد — حتی از داخل sheet
 void showSnack(BuildContext ctx, String msg, {
-  Color color = const Color(0xFFD64531),
+  Color color = const Color(0xFF35F2A2),
   int seconds = 5,
   String? actionLabel,
   VoidCallback? onAction,
@@ -46,7 +46,7 @@ void main() async {
   await ApiService.init();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Color(0xFF050303),
+    systemNavigationBarColor: Color(0xFF070908),
     statusBarIconBrightness: Brightness.light,
   ));
   runApp(const MyApp());

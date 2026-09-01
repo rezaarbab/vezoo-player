@@ -2,10 +2,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'vosk_service.dart';
 
-const _bg   = Color(0xFF050303);
-const _card  = Color(0xFF1A1210);
-const _acc   = Color(0xFFD64531);
-const _gold  = Color(0xFFD99A4E);
+const _bg   = Color(0xFF070908);
+const _card  = Color(0xFF141A17);
+const _acc   = Color(0xFF35F2A2);
+const _gold  = Color(0xFFE8B44C);
 
 class VoskModelsScreen extends StatefulWidget {
   const VoskModelsScreen({super.key});
@@ -69,7 +69,7 @@ class _State extends State<VoskModelsScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF1A1210),
+                color: const Color(0xFF141A17),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.orange.withOpacity(0.3))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -210,7 +210,7 @@ class _State extends State<VoskModelsScreen> {
 
   void _confirmDelete(VoskModel m) {
     showDialog(context: context, builder: (_) => AlertDialog(
-      backgroundColor: const Color(0xFF1A1210),
+      backgroundColor: const Color(0xFF141A17),
       title: Text('حذف ${m.name}?', style: const TextStyle(color: Colors.white, fontSize: 14)),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('لغو')),

@@ -15,7 +15,7 @@ class OpenSubtitlesSheet extends StatefulWidget {
       showModalBottomSheet(
         context: ctx,
         isScrollControlled: true,
-        backgroundColor: const Color(0xFF120B09),
+        backgroundColor: const Color(0xFF0E1210),
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (_) => OpenSubtitlesSheet(videoPath: videoPath, onDone: onDone, onDoneSecondary: onDoneSecondary),
       );
@@ -124,7 +124,7 @@ class _State extends State<OpenSubtitlesSheet> {
           Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 14),
           Row(children: [
-            const Icon(Icons.cloud_download_outlined, color: Color(0xFFD64531), size: 20),
+            const Icon(Icons.cloud_download_outlined, color: Color(0xFF35F2A2), size: 20),
             const SizedBox(width: 8),
             Text(L.onlineSubtitleLabel, style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
             const Spacer(),
@@ -143,7 +143,7 @@ class _State extends State<OpenSubtitlesSheet> {
               decoration: InputDecoration(
                 hintText: L.movieOrShow,
                 hintStyle: const TextStyle(color: Colors.white38, fontSize: 13),
-                filled: true, fillColor: const Color(0xFF231813),
+                filled: true, fillColor: const Color(0xFF1B231F),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
               ),
@@ -152,7 +152,7 @@ class _State extends State<OpenSubtitlesSheet> {
             const SizedBox(width: 8),
             FilledButton(
               onPressed: _doTitleSearch,
-              style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531), minimumSize: const Size(0, 44)),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2), minimumSize: const Size(0, 44)),
               child: const Icon(Icons.search, size: 18),
             ),
           ]),
@@ -175,7 +175,7 @@ class _State extends State<OpenSubtitlesSheet> {
             child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
           ),
 
-          if (_loading) Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: Color(0xFFD64531)))
+          if (_loading) Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: Color(0xFF35F2A2)))
           else if (_phase == _Phase.titles) ..._buildTitles()
           else if (_phase == _Phase.episode) ..._buildEpisodePicker()
           else ..._buildSubs(),
@@ -189,7 +189,7 @@ class _State extends State<OpenSubtitlesSheet> {
       child: Text(L.notFoundTry, style: TextStyle(color: Colors.white38, fontSize: 12)))];
     return _titles.map((f) => Container(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(color: const Color(0xFF231813), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         onTap: () => _selectFeature(f),
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -205,15 +205,15 @@ class _State extends State<OpenSubtitlesSheet> {
           if (f.year != null) Text(f.year!, style: const TextStyle(color: Colors.white54, fontSize: 11)),
           const SizedBox(width: 6),
           Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(color: const Color(0xFFD64531).withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
-            child: Text(f.type == 'tvshow' ? L.tvShow : L.movie, style: const TextStyle(color: Color(0xFFD64531), fontSize: 10))),
+            decoration: BoxDecoration(color: const Color(0xFF35F2A2).withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+            child: Text(f.type == 'tvshow' ? L.tvShow : L.movie, style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 10))),
         ]),
         trailing: const Icon(Icons.chevron_left, color: Colors.white38, size: 18),
       ),
     )).toList();
   }
 
-  Widget _posterFallback() => Container(width: 42, height: 58, color: const Color(0xFF120B09),
+  Widget _posterFallback() => Container(width: 42, height: 58, color: const Color(0xFF0E1210),
     child: const Icon(Icons.movie_outlined, color: Colors.white24, size: 20));
 
   List<Widget> _buildEpisodePicker() => [
@@ -229,13 +229,13 @@ class _State extends State<OpenSubtitlesSheet> {
       onPressed: _doSubsSearch,
       icon: const Icon(Icons.search, size: 16),
       label: Text(L.searchThisEpisode),
-      style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531), padding: const EdgeInsets.symmetric(vertical: 14)),
+      style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2), padding: const EdgeInsets.symmetric(vertical: 14)),
     )),
   ];
 
   Widget _numberField(String label, int value, void Function(int) onChanged) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-    decoration: BoxDecoration(color: const Color(0xFF231813), borderRadius: BorderRadius.circular(10)),
+    decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(10)),
     child: Row(children: [
       Expanded(child: Text(label, style: const TextStyle(color: Colors.white60, fontSize: 12))),
       IconButton(icon: const Icon(Icons.remove, color: Colors.white54, size: 16),
@@ -264,11 +264,11 @@ class _State extends State<OpenSubtitlesSheet> {
       ..._subs.map((s) => Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(color: const Color(0xFF231813), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(12)),
         child: Row(children: [
           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFFD64531).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
-            child: Text(s.language.toUpperCase(), style: const TextStyle(color: Color(0xFFD64531), fontSize: 11, fontWeight: FontWeight.bold))),
+            decoration: BoxDecoration(color: const Color(0xFF35F2A2).withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+            child: Text(s.language.toUpperCase(), style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 11, fontWeight: FontWeight.bold))),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(s.release.isEmpty ? L.noName : s.release, style: const TextStyle(color: Colors.white, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -280,7 +280,7 @@ class _State extends State<OpenSubtitlesSheet> {
               Text('${s.downloadCount} ${L.downloadCount}', style: const TextStyle(color: Colors.white38, fontSize: 10)),
             ]),
           ])),
-          IconButton(icon: const Icon(Icons.download, color: Color(0xFFD64531)), onPressed: () => _download(s)),
+          IconButton(icon: const Icon(Icons.download, color: Color(0xFF35F2A2)), onPressed: () => _download(s)),
         ]),
       )),
     ];
@@ -291,7 +291,7 @@ class _State extends State<OpenSubtitlesSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        color: _subTarget == idx ? const Color(0xFFD64531) : const Color(0xFF231813),
+        color: _subTarget == idx ? const Color(0xFF35F2A2) : const Color(0xFF1B231F),
         borderRadius: BorderRadius.circular(20)),
       child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Colors.white60, fontSize: 12)),
     ),
@@ -302,7 +302,7 @@ class _State extends State<OpenSubtitlesSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: _langFilter == code ? const Color(0xFFD64531) : const Color(0xFF231813),
+        color: _langFilter == code ? const Color(0xFF35F2A2) : const Color(0xFF1B231F),
         borderRadius: BorderRadius.circular(20)),
       child: Text(label, style: TextStyle(color: _langFilter == code ? Colors.white : Colors.white60, fontSize: 11)),
     ),

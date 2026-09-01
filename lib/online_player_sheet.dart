@@ -54,13 +54,13 @@ class _State extends State<OnlinePlayerSheet> {
   void _checkCookies() => setState(() => _hasCookies = YtDlpService.hasCookies());
 
   Future<void> _showCookieSheet(BuildContext ctx) async {
-    showModalBottomSheet(context: ctx, isScrollControlled: true, backgroundColor: const Color(0xFF1A1210),
+    showModalBottomSheet(context: ctx, isScrollControlled: true, backgroundColor: const Color(0xFF141A17),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => StatefulBuilder(builder: (ctx2, ss) => DraggableScrollableSheet(
         initialChildSize: 0.75, maxChildSize: 0.95, minChildSize: 0.5, expand: false,
         builder: (_, sc) => ListView(controller: sc, padding: const EdgeInsets.all(20), children: [
           Row(children: [
-            const Icon(Icons.cookie_rounded, color: Color(0xFFD64531), size: 20),
+            const Icon(Icons.cookie_rounded, color: Color(0xFF35F2A2), size: 20),
             const SizedBox(width: 8),
             const Text('مدیریت Cookie', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
             const Spacer(),
@@ -96,7 +96,7 @@ class _State extends State<OnlinePlayerSheet> {
             },
             icon: const Icon(Icons.upload_file_rounded, size: 18),
             label: const Text('ایمپورت cookies.txt'),
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531))),
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2))),
           const SizedBox(height: 8),
           if (_hasCookies) OutlinedButton.icon(
             onPressed: () async {
@@ -146,28 +146,28 @@ class _State extends State<OnlinePlayerSheet> {
 
   Widget _cookieMethod(String title, List<String> steps) => Container(
     padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(color: const Color(0xFF1A1210), borderRadius: BorderRadius.circular(10)),
+    decoration: BoxDecoration(color: const Color(0xFF141A17), borderRadius: BorderRadius.circular(10)),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
       const SizedBox(height: 8),
       ...steps.asMap().entries.map((e) => Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${e.key+1}. ', style: const TextStyle(color: Color(0xFFD64531), fontSize: 11, fontWeight: FontWeight.bold)),
+          Text('${e.key+1}. ', style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 11, fontWeight: FontWeight.bold)),
           Expanded(child: Text(e.value, style: const TextStyle(color: Colors.white60, fontSize: 11))),
         ]))),
     ]));
 
   void _showSupportedSites(BuildContext ctx) {
     showDialog(context: ctx, builder: (_) => AlertDialog(
-      backgroundColor: const Color(0xFF1A1210),
+      backgroundColor: const Color(0xFF141A17),
       title: Row(children: [
-        const Icon(Icons.public_rounded, color: Color(0xFFD64531), size: 18),
+        const Icon(Icons.public_rounded, color: Color(0xFF35F2A2), size: 18),
         const SizedBox(width: 8),
         const Text('سایت‌های پشتیبانی شده', style: TextStyle(color: Colors.white, fontSize: 14)),
         const Spacer(),
         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(color: const Color(0xFFD64531), borderRadius: BorderRadius.circular(12)),
+          decoration: BoxDecoration(color: const Color(0xFF35F2A2), borderRadius: BorderRadius.circular(12)),
           child: const Text('۱۰۰۰+ سایت', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
       ]),
       content: SizedBox(width: 280, height: 350,
@@ -180,7 +180,7 @@ class _State extends State<OnlinePlayerSheet> {
               style: const TextStyle(color: Colors.white70, fontSize: 13))))),
       actions: [TextButton(
         onPressed: () => Navigator.pop(ctx),
-        child: const Text('بستن', style: TextStyle(color: Color(0xFFD64531))))],
+        child: const Text('بستن', style: TextStyle(color: Color(0xFF35F2A2))))],
     ));
   }
   @override void dispose() { _ctrl.dispose(); _yt.close(); super.dispose(); }
@@ -388,7 +388,7 @@ class _State extends State<OnlinePlayerSheet> {
     return DraggableScrollableSheet(
       initialChildSize: 0.7, maxChildSize: 0.95, minChildSize: 0.4,
       builder: (_, sc) => Container(
-        decoration: const BoxDecoration(color: Color(0xFF120B09),
+        decoration: const BoxDecoration(color: Color(0xFF0E1210),
           borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
         child: Column(children: [
           Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 10),
@@ -427,7 +427,7 @@ class _State extends State<OnlinePlayerSheet> {
                 suffixIcon: _ctrl.text.isNotEmpty ? IconButton(
                   icon: const Icon(Icons.clear, size: 16, color: Colors.white38),
                   onPressed: () { _ctrl.clear(); setState(() {}); }) : null,
-                filled: true, fillColor: const Color(0xFF1A1210),
+                filled: true, fillColor: const Color(0xFF141A17),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
               onChanged: (_) => setState(() {}),
@@ -441,7 +441,7 @@ class _State extends State<OnlinePlayerSheet> {
                 child: Text(L.cancel, style: const TextStyle(fontSize: 12)))
             else
               FilledButton(onPressed: () => _analyze(_ctrl.text),
-                style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531),
+                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2),
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                 child: const Icon(Icons.play_arrow_rounded, size: 22)),
           ])),
@@ -453,7 +453,7 @@ class _State extends State<OnlinePlayerSheet> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (_dlProgress > 0 && _dlProgress < 1) ClipRRect(borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(value: _dlProgress, minHeight: 6,
-                  backgroundColor: Colors.white12, color: const Color(0xFFD64531))),
+                  backgroundColor: Colors.white12, color: const Color(0xFF35F2A2))),
               const SizedBox(height: 4),
               Row(children: [
                 Expanded(child: Text(_dlStatus, style: const TextStyle(color: Colors.white60, fontSize: 11))),
@@ -469,7 +469,7 @@ class _State extends State<OnlinePlayerSheet> {
                 onPressed: _streamTorrent,
                 icon: const Icon(Icons.play_arrow_rounded, size: 18),
                 label: Text(L.streamNow),
-                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7FB89A)))),
+                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF5FD0A0)))),
               const SizedBox(width: 8),
               Expanded(child: OutlinedButton.icon(
                 onPressed: _downloadTorrent,
@@ -488,12 +488,12 @@ class _State extends State<OnlinePlayerSheet> {
                 ...List.generate(_qualities.length, (i) {
                   final q = _qualities[i];
                   return Container(margin: const EdgeInsets.only(bottom: 6),
-                    decoration: BoxDecoration(color: const Color(0xFF1A1210), borderRadius: BorderRadius.circular(10)),
+                    decoration: BoxDecoration(color: const Color(0xFF141A17), borderRadius: BorderRadius.circular(10)),
                     child: ListTile(dense: true,
-                      leading: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFFD64531), size: 20),
+                      leading: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF35F2A2), size: 20),
                       title: Text(q.label, style: const TextStyle(color: Colors.white, fontSize: 13)),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(icon: const Icon(Icons.play_arrow_rounded, color: Color(0xFFD64531), size: 22),
+                        IconButton(icon: const Icon(Icons.play_arrow_rounded, color: Color(0xFF35F2A2), size: 22),
                           onPressed: () => _playYt(q.url), tooltip: L.play),
                         IconButton(icon: const Icon(Icons.download_rounded, color: Colors.white54, size: 20),
                           onPressed: () => _downloadYt(q.url, q.label), tooltip: L.download),

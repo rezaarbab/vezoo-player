@@ -64,6 +64,10 @@ class _PlayerState extends State<PlayerScreen>{
   Duration _position=Duration.zero,_duration=Duration.zero;
   bool _playing=true;
   bool _buffering=false;
+  bool _loadFailed=false;      // open ناموفق — دکمه retry نشون بده
+  int _openSeq=0;              // هر open جدید نسل جدید — بلاک کردن continuation های قدیمی
+  Media? _lastMedia;           // برای retry
+  DateTime _lastOpenAt=DateTime.fromMillisecondsSinceEpoch(0);
   String _bufferStatus='';
   DateTime? _bufferStart;
   List<String> _liveLog=[];
@@ -324,6 +328,7 @@ class _PlayerState extends State<PlayerScreen>{
       if(err.isNotEmpty){
         _addLiveLog('⚠ MPV Error: $err');
         if(_mounted && _buffering) setState(()=>_buffering=false);
+        if(_mounted) setState(()=>_loadFailed=true);
         try { player.stop(); } catch(_) {}
       }
     }));
@@ -387,77 +392,128 @@ class _PlayerState extends State<PlayerScreen>{
     _initPipChannel();
   }
 
-  Future<void> _start()async{
-    // اگه فایل .vez هست رمزگشایی کن
-    if(VezService.isVez(_curPath)){
-      WidgetsBinding.instance.addPostFrameCallback((_)=>_playVez(_curPath));
-      return;
-    }
-    // آنلاین stream options — سرعت بیشتر
-    final isOnline = widget.isLive || widget.isOnlineUrl || 
+  /// ساخت Media با هدرهای مناسب بر اساس نوع منبع
+  Media _buildMedia(String path){
+    final isHttp = path.startsWith('http');
+    return isHttp
+      ? Media(path, httpHeaders: {
+          'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36',
+          'Connection': 'keep-alive',
+          'Accept': '*/*',
+        })
+      : Media(path);
+  }
+
+  /// اعمال گزینه‌های stream آنلاین به MPV
+  Future<void> _applyStreamOptions()async{
+    final isOnline = widget.isLive || widget.isOnlineUrl ||
       _curPath.startsWith('http') || _curPath.startsWith('rtmp') || _curPath.startsWith('rtsp');
-    if(isOnline){
-      final native=player.platform as NativePlayer;
-      try{
-        native.setProperty('cache','no');
-        native.setProperty('cache-pause','no');
-        native.setProperty('stream-lavf-o','timeout=10000000');
-        native.setProperty('demuxer-readahead-secs','3');
-        if(widget.isLive){
-          native.setProperty('demuxer-lavf-o','fflags=nobuffer,http_persistent=1,reconnect=1,reconnect_at_eof=1,reconnect_streamed=1,reconnect_on_network_error=1');
-          native.setProperty('http-header-fields','User-Agent: TiviMate/4.7.0 (Linux;Android 13) ExoPlayerLib/2.18.1');
-          native.setProperty('tls-verify','no');
-        }
-      }catch(_){}
-    }
-    if(widget.isLive||widget.isOnlineUrl||_curPath.startsWith('http'))
-      setState(()=>_buffering=true);
+    if(!isOnline)return;
+    final native=player.platform as NativePlayer;
+    try{
+      native.setProperty('cache','no');
+      native.setProperty('cache-pause','no');
+      native.setProperty('stream-lavf-o','timeout=8000000');
+      native.setProperty('demuxer-readahead-secs','3');
+      native.setProperty('network-timeout','8');
+      if(widget.isLive){
+        native.setProperty('demuxer-lavf-o','fflags=nobuffer,http_persistent=1,reconnect=1,reconnect_at_eof=1,reconnect_streamed=1,reconnect_on_network_error=1');
+        native.setProperty('http-header-fields','User-Agent: TiviMate/4.7.0 (Linux;Android 13) ExoPlayerLib/2.18.1');
+        native.setProperty('tls-verify','no');
+      }
+    }catch(_){}
     if(widget.isLive){
       // VPN bypass — اعمال network interface به MPV
       try {
         final p = await SharedPreferences.getInstance();
         final iface = p.getString('iptv_network_iface') ?? '';
         if (iface.isNotEmpty) {
-          (player.platform as NativePlayer).setProperty('network-device', iface);
+          native.setProperty('network-device', iface);
           debugPrint('[MPV] network-device=$iface');
         }
       } catch (_) {}
-      _addLiveLog('Opening stream...');_addLiveLog('URL: ${_curPath.substring(0,_curPath.length.clamp(0,60))}...');}
-    final isHttp = _curPath.startsWith('http');
-    final media = isHttp
-      ? Media(_curPath, httpHeaders: {
-          'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36',
-          'Connection': 'keep-alive',
-          'Accept': '*/*',
-        })
-      : Media(_curPath);
+    }
+  }
 
-    if (_mounted) setState(() { _buffering = false; });
-    try {
-      await player.open(media);
-    } catch (e) {
-      debugPrint('[Player] open error: $e');
-      if (_mounted) setState(() { _buffering = false; });
-      try { await player.stop(); await Future.delayed(const Duration(milliseconds: 300)); } catch (_) {}
+  /// باز کردن media با timeout واقعی و تلاش مجدد — رفع باگ قفل شدن پلیر
+  /// بعد از یک open ناموفق، open های بعدی بلاک می‌شدن چون player.open
+  /// منتظر demuxer که قفل شده می‌موند. با stop+dispose-delay+seq حل شده.
+  Future<bool> _openMediaWithTimeout(Media media,{int tries=3}){
+    final seq=++_openSeq;
+    _lastMedia=media;
+    _lastOpenAt=DateTime.now();
+    if(_mounted)setState(()=>_loadFailed=false);
+    Future<bool> attempt(int n)async{
+      if(!_mounted||seq!=_openSeq)return false;
+      try{
+        // هر بار قبل از open، پلیر رو کامل reset کن — جلوگیری از demuxer deadlock
+        try{ await player.stop(); }catch(_){}
+        await Future.delayed(const Duration(milliseconds:120));
+        if(!_mounted||seq!=_openSeq)return false;
+        await player.open(media).timeout(const Duration(seconds:15),onTimeout:(){
+          debugPrint('[Player] open timed out (attempt $n)');
+          throw TimeoutException('open timeout');
+        });
+        return true;
+      }catch(e){
+        debugPrint('[Player] open error (attempt $n): $e');
+        try{ await player.stop(); }catch(_){}
+        if(n<tries&&_mounted&&seq==_openSeq){
+          await Future.delayed(Duration(milliseconds:400*n));
+          return attempt(n+1);
+        }
+        return false;
+      }
+    }
+    return attempt(1);
+  }
+
+  Future<void> _start()async{
+    // اگه فایل .vez هست رمزگشایی کن
+    if(VezService.isVez(_curPath)){
+      WidgetsBinding.instance.addPostFrameCallback((_)=>_playVez(_curPath));
       return;
     }
-    // timeout — اگه ۱۲ ثانیه هیچ اتفاقی نیفتاد stop کن
-    if (widget.isLive || widget.isOnlineUrl || _curPath.startsWith('http')) {
-      final startIdx = _idx;
-      await Future.delayed(const Duration(seconds: 12));
-      if (_mounted && _idx == startIdx && _buffering && !player.state.playing) {
-        _addLiveLog('⏱ Stream timeout — stopping');
-        if (_mounted) setState(() => _buffering = false);
-        try { await player.stop(); } catch(_) {}
-      }
+    await _applyStreamOptions();
+    final isStream=widget.isLive||widget.isOnlineUrl||_curPath.startsWith('http');
+    if(isStream)setState(()=>_buffering=true);
+    if(widget.isLive){
+      _addLiveLog('Opening stream...');
+      _addLiveLog('URL: ${_curPath.substring(0,_curPath.length.clamp(0,60))}...');
+    }
+    final ok=await _openMediaWithTimeout(_buildMedia(_curPath));
+    if(!_mounted)return;
+    if(!ok){
+      setState((){
+        _buffering=false;
+        _loadFailed=true;
+      });
+      if(widget.isLive)_addLiveLog('❌ Stream failed — tap retry');
+      return;
+    }
+    // watchdog — اگه ۱۲ ثانیه بعد هنوز play نشده، fail اعلام کن
+    if(isStream){
+      final startSeq=_openSeq;
+      final startIdx=_idx;
+      Future.delayed(const Duration(seconds:12),(){
+        if(!_mounted||startSeq!=_openSeq||startIdx!=_idx)return;
+        if(_buffering&&!player.state.playing){
+          _addLiveLog('⏱ Stream timeout — no data after 12s');
+          setState((){
+            _buffering=false;
+            _loadFailed=true;
+          });
+          try{ player.stop(); }catch(_){}
+        }
+      });
     }
     if(widget.isLive)_addLiveLog('Stream opened — waiting for data...');
     await Store.addToHistory(_curPath);
     final saved=await Store.getPos(_curPath);
-    if(saved.inSeconds>5&&mounted){
+    if(saved.inSeconds>5&&mounted&&!widget.isLive){
       final resume=await showDialog<bool>(
         context:context,barrierDismissible:false,
-        builder:(ctx)=>AlertDialog(backgroundColor:const Color(0xFF120B09),title:Text(L.continuePlaying),
+        builder:(ctx)=>AlertDialog(backgroundColor:const Color(0xFF0E1210),title:Text(L.continuePlaying),
           content:Text('${L.resumeFrom} (${fmt(saved)})'),
           actions:[
             TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.fromBeginning)),
@@ -470,6 +526,17 @@ class _PlayerState extends State<PlayerScreen>{
     final subPath=widget.subtitlePath??matchSubtitle(_curPath);
     if(subPath!=null)await _loadSub(subPath,secondary:false);
     if(_vs.speed!=1.0)player.setRate(_vs.speed);
+  }
+
+  /// retry دستی — دکمه روی صفحه خطا
+  Future<void> _retryOpen()async{
+    setState(()=>_loadFailed=false);
+    if(widget.isLive||widget.isOnlineUrl||_curPath.startsWith('http')){
+      setState(()=>_buffering=true);
+    }
+    final media=_lastMedia??_buildMedia(_curPath);
+    final ok=await _openMediaWithTimeout(media);
+    if(!ok&&_mounted)setState(()=>_loadFailed=true);
   }
 
   Future<void> _switchVideo(int idx)async{
@@ -489,48 +556,39 @@ class _PlayerState extends State<PlayerScreen>{
     if(widget.isLive||widget.isOnlineUrl||_curPath.startsWith('http'))
       setState(()=>_buffering=true);
     if(widget.isLive){
-      // VPN bypass — اعمال network interface به MPV
-      try {
-        final p = await SharedPreferences.getInstance();
-        final iface = p.getString('iptv_network_iface') ?? '';
-        if (iface.isNotEmpty) {
-          (player.platform as NativePlayer).setProperty('network-device', iface);
-          debugPrint('[MPV] network-device=$iface');
-        }
-      } catch (_) {}
-      _addLiveLog('Opening stream...');_addLiveLog('URL: ${_curPath.substring(0,_curPath.length.clamp(0,60))}...');}
-    final isHttp = _curPath.startsWith('http');
-    final media = isHttp
-      ? Media(_curPath, httpHeaders: {
-          'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36',
-          'Connection': 'keep-alive',
-          'Accept': '*/*',
-        })
-      : Media(_curPath);
-
-    if (_mounted) setState(() { _buffering = false; });
-    try {
-      await player.open(media);
-    } catch (e) {
-      debugPrint('[Player] open error: $e');
-      if (_mounted) setState(() { _buffering = false; });
-      try { await player.stop(); await Future.delayed(const Duration(milliseconds: 300)); } catch (_) {}
+      _addLiveLog('Opening stream...');
+      _addLiveLog('URL: ${_curPath.substring(0,_curPath.length.clamp(0,60))}...');
+    }
+    final ok=await _openMediaWithTimeout(_buildMedia(_curPath));
+    if(!_mounted)return;
+    if(!ok){
+      setState((){
+        _buffering=false;
+        _loadFailed=true;
+      });
+      if(widget.isLive)_addLiveLog('❌ Stream failed — tap retry');
       return;
     }
-    // timeout — اگه ۱۲ ثانیه هیچ اتفاقی نیفتاد stop کن
-    if (widget.isLive || widget.isOnlineUrl || _curPath.startsWith('http')) {
-      final startIdx = _idx;
-      await Future.delayed(const Duration(seconds: 12));
-      if (_mounted && _idx == startIdx && _buffering && !player.state.playing) {
-        _addLiveLog('⏱ Stream timeout — stopping');
-        if (_mounted) setState(() => _buffering = false);
-        try { await player.stop(); } catch(_) {}
-      }
+    // watchdog — اگه ۱۲ ثانیه بعد هنوز play نشده، fail اعلام کن
+    if(widget.isLive||widget.isOnlineUrl||_curPath.startsWith('http')){
+      final startSeq=_openSeq;
+      final startIdx=_idx;
+      Future.delayed(const Duration(seconds:12),(){
+        if(!_mounted||startSeq!=_openSeq||startIdx!=_idx)return;
+        if(_buffering&&!player.state.playing){
+          _addLiveLog('⏱ Stream timeout — no data after 12s');
+          setState((){
+            _buffering=false;
+            _loadFailed=true;
+          });
+          try{ player.stop(); }catch(_){}
+        }
+      });
     }
     if(widget.isLive)_addLiveLog('Stream opened — waiting for data...');
     await Store.addToHistory(_curPath);
     final sv=await Store.getPos(_curPath);
-    if(sv.inSeconds>5)await player.seek(sv);
+    if(sv.inSeconds>5&&!widget.isLive)await player.seek(sv);
     final sub=matchSubtitle(_curPath);
     if(sub!=null)await _loadSub(sub,secondary:false);
     if(_vs.speed!=1.0)player.setRate(_vs.speed);
@@ -589,7 +647,7 @@ class _PlayerState extends State<PlayerScreen>{
     }
     if (!silent && _mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('✅ زیرنویس ذخیره شد: $baseName.srt'),
-      backgroundColor: const Color(0xFFD64531),
+      backgroundColor: const Color(0xFF35F2A2),
       duration: const Duration(seconds: 4),
       action: SnackBarAction(label: 'بارگذاری روی ویدیو', textColor: Colors.white,
         onPressed: () async {
@@ -604,17 +662,32 @@ class _PlayerState extends State<PlayerScreen>{
     ));
   }
 
-  void _switchChannel(int delta) {
+  Future<void> _switchChannel(int delta) async {
     final list = widget.channelList;
     if (list == null || list.isEmpty) return;
     final newIdx = (_curChannelIdx + delta).clamp(0, list.length - 1);
     if (newIdx == _curChannelIdx) return;
-    setState(() => _curChannelIdx = newIdx);
     final ch = list[newIdx];
-    player.open(Media(ch['url']!));
+    setState(() {
+      _curChannelIdx = newIdx;
+      _buffering = true;
+      _loadFailed = false;
+      _position = Duration.zero;
+      _duration = Duration.zero;
+    });
+    _addLiveLog('📺 ${ch['name'] ?? ''}');
+    final ok = await _openMediaWithTimeout(Media(ch['url']!));
+    if (!_mounted) return;
+    if (!ok) {
+      setState(() {
+        _buffering = false;
+        _loadFailed = true;
+      });
+      return;
+    }
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('📺 ${ch['name'] ?? ''}'),
-      backgroundColor: const Color(0xFF1A1210),
+      backgroundColor: const Color(0xFF101411),
       duration: const Duration(seconds: 2),
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
@@ -1076,7 +1149,7 @@ class _PlayerState extends State<PlayerScreen>{
         // آپدیت هر ثانیه
         Future.delayed(const Duration(seconds:1),()=>ss((){}));
         return AlertDialog(
-          backgroundColor:const Color(0xFF120B09),
+          backgroundColor:const Color(0xFF0E1210),
           insetPadding:const EdgeInsets.all(16),
           titlePadding:const EdgeInsets.fromLTRB(16,16,16,0),
           contentPadding:const EdgeInsets.all(12),
@@ -1121,12 +1194,12 @@ class _PlayerState extends State<PlayerScreen>{
   void _showLogDialog(){
     showDialog(context:context,barrierColor:Colors.black54,builder:(ctx)=>StatefulBuilder(
       builder:(ctx,ss)=>AlertDialog(
-        backgroundColor:const Color(0xFF120B09),
+        backgroundColor:const Color(0xFF0E1210),
         insetPadding:const EdgeInsets.all(16),
         titlePadding:const EdgeInsets.fromLTRB(16,16,16,0),
         contentPadding:const EdgeInsets.all(12),
         title:Row(children:[
-          const Icon(Icons.terminal_rounded,color:Color(0xFFD64531),size:18),
+          const Icon(Icons.terminal_rounded,color:Color(0xFF35F2A2),size:18),
           const SizedBox(width:8),
           const Text('Live Stream Log',style:TextStyle(color:Colors.white,fontSize:14)),
           const Spacer(),
@@ -1142,7 +1215,7 @@ class _PlayerState extends State<PlayerScreen>{
               itemCount:_liveLog.length,
               itemBuilder:(_,i){
                 final log=_liveLog[_liveLog.length-1-i];
-                final color=log.contains('▶')?const Color(0xFF7FB89A):
+                final color=log.contains('▶')?const Color(0xFF5FD0A0):
                   log.contains('Error')||log.contains('error')?Colors.redAccent:
                   log.contains('Buffering')?Colors.orange:Colors.white60;
                 return Padding(padding:const EdgeInsets.only(bottom:4),
@@ -1298,7 +1371,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showSleepDialog(){
     int min=30;
     showDialog(context:context,builder:(ctx)=>StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
-      backgroundColor:const Color(0xFF120B09),title:Text(L.sleepTimer),
+      backgroundColor:const Color(0xFF0E1210),title:Text(L.sleepTimer),
       content:Column(mainAxisSize:MainAxisSize.min,children:[
         Text('$min ${L.minutes}',style:const TextStyle(fontSize:24,fontWeight:FontWeight.bold)),
         Slider(min:1,max:180,divisions:179,value:min.toDouble(),onChanged:(v)=>ss(()=>min=v.round())),
@@ -1338,11 +1411,11 @@ class _PlayerState extends State<PlayerScreen>{
         if(_subtitleTracks.isEmpty)Padding(
           padding:EdgeInsets.all(12),
           child:Text(L.noEmbeddedSubtitle,
-              style:TextStyle(color:Color(0xFFB8AEA6)),textAlign:TextAlign.center)),
+              style:TextStyle(color:Color(0xFFA9B8AE)),textAlign:TextAlign.center)),
         ..._subtitleTracks.asMap().entries.map((entry){
           final t=entry.value;
           return ListTile(dense:true,
-            leading:const Icon(Icons.subtitles,size:18,color:Color(0xFFB8AEA6)),
+            leading:const Icon(Icons.subtitles,size:18,color:Color(0xFFA9B8AE)),
             title:Text(t.title??t.language??'Track ${t.id}'),
             subtitle:Text('${L.language}: ${t.language??""}',style:const TextStyle(fontSize:11)),
             trailing:FilledButton(
@@ -1359,7 +1432,7 @@ class _PlayerState extends State<PlayerScreen>{
         const Divider(height:1),
         Padding(padding:EdgeInsets.all(8),
           child:Text(L.bothAtOnce,
-              style:TextStyle(fontSize:11,color:Color(0xFFD64531)))),
+              style:TextStyle(fontSize:11,color:Color(0xFF35F2A2)))),
       ]),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
     )));
@@ -1368,7 +1441,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showAudioPicker(){
     if(_audioTracks.isEmpty){showSnack(context, L.audioTrackNotFound);return;}
     showDialog(context:context,builder:(ctx)=>AlertDialog(
-      backgroundColor:const Color(0xFF120B09),title:Text(L.selectAudioTrack),
+      backgroundColor:const Color(0xFF0E1210),title:Text(L.selectAudioTrack),
       content:Column(mainAxisSize:MainAxisSize.min,
           children:_audioTracks.map((t)=>ListTile(
             title:Text(t.title??t.language??'Track ${t.id}'),
@@ -1382,30 +1455,18 @@ class _PlayerState extends State<PlayerScreen>{
     showDialog(context:context,builder:(ctx)=>AlertDialog(
       title:Text(p.basename(_curPath),style:const TextStyle(fontSize:13)),
       content:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.start,children:[
-        if(_resStr.isNotEmpty)_infoRow(Icons.aspect_ratio_rounded,const Color(0xFF30F6C2),L.resolution,_resStr),
-        if(_fpsStr.isNotEmpty)_infoRow(Icons.speed_rounded,const Color(0xFFD64531),L.frameRate,_fpsStr),
-        if(_codecStr.isNotEmpty)_infoRow(Icons.code_rounded,const Color(0xFF7FB89A),L.codec,_codecStr),
-        if(_bitrateStr.isNotEmpty)_infoRow(Icons.network_check_rounded,const Color(0xFFD99A4E),L.bitrate,_bitrateStr),
+        if(_resStr.isNotEmpty)_infoRow(Icons.aspect_ratio_rounded,const Color(0xFF35F2A2),L.resolution,_resStr),
+        if(_fpsStr.isNotEmpty)_infoRow(Icons.speed_rounded,const Color(0xFF35F2A2),L.frameRate,_fpsStr),
+        if(_codecStr.isNotEmpty)_infoRow(Icons.code_rounded,const Color(0xFF5FD0A0),L.codec,_codecStr),
+        if(_bitrateStr.isNotEmpty)_infoRow(Icons.network_check_rounded,const Color(0xFFE8B44C),L.bitrate,_bitrateStr),
 
-        if(_buffering&&widget.isLive)Positioned(
-          top:0,left:0,right:0,bottom:0,
-          child:Container(
-            color:Colors.black54,
-            child:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-              const CircularProgressIndicator(color:Color(0xFFD64531),strokeWidth:3),
-              const SizedBox(height:16),
-              Text('📡 Connecting to live stream...',style:const TextStyle(color:Colors.white,fontSize:14,fontWeight:FontWeight.w500)),
-              if(_bufferStart!=null)Padding(padding:const EdgeInsets.only(top:6),
-                child:Text('${DateTime.now().difference(_bufferStart!).inSeconds}s',
-                  style:const TextStyle(color:Colors.white54,fontSize:12))),
-            ])))),
-        if(_isHDR)_infoRow(Icons.hdr_on_rounded,const Color(0xFFD66A4A),'HDR',L.activeTick),
-        if(_pixelFmtStr.isNotEmpty)_infoRow(Icons.palette_rounded,const Color(0xFFD64531),'Pixel Format',_pixelFmtStr),
-        _infoRow(Icons.timer_outlined,const Color(0xFFB8AEA6),L.duration,fmt(_duration)),
-        _infoRow(Icons.memory_rounded,const Color(0xFFB8AEA6),L.decoder,_hwDecode?L.hwDecode:L.swDecode),
+        if(_isHDR)_infoRow(Icons.hdr_on_rounded,const Color(0xFF63D9A8),'HDR',L.activeTick),
+        if(_pixelFmtStr.isNotEmpty)_infoRow(Icons.palette_rounded,const Color(0xFF35F2A2),'Pixel Format',_pixelFmtStr),
+        _infoRow(Icons.timer_outlined,const Color(0xFFA9B8AE),L.duration,fmt(_duration)),
+        _infoRow(Icons.memory_rounded,const Color(0xFFA9B8AE),L.decoder,_hwDecode?L.hwDecode:L.swDecode),
         if(_audioTracks.isNotEmpty)
-          _infoRow(Icons.music_note_rounded,const Color(0xFFB8AEA6),L.audioTracks,'${_audioTracks.length} ${L.audioTracks}'),
-        if(_hwDecode)_infoRow(Icons.developer_board_rounded,const Color(0xFF30F6C2),L.decoder,L.hwActive),
+          _infoRow(Icons.music_note_rounded,const Color(0xFFA9B8AE),L.audioTracks,'${_audioTracks.length} ${L.audioTracks}'),
+        if(_hwDecode)_infoRow(Icons.developer_board_rounded,const Color(0xFF35F2A2),L.decoder,L.hwActive),
       ]),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
     ));
@@ -1417,7 +1478,7 @@ class _PlayerState extends State<PlayerScreen>{
       Container(padding:const EdgeInsets.all(5),decoration:BoxDecoration(color:iconColor.withOpacity(0.1),borderRadius:BorderRadius.circular(6)),
           child:Icon(icon,size:13,color:iconColor)),
       const SizedBox(width:10),
-      Text('$label',style:const TextStyle(color:Color(0xFFB8AEA6),fontSize:12)),
+      Text('$label',style:const TextStyle(color:Color(0xFFA9B8AE),fontSize:12)),
       const Spacer(),
       Text(val,style:const TextStyle(fontSize:12,fontWeight:FontWeight.w500)),
     ]),
@@ -1649,7 +1710,7 @@ class _PlayerState extends State<PlayerScreen>{
         _liveSubRefreshTimer?.cancel(); _liveSubSecondTimer?.cancel();
         _liveStopwatch.stop();
         if (_liveSubPaused) { _liveSubPaused = false; player.play(); }
-        showSnack(context, L.liveDone, color: Color(0xFFD64531));
+        showSnack(context, L.liveDone, color: Color(0xFF35F2A2));
       }
     }).catchError((e) {
       if (mounted) {
@@ -1661,11 +1722,11 @@ class _PlayerState extends State<PlayerScreen>{
           // نمایش خطای کامل در dialog
           final fullErr = e.toString();
           showDialog(context:context, builder:(_)=>AlertDialog(
-            backgroundColor:const Color(0xFF1A1210),
+            backgroundColor:const Color(0xFF141A17),
             title:const Text('خطای AI زیرنویس', style:TextStyle(color:Colors.red, fontSize:14)),
             content:SingleChildScrollView(child:SelectableText(fullErr,
               style:const TextStyle(color:Colors.white70, fontSize:11, fontFamily:'monospace'))),
-            actions:[TextButton(onPressed:()=>Navigator.pop(context), child:const Text('بستن', style:TextStyle(color:Color(0xFFD64531))))],
+            actions:[TextButton(onPressed:()=>Navigator.pop(context), child:const Text('بستن', style:TextStyle(color:Color(0xFF35F2A2))))],
           ));
         }
       }
@@ -1675,7 +1736,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showTranslationPanel() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF120B09),
+      backgroundColor: const Color(0xFF0E1210),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _TranslationInfoPanel(
         onCancel: () {
@@ -1691,7 +1752,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showLivePanel() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF120B09),
+      backgroundColor: const Color(0xFF0E1210),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => _LivePanelSheet(
         stopwatch: _liveStopwatch,
@@ -2218,7 +2279,7 @@ class _PlayerState extends State<PlayerScreen>{
                   decoration: BoxDecoration(color: Colors.black.withOpacity(0.75), borderRadius: BorderRadius.circular(20)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     const Padding(padding: EdgeInsets.only(left: 10, top: 6, bottom: 6),
-                      child: Icon(Icons.translate, color: Color(0xFFD64531), size: 12)),
+                      child: Icon(Icons.translate, color: Color(0xFF35F2A2), size: 12)),
                     const SizedBox(width: 5),
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -2289,6 +2350,57 @@ class _PlayerState extends State<PlayerScreen>{
             ),
           ),
 
+        // ── اورلی بافرینگ زنده ──
+        if(_buffering&&widget.isLive)Positioned.fill(
+          child:Container(
+            color:Colors.black54,
+            child:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
+              const CircularProgressIndicator(color:Color(0xFF35F2A2),strokeWidth:3),
+              const SizedBox(height:16),
+              const Text('📡 Connecting to live stream...',style:TextStyle(color:Colors.white,fontSize:14,fontWeight:FontWeight.w500)),
+              if(_bufferStart!=null)Padding(padding:const EdgeInsets.only(top:6),
+                child:Text('${DateTime.now().difference(_bufferStart!).inSeconds}s',
+                  style:const TextStyle(color:Colors.white54,fontSize:12))),
+            ])))),
+        // ── اورلی خطا با دکمه تلاش مجدد — باگ IPTV: بعد از fail دیگه چیزی لود نمی‌شد ──
+        if(_loadFailed&&!_buffering)Positioned.fill(
+          child:Container(
+            color:Colors.black.withOpacity(0.82),
+            child:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
+              Container(
+                padding:const EdgeInsets.all(16),
+                decoration:BoxDecoration(
+                  color:Colors.white.withOpacity(0.06),
+                  shape:BoxShape.circle,
+                  border:Border.all(color:Colors.white.withOpacity(0.12)),
+                ),
+                child:const Icon(Icons.wifi_off_rounded,color:Colors.white70,size:40)),
+              const SizedBox(height:18),
+              const Text('پخش ناموفق بود',style:TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.w700)),
+              const SizedBox(height:6),
+              const Text('اتصال یا منبع در دسترس نیست',
+                  style:TextStyle(color:Colors.white54,fontSize:12)),
+              const SizedBox(height:20),
+              Row(mainAxisSize:MainAxisSize.min,children:[
+                ElevatedButton.icon(
+                  onPressed:_retryOpen,
+                  style:ElevatedButton.styleFrom(
+                    backgroundColor:const Color(0xFF35F2A2),
+                    foregroundColor:Colors.black,
+                    padding:const EdgeInsets.symmetric(horizontal:22,vertical:12),
+                    shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(14)),
+                  ),
+                  icon:const Icon(Icons.refresh_rounded,size:18),
+                  label:const Text('تلاش مجدد',style:TextStyle(fontWeight:FontWeight.w700)),
+                ),
+                const SizedBox(width:10),
+                TextButton(
+                  onPressed:()=>Navigator.pop(context),
+                  child:const Text('بستن',style:TextStyle(color:Colors.white54)),
+                ),
+              ]),
+            ])))),
+
         if(_overlay!=null)Center(child:Container(
           padding:const EdgeInsets.symmetric(horizontal:20,vertical:10),
           decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(10)),
@@ -2318,9 +2430,9 @@ class _PlayerState extends State<PlayerScreen>{
                   style:const TextStyle(fontSize:13,fontWeight:FontWeight.w500)),
               if(_isHDR||_resStr.isNotEmpty||_fpsStr.isNotEmpty)
                 Row(children:[
-                  if(_isHDR)_infoBadge('HDR',const Color(0xFFD66A4A)),
-                  if(_resStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_resStr,const Color(0xFF30F6C2))],
-                  if(_fpsStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_fpsStr,const Color(0xFFD64531))],
+                  if(_isHDR)_infoBadge('HDR',const Color(0xFF63D9A8)),
+                  if(_resStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_resStr,const Color(0xFF35F2A2))],
+                  if(_fpsStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_fpsStr,const Color(0xFF35F2A2))],
                 ]),
             ])),
           if(_sleepAt!=null)GestureDetector(onTap:_showSleepDialog,child:Padding(
@@ -2342,23 +2454,23 @@ class _PlayerState extends State<PlayerScreen>{
                 margin:const EdgeInsets.symmetric(horizontal:2,vertical:10),
                 padding:const EdgeInsets.all(4),
                 decoration:BoxDecoration(
-                  color:_embeddedSubEnabled?const Color(0xFFD64531):const Color(0xFFD64531).withOpacity(0.15),
+                  color:_embeddedSubEnabled?const Color(0xFF35F2A2):const Color(0xFF35F2A2).withOpacity(0.15),
                   borderRadius:BorderRadius.circular(6),
-                  border:Border.all(color:const Color(0xFFD64531).withOpacity(_embeddedSubEnabled?0:0.4)),
+                  border:Border.all(color:const Color(0xFF35F2A2).withOpacity(_embeddedSubEnabled?0:0.4)),
                 ),
                 child:Icon(Icons.subtitles_outlined,size:16,
-                    color:_embeddedSubEnabled?Colors.white:const Color(0xFFD64531)),
+                    color:_embeddedSubEnabled?Colors.white:const Color(0xFF35F2A2)),
               ),
             ),
           PopupMenuButton<String>(
-            icon:const Icon(Icons.subtitles,color:Color(0xFFD64531)),
+            icon:const Icon(Icons.subtitles,color:Color(0xFF35F2A2)),
             tooltip:L.subtitle,
             onSelected:(v){
               switch(v){
                 case 'ai':
                   AiSubtitleSheet.show(context,_curPath,(srt){
                     _loadSub(srt,secondary:false);
-                    showSnack(context, L.aiSubtitleLoaded, color: Color(0xFFD64531));
+                    showSnack(context, L.aiSubtitleLoaded, color: Color(0xFF35F2A2));
                   },onPreview:(srt){
                     _loadSub(srt,secondary:false);
                   });
@@ -2366,7 +2478,7 @@ class _PlayerState extends State<PlayerScreen>{
                 case 'online':
                   OpenSubtitlesSheet.show(context,_curPath,(srt){
                     _loadSub(srt,secondary:false);
-                    showSnack(context, L.onlineSubtitleLoaded, color: Color(0xFFD64531));
+                    showSnack(context, L.onlineSubtitleLoaded, color: Color(0xFF35F2A2));
                   });
                   break;
                 case 'lyrics':
@@ -2387,13 +2499,13 @@ class _PlayerState extends State<PlayerScreen>{
                         _loadSub(translated, secondary: false);
                         showSnack(context,
                           'ترجمه ذخیره شد:\n$translated',
-                          color: Color(0xFFD64531), seconds: 10);
+                          color: Color(0xFF35F2A2), seconds: 10);
                       },
                       onDoneSecondary: (translated) {
                         if(!mounted) return;
                         setState((){_translating=false; _translatingStatus='';});
                         _loadSub(translated, secondary: true);
-                        showSnack(context, L.translationOnSub2, color: Color(0xFFD64531), seconds: 10);
+                        showSnack(context, L.translationOnSub2, color: Color(0xFF35F2A2), seconds: 10);
                       },
                       onSrtUpdated: (partial) {
                         setState((){
@@ -2411,7 +2523,7 @@ class _PlayerState extends State<PlayerScreen>{
                   break;
                 case 'settings':
                   showModalBottomSheet(
-                    context:context,isScrollControlled:true,backgroundColor:const Color(0xFF120B09),
+                    context:context,isScrollControlled:true,backgroundColor:const Color(0xFF0E1210),
                     shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
                     builder:(ctx)=>PlayerSettings(
                       vs:_vs,onChanged:(vs){setState(()=>_vs=vs);},
@@ -2463,17 +2575,17 @@ class _PlayerState extends State<PlayerScreen>{
                   Icon(Icons.fiber_smart_record,size:18,color:Colors.red),SizedBox(width:10),Text(L.liveSubtitleSettings),
                 ])),
               PopupMenuItem(value:'ai',child:Row(children:[
-                Icon(Icons.auto_awesome,size:18,color:Color(0xFFD64531)),SizedBox(width:10),Text(L.aiSubtitleOffline),
+                Icon(Icons.auto_awesome,size:18,color:Color(0xFF35F2A2)),SizedBox(width:10),Text(L.aiSubtitleOffline),
               ])),
               PopupMenuItem(value:'online',child:Row(children:[
-                Icon(Icons.cloud_download_outlined,size:18,color:Color(0xFFD64531)),SizedBox(width:10),Text(L.onlineSubtitleLabel),
+                Icon(Icons.cloud_download_outlined,size:18,color:Color(0xFF35F2A2)),SizedBox(width:10),Text(L.onlineSubtitleLabel),
               ])),
               if(_sub1Path!=null)
                 PopupMenuItem(value:'translate',child:Row(children:[
-                  Icon(Icons.translate,size:18,color:Color(0xFFD64531)),SizedBox(width:10),Text(L.translateSub),
+                  Icon(Icons.translate,size:18,color:Color(0xFF35F2A2)),SizedBox(width:10),Text(L.translateSub),
                 ])),
                 PopupMenuItem(value:'lyrics',child:Row(children:[
-                  Icon(Icons.music_note_rounded,size:18,color:Color(0xFFD66A4A)),SizedBox(width:10),Text(L.musicSubtitle),
+                  Icon(Icons.music_note_rounded,size:18,color:Color(0xFF63D9A8)),SizedBox(width:10),Text(L.musicSubtitle),
                 ])),
               PopupMenuItem(value:'settings',child:Row(children:[
                 Icon(Icons.tune,size:18,color:Colors.white70),SizedBox(width:10),Text(L.subtitleSettings),
@@ -2532,15 +2644,15 @@ class _PlayerState extends State<PlayerScreen>{
               decoration:BoxDecoration(
                 gradient:_playing
                     ?const LinearGradient(colors:[Color(0x66FFFFFF),Color(0x22FFFFFF)],begin:Alignment.topLeft,end:Alignment.bottomRight)
-                    :const LinearGradient(colors:[Color(0xFFE8664F),Color(0xFF950707)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+                    :const LinearGradient(colors:[Color(0xFF5CF6C2),Color(0xFF1F8A5F)],begin:Alignment.topLeft,end:Alignment.bottomRight),
                 shape:BoxShape.circle,
                 border:Border.all(color:Colors.white.withOpacity(0.25),width:1),
                 boxShadow:[BoxShadow(
-                  color:_playing?Colors.black.withOpacity(0.35):const Color(0xFFD64531).withOpacity(0.45),
+                  color:_playing?Colors.black.withOpacity(0.35):const Color(0xFF35F2A2).withOpacity(0.45),
                   blurRadius:30,offset:const Offset(0,8),
                 )],
               ),
-              child:Icon(_playing?Icons.pause_rounded:Icons.play_arrow_rounded,color:Colors.white,size:52),
+              child:Icon(_playing?Icons.pause_rounded:Icons.play_arrow_rounded,color:_playing?Colors.white:const Color(0xFF070908),size:52),
             ),
           ),
           const SizedBox(width:24),
@@ -2579,7 +2691,7 @@ class _PlayerState extends State<PlayerScreen>{
           Text(fmt(_seekDragging?Duration(milliseconds:_seekDragMs.round()):_position),style:const TextStyle(fontSize:12)),
           Expanded(child:SliderTheme(
             data:SliderTheme.of(context).copyWith(
-              activeTrackColor:const Color(0xFFE8664F),
+              activeTrackColor:const Color(0xFF5CF6C2),
               inactiveTrackColor:Colors.white.withOpacity(0.15),
               thumbColor:Colors.white,
               thumbShape:const RoundSliderThumbShape(enabledThumbRadius:6,elevation:3),
@@ -2679,7 +2791,7 @@ class _PlayerState extends State<PlayerScreen>{
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-            decoration: BoxDecoration(color: const Color(0xFF7FB89A).withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: const Color(0xFF5FD0A0).withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.record_voice_over_rounded, size:12, color:Colors.white),
               SizedBox(width:3),
@@ -2703,7 +2815,7 @@ class _PlayerState extends State<PlayerScreen>{
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-            decoration: BoxDecoration(color: const Color(0xFFD64531).withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: const Color(0xFF35F2A2).withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.subtitles_rounded, size:12, color:Colors.white),
               SizedBox(width:3),
@@ -2830,7 +2942,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         SizedBox(width:double.infinity,child:FilledButton.icon(
           onPressed:() async {
             final ok = await showDialog<bool>(context:ctx,builder:(_)=>AlertDialog(
-              backgroundColor:const Color(0xFF120B09),
+              backgroundColor:const Color(0xFF0E1210),
               title:Text(L.cancelLive,style:TextStyle(color:Colors.white,fontSize:15)),
               content:Text('${_fmt(transcribed)} saved',
                 style:const TextStyle(color:Colors.white70,fontSize:12)),
@@ -2888,7 +3000,7 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const VzSheetHandle(),
         Row(children:[
-          const Icon(Icons.translate,color:Color(0xFFD64531),size:18),
+          const Icon(Icons.translate,color:Color(0xFF35F2A2),size:18),
           const SizedBox(width:8),
           Expanded(child:Text(L.translateOnline,style:TextStyle(color:Colors.white,fontSize:15,fontWeight:FontWeight.bold))),
           IconButton(icon:const Icon(Icons.close,color:Colors.white54,size:20),
@@ -2902,7 +3014,7 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
           valueListenable: SrtTranslationServiceStatus.notifier,
           builder:(_,__,___) => Column(children:[
             Row(children:[
-              const Icon(Icons.translate,color:Color(0xFFD64531),size:14),
+              const Icon(Icons.translate,color:Color(0xFF35F2A2),size:14),
               const SizedBox(width:6),
               Text(L.targetLang,style:TextStyle(color:Colors.white60,fontSize:13)),
               Text(lang,style:const TextStyle(color:Colors.white,fontSize:13,fontWeight:FontWeight.bold)),
@@ -2916,7 +3028,7 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
             const SizedBox(height:6),
             LinearProgressIndicator(
               value: total>0 ? (done/total).clamp(0.0,1.0) : null,
-              backgroundColor:Colors.white12,color:const Color(0xFFD64531)),
+              backgroundColor:Colors.white12,color:const Color(0xFF35F2A2)),
             const SizedBox(height:4),
             Text(SrtTranslationServiceStatus.lastStatus,
               style:const TextStyle(color:Colors.white54,fontSize:11)),
@@ -3174,24 +3286,24 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
 
   @override
   Widget build(BuildContext ctx) => AlertDialog(
-    backgroundColor: const Color(0xFF1A1210),
+    backgroundColor: const Color(0xFF141A17),
     title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Colors.white, fontSize: 15)),
     content: SizedBox(width: 300, height: 420, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
       // ── Gemini DUB ──
       Container(
         decoration: BoxDecoration(
-          color: _geminiEnabled ? const Color(0xFF7FB89A).withOpacity(0.1) : const Color(0xFF1A1210),
+          color: _geminiEnabled ? const Color(0xFF5FD0A0).withOpacity(0.1) : const Color(0xFF141A17),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _geminiEnabled ? const Color(0xFF7FB89A) : Colors.white12)),
+          border: Border.all(color: _geminiEnabled ? const Color(0xFF5FD0A0) : Colors.white12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
-            const Icon(Icons.record_voice_over_rounded, size: 16, color: Color(0xFF7FB89A)),
+            const Icon(Icons.record_voice_over_rounded, size: 16, color: Color(0xFF5FD0A0)),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Gemini DUB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('AI Live dubbing — Needs API key', style: TextStyle(color: Colors.white38, fontSize: 10)),
             ])),
-            Switch(value: _geminiEnabled, onChanged: (v) => setState(() { _geminiEnabled = v; if (v) { _voskEnabled = false; _androidEnabled = false; } }), activeColor: const Color(0xFF7FB89A)),
+            Switch(value: _geminiEnabled, onChanged: (v) => setState(() { _geminiEnabled = v; if (v) { _voskEnabled = false; _androidEnabled = false; } }), activeColor: const Color(0xFF5FD0A0)),
           ])),
           if (_geminiEnabled) ...[
             const Divider(color: Colors.white12, height: 1),
@@ -3201,11 +3313,11 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: !_geminiSubMode ? const Color(0xFF7FB89A).withOpacity(0.2) : const Color(0xFF1A1210),
-                    border: Border.all(color: !_geminiSubMode ? const Color(0xFF7FB89A) : Colors.white12),
+                    color: !_geminiSubMode ? const Color(0xFF5FD0A0).withOpacity(0.2) : const Color(0xFF141A17),
+                    border: Border.all(color: !_geminiSubMode ? const Color(0xFF5FD0A0) : Colors.white12),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
-                    Icon(Icons.record_voice_over_rounded, size: 18, color: !_geminiSubMode ? const Color(0xFF7FB89A) : Colors.white38),
+                    Icon(Icons.record_voice_over_rounded, size: 18, color: !_geminiSubMode ? const Color(0xFF5FD0A0) : Colors.white38),
                     const SizedBox(height: 4),
                     Text('دوبله', style: TextStyle(color: !_geminiSubMode ? Colors.white : Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
                   ])))),
@@ -3215,11 +3327,11 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: _geminiSubMode ? const Color(0xFF7FB89A).withOpacity(0.2) : const Color(0xFF1A1210),
-                    border: Border.all(color: _geminiSubMode ? const Color(0xFF7FB89A) : Colors.white12),
+                    color: _geminiSubMode ? const Color(0xFF5FD0A0).withOpacity(0.2) : const Color(0xFF141A17),
+                    border: Border.all(color: _geminiSubMode ? const Color(0xFF5FD0A0) : Colors.white12),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
-                    Icon(Icons.subtitles_rounded, size: 18, color: _geminiSubMode ? const Color(0xFF7FB89A) : Colors.white38),
+                    Icon(Icons.subtitles_rounded, size: 18, color: _geminiSubMode ? const Color(0xFF5FD0A0) : Colors.white38),
                     const SizedBox(height: 4),
                     Text('زیرنویس', style: TextStyle(color: _geminiSubMode ? Colors.white : Colors.white38, fontSize: 12, fontWeight: FontWeight.bold)),
                   ])))),
@@ -3233,7 +3345,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   Text('Show Subtitle', style: TextStyle(color: Colors.white, fontSize: 12)),
                   Text('Display translated text while dubbing', style: TextStyle(color: Colors.white38, fontSize: 10)),
                 ])),
-                Switch(value: _geminiShowSub, onChanged: (v) => setState(() => _geminiShowSub = v), activeColor: const Color(0xFF7FB89A)),
+                Switch(value: _geminiShowSub, onChanged: (v) => setState(() => _geminiShowSub = v), activeColor: const Color(0xFF5FD0A0)),
               ]),
               const SizedBox(height: 6),
               if (!_geminiSubMode) Row(children: [
@@ -3241,7 +3353,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 const SizedBox(width: 8),
                 Expanded(child: DropdownButton<String>(
                   value: _geminiVoice, isExpanded: true,
-                  dropdownColor: const Color(0xFF1A1210),
+                  dropdownColor: const Color(0xFF141A17),
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                   underline: const SizedBox(),
                   items: _geminiVoices.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
@@ -3254,8 +3366,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiModel,
-                dropdownColor: const Color(0xFF1A1210),
-                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                dropdownColor: const Color(0xFF141A17),
+                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
                 style: const TextStyle(color: Colors.white, fontSize: 11),
@@ -3269,8 +3381,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                dropdownColor: const Color(0xFF1A1210),
-                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                dropdownColor: const Color(0xFF141A17),
+                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -3284,18 +3396,18 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Vosk Subtitle ──
       Container(
         decoration: BoxDecoration(
-          color: _voskEnabled ? const Color(0xFFD64531).withOpacity(0.1) : const Color(0xFF1A1210),
+          color: _voskEnabled ? const Color(0xFF35F2A2).withOpacity(0.1) : const Color(0xFF141A17),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _voskEnabled ? const Color(0xFFD64531) : Colors.white12)),
+          border: Border.all(color: _voskEnabled ? const Color(0xFF35F2A2) : Colors.white12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
-            const Icon(Icons.subtitles_rounded, size: 16, color: Color(0xFFD64531)),
+            const Icon(Icons.subtitles_rounded, size: 16, color: Color(0xFF35F2A2)),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Vosk Subtitle', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('Offline · Local model', style: TextStyle(color: Colors.white38, fontSize: 10)),
             ])),
-            Switch(value: _voskEnabled, onChanged: (v) => setState(() { _voskEnabled = v; if (v) _androidEnabled = false; }), activeColor: const Color(0xFFD64531)),
+            Switch(value: _voskEnabled, onChanged: (v) => setState(() { _voskEnabled = v; if (v) _androidEnabled = false; }), activeColor: const Color(0xFF35F2A2)),
           ])),
           if (_voskEnabled) ...[
             const Divider(color: Colors.white12, height: 1),
@@ -3308,8 +3420,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 final valid = langs.contains(_lang) ? _lang : langs.first;
                 return DropdownButtonFormField<String>(
                   value: valid,
-                  dropdownColor: const Color(0xFF1A1210),
-                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                  dropdownColor: const Color(0xFF141A17),
+                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
                   style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -3322,7 +3434,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 8),
               Row(children: [
                 const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Colors.white, fontSize: 13))),
-                Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: const Color(0xFFD64531)),
+                Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: const Color(0xFF35F2A2)),
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
@@ -3331,8 +3443,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                  dropdownColor: const Color(0xFF1A1210),
-                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                  dropdownColor: const Color(0xFF141A17),
+                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
                   style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -3349,15 +3461,15 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? const Color(0xFFD64531).withOpacity(0.15) : const Color(0xFF1A1210),
-                        border: Border.all(color: _useOffline ? const Color(0xFFD64531) : Colors.white12),
+                        color: _useOffline ? const Color(0xFF35F2A2).withOpacity(0.15) : const Color(0xFF141A17),
+                        border: Border.all(color: _useOffline ? const Color(0xFF35F2A2) : Colors.white12),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Color(0xFFD64531)), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        const Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Color(0xFF35F2A2)), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
                         const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Colors.white38, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Color(0xFF9AD8B6), fontSize: 9, fontWeight: FontWeight.bold)))
+                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Color(0xFF8FE0BC), fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3365,7 +3477,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                               final r = await MlKitTranslationService.isModelDownloaded(_translateTo);
                               if (mounted) setState(() => _mlkitReady = r);
                             },
-                            style: TextButton.styleFrom(foregroundColor: const Color(0xFFD64531), padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                            style: TextButton.styleFrom(foregroundColor: const Color(0xFF35F2A2), padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                             child: Text('Download (${_translateTo.toUpperCase()})', style: const TextStyle(fontSize: 9))),
                       ])))),
                   const SizedBox(width: 8),
@@ -3374,8 +3486,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? const Color(0xFFD64531).withOpacity(0.15) : const Color(0xFF1A1210),
-                        border: Border.all(color: !_useOffline ? const Color(0xFFD64531) : Colors.white12),
+                        color: !_useOffline ? const Color(0xFF35F2A2).withOpacity(0.15) : const Color(0xFF141A17),
+                        border: Border.all(color: !_useOffline ? const Color(0xFF35F2A2) : Colors.white12),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Colors.white54), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
@@ -3391,8 +3503,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 4),
               if (_engine != 'gemini') DropdownButtonFormField<int>(
                 value: _pollMs,
-                dropdownColor: const Color(0xFF1A1210),
-                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                dropdownColor: const Color(0xFF141A17),
+                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                 style: const TextStyle(color: Colors.white, fontSize: 13),
@@ -3412,7 +3524,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: !_translateOnFinish ? const Color(0xFF7FB89A) : const Color(0xFF1A1210),
+                      color: !_translateOnFinish ? const Color(0xFF5FD0A0) : const Color(0xFF141A17),
                       borderRadius: BorderRadius.circular(8)),
                     child: Column(children: [
                       Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Colors.white38),
@@ -3425,7 +3537,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: _translateOnFinish ? const Color(0xFF7FB89A) : const Color(0xFF1A1210),
+                      color: _translateOnFinish ? const Color(0xFF5FD0A0) : const Color(0xFF141A17),
                       borderRadius: BorderRadius.circular(8)),
                     child: Column(children: [
                       Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Colors.white38),
@@ -3441,18 +3553,18 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Android STT ──
       Container(
         decoration: BoxDecoration(
-          color: _androidEnabled ? const Color(0xFF30F6C2).withOpacity(0.1) : const Color(0xFF1A1210),
+          color: _androidEnabled ? const Color(0xFF35F2A2).withOpacity(0.1) : const Color(0xFF141A17),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _androidEnabled ? const Color(0xFF30F6C2) : Colors.white12)),
+          border: Border.all(color: _androidEnabled ? const Color(0xFF35F2A2) : Colors.white12)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
-            const Icon(Icons.android_rounded, size: 16, color: Color(0xFF30F6C2)),
+            const Icon(Icons.android_rounded, size: 16, color: Color(0xFF35F2A2)),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Android STT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('Online · More languages', style: TextStyle(color: Colors.white38, fontSize: 10)),
             ])),
-            Switch(value: _androidEnabled, onChanged: (v) => setState(() { _androidEnabled = v; if (v) _voskEnabled = false; }), activeColor: const Color(0xFF30F6C2)),
+            Switch(value: _androidEnabled, onChanged: (v) => setState(() { _androidEnabled = v; if (v) _voskEnabled = false; }), activeColor: const Color(0xFF35F2A2)),
           ])),
           if (_androidEnabled) ...[
             const Divider(color: Colors.white12, height: 1),
@@ -3461,8 +3573,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: AndroidSttService.supportedLangs.containsKey(_lang) ? _lang : 'en',
-                dropdownColor: const Color(0xFF1A1210),
-                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                dropdownColor: const Color(0xFF141A17),
+                decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -3471,7 +3583,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 8),
               Row(children: [
                 const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Colors.white, fontSize: 13))),
-                Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: const Color(0xFFD64531)),
+                Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: const Color(0xFF35F2A2)),
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
@@ -3480,8 +3592,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                  dropdownColor: const Color(0xFF1A1210),
-                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF120B09),
+                  dropdownColor: const Color(0xFF141A17),
+                  decoration: InputDecoration(filled: true, fillColor: const Color(0xFF0E1210),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
                   style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -3498,15 +3610,15 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? const Color(0xFFD64531).withOpacity(0.15) : const Color(0xFF1A1210),
-                        border: Border.all(color: _useOffline ? const Color(0xFFD64531) : Colors.white12),
+                        color: _useOffline ? const Color(0xFF35F2A2).withOpacity(0.15) : const Color(0xFF141A17),
+                        border: Border.all(color: _useOffline ? const Color(0xFF35F2A2) : Colors.white12),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        const Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Color(0xFFD64531)), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        const Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Color(0xFF35F2A2)), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
                         const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Colors.white38, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Color(0xFF9AD8B6), fontSize: 9, fontWeight: FontWeight.bold)))
+                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Color(0xFF8FE0BC), fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3514,7 +3626,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                               final r = await MlKitTranslationService.isModelDownloaded(_translateTo);
                               if (mounted) setState(() => _mlkitReady = r);
                             },
-                            style: TextButton.styleFrom(foregroundColor: const Color(0xFFD64531), padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                            style: TextButton.styleFrom(foregroundColor: const Color(0xFF35F2A2), padding: EdgeInsets.zero, minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                             child: Text('Download (${_translateTo.toUpperCase()})', style: const TextStyle(fontSize: 9))),
                       ])))),
                   const SizedBox(width: 8),
@@ -3523,8 +3635,8 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? const Color(0xFFD64531).withOpacity(0.15) : const Color(0xFF1A1210),
-                        border: Border.all(color: !_useOffline ? const Color(0xFFD64531) : Colors.white12),
+                        color: !_useOffline ? const Color(0xFF35F2A2).withOpacity(0.15) : const Color(0xFF141A17),
+                        border: Border.all(color: !_useOffline ? const Color(0xFF35F2A2) : Colors.white12),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Colors.white54), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
@@ -3542,7 +3654,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: !_translateOnFinish ? const Color(0xFF7FB89A) : const Color(0xFF1A1210),
+                        color: !_translateOnFinish ? const Color(0xFF5FD0A0) : const Color(0xFF141A17),
                         borderRadius: BorderRadius.circular(8)),
                       child: Column(children: [
                         Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Colors.white38),
@@ -3555,7 +3667,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: _translateOnFinish ? const Color(0xFF7FB89A) : const Color(0xFF1A1210),
+                        color: _translateOnFinish ? const Color(0xFF5FD0A0) : const Color(0xFF141A17),
                         borderRadius: BorderRadius.circular(8)),
                       child: Column(children: [
                         Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Colors.white38),
@@ -3573,7 +3685,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
     actions: [
       TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('لغو')),
       FilledButton(
-        style: FilledButton.styleFrom(backgroundColor: const Color(0xFFD64531)),
+        style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2)),
         onPressed: () => Navigator.pop(ctx, {
           'lang': _lang == 'auto' ? 'multi' : _lang,
           'voskLang': _voskLang,
