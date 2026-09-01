@@ -103,7 +103,7 @@ class VzGradButton extends StatelessWidget {
   }
 }
 
-/// دکمه گرد نئون نعنایی — اکشن‌های دوم
+/// دکمه گرد کهربایی — اکشن‌های دوم
 class VzMintButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -121,9 +121,12 @@ class VzMintButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: Vz.mintGrad,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFF0C468), Color(0xFFE8B44C)],
+          begin: Alignment.topLeft, end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(radius),
-        boxShadow: const [Vz.mintGlow],
+        boxShadow: const [Vz.amberGlow],
       ),
       child: Material(
         color: Colors.transparent,
