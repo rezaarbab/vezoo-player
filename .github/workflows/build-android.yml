@@ -1,0 +1,294 @@
+name: ساخت اپ اندروید
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Generate Android files
+        run: flutter create --platforms=android --org com.vezoo --project-name player .
+
+      - name: Restore our files
+        run: |
+          # پاک کردن alphacephei از settings.gradle.kts اگه commit شده
+          if [ -f android/settings.gradle.kts ]; then
+            sed -i '/alphacephei/d' android/settings.gradle.kts || true
+            echo "=== cleaned settings.gradle.kts ==="
+          fi
+          git checkout HEAD -- pubspec.yaml lib/main.dart lib/store.dart lib/browser.dart lib/api_service.dart lib/vez_service.dart android_files/icon.png android_files/cpp/vezoo.h android_files/cpp/vezoo.c android_files/cpp/vezoo_jni.c android_files/cpp/CMakeLists.txt lib/ai_models_screen.dart android_files/cpp/whisper_v2 android_files/WhisperV2Bridge.kt lib/srt_editor_screen.dart lib/ai_batch_queue_screen.dart lib/ai_history_screen.dart lib/opensubtitles_service.dart lib/opensubtitles_search_sheet.dart lib/live_sub_sheet.dart android_files/LiveSubService.kt android_files/DeepgramService.kt android_files/MediaProjectionService.kt android_files/AndroidBuiltinSttService.kt android_files/YtDlpService.kt lib/l10n.dart lib/lyrics_service.dart lib/lyrics_sheet.dart
+          MAKT=$(find android -name "MainActivity.kt" | head -1)
+          echo "=== Found MainActivity at: $MAKT ==="
+          if [ -n "$MAKT" ]; then
+            cp android_files/MainActivity.kt "$MAKT"
+            echo "=== Replaced! ==="
+          else
+            mkdir -p android/app/src/main/kotlin/com/vezoo/player/
+            cp android_files/MainActivity.kt android/app/src/main/kotlin/com/vezoo/player/MainActivity.kt
+          fi
+          head -3 "${MAKT:-android/app/src/main/kotlin/com/vezoo/player/MainActivity.kt}"
+
+      - name: Setup C crypto library
+        run: |
+          mkdir -p android/app/src/main/cpp
+          cp android_files/cpp/vezoo.h android/app/src/main/cpp/
+          cp android_files/cpp/vezoo.c android/app/src/main/cpp/
+          cp android_files/cpp/vezoo_jni.c android/app/src/main/cpp/
+          cp android_files/cpp/CMakeLists.txt android/app/src/main/cpp/
+          ls android/app/src/main/cpp/
+
+      - name: Setup Whisper v2 native library (AI v2 — experimental, compile-only stage)
+        run: |
+          mkdir -p android/app/src/main/cpp/whisper_v2
+          cp -r android_files/cpp/whisper_v2/. android/app/src/main/cpp/whisper_v2/
+          echo "=== whisper_v2 vendored files ==="
+          find android/app/src/main/cpp/whisper_v2 -type f | wc -l
+          # کپی Kotlin bridge
+          MAKT_DIR=$(dirname "$(find android -name "MainActivity.kt" | head -1)")
+          if [ -n "$MAKT_DIR" ]; then
+            cp android_files/WhisperV2Bridge.kt "$MAKT_DIR/WhisperV2Bridge.kt"
+            cp android_files/LiveSubService.kt  "$MAKT_DIR/LiveSubService.kt"
+            cp android_files/DeepgramService.kt "$MAKT_DIR/DeepgramService.kt"
+            cp android_files/MediaProjectionService.kt "$MAKT_DIR/MediaProjectionService.kt" || true
+            cp android_files/AndroidBuiltinSttService.kt "$MAKT_DIR/AndroidBuiltinSttService.kt" || true
+            cp android_files/YtDlpService.kt "$MAKT_DIR/YtDlpService.kt" || true
+            cp android_files/VoskService.kt "$MAKT_DIR/VoskService.kt" || true
+            cp android_files/GeminiLiveService.kt "$MAKT_DIR/GeminiLiveService.kt" || true
+            cp android_files/SharedAudioService.kt "$MAKT_DIR/SharedAudioService.kt" || true
+            echo "=== Kotlin files copied ==="
+            MANIFEST="android/app/src/main/AndroidManifest.xml"
+            if ! grep -q "LiveSubService" "$MANIFEST"; then
+              sed -i 's|</application>|        <service android:name="com.vezoo.player.LiveSubService" android:foregroundServiceType="dataSync" android:exported="false"/>\n        </application>|' "$MANIFEST"
+              # اضافه کردن permission های Foreground Service
+              sed -i 's|<uses-permission android:name="android.permission.INTERNET"/>|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>|' "$MANIFEST"
+              echo "=== AndroidManifest updated with LiveSubService ==="
+            fi
+
+          fi
+          # اضافه کردن okhttp3 برای DeepgramService
+          BAPP=android/app/build.gradle.kts
+          if [ ! -f "$BAPP" ]; then BAPP=android/app/build.gradle; fi
+          if ! grep -q "okhttp" "$BAPP"; then
+            echo 'dependencies { implementation("com.squareup.okhttp3:okhttp:4.12.0") }' >> "$BAPP"
+            echo "=== okhttp3 added ==="
+          fi
+          # غیرفعال کردن R8/minify برای جلوگیری از کرش youtubedl-android
+          if ! grep -q "minifyEnabled" "$BAPP"; then
+            perl -i -0pe 's/(buildTypes\s*\{\s*release\s*\{)/$1\n            isMinifyEnabled = false\n            isShrinkResources = false/' "$BAPP"
+            echo "=== minifyEnabled=false added ==="
+          fi
+
+          if ! grep -q "youtubedl-android" "$BAPP"; then
+            echo 'dependencies { implementation("io.github.junkfood02.youtubedl-android:library:0.18.1") }' >> "$BAPP"
+            echo 'dependencies { implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1") }' >> "$BAPP"
+            # جلوگیری از خطای libffmpeg.zip.so و libpython.zip.so
+            perl -i -0pe 's|(android\s*\{)|$1\n    packaging { jniLibs { useLegacyPackaging = true } }|' "$BAPP"
+            echo "=== youtubedl-android + useLegacyPackaging added ==="
+          fi
+          if ! grep -q "activity-ktx" "$BAPP"; then
+            echo 'dependencies { implementation("androidx.activity:activity-ktx:1.8.0") }' >> "$BAPP"
+            echo "=== activity-ktx added ==="
+          fi
+          # Vosk: اضافه dependencyResolutionManagement به settings.gradle.kts
+          SKTS="android/settings.gradle.kts"
+          # vosk 0.3.70 روی Maven Central هست — نیازی به repo جدید نیست
+          if ! grep -q "vosk" "$BAPP"; then
+            echo 'dependencies { implementation("com.alphacephei:vosk-android:0.3.47") }' >> "$BAPP"
+            echo 'dependencies { implementation("net.java.dev.jna:jna:5.13.0@aar") }' >> "$BAPP"
+            echo "=== vosk + JNA added ==="
+          fi
+          echo "-keep class com.sun.jna.** { *; }" >> android/app/proguard-rules.pro
+          echo "-keep class com.yausername.** { *; }" >> android/app/proguard-rules.pro
+          echo "-keepclassmembers class com.yausername.** { *; }" >> android/app/proguard-rules.pro
+          echo "-keep interface com.yausername.** { *; }" >> android/app/proguard-rules.pro
+          echo "-dontwarn com.yausername.**" >> android/app/proguard-rules.pro
+          echo "-keep class org.apache.commons.compress.** { *; }" >> android/app/proguard-rules.pro
+          echo "-keepclassmembers class * { @com.fasterxml.jackson.annotation.* *; }" >> android/app/proguard-rules.pro
+          echo "-keep class com.fasterxml.jackson.** { *; }" >> android/app/proguard-rules.pro
+          echo "-keep class * implements com.fasterxml.jackson.databind.cfg.HandlerInstantiator { *; }" >> android/app/proguard-rules.pro
+          echo "-keepclassmembers class * extends com.sun.jna.** { public *; }" >> android/app/proguard-rules.pro
+          echo "-keep class org.vosk.** { *; }" >> android/app/proguard-rules.pro
+          echo "-dontwarn com.sun.jna.**" >> android/app/proguard-rules.pro
+          echo "=== JNA proguard rules added ==="
+          # اضافه کردن useLegacyPackaging داخل android block موجود
+          if ! grep -q "useLegacyPackaging" "$BAPP"; then
+            perl -i -0pe 's/(android\s*\{)/$1\n    packaging { jniLibs { useLegacyPackaging = true } }/' "$BAPP"
+            echo "=== useLegacyPackaging added inside android block ===" 
+          fi
+
+
+          # patch build.gradle.kts برای NDK
+          APP=android/app/build.gradle.kts
+          if [ ! -f "$APP" ]; then APP=android/app/build.gradle; fi
+          if ! grep -q "externalNativeBuild" "$APP"; then
+            sed -i "/^android {/a\\    externalNativeBuild { cmake { path(\\\"src/main/cpp/CMakeLists.txt\\\"); version = \\\"3.22.1\\\" } }" "$APP" || true
+          fi
+          # اضافه کردن signing config به build.gradle
+          if ! grep -q "signingConfigs" "$APP"; then
+            sed -i 's/buildTypes {/signingConfigs {\n        release {\n            def props = new Properties()\n            def kf = rootProject.file("key.properties")\n            if (kf.exists()) props.load(new FileInputStream(kf))\n            keyAlias = props["keyAlias"] ?: ""\n            keyPassword = props["keyPassword"] ?: ""\n            storePassword = props["storePassword"] ?: ""\n            storeFile = kf.exists() ? file(props["storeFile"] ?: "") : null\n        }\n    }\n    buildTypes {/' "$APP" || true
+            sed -i 's/release {$/release {\n            signingConfig signingConfigs.release/' "$APP" || true
+            echo "=== Signing config added ==="
+          fi
+
+      - name: Set app icon
+        run: |
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            mkdir -p android/app/src/main/res/mipmap-$d
+            cp android_files/icon.png android/app/src/main/res/mipmap-$d/ic_launcher.png
+            cp android_files/icon.png android/app/src/main/res/mipmap-$d/ic_launcher_round.png
+          done || true
+
+      - name: Add storage permissions, PiP and notifications
+        run: |
+          set -e
+          M=android/app/src/main/AndroidManifest.xml
+          sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>\n    <uses-feature android:name=\"android.software.leanback\" android:required=\"false\"/>\n    <uses-feature android:name=\"android.hardware.touchscreen\" android:required=\"false\"/>\n    <application#' "$M"
+          sed -i 's/android:launchMode="singleTop"/android:launchMode="singleTop"\n            android:supportsPictureInPicture="true"/' "$M" || true
+          # اضافه کردن RECORD_AUDIO permission
+          if ! grep -q "RECORD_AUDIO" "$M"; then
+            sed -i 's#<uses-permission android:name="android.permission.INTERNET"/>#<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>\n    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>#' "$M"
+          fi
+          sed -i 's/android:label="[^"]*"/android:label="Vezoo"/g' "$M" || true
+          # اضافه کردن MediaProjectionService به Manifest
+          if ! grep -q "MediaProjectionService" "$M"; then
+            sed -i 's|</application>|<service android:name="com.vezoo.player.MediaProjectionService" android:foregroundServiceType="mediaProjection" android:exported="false"/></application>|' "$M"
+            echo "=== MediaProjectionService added to manifest ==="
+          fi
+          S=android/app/src/main/res/values/strings.xml
+          sed -i 's|<string name="app_name">.*</string>|<string name="app_name">Vezoo</string>|' "$S" || true
+          echo "=== Manifest check ==="; cat "$M" | grep -E "pip|NOTIF|STORAGE|INTERNET|label" || true
+
+      - name: Force compileSdk 36 everywhere
+        run: |
+          set -e
+          APP=android/app/build.gradle.kts
+          if [ ! -f "$APP" ]; then APP=android/app/build.gradle; fi
+          sed -i 's/flutter\.compileSdkVersion/36/g' "$APP" || true
+          sed -i -E 's/compileSdk[[:space:]]*=[[:space:]]*[0-9]+/compileSdk = 36/g' "$APP" || true
+          if [ -f android/build.gradle.kts ]; then
+            printf '\nsubprojects {\n    val forceSdk = {\n        val ext = extensions.findByName("android")\n        if (ext != null) {\n            try {\n                ext.javaClass.getMethod("compileSdkVersion", Int::class.javaPrimitiveType).invoke(ext, 36)\n            } catch (e: Exception) {\n                println("skip " + project.name)\n            }\n        }\n    }\n    if (state.executed) { forceSdk() } else { afterEvaluate { forceSdk() } }\n}\n' >> android/build.gradle.kts
+          else
+            printf '\nsubprojects {\n    def forceSdk = {\n        if (project.hasProperty("android")) { project.android.compileSdkVersion 36 }\n    }\n    if (state.executed) { forceSdk() } else { afterEvaluate { forceSdk() } }\n}\n' >> android/build.gradle
+          fi
+          # fix proguard deprecation در flutter_inappwebview
+          find /root/.pub-cache /home/runner/.pub-cache -name "build.gradle" 2>/dev/null | xargs grep -l "proguard-android.txt" 2>/dev/null | while read f; do
+            sed -i "s/proguard-android\.txt/proguard-android-optimize.txt/g" "$f" && echo "fixed: $f"
+          done || true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Patch jcenter to mavenCentral (after pub get)
+        run: |
+          find /root/.pub-cache/hosted/pub.dev -name "*.gradle" 2>/dev/null | while read f; do
+            if grep -q "jcenter()" "$f" 2>/dev/null; then
+              sed -i 's/jcenter()/mavenCentral()/g' "$f"
+              echo "Patched: $f"
+            fi
+          done || true
+
+      - name: Setup keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > android/app/vezoo.jks
+            cat > android/key.properties << EOF
+          storePassword=$KEYSTORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=vezoo.jks
+          EOF
+            echo "✓ Keystore configured"
+          else
+            echo "⚠ No keystore — using debug signing"
+          fi
+
+      - name: Build APK
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Sign APK
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > /tmp/vezoo.keystore
+            $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)/apksigner sign \
+              --ks /tmp/vezoo.keystore \
+              --ks-pass pass:$KEYSTORE_PASSWORD \
+              --ks-key-alias $KEY_ALIAS \
+              --key-pass pass:$KEY_PASSWORD \
+              --out build/app/outputs/flutter-apk/app-release-signed.apk \
+              build/app/outputs/flutter-apk/app-release.apk
+            mv build/app/outputs/flutter-apk/app-release-signed.apk \
+               build/app/outputs/flutter-apk/app-release.apk
+            rm -f /tmp/vezoo.keystore
+            echo "✓ APK signed with keystore"
+          else
+            echo "⚠ No keystore secret — APK not resigned"
+          fi
+
+      - name: Get version from pubspec
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | sed 's/+.*//')
+          BUILD=$(grep '^version:' pubspec.yaml | sed 's/.*+//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "build=$BUILD" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create Git Tag
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git tag -f v${{ steps.version.outputs.version }}
+          git push -f origin v${{ steps.version.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Vezoo v${{ steps.version.outputs.version }}
+          body: |
+            ## Vezoo v${{ steps.version.outputs.version }}
+
+            پلیر ویدیو هوشمند اندروید با زیرنویس AI آفلاین
+
+            ### نصب
+            فایل `Vezoo-v${{ steps.version.outputs.version }}.apk` را دانلود و نصب کنید.
+
+            > اگر نصب نشد: تنظیمات → امنیت → نصب از منابع ناشناس را فعال کنید.
+          files: build/app/outputs/flutter-apk/app-release.apk
+          fail_on_unmatched_files: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: subtitle-player-apk
+          path: build/app/outputs/flutter-apk/app-release.apk

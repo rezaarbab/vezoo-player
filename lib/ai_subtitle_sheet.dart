@@ -1,0 +1,614 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'whisper_service.dart';
+import 'main.dart' show showSnack;
+import 'ai_models_screen.dart';
+import 'srt_editor_screen.dart';
+import 'l10n.dart';
+import 'glass.dart';
+
+class AiSubtitleSheet extends StatefulWidget {
+  final String videoPath;
+  final void Function(String srtPath) onDone;
+  final void Function(String srtPath)? onPreview;
+  const AiSubtitleSheet({super.key, required this.videoPath, required this.onDone, this.onPreview});
+
+  static Future<void> show(
+    BuildContext ctx, String videoPath, void Function(String) onDone, {
+    void Function(String)? onPreview,
+  }) =>
+    showModalBottomSheet(
+      context:ctx, isScrollControlled:true,
+      backgroundColor:const Color(0xFF1D1220),
+      shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
+      builder:(_)=>AiSubtitleSheet(videoPath:videoPath, onDone:onDone, onPreview:onPreview),
+    );
+
+  @override State<AiSubtitleSheet> createState() => _State();
+}
+
+class _State extends State<AiSubtitleSheet> {
+  List<WhisperModelDef> _downloaded = [];
+  WhisperModelDef? _selected;
+  String _lang = 'fa';
+  bool _useVad = true;
+  bool _running = false;
+  bool _done = false;
+  String _status = '';
+  double _progress = 0;
+  String? _srtPath;
+  bool _loading = true;
+  bool _improving = false;
+  List<String> _existingLangs = [];
+  String _mode = 'pick'; // pick | new | running | done
+  WhisperEngine _engine = WhisperEngine.v1;
+  bool _translate = false;
+  int _videoDurationMs = 0;
+
+  @override void initState(){ super.initState(); _load(); }
+
+  Future<void> _load() async {
+    final list = await WhisperService.allDownloadedModels();
+    final root = await WhisperService.getModelsRoot();
+
+    final active = await WhisperService.getActiveModel();
+    final existing = WhisperService.existingLanguages(widget.videoPath);
+    final engine = await WhisperService.getActiveEngine();
+    final duration = await WhisperService.getVideoDurationMs(widget.videoPath);
+    if(mounted) setState((){
+      _downloaded = list;
+      _selected = active ?? (list.isNotEmpty ? list.first : null);
+      _existingLangs = existing;
+      _mode = existing.isNotEmpty ? 'pick' : 'new';
+      _engine = engine;
+      _videoDurationMs = duration;
+      _loading = false;
+    });
+  }
+
+  Future<void> _start() async {
+    if(_selected==null) return;
+    setState((){ _running=true; _mode='running'; _progress=0; _status=L.startingLabel; });
+    // notification: fire-and-forget — هرگز await نمی‌شود تا UI رو بلاک نکند
+    WhisperService.showProgressNotification('${L.aiSubtitle}: ${widget.videoPath.split("/").last}');
+    try {
+      final path = await WhisperService.transcribe(
+        videoPath: widget.videoPath,
+        language: _lang,
+        model: _selected!,
+        useVad: _useVad,
+        engine: _engine,
+        isTranslate: _translate,
+        onStatus:(s,p){
+          WhisperService.updateProgressNotification(s, p); // fire-and-forget
+          if(mounted) setState((){ _status=s; _progress=p; });
+        },
+      );
+      if(mounted) setState((){ _running=false; _mode='done'; _srtPath=path; });
+    } catch(e, st){
+      final fullErr = '$e\n\n$st';
+      if(mounted) setState((){ _running=false; _mode='new'; _status=fullErr; });
+      if(mounted) showDialog(context:context, builder:(_)=>AlertDialog(
+        backgroundColor:const Color(0xFF241627),
+        title:const Text('خطا', style:TextStyle(color:Colors.red)),
+        content:SingleChildScrollView(child:SelectableText(fullErr, style:const TextStyle(color:Colors.white70, fontSize:11, fontFamily:'monospace'))),
+        actions:[TextButton(onPressed:()=>Navigator.pop(context), child:const Text('بستن'))],
+      ));
+    } finally {
+      WhisperService.hideProgressNotification(); // fire-and-forget
+    }
+  }
+
+  Future<void> _improve() async {
+    if(_srtPath==null) return;
+    setState(()=>_improving=true);
+    try {
+      final improved = await WhisperService.improveSrt(_srtPath!);
+      setState((){ _srtPath=improved; _improving=false; });
+      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFA26592));
+    } catch(e){
+      setState(()=>_improving=false);
+      if(mounted) showSnack(context, L.errorMsg(e));
+    }
+  }
+
+  String? _improvingLang;
+  Future<void> _improveLang(String lang) async {
+    setState(()=>_improvingLang=lang);
+    try {
+      await WhisperService.improveSrt(WhisperService.bestSrtPath(widget.videoPath, lang));
+      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFFA26592));
+    } catch(e){
+      if(mounted) showSnack(context, L.errorMsg(e));
+    } finally {
+      if(mounted) setState((){ _existingLangs=WhisperService.existingLanguages(widget.videoPath); _improvingLang=null; });
+    }
+  }
+
+  Future<void> _deleteLang(String lang) async {
+    final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
+      backgroundColor:const Color(0xFF1D1220),
+      title:Text(L.deleteSubtitle,style:TextStyle(color:Colors.white,fontSize:15)),
+      content:Text('${kLanguages[lang]??lang}?',style:const TextStyle(color:Colors.white70)),
+      actions:[
+        TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
+        FilledButton(onPressed:()=>Navigator.pop(context,true),
+          style:FilledButton.styleFrom(backgroundColor:Colors.red),child:Text(L.delete)),
+      ],
+    ));
+    if(ok==true){
+      WhisperService.deleteLanguage(widget.videoPath, lang);
+      await _load();
+    }
+  }
+
+  Future<void> _deleteAll() async {
+    final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
+      backgroundColor:const Color(0xFF1D1220),
+      title:Text(L.deleteAllSubtitles,style:TextStyle(color:Colors.white,fontSize:15)),
+      content:Text(L.deleteAllSubtitles,
+        style:const TextStyle(color:Colors.white70)),
+      actions:[
+        TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
+        FilledButton(onPressed:()=>Navigator.pop(context,true),
+          style:FilledButton.styleFrom(backgroundColor:Colors.red),child:Text(L.deleteAll)),
+      ],
+    ));
+    if(ok==true){
+      WhisperService.deleteAllSubtitles(widget.videoPath);
+      await _load();
+    }
+  }
+
+  @override
+  Widget build(BuildContext ctx) {
+    final isOnline = widget.videoPath.startsWith('http://') || widget.videoPath.startsWith('https://');
+    if (isOnline) return SafeArea(child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        const VzSheetHandle(),
+        const Icon(Icons.wifi_off_rounded, color: Colors.white38, size: 48),
+        const SizedBox(height:16),
+        Text(L.aiSubtitleOffline, style: TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.bold)),
+        const SizedBox(height:8),
+        Text(
+          L.onlineOnlyLocal,
+          textAlign: TextAlign.center,
+          style: TextStyle(color:Colors.white60, fontSize:13, height:1.6)),
+        const SizedBox(height:20),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx),
+          style: FilledButton.styleFrom(backgroundColor: const Color(0xFFA26592)),
+          child: Text(L.close)),
+      ]),
+    ));  // end online SafeArea
+
+    return SafeArea(
+    child:ConstrainedBox(
+      constraints:BoxConstraints(maxHeight:MediaQuery.of(ctx).size.height*0.85),
+      child:SingleChildScrollView(
+        padding:EdgeInsets.only(left:16,right:16,top:16,bottom:MediaQuery.of(ctx).viewInsets.bottom+16),
+        child:_loading
+          ? SizedBox(height:120,child:Center(child:CircularProgressIndicator(color: const Color(0xFFA26592))))
+          : Column(mainAxisSize:MainAxisSize.min,children:[
+            const VzSheetHandle(),
+            const SizedBox(height:14),
+            Row(children:[
+              const Icon(Icons.auto_awesome,color: const Color(0xFFA26592),size:20),
+              const SizedBox(width:8),
+              Text(L.aiSubLabel,style:TextStyle(color:Colors.white,fontSize:17,fontWeight:FontWeight.bold)),
+              const Spacer(),
+              TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close)),
+            ]),
+            const SizedBox(height:12),
+
+            if(_mode=='pick')    ..._buildPick()
+            else if(_mode=='new')..._buildNew()
+            else if(_mode=='running')..._buildRunning()
+            else if(_mode=='done')..._buildDone(),
+
+            const SizedBox(height:8),
+          ]),
+      ),
+    ),
+  );
+  } // close build method
+
+  // ── حالت انتخاب: زبان‌های موجود + ساخت جدید ──
+  List<Widget> _buildPick()=>[
+    Padding(
+      padding: EdgeInsets.only(bottom:8),
+      child: Align(alignment:Alignment.centerRight,
+        child:Text(L.builtSubtitles,style:TextStyle(color:Colors.white60,fontSize:12))),
+    ),
+
+    ..._existingLangs.map((lang){
+      final improved = WhisperService.improvedExists(widget.videoPath, lang);
+      final improving = _improvingLang==lang;
+      return Container(
+        margin:const EdgeInsets.only(bottom:8),
+        padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
+        decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+        child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+          Row(children:[
+            const Icon(Icons.star,color:Colors.amber,size:16),
+            const SizedBox(width:8),
+            Text(kLanguages[lang]??lang,style:const TextStyle(color:Colors.white,fontSize:14)),
+            if(improved)...[
+              const SizedBox(width:6),
+              Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
+                decoration:BoxDecoration(color:const Color(0xFFA26592).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                child:Text(L.improved,style:TextStyle(color: const Color(0xFFA26592),fontSize:10))),
+            ],
+          ]),
+          const SizedBox(height:8),
+          Row(children:[
+            Expanded(child:SingleChildScrollView(
+              scrollDirection:Axis.horizontal,
+              child:Row(children:[
+                IconButton(
+                  icon:const Icon(Icons.share,color: const Color(0xFFA26592),size:18),
+                  tooltip:L.share,
+                  onPressed:()=>SharePlus.instance.share(ShareParams(
+                    files:[XFile(WhisperService.bestSrtPath(widget.videoPath, lang))],
+                    text:L.vezooSubtitle)),
+                  constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
+                ),
+                IconButton(
+                  icon:const Icon(Icons.edit,color:Colors.white70,size:18),
+                  tooltip:L.edit,
+                  onPressed:()async{
+                    await Navigator.push(context,MaterialPageRoute(
+                      builder:(_)=>SrtEditorScreen(srtPath:WhisperService.bestSrtPath(widget.videoPath, lang))));
+                    if(mounted)setState((){});
+                  },
+                  constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
+                ),
+                improving
+                  ? Padding(padding:EdgeInsets.all(8),
+                      child:SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFA26592))))
+                  : IconButton(
+                      icon:const Icon(Icons.auto_fix_high,color: const Color(0xFFA26592),size:18),
+                      tooltip:L.improveSubtitle,
+                      onPressed:()=>_improveLang(lang),
+                      constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
+                    ),
+                IconButton(
+                  icon:const Icon(Icons.delete_outline,color:Colors.red,size:18),
+                  tooltip:L.delete,
+                  onPressed:()=>_deleteLang(lang),
+                  constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
+                ),
+              ]),
+            )),
+            const SizedBox(width:8),
+            FilledButton(
+              onPressed:(){
+                widget.onDone(WhisperService.bestSrtPath(widget.videoPath, lang));
+                Navigator.pop(context);
+              },
+              style:FilledButton.styleFrom(backgroundColor:const Color(0xFFA26592),
+                minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:14),
+                shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8))),
+              child:Text(L.use,style:TextStyle(fontSize:12)),
+            ),
+          ]),
+        ]),
+      );
+    }),
+
+    const SizedBox(height:8),
+    Row(children:[
+      Expanded(child:OutlinedButton.icon(
+        onPressed:()=>setState(()=>_mode='new'),
+        icon:const Icon(Icons.add,size:16,color: const Color(0xFFA26592)),
+        label:Text(L.createNewLang,style:TextStyle(color: const Color(0xFFA26592),fontSize:13)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFA26592)),
+          padding:const EdgeInsets.symmetric(vertical:12),
+          shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
+      )),
+      const SizedBox(width:8),
+      OutlinedButton.icon(
+        onPressed:_deleteAll,
+        icon:const Icon(Icons.delete_sweep,size:16,color:Colors.red),
+        label:Text(L.deleteAll,style:TextStyle(color:Colors.red,fontSize:13)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.red),
+          padding:const EdgeInsets.symmetric(vertical:12,horizontal:12),
+          shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
+      ),
+    ]),
+  ];
+
+  // ── حالت ساخت جدید ──
+  List<Widget> _buildNew()=>[
+    if(_downloaded.isEmpty)
+      _row(icon:Icons.memory, child:Text(L.noModelDownloaded,style:TextStyle(color:Colors.orange,fontSize:13)),
+        trailing:FilledButton.icon(
+          onPressed:(){ Navigator.pop(context); Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())); },
+          icon:const Icon(Icons.download,size:14),label:Text(L.download,style:TextStyle(fontSize:12)),
+          style:FilledButton.styleFrom(backgroundColor:const Color(0xFFA26592),
+            minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:12)),
+        ))
+    else _row(
+      icon:Icons.memory,
+      child:DropdownButton<WhisperModelDef>(
+        value:_selected, dropdownColor:const Color(0xFF2C1B2E),
+        underline:const SizedBox(), isExpanded:true,
+        style:const TextStyle(color:Colors.white,fontSize:13),
+        items:_downloaded.map((m)=>DropdownMenuItem(value:m,
+          child:Text('${m.name} ${m.isQuantized?"(${m.variant})":""}'))).toList(),
+        onChanged:(v){ if(v!=null) setState(()=>_selected=v); },
+      ),
+    ),
+    const SizedBox(height:10),
+
+    _row(icon:Icons.language, child:DropdownButton<String>(
+      value:_lang, dropdownColor:const Color(0xFF2C1B2E),
+      underline:const SizedBox(), isExpanded:true,
+      style:const TextStyle(color:Colors.white,fontSize:13),
+      items:kLanguages.entries.map((e){
+        final has = _existingLangs.contains(e.key);
+        return DropdownMenuItem(value:e.key,child:Row(children:[
+          Text(e.value),
+          if(has)...[const SizedBox(width:6),const Icon(Icons.star,color:Colors.amber,size:12)],
+        ]));
+      }).toList(),
+      onChanged:(v){ if(v!=null) setState(()=>_lang=v); },
+    )),
+    const SizedBox(height:10),
+
+    // ── ترجمه به انگلیسی (همیشه در دسترس) ──
+    Container(
+      padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
+      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      child:Row(children:[
+        const Icon(Icons.translate,color: const Color(0xFFA26592),size:18),
+        const SizedBox(width:10),
+        Expanded(child:Text(L.translateToEn,
+          style:TextStyle(color:Colors.white,fontSize:12))),
+        Switch(value:_translate,activeColor:const Color(0xFFA26592),
+          onChanged:(v)=>setState(()=>_translate=v)),
+      ]),
+    ),
+    const SizedBox(height:10),
+
+    // ── انتخاب موتور — V1 و V2 همیشه هر دو در دسترس‌اند ──
+    Container(
+      padding:const EdgeInsets.all(10),
+      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Row(children:[
+          Icon(Icons.settings_suggest,color: const Color(0xFFA26592),size:16),
+          SizedBox(width:8),
+          Text(L.aiModel,style:TextStyle(color:Colors.white70,fontSize:12)),
+        ]),
+        const SizedBox(height:8),
+        Row(children:[
+          Expanded(child:_engineChip(WhisperEngine.v1,'V1',L.engineV1)),
+          const SizedBox(width:8),
+          Expanded(child:_engineChip(WhisperEngine.v2,'V2',L.engineV2)),
+        ]),
+      ]),
+    ),
+    const SizedBox(height:10),
+
+    Container(
+      padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
+      decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+      child:Row(children:[
+        const Icon(Icons.graphic_eq,color: const Color(0xFFA26592),size:18),
+        const SizedBox(width:10),
+        Expanded(child:Text(L.vadMode,style:TextStyle(color:Colors.white,fontSize:13))),
+        Switch(value:_useVad,activeColor:const Color(0xFFA26592),
+          onChanged:(v)=>setState(()=>_useVad=v)),
+      ]),
+    ),
+    const SizedBox(height:14),
+
+    if(_existingLangs.contains(_lang))
+      Container(
+        margin:const EdgeInsets.only(bottom:10),
+        padding:const EdgeInsets.all(10),
+        decoration:BoxDecoration(color:Colors.orange.withOpacity(0.15),borderRadius:BorderRadius.circular(10)),
+        child:Row(children:[
+          Icon(Icons.warning_amber,color:Colors.orange,size:16),
+          SizedBox(width:8),
+          Expanded(child:Text(L.createNewLang,
+            style:TextStyle(color:Colors.orange,fontSize:11))),
+        ]),
+      ),
+
+    // ── تخمین دقت + زمان پردازش بر اساس مدل + زبان انتخابی ──
+    if(_selected!=null)
+      Container(
+        margin:const EdgeInsets.only(bottom:10),
+        padding:const EdgeInsets.symmetric(horizontal:10,vertical:8),
+        decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(10)),
+        child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+          Row(children:[
+            const Icon(Icons.insights,color: const Color(0xFFA26592),size:16),
+            const SizedBox(width:8),
+            Text('${L.accuracy}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
+            Text(estimateAccuracy(_selected!,_lang),
+              style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.bold)),
+          ]),
+          if(_videoDurationMs>0)...[
+            const SizedBox(height:4),
+            Row(children:[
+              const Icon(Icons.timer_outlined,color: const Color(0xFFA26592),size:16),
+              const SizedBox(width:8),
+              Text('${L.sleepTimer}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
+              Text(WhisperService.estimateProcessingTime(_videoDurationMs,_selected!,_engine),
+                style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.bold)),
+            ]),
+          ],
+        ]),
+      ),
+
+    Row(children:[
+      if(_existingLangs.isNotEmpty)...[
+        OutlinedButton(
+          onPressed:()=>setState(()=>_mode='pick'),
+          style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+            padding:const EdgeInsets.symmetric(vertical:14,horizontal:16),
+            shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12))),
+          child:const Icon(Icons.arrow_back,color:Colors.white70,size:18),
+        ),
+        const SizedBox(width:8),
+      ],
+      Expanded(child:FilledButton.icon(
+        onPressed:_downloaded.isEmpty ? null : _start,
+        icon:const Icon(Icons.subtitles),
+        label:Text(L.aiSubtitle,style:TextStyle(fontSize:15)),
+        style:FilledButton.styleFrom(
+          backgroundColor:const Color(0xFFA26592),
+          padding:const EdgeInsets.symmetric(vertical:14),
+          shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
+        ),
+      )),
+    ]),
+
+    if(_status.startsWith(L.error))Padding(
+      padding:const EdgeInsets.only(top:8),
+      child:Text(_status,style:const TextStyle(color:Colors.red,fontSize:11),textAlign:TextAlign.center),
+    ),
+  ];
+
+  List<Widget> _buildRunning()=>[
+    const SizedBox(height:8),
+    Text(_status,style:const TextStyle(color:Colors.white,fontSize:14),textAlign:TextAlign.center),
+    const SizedBox(height:12),
+    LinearProgressIndicator(
+      value:_progress>0&&_progress<=1 ? _progress : null,
+      backgroundColor:const Color(0xFF2C1B2E),
+      color:const Color(0xFFA26592), minHeight:6,
+      borderRadius:BorderRadius.circular(3),
+    ),
+    const SizedBox(height:4),
+    Text(_progress>0 ? '${(_progress*100).clamp(0,100).toInt()}%':'',
+      style:const TextStyle(color:Colors.white54,fontSize:12),textAlign:TextAlign.center),
+    const SizedBox(height:12),
+    OutlinedButton.icon(
+      onPressed:()async{ await WhisperService.cancelExtraction(); if(mounted) setState((){ _running=false; _mode='new'; }); },
+      icon:const Icon(Icons.stop_circle_outlined,color:Colors.red),
+      label:Text(L.cancel,style:TextStyle(color:Colors.red)),
+      style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.red)),
+    ),
+    const SizedBox(height:6),
+    Text(L.processing,
+      style:TextStyle(color:Colors.white38,fontSize:11),textAlign:TextAlign.center),
+  ];
+
+  List<Widget> _buildDone()=>[
+    const SizedBox(height:4),
+    const Icon(Icons.check_circle,color:Colors.green,size:44),
+    const SizedBox(height:6),
+    Text('${L.subtitleLoaded} (${kLanguages[_lang]??_lang})',
+      style:const TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.bold)),
+    const SizedBox(height:4),
+    Text(_srtPath?.split('/').last??'',
+      style:const TextStyle(color:Colors.white54,fontSize:11),textAlign:TextAlign.center),
+    const SizedBox(height:14),
+
+    SizedBox(width:double.infinity,child:OutlinedButton.icon(
+      onPressed:_improving?null:_improve,
+      icon:_improving
+        ? const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFFA26592)))
+        : const Icon(Icons.auto_fix_high,size:16,color: const Color(0xFFA26592)),
+      label:Text(_improving?L.improving:L.improveSubtitle,
+        style:const TextStyle(color: const Color(0xFFA26592),fontSize:13)),
+      style:OutlinedButton.styleFrom(
+        side:const BorderSide(color: const Color(0xFFA26592)),
+        padding:const EdgeInsets.symmetric(vertical:12),
+        shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
+      ),
+    )),
+    const SizedBox(height:8),
+
+    // ── اشتراک‌گذاری / ویرایش / پیش‌نمایش ──
+    Row(children:[
+      Expanded(child:OutlinedButton.icon(
+        onPressed:()=>SharePlus.instance.share(ShareParams(files:[XFile(_srtPath!)],text:L.vezooSubtitle)),
+        icon:const Icon(Icons.share,size:15,color: const Color(0xFFA26592)),
+        label:Text(L.share,style:TextStyle(color: const Color(0xFFA26592),fontSize:12,fontWeight:FontWeight.bold)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFFA26592)),
+          padding:const EdgeInsets.symmetric(vertical:10),
+          shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
+      )),
+      const SizedBox(width:8),
+      Expanded(child:OutlinedButton.icon(
+        onPressed:()async{
+          await Navigator.push(context,MaterialPageRoute(builder:(_)=>SrtEditorScreen(srtPath:_srtPath!)));
+          if(mounted)setState((){}); // رفرش بعد از برگشت از ویرایشگر
+        },
+        icon:const Icon(Icons.edit,size:15,color:Colors.white70),
+        label:Text(L.edit,style:TextStyle(color:Colors.white70,fontSize:12)),
+        style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+          padding:const EdgeInsets.symmetric(vertical:10),
+          shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
+      )),
+      if(widget.onPreview!=null)...[
+        const SizedBox(width:8),
+        Expanded(child:OutlinedButton.icon(
+          onPressed:(){
+            widget.onPreview!(_srtPath!);
+            showSnack(context, L.previewLoaded, color: const Color(0xFFA26592), seconds: 2);
+          },
+          icon:const Icon(Icons.visibility,size:15,color:Colors.white70),
+          label:Text(L.preview,style:TextStyle(color:Colors.white70,fontSize:12)),
+          style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+            padding:const EdgeInsets.symmetric(vertical:10),
+            shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
+        )),
+      ],
+    ]),
+    const SizedBox(height:8),
+
+    SizedBox(width:double.infinity,child:FilledButton.icon(
+      onPressed:(){ Navigator.pop(context); widget.onDone(_srtPath!); },
+      icon:const Icon(Icons.subtitles),
+      label:Text(L.loadSubtitle),
+      style:FilledButton.styleFrom(
+        backgroundColor:const Color(0xFFA26592),
+        padding:const EdgeInsets.symmetric(vertical:14),
+        shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
+      ),
+    )),
+  ];
+
+  Widget _engineChip(WhisperEngine e, String label, String sub){
+    final active = _engine==e;
+    return GestureDetector(
+      onTap:()async{
+        setState(()=>_engine=e);
+        await WhisperService.setActiveEngine(e);
+      },
+      child:Container(
+        padding:const EdgeInsets.symmetric(vertical:8,horizontal:8),
+        decoration:BoxDecoration(
+          color:active?const Color(0xFFA26592):const Color(0xFF1D1220),
+          borderRadius:BorderRadius.circular(10),
+          border:Border.all(color:active?const Color(0xFFA26592):Colors.white12),
+        ),
+        child:Column(children:[
+          Text(label,style:TextStyle(color:active?Colors.white:Colors.white70,fontSize:13,fontWeight:FontWeight.bold)),
+          const SizedBox(height:2),
+          Text(sub,style:TextStyle(color:active?Colors.white70:Colors.white38,fontSize:10)),
+        ]),
+      ),
+    );
+  }
+
+  Widget _row({required IconData icon, required Widget child, Widget? trailing})=>Container(
+    padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
+    decoration:BoxDecoration(color:const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(12)),
+    child:Row(children:[
+      Icon(icon,color:const Color(0xFFA26592),size:18),
+      const SizedBox(width:10),
+      Expanded(child:child),
+      if(trailing!=null) trailing,
+    ]),
+  );
+}

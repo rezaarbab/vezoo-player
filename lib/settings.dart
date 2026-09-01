@@ -1,0 +1,1020 @@
+// lib/settings.dart — تنظیمات پلیر
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart' as p;
+import 'package:url_launcher/url_launcher.dart';
+import 'store.dart';
+import 'whisper_service.dart' show WhisperService;
+import 'ytdlp_service.dart';
+import 'gemini_live_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'l10n.dart';
+import 'vosk_models_screen.dart';
+import 'ytdlp_service.dart';
+import 'gemini_live_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'main.dart' show showSnack;
+import 'glass.dart';
+
+class PlayerSettings extends StatefulWidget {
+  final VideoSettings vs;
+  final ValueChanged<VideoSettings> onChanged;
+  final VideoSettings? vs2;
+  final ValueChanged<VideoSettings>? onChanged2;
+  final bool sub1Visible, sub2Visible;
+  final ValueChanged<bool> onSub1Visible, onSub2Visible;
+  final String? sub2Path;
+  final int subDelayMs, subDelay2Ms, audioDelayMs;
+  final ValueChanged<int> onSubDelayMs, onSubDelay2Ms, onAudioDelayMs;
+  final Color color2;
+  final ValueChanged<Color> onColor2;
+  final VoidCallback onPickSub1, onPickSub2, onPickFont, onSaveForVideo;
+  final double speed, ampVolume;
+  final ValueChanged<double> onSpeed, onAmpVolume;
+  final bool hwDecode;
+  final ValueChanged<bool> onHwDecode;
+  final bool embeddedSubEnabled;
+  final ValueChanged<bool> onEmbeddedSubEnabled;
+  final int? videoWidth, videoHeight;
+
+  const PlayerSettings({
+    super.key,
+    required this.vs, required this.onChanged,
+    this.vs2, this.onChanged2,
+    required this.sub1Visible, required this.onSub1Visible,
+    required this.sub2Visible, required this.onSub2Visible,
+    this.sub2Path,
+    required this.subDelayMs, required this.onSubDelayMs,
+    required this.subDelay2Ms, required this.onSubDelay2Ms,
+    required this.audioDelayMs, required this.onAudioDelayMs,
+    required this.color2, required this.onColor2,
+    required this.onPickSub1, required this.onPickSub2,
+    required this.onPickFont, required this.onSaveForVideo,
+    required this.speed, required this.onSpeed,
+    required this.ampVolume, required this.onAmpVolume,
+    required this.hwDecode, required this.onHwDecode,
+    required this.embeddedSubEnabled, required this.onEmbeddedSubEnabled,
+    this.videoWidth, this.videoHeight,
+  });
+
+  @override State<PlayerSettings> createState()=>_SettingsState();
+}
+
+class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStateMixin{
+  late TabController _tab;
+  late VideoSettings _vs;
+  late int _sd1, _sd2, _ad;
+  late Color _c2;
+  late double _speed, _amp;
+  late bool _s1v, _s2v;
+
+  final List<Color> _textColors=const[Colors.white,Color(0xFFFFEB3B),Color(0xFF69F0AE),Color(0xFF40C4FF),Color(0xFFFF8A65),Color(0xFFFF80AB)];
+  final List<Color> _bgColors=const[Colors.black,Color(0xFF0D1B2A),Color(0xFF1B2E1B),Color(0xFF2A1B1B),Color(0xFF241627),Colors.transparent];
+
+  bool _hwDecode=true;
+  bool _embeddedSub=true;
+  final TextEditingController _d1Ctrl=TextEditingController();
+  final TextEditingController _d2Ctrl=TextEditingController();
+  final TextEditingController _adCtrl=TextEditingController();
+
+  @override
+  void initState(){
+    super.initState();
+    _tab=TabController(length:4,vsync:this);
+    _embeddedSub=widget.embeddedSubEnabled;
+    _vs=widget.vs;_sd1=widget.subDelayMs;_sd2=widget.subDelay2Ms;_ad=widget.audioDelayMs;
+    _c2=widget.color2;_speed=widget.speed;_amp=widget.ampVolume;
+    _s1v=widget.sub1Visible;_s2v=widget.sub2Visible;
+    _hwDecode=widget.hwDecode;
+    _d1Ctrl.text='$_sd1';_d2Ctrl.text='$_sd2';_adCtrl.text='$_ad';
+  }
+  @override void dispose(){_tab.dispose();_d1Ctrl.dispose();_d2Ctrl.dispose();_adCtrl.dispose();super.dispose();}
+
+  void _ch(VoidCallback fn){fn();setState((){});widget.onChanged(_vs);}
+
+  @override
+  Widget build(BuildContext context){
+    return Column(mainAxisSize:MainAxisSize.min,children:[
+      const SizedBox(height:10),
+      const Center(child:VzSheetHandle()),
+      TabBar(controller:_tab,isScrollable:true,tabs:[
+        Tab(text:L.subtitle,icon:Icon(Icons.subtitles,size:16)),
+        Tab(text:L.playback,icon:Icon(Icons.volume_up,size:16)),
+        Tab(text:L.subtitle2,icon:Icon(Icons.subtitles_outlined,size:16)),
+        Tab(text:L.other,icon:Icon(Icons.more_horiz,size:16)),
+      ]),
+      SizedBox(height:MediaQuery.of(context).size.height*0.48,child:TabBarView(controller:_tab,children:[
+        _sub1Tab(),_audioTab(),_sub2Tab(),_otherTab(),
+      ])),
+      SizedBox(height:MediaQuery.of(context).viewPadding.bottom+4),
+    ]);
+  }
+
+  // ──────── تب زیرنویس ۱ ────────
+  Widget _sub1Tab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+    SwitchListTile(contentPadding:EdgeInsets.zero,title:Text(L.subtitleDisplay),value:_s1v,
+        onChanged:(v){setState(()=>_s1v=v);widget.onSub1Visible(v);}),
+    SwitchListTile(contentPadding:EdgeInsets.zero,
+        title:Text(L.showSubToolbar),
+        subtitle:Text(L.subToolbarDesc),
+        value:_vs.showSubToolbar,
+        onChanged:(v)=>_ch(()=>_vs.showSubToolbar=v)),
+
+    // اندازه فونت
+    Text('${L.fontSize}: ${_vs.fontSize.round()}'),
+    Slider(min:6,max:100,value:_vs.fontSize,onChanged:(v)=>_ch(()=>_vs.fontSize=v)),
+
+    SwitchListTile(contentPadding:EdgeInsets.zero,title:Text(L.boldLabel),value:_vs.bold,
+        onChanged:(v)=>_ch(()=>_vs.bold=v)),
+
+    // دیلی زیرنویس با عدد
+    Text(L.subDelay),const SizedBox(height:6),
+    Row(children:[
+      IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_sd1-=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+      Expanded(child:TextField(controller:_d1Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
+        textAlign:TextAlign.center,
+        onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd1=n);widget.onSubDelayMs(n);}},
+        decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
+      IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_sd1+=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+    ]),
+    Slider(min:-10000,max:10000,value:_sd1.toDouble().clamp(-10000,10000),
+        onChanged:(v){setState(()=>_sd1=v.round());widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+
+    // موقعیت
+    Text('${L.position}: ${_vs.bottomPadding.round()}px'),
+    Slider(min:0,max:900,value:_vs.bottomPadding.clamp(0,900),onChanged:(v)=>_ch(()=>_vs.bottomPadding=v)),
+
+    const SizedBox(height:8),Text(L.alignment),const SizedBox(height:8),
+    SegmentedButton<int>(
+      segments:[
+        ButtonSegment(value:1,label:Text(L.right),icon:Icon(Icons.format_align_right,size:16)),
+        ButtonSegment(value:2,label:Text(L.center),icon:Icon(Icons.format_align_center,size:16)),
+        ButtonSegment(value:0,label:Text(L.left),icon:Icon(Icons.format_align_left,size:16)),
+      ],
+      selected:{_vs.textAlign},onSelectionChanged:(s)=>_ch(()=>_vs.textAlign=s.first),
+    ),
+
+    const SizedBox(height:12),Text(L.textColor),const SizedBox(height:8),
+    Wrap(spacing:10,children:_textColors.map((c)=>GestureDetector(onTap:()=>_ch(()=>_vs.textColor=c.value),
+      child:Container(width:34,height:34,decoration:BoxDecoration(color:c,shape:BoxShape.circle,
+          border:Border.all(color:c.value==_vs.textColor?Colors.white:Colors.transparent,width:3))))).toList()),
+
+    const SizedBox(height:12),Text(L.bgColor),const SizedBox(height:8),
+    Wrap(spacing:10,children:_bgColors.map((c){
+      final sel=c.value==_vs.bgColor;
+      return GestureDetector(onTap:()=>_ch(()=>_vs.bgColor=c.value),child:Container(width:34,height:34,
+        decoration:BoxDecoration(color:c==Colors.transparent?null:c,shape:BoxShape.circle,
+            border:Border.all(color:sel?Colors.white:Colors.white24,width:sel?3:1)),
+        child:c==Colors.transparent?const Center(child:Icon(Icons.block,size:18,color:Colors.white38)):null));
+    }).toList()),
+    Text('${L.transparency}: ${(_vs.bgOpacity*100).round()}%'),
+    Slider(min:0,max:1,value:_vs.bgOpacity,onChanged:(v)=>_ch(()=>_vs.bgOpacity=v)),
+
+    const Divider(height:20),Text(L.font),const SizedBox(height:8),
+    // فونت‌های پیش‌فرض
+    Wrap(spacing:6,runSpacing:6,children:kDefaultFonts.map(((String label,String family) f)=>GestureDetector(
+      onTap:()=>_ch(()=>_vs.fontFamily=f.$2),
+      child:Container(
+        padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
+        decoration:BoxDecoration(
+          color:_vs.fontFamily==f.$2?const Color(0xFFA26592):const Color(0xFF2C1B2E),
+          borderRadius:BorderRadius.circular(8),
+          border:Border.all(color:_vs.fontFamily==f.$2?const Color(0xFFA26592):const Color(0xFF4E3049))),
+        child:Text(f.$1,style:TextStyle(fontFamily:f.$2.isEmpty?null:f.$2,
+          color:_vs.fontFamily==f.$2?Colors.white:const Color(0xFFC9B8CE),fontSize:12))),
+    )).toList()),
+    const SizedBox(height:8),
+    OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickFont();},
+        icon:const Icon(Icons.font_download),label:Text(L.customFont)),
+
+    const Divider(height:20),
+    // border و سایه
+    Row(children:[
+      Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text('Border: ${_vs.borderSize.toStringAsFixed(1)}',style:const TextStyle(fontSize:12)),
+        Slider(min:0,max:8,divisions:16,value:_vs.borderSize,
+          onChanged:(v)=>_ch(()=>_vs.borderSize=v)),
+      ])),
+      const SizedBox(width:8),
+      Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text('${L.shadow}: ${_vs.shadowSize.toStringAsFixed(1)}',style:const TextStyle(fontSize:12)),
+        Slider(min:0,max:5,divisions:10,value:_vs.shadowSize,
+          onChanged:(v)=>_ch(()=>_vs.shadowSize=v)),
+      ])),
+    ]),
+    const Divider(height:20),
+    // ابزارهای زیرنویس زنده
+    Text(L.liveSubtitleTools),const SizedBox(height:8),
+    Row(children:[
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.copy,size:16),label:Text(L.copy),
+          onPressed:(){Navigator.pop(context);})),
+      const SizedBox(width:8),
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.translate,size:16),label:Text(L.translationLabel),
+          onPressed:(){
+            Navigator.pop(context);
+            showSnack(context, L.translatePaste);
+          })),
+      const SizedBox(width:8),
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.book,size:16),label:Text(L.dictionary),
+          onPressed:(){
+            Navigator.pop(context);
+            showSnack(context, L.dictionarySearch);
+          })),
+    ]),
+
+    const Divider(height:20),
+    OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickSub1();},
+        icon:const Icon(Icons.file_open),label:Text(L.chooseSub1)),
+  ]));
+
+  // ──────── تب صدا / پخش ────────
+  Widget _audioTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+    // دیلی صدا
+    Text(L.audioDelay),const SizedBox(height:6),
+    Row(children:[
+      IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_ad-=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+      Expanded(child:TextField(controller:_adCtrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
+        textAlign:TextAlign.center,
+        onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_ad=n);widget.onAudioDelayMs(n);}},
+        decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true,
+            helperText:L.hwDecode))),
+      IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_ad+=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+    ]),
+
+    const Divider(height:24),
+    // تقویت صدا
+    Text(L.volumeBoost),
+    Text('${_amp.round()}%',style:const TextStyle(fontSize:20,fontWeight:FontWeight.bold)),
+    Slider(min:100,max:300,value:_amp,onChanged:(v){setState(()=>_amp=v);widget.onAmpVolume(v);}),
+
+    const Divider(height:24),
+    // سرعت
+    SwitchListTile(contentPadding:EdgeInsets.zero,
+      title:Text(L.seekPreview),
+      subtitle:Text(L.seekPreviewDesc),
+      value:_vs.showSeekPreview,
+      onChanged:(v)=>_ch(()=>_vs.showSeekPreview=v),
+    ),
+    const Divider(height:12),
+    Text('${L.speed}: ${_speed%1==0?_speed.toInt():_speed}x'),
+    Slider(min:0.25,max:10,divisions:39,value:_speed,
+        onChanged:(v){final s=(v*4).round()/4;setState(()=>_speed=s);widget.onSpeed(s);_ch(()=>_vs.speed=s);}),
+    Wrap(spacing:6,runSpacing:6,children:[0.5,1.0,1.5,2.0,3.0,5.0,10.0].map((s)=>GestureDetector(
+      onTap:()=>_ch(()=>_vs.speed=s),
+      child:Container(
+        padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
+        decoration:BoxDecoration(
+          color:_vs.speed==s?const Color(0xFFA26592):const Color(0xFF2C1B2E),
+          borderRadius:BorderRadius.circular(8),
+          border:Border.all(color:_vs.speed==s?const Color(0xFFA26592):const Color(0xFF4E3049))),
+        child:Text('${s}x',style:TextStyle(color:_vs.speed==s?Colors.white:const Color(0xFFC9B8CE),fontSize:12))),
+    )).toList()),
+
+    const Divider(height:24),
+    // حالت شب
+    Text('${L.nightMode}: ${(_vs.nightOpacity*100).round()}%'),
+    Slider(min:0,max:1,value:_vs.nightOpacity,activeColor:Colors.orange,onChanged:(v)=>_ch(()=>_vs.nightOpacity=v)),
+  ]));
+
+  // ──────── تب زیرنویس ۲ ────────
+  Widget _sub2Tab(){
+    final vs2 = widget.vs2 ?? VideoSettings(fontSize:26,bold:false,textColor:0xFFFFFF99,bgOpacity:0.4,bottomPadding:90);
+    void ch2(void Function() fn){
+      setState(fn);
+      widget.onChanged2?.call(vs2);
+    }
+    return SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+      SwitchListTile(contentPadding:EdgeInsets.zero,title:Text(L.subtitle2),value:_s2v,
+          onChanged:(v){setState(()=>_s2v=v);widget.onSub2Visible(v);}),
+      OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickSub2();},
+          icon:const Icon(Icons.file_open),label:Text(L.loadSubSub2)),
+      if(widget.sub2Path!=null)Text('${L.files}: '+p.basename(widget.sub2Path!),style:const TextStyle(fontSize:11,color:Colors.white54)),
+      const SizedBox(height:8),
+      SwitchListTile(contentPadding:EdgeInsets.zero,
+        title:Text(L.subDragCopy),
+        subtitle:Text(L.subDragCopy,style:TextStyle(fontSize:11)),
+        value:vs2.showSubToolbar,
+        onChanged:(v)=>ch2(()=>vs2.showSubToolbar=v)),
+      const SizedBox(height:8),
+      Text(L.fontSize),const SizedBox(height:4),
+      Row(children:[
+        IconButton(icon:const Icon(Icons.remove),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize-1).clamp(8,80));}),
+        Expanded(child:Slider(min:8,max:80,value:vs2.fontSize,onChanged:(v)=>ch2(()=>vs2.fontSize=v))),
+        Text('${vs2.fontSize.round()}',style:const TextStyle(fontWeight:FontWeight.bold)),
+        IconButton(icon:const Icon(Icons.add),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize+1).clamp(8,80));}),
+      ]),
+      SwitchListTile(contentPadding:EdgeInsets.zero,title:const Text('Bold'),value:vs2.bold,onChanged:(v)=>ch2(()=>vs2.bold=v)),
+      Text(L.textColor),const SizedBox(height:8),
+      Wrap(spacing:10,children:[Colors.white,const Color(0xFFFFFF99),const Color(0xFFFFEB3B),const Color(0xFF69F0AE),const Color(0xFF40C4FF),const Color(0xFFFF8A65)].map((c)=>
+        GestureDetector(onTap:()=>ch2(()=>vs2.textColor=c.value),
+          child:Container(width:34,height:34,decoration:BoxDecoration(color:c,shape:BoxShape.circle,
+            border:Border.all(color:c.value==vs2.textColor?Colors.white:Colors.transparent,width:3))))).toList()),
+      const SizedBox(height:12),
+      Text(L.transparency),
+      Slider(min:0,max:1,value:vs2.bgOpacity,onChanged:(v)=>ch2(()=>vs2.bgOpacity=v)),
+      const SizedBox(height:8),
+
+      // ── رنگ پس‌زمینه ──
+      Text(L.bgColor),const SizedBox(height:8),
+      Wrap(spacing:10,children:[Colors.black,const Color(0xFF2C1B2E),const Color(0xFF16213E),Colors.transparent].map((c)=>
+        GestureDetector(onTap:()=>ch2(()=>vs2.bgColor=c.value),
+          child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Colors.white12:c,shape:BoxShape.circle,
+            border:Border.all(color:c.value==vs2.bgColor?Colors.white:Colors.white24,width:c.value==vs2.bgColor?3:1)),
+            child:c==Colors.transparent?const Icon(Icons.block,size:18,color:Colors.white38):null))).toList()),
+      const SizedBox(height:12),
+
+      // ── چینش ──
+      Text(L.alignment),const SizedBox(height:8),
+      Row(mainAxisAlignment:MainAxisAlignment.start,children:[
+        for(final e in [(L.left,0),(L.center,2),(L.right,1)])...[
+          GestureDetector(onTap:()=>ch2(()=>vs2.textAlign=e.$2),
+            child:Container(padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
+              decoration:BoxDecoration(color:vs2.textAlign==e.$2?const Color(0xFFA26592):const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(8)),
+              child:Text(e.$1,style:TextStyle(color:vs2.textAlign==e.$2?Colors.white:Colors.white60,fontSize:12)))),
+          const SizedBox(width:6),
+        ],
+      ]),
+      const SizedBox(height:12),
+
+      // ── سایه ──
+      Row(children:[
+        Text(L.shadow,style:TextStyle(fontSize:13)),
+        const SizedBox(width:8),
+        Expanded(child:Slider(min:0,max:3,value:vs2.shadowSize,onChanged:(v)=>ch2(()=>vs2.shadowSize=v))),
+        Text('${vs2.shadowSize.toStringAsFixed(1)}',style:const TextStyle(fontSize:12)),
+      ]),
+      const SizedBox(height:12),
+
+      // ── انتخاب فونت ──
+      const Divider(color:Colors.white12),
+      Text(L.font,style:TextStyle(fontSize:13)),const SizedBox(height:8),
+      Wrap(spacing:8,runSpacing:6,children:['','Vazirmatn','IRANSansMobile','Roboto','Tahoma'].map((f)=>
+        GestureDetector(onTap:()=>ch2(()=>vs2.fontFamily=f),
+          child:Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
+            decoration:BoxDecoration(color:vs2.fontFamily==f?const Color(0xFFA26592):const Color(0xFF2C1B2E),borderRadius:BorderRadius.circular(8)),
+            child:Text(f.isEmpty?L.defaultFont:f,style:TextStyle(color:vs2.fontFamily==f?Colors.white:Colors.white60,fontSize:12,fontFamily:f.isEmpty?null:f))))).toList()),
+      const SizedBox(height:12),
+
+      // ── دیلی ──
+      Text(L.subDelay2),const SizedBox(height:6),
+      Row(children:[
+        IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_sd2-=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+        Expanded(child:TextField(controller:_d2Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
+          textAlign:TextAlign.center,
+          onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd2=n);widget.onSubDelay2Ms(n);}},
+          decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
+        IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_sd2+=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+      ]),
+      Slider(min:-10000,max:10000,value:_sd2.toDouble().clamp(-10000,10000),
+        onChanged:(v){setState(()=>_sd2=v.round());widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+    ]));
+  }
+  // ──────── تب سایر ────────
+  Widget _otherTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+    // ── انتخاب زبان ──
+    Text(L.language, style:const TextStyle(color:Colors.white70,fontSize:13)),
+    const SizedBox(height:10),
+    Wrap(spacing:8,runSpacing:8,children:[
+      for(final lang in kSupportedLangs)
+        GestureDetector(
+          onTap:()async{await L.set(lang);if(mounted)setState((){});},
+          child:Container(
+            padding:const EdgeInsets.symmetric(horizontal:14,vertical:8),
+            decoration:BoxDecoration(
+              color:L.current==lang?const Color(0xFFA26592):const Color(0xFF2C1B2E),
+              borderRadius:BorderRadius.circular(20),
+              border:Border.all(
+                color:L.current==lang?const Color(0xFFA26592):Colors.white24,
+                width:1.5)),
+            child:Text(kLangNames[lang]!,style:TextStyle(
+              color:L.current==lang?Colors.white:Colors.white70,
+              fontSize:13,fontWeight:L.current==lang?FontWeight.w600:FontWeight.normal))),
+        ),
+    ]),
+    const Divider(height:24,color:Colors.white12),
+    // پیش‌نمایش اسکراب (دسترسی سریع)
+    SwitchListTile(contentPadding:EdgeInsets.zero,
+      title:Text(L.seekPreview),
+      subtitle:Text(L.seekPreviewDesc),
+      secondary:const Icon(Icons.video_stable_rounded),
+      value:_vs.showSeekPreview,
+      onChanged:(v)=>_ch(()=>_vs.showSeekPreview=v),
+    ),
+    const Divider(height:16),
+    FilledButton.icon(onPressed:widget.onSaveForVideo,icon:const Icon(Icons.save),
+        label:Text(L.saveVideoSettings)),
+    const SizedBox(height:6),
+    Text(L.saveVideoSettingsDesc,
+        style:TextStyle(fontSize:12,color:Colors.white54)),
+    const Divider(height:28),
+    Text(L.guide,style:TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:8),
+    _helpRow(L.swipeHorizontal,L.seekVideo),
+    _helpRow(L.swipeLeft,L.adjustBrightness),
+    _helpRow(L.swipeRight,L.adjustVolume),
+    _helpRow(L.swipeBottomSub,L.moveSubtitle),
+    _helpRow(L.twoFingers,L.zoomMove),
+    _helpRow(L.doubleTapLeft,L.tenSecBack),
+    _helpRow(L.doubleTapRight,L.tenSecForward),
+    _helpRow(L.doubleTapCenter,L.playPause),
+    _helpRow(L.holdDown,L.playPause),
+    const Divider(height:24),
+    // کنترل زیرنویس داخلی
+    SwitchListTile(contentPadding:EdgeInsets.zero,
+      title:Text(L.embeddedSubtitle),
+      subtitle:Text(L.enableEmbeddedSub),
+      value:_embeddedSub,
+      onChanged:(v){setState(()=>_embeddedSub=v);widget.onEmbeddedSubEnabled(v);},
+    ),
+    const Divider(height:16),
+    Text(L.decoder,style:TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:8),
+    SegmentedButton<bool>(
+      segments:[
+        ButtonSegment(value:true,label:Text('HW'),icon:Icon(Icons.memory,size:16)),
+        ButtonSegment(value:false,label:Text('SW'),icon:Icon(Icons.computer,size:16)),
+      ],
+      selected:{_hwDecode},
+      onSelectionChanged:(s){setState(()=>_hwDecode=s.first);widget.onHwDecode(s.first);},
+    ),
+    const SizedBox(height:4),
+    Text('HW: ${L.hwDecode} | SW: ${L.swDecode}',style:TextStyle(fontSize:11,color:Colors.white54)),
+    if(widget.videoWidth!=null&&widget.videoHeight!=null)...[
+      const Divider(height:18),
+      Text(L.resolution,style:TextStyle(fontSize:12,color:Colors.white54)),const SizedBox(height:4),
+      Text('${widget.videoWidth}×${widget.videoHeight}',style:const TextStyle(fontSize:14,color:Colors.greenAccent,fontWeight:FontWeight.bold)),
+    ],
+  ]));
+
+  Widget _helpRow(String key,String val)=>Padding(
+    padding:const EdgeInsets.symmetric(vertical:3),
+    child:Row(children:[
+      SizedBox(width:160,child:Text(key,style:const TextStyle(color:Colors.white70,fontSize:12))),
+      Text(val,style:const TextStyle(color:Colors.white54,fontSize:12)),
+    ]),
+  );
+}
+
+// ──────── تب ابزارها — بکاپ و ایمپورت مدل‌های AI ────────
+class ToolsTabBody extends StatefulWidget {
+  const ToolsTabBody({super.key});
+  @override State<ToolsTabBody> createState() => ToolsTabBodyState();
+}
+
+class ToolsTabBodyState extends State<ToolsTabBody> {
+  bool _loading = false;
+  String _status = '';
+
+  Future<void> _backupAll() async {
+    setState(() { _loading = true; _status = L.backingUp; });
+    try {
+      await const MethodChannel('com.vezoo.player/whisper')
+        .invokeMethod<List>('backupModels', {'destDir': '/storage/emulated/0/Download/Vezoo/Backup'});
+      setState(() { _status = 'SUCCESS: ${L.backup}'; });
+    } catch (e) { setState(() { _status = L.errorMsg(e); }); }
+    finally { setState(() { _loading = false; }); }
+  }
+
+  Future<void> _importModel() async {
+    final res = await FilePicker.platform.pickFiles(type: FileType.any);
+    if (res == null || res.files.single.path == null) return;
+    setState(() { _loading = true; _status = L.importing; });
+    try {
+      final modelsRoot = await WhisperService.getModelsRoot();
+      await Directory(modelsRoot).create(recursive: true);
+      final savedPath = await const MethodChannel('com.vezoo.player/whisper')
+        .invokeMethod<String>('importModel', {'path': res.files.single.path!, 'modelsDir': modelsRoot});
+      setState(() { _status = 'SUCCESS: $savedPath'; });
+    } catch (e) { setState(() { _status = L.errorMsg(e); }); }
+    finally { setState(() { _loading = false; }); }
+  }
+
+  @override
+  Widget build(BuildContext ctx) => SingleChildScrollView(
+    padding: const EdgeInsets.all(16),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      // ── Gemini Live ──
+      _GeminiApiKeyCard(),
+      // ── VPN Bypass for IPTV ──
+      _IptvVpnBypassCard(),
+      // ── Support / Donate ──
+      Card(color: const Color(0xFF241627), child: InkWell(
+        onTap: () async {
+          final url = Uri.parse('https://github.com/RezaArbabBot/Donate');
+          try { await launchUrl(url, mode: LaunchMode.externalApplication); } catch(_) {}
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(padding: const EdgeInsets.all(14), child: Row(children: [
+          Container(padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: Colors.pink.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+            child: const Text('💜', style: TextStyle(fontSize: 20))),
+          const SizedBox(width: 12),
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Support Vezoo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            SizedBox(height: 2),
+            Text('If Vezoo has been useful, consider supporting us', style: TextStyle(color: Colors.white54, fontSize: 11)),
+          ])),
+          const Icon(Icons.favorite_rounded, color: Colors.pink, size: 20),
+        ])))),
+      const SizedBox(height: 4),
+      // ── yt-dlp ──
+      _YtDlpCard(),
+      const SizedBox(height: 12),
+
+      // ── Vosk Models ──
+      ListTile(
+        tileColor: const Color(0xFF241627),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        leading: const Icon(Icons.record_voice_over_rounded, color: Color(0xFFA26592)),
+        title: const Text('Vosk — مدل‌های زبان', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        subtitle: const Text('آفلاین • ۱۸ زبان • زیرنویس زنده بدون اینترنت', style: TextStyle(color: Colors.white38, fontSize: 11)),
+        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+        onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => const VoskModelsScreen()))),
+      const SizedBox(height: 12),
+
+      Container(padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(color: const Color(0xFF2C1B2E), borderRadius: BorderRadius.circular(12)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            const Icon(Icons.psychology_rounded, color: Color(0xFF7BC49A), size: 18),
+            const SizedBox(width: 8),
+            Text(L.backupImport, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+          ]),
+          const SizedBox(height: 4),
+          Text(L.backupPath, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          const SizedBox(height: 10),
+          Row(children: [
+            Expanded(child: FilledButton.icon(
+              onPressed: _loading ? null : _backupAll,
+              icon: const Icon(Icons.save_alt_rounded, size: 16),
+              label: Text(L.backup),
+              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF7BC49A)))),
+            const SizedBox(width: 8),
+            Expanded(child: OutlinedButton.icon(
+              onPressed: _loading ? null : _importModel,
+              icon: const Icon(Icons.upload_file_rounded, size: 16),
+              label: Text(L.importModel))),
+          ]),
+          if (_loading) ...[const SizedBox(height:8), const LinearProgressIndicator()],
+          if (_status.isNotEmpty) Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(_status, style: const TextStyle(color: Colors.white60, fontSize: 11))),
+        ]),
+      ),
+    ]),
+  );
+}
+
+// ── Widget آپدیت yt-dlp ──
+class _YtDlpCard extends StatefulWidget {
+  @override State<_YtDlpCard> createState() => _YtDlpCardState();
+}
+
+class _YtDlpCardState extends State<_YtDlpCard> {
+  String _version = '...';
+  String _status = '';
+  bool _updating = false;
+  bool _cancelled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final v = await YtDlpService.getVersion();
+    if (mounted) setState(() => _version = v);
+  }
+
+  Future<void> _update() async {
+    setState(() { _updating = true; _cancelled = false; _status = ''; });
+    await YtDlpService.updateWithProgress((s) {
+      if (mounted && !_cancelled) setState(() => _status = s);
+    });
+    if (mounted) {
+      setState(() => _updating = false);
+      await _loadVersion();
+    }
+  }
+
+  @override
+  Widget build(BuildContext ctx) => Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: const Color(0xFF241627),
+      borderRadius: BorderRadius.circular(12)),
+    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        const Icon(Icons.download_for_offline_rounded, color: Color(0xFFA26592), size: 18),
+        const SizedBox(width: 8),
+        const Text('yt-dlp', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        const Spacer(),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(6)),
+          child: Text('v$_version', style: const TextStyle(color: Colors.white54, fontSize: 10))),
+      ]),
+      const SizedBox(height: 4),
+      const Text('پشتیبانی از ۱۰۰۰+ سایت', style: TextStyle(color: Colors.white38, fontSize: 11)),
+      if (_status.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Text(_status, style: TextStyle(
+          color: _status.startsWith('❌') ? Colors.redAccent :
+                 _status.startsWith('✅') ? Colors.greenAccent : Colors.white60,
+          fontSize: 11)),
+      ],
+      const SizedBox(height: 10),
+      Row(children: [
+        Expanded(child: FilledButton.icon(
+          onPressed: _updating ? null : _update,
+          icon: _updating
+            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+            : const Icon(Icons.update_rounded, size: 16),
+          label: Text(_updating ? 'در حال آپدیت...' : 'آپدیت yt-dlp'),
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFA26592),
+            padding: const EdgeInsets.symmetric(vertical: 8)))),
+        if (_updating) ...[
+          const SizedBox(width: 8),
+          OutlinedButton(
+            onPressed: () => setState(() { _cancelled = true; _updating = false; _status = 'لغو شد'; }),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12)),
+            child: const Text('لغو')),
+        ],
+      ]),
+    ]),
+  );
+}
+
+
+// ── VPN Bypass برای IPTV ──
+class _IptvVpnBypassCard extends StatefulWidget {
+  @override State<_IptvVpnBypassCard> createState() => _IptvVpnBypassCardState();
+}
+class _IptvVpnBypassCardState extends State<_IptvVpnBypassCard> {
+  bool _enabled = false;
+  @override void initState() { super.initState(); _load(); }
+  Future<void> _load() async {
+    final p = await SharedPreferences.getInstance();
+    if (mounted) setState(() => _enabled = p.getBool('iptv_vpn_bypass') ?? false);
+  }
+  Future<void> _toggle(bool v) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setBool('iptv_vpn_bypass', v);
+    setState(() => _enabled = v);
+    try {
+      final iface = await const MethodChannel('com.vezoo.player/network')
+        .invokeMethod<String>('setIptvBypassVpn', {'enabled': v}) ?? '';
+      debugPrint('[VPN] bypass=$v iface=$iface');
+      // ذخیره interface برای MPV
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('iptv_network_iface', v ? iface : '');
+    } catch (e) { debugPrint('[VPN] error: $e'); }
+  }
+  @override
+  Widget build(BuildContext context) => Card(
+    color: const Color(0xFF241627),
+    child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        const Icon(Icons.vpn_lock_rounded, color: Color(0xFFA78BC0), size: 18),
+        const SizedBox(width: 8),
+        const Expanded(child: Text('IPTV VPN Bypass', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+        Switch(value: _enabled, onChanged: _toggle, activeColor: const Color(0xFFA78BC0)),
+      ]),
+      const Text('IPTV: Direct connection | Gemini: Through VPN',
+        style: TextStyle(color: Colors.white54, fontSize: 11)),
+      if (_enabled) ...[
+        const SizedBox(height: 8),
+        Container(padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: const Color(0xFFA78BC0).withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+          child: const Text('✅ IPTV → Direct  |  Gemini → VPN',
+            style: TextStyle(color: Color(0xFFA78BC0), fontSize: 11))),
+      ],
+    ])));
+}
+
+// ── کارت Gemini API Key + Settings ──
+class _GeminiApiKeyCard extends StatefulWidget {
+  @override State<_GeminiApiKeyCard> createState() => _GeminiApiKeyCardState();
+}
+class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
+  String? _key;
+  bool _show = false;
+  bool _testing = false;
+  String? _testResult;
+  bool _expanded = false;
+  final _ctrl = TextEditingController();
+  int _silenceMs = 350;
+  int _prefixMs = 20;
+  String _startSens = 'START_SENSITIVITY_HIGH';
+  String _endSens = 'END_SENSITIVITY_HIGH';
+  int _chunkMs = 100;
+  String _model = 'gemini-3.5-live-translate-preview';
+  double _syncOffsetSec = 2.0;   // option 2: video seek back
+  bool _bufferPause = false;     // option 3: initial pause
+  int _bufferPauseSec = 3;       // seconds to pause
+  double _dubVolume = 1.0;
+  double _origVolume = 1.0;
+  String _accuracy = 'balanced';  // fast / balanced / accurate
+
+  static const _models = {
+    'gemini-3.5-live-translate-preview': 'Gemini 3.5 Live Translate (پیشنهادی)',
+    'gemini-live-2.5-flash-preview': 'Gemini 2.5 Flash Live',
+    'gemini-2.0-flash-live-001': 'Gemini 2.0 Flash Live',
+  };
+
+  static const _sensMap = {
+    'START_SENSITIVITY_LOW':'Low','START_SENSITIVITY_MEDIUM':'Medium','START_SENSITIVITY_HIGH':'High'};
+  static const _endMap = {
+    'END_SENSITIVITY_LOW':'Low','END_SENSITIVITY_MEDIUM':'Medium','END_SENSITIVITY_HIGH':'High'};
+
+  @override void initState() { super.initState(); _load(); }
+  @override void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  Future<void> _load() async {
+    final p = await SharedPreferences.getInstance();
+    final k = await GeminiLiveService.getApiKey();
+    if (mounted) setState(() {
+      _key = k; _ctrl.text = k ?? '';
+      _silenceMs = p.getInt('gemini_silence_ms') ?? 350;
+      _prefixMs = p.getInt('gemini_prefix_ms') ?? 20;
+      _startSens = p.getString('gemini_start_sens') ?? 'START_SENSITIVITY_HIGH';
+      _endSens = p.getString('gemini_end_sens') ?? 'END_SENSITIVITY_HIGH';
+      _chunkMs = p.getInt('gemini_chunk_ms') ?? 100;
+      _model = p.getString('gemini_model') ?? 'gemini-3.5-live-translate-preview';
+      _syncOffsetSec = p.getDouble('gemini_sync_offset') ?? 2.0;
+      _bufferPause = p.getBool('gemini_buffer_pause') ?? false;
+      _bufferPauseSec = p.getInt('gemini_buffer_pause_sec') ?? 3;
+      _dubVolume = p.getDouble('gemini_dub_volume') ?? 1.0;
+      _origVolume = p.getDouble('gemini_orig_volume') ?? 1.0;
+      _accuracy = p.getString('gemini_accuracy') ?? 'balanced';
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setInt('gemini_silence_ms', _silenceMs);
+    await p.setInt('gemini_prefix_ms', _prefixMs);
+    await p.setString('gemini_start_sens', _startSens);
+    await p.setString('gemini_end_sens', _endSens);
+    await p.setInt('gemini_chunk_ms', _chunkMs);
+    await p.setString('gemini_model', _model);
+    await p.setDouble('gemini_sync_offset', _syncOffsetSec);
+    await p.setBool('gemini_buffer_pause', _bufferPause);
+    await p.setInt('gemini_buffer_pause_sec', _bufferPauseSec);
+    await p.setDouble('gemini_dub_volume', _dubVolume);
+    await p.setDouble('gemini_orig_volume', _origVolume);
+    await p.setString('gemini_accuracy', _accuracy);
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Settings saved'), backgroundColor: Colors.green, duration: Duration(seconds: 1)));
+  }
+
+  Future<void> _testKey() async {
+    final k = _key; if (k == null || k.isEmpty) return;
+    setState(() { _testing = true; _testResult = null; });
+    try {
+      final resp = await http.get(Uri.parse('https://generativelanguage.googleapis.com/v1beta/models?key=$k'))
+        .timeout(const Duration(seconds: 10));
+      setState(() => _testResult = resp.statusCode == 200
+        ? (resp.body.contains('live') ? '✅ API Key valid — Live models found' : '✅ API Key valid')
+        : '❌ HTTP ${resp.statusCode}');
+    } catch (e) {
+      setState(() => _testResult = '❌ ${e.toString().substring(0,60)}');
+    } finally { setState(() => _testing = false); }
+  }
+
+  @override
+  Widget build(BuildContext context) => Card(
+    color: const Color(0xFF241627),
+    child: Padding(padding: const EdgeInsets.all(12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        const Icon(Icons.translate_rounded, color: Color(0xFFA26592), size: 18),
+        const SizedBox(width: 8),
+        const Expanded(child: Text('Gemini Live Translation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+        if (_key != null && _key!.isNotEmpty) const Icon(Icons.check_circle_rounded, color: Colors.green, size: 16),
+        IconButton(icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, color: Colors.white38, size: 20),
+          onPressed: () => setState(() => _expanded = !_expanded), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
+      ]),
+      const Text('Real-time AI dubbing & subtitles', style: TextStyle(color: Colors.white54, fontSize: 11)),
+      const SizedBox(height: 10),
+      TextField(controller: _ctrl, obscureText: !_show,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+        decoration: InputDecoration(hintText: 'AIza...', hintStyle: const TextStyle(color: Colors.white24),
+          filled: true, fillColor: const Color(0xFF1D1220),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          suffixIcon: IconButton(icon: Icon(_show ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 18, color: Colors.white38),
+            onPressed: () => setState(() => _show = !_show)))),
+      const SizedBox(height: 8),
+      Row(children: [
+        Expanded(child: FilledButton(onPressed: () async {
+          final k = _ctrl.text.trim(); if (k.isEmpty) return;
+          await GeminiLiveService.saveApiKey(k);
+          setState(() { _key = k; _testResult = null; });
+          if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('API key saved'), backgroundColor: Colors.green, duration: Duration(seconds: 2)));
+        }, style: FilledButton.styleFrom(backgroundColor: const Color(0xFFA26592), padding: const EdgeInsets.symmetric(vertical: 8)),
+        child: const Text('Save Key', style: TextStyle(fontSize: 13)))),
+        if (_key != null && _key!.isNotEmpty) ...[
+          const SizedBox(width: 8),
+          OutlinedButton(onPressed: () async {
+            await GeminiLiveService.clearApiKey(); _ctrl.clear();
+            setState(() { _key = null; _testResult = null; });
+          }, style: OutlinedButton.styleFrom(foregroundColor: Colors.red, side: const BorderSide(color: Colors.red), padding: const EdgeInsets.symmetric(vertical: 8)),
+          child: const Text('Remove', style: TextStyle(fontSize: 13))),
+        ],
+      ]),
+      if (_key != null && _key!.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        SizedBox(width: double.infinity, child: OutlinedButton.icon(
+          onPressed: _testing ? null : _testKey,
+          icon: _testing ? const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2)) : const Icon(Icons.wifi_tethering_rounded, size:16),
+          label: Text(_testing ? 'Testing...' : 'Test API Key'),
+          style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF7BC49A), side: const BorderSide(color: Color(0xFF7BC49A)), padding: const EdgeInsets.symmetric(vertical: 8)))),
+        if (_testResult != null) Container(margin: const EdgeInsets.only(top:6), padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(color: _testResult!.startsWith('✅') ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(6)),
+          child: Text(_testResult!, style: TextStyle(color: _testResult!.startsWith('✅') ? Colors.green : Colors.red, fontSize: 11))),
+      ],
+      const SizedBox(height: 8),
+      InkWell(onTap: () {}, child: const Text('Get free API key → aistudio.google.com',
+        style: TextStyle(color: Color(0xFFA26592), fontSize: 11, decoration: TextDecoration.underline))),
+      if (_expanded) ...[
+        const Divider(color: Colors.white12, height: 20),
+        const Text('Advanced Settings', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Silence Duration', style: TextStyle(color: Colors.white, fontSize: 12)),
+          Text('Delay after speech ends', style: TextStyle(color: Colors.white38, fontSize: 10)),
+        ])), Text('${_silenceMs}ms', style: const TextStyle(color: Color(0xFFA26592), fontSize: 12))]),
+        Slider(value: _silenceMs.toDouble(), min: 100, max: 2000, divisions: 19,
+          activeColor: const Color(0xFFA26592), onChanged: (v) => setState(() => _silenceMs = v.round())),
+        Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('Prefix Padding', style: TextStyle(color: Colors.white, fontSize: 12)),
+          Text('Audio before speech detection', style: TextStyle(color: Colors.white38, fontSize: 10)),
+        ])), Text('${_prefixMs}ms', style: const TextStyle(color: Color(0xFFA26592), fontSize: 12))]),
+        Slider(value: _prefixMs.toDouble(), min: 0, max: 200, divisions: 20,
+          activeColor: const Color(0xFFA26592), onChanged: (v) => setState(() => _prefixMs = v.round())),
+        Row(children: [const Expanded(child: Text('Start Sensitivity', style: TextStyle(color: Colors.white, fontSize: 12))),
+          DropdownButton<String>(value: _startSens, dropdownColor: const Color(0xFF241627),
+            style: const TextStyle(color: Colors.white, fontSize: 12), underline: const SizedBox(),
+            items: _sensMap.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+            onChanged: (v) => setState(() => _startSens = v!))]),
+        const SizedBox(height: 8),
+        Row(children: [const Expanded(child: Text('End Sensitivity', style: TextStyle(color: Colors.white, fontSize: 12))),
+          DropdownButton<String>(value: _endSens, dropdownColor: const Color(0xFF241627),
+            style: const TextStyle(color: Colors.white, fontSize: 12), underline: const SizedBox(),
+            items: _endMap.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+            onChanged: (v) => setState(() => _endSens = v!))]),
+        const SizedBox(height: 8),
+        const Text('Model', style: TextStyle(color: Colors.white, fontSize: 12)),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<String>(
+          value: _model,
+          dropdownColor: const Color(0xFF241627),
+          decoration: InputDecoration(filled: true, fillColor: const Color(0xFF1D1220),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+          style: const TextStyle(color: Colors.white, fontSize: 11),
+          items: _models.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
+          onChanged: (v) => setState(() => _model = v!)),
+        const SizedBox(height: 12),
+        const Text('Accuracy', style: TextStyle(color: Colors.white, fontSize: 12)),
+        const SizedBox(height: 6),
+        Row(children: [
+          _AccuracyBtn(key: 'fast', label: 'Fast', sub: 'Low latency', selected: _accuracy, onTap: (v) => setState(() => _accuracy = v)),
+          const SizedBox(width: 4),
+          _AccuracyBtn(key: 'balanced', label: 'Balanced', sub: 'Recommended', selected: _accuracy, onTap: (v) => setState(() => _accuracy = v)),
+          const SizedBox(width: 4),
+          _AccuracyBtn(key: 'accurate', label: 'Accurate', sub: 'High quality', selected: _accuracy, onTap: (v) => setState(() => _accuracy = v)),
+        ]),
+        const SizedBox(height: 12),
+        const Divider(color: Colors.white12, height: 1),
+        const SizedBox(height: 10),
+        const Text('Volume Control', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Row(children: [
+          const Icon(Icons.volume_up_rounded, color: Colors.white38, size: 16),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Dub Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
+          Text('${(_dubVolume*100).round()}%', style: const TextStyle(color: Color(0xFFA26592), fontSize: 12)),
+        ]),
+        Slider(value: _dubVolume, min: 0, max: 1, divisions: 20,
+          activeColor: const Color(0xFFA26592),
+          onChanged: (v) {
+            setState(() => _dubVolume = v);
+            const MethodChannel('com.vezoo.player/gemini_live').invokeMethod('setDubVolume', {'volume': v});
+          }),
+        Row(children: [
+          const Icon(Icons.tv_rounded, color: Colors.white38, size: 16),
+          const SizedBox(width: 8),
+          const Expanded(child: Text('Original Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
+          Text('${(_origVolume*100).round()}%', style: const TextStyle(color: Color(0xFFA78BC0), fontSize: 12)),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() => _origVolume = _origVolume > 0 ? 0 : 1.0);
+              const MethodChannel('com.vezoo.player/gemini_live').invokeMethod('setOrigVolume', {'volume': _origVolume > 0 ? 0.0 : 1.0});
+            },
+            child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(color: _origVolume == 0 ? Colors.red.withOpacity(0.2) : const Color(0xFF241627), borderRadius: BorderRadius.circular(6)),
+              child: Text(_origVolume == 0 ? '🔇 Muted' : '🔊', style: TextStyle(color: _origVolume == 0 ? Colors.red : Colors.white38, fontSize: 11)))),
+        ]),
+        Slider(value: _origVolume, min: 0, max: 1, divisions: 20,
+          activeColor: const Color(0xFFA78BC0),
+          onChanged: (v) {
+            setState(() => _origVolume = v);
+            const MethodChannel('com.vezoo.player/gemini_live').invokeMethod('setOrigVolume', {'volume': v});
+          }),
+        const SizedBox(height: 8),
+        Row(children: [const Expanded(child: Text('Chunk Size', style: TextStyle(color: Colors.white, fontSize: 12))),
+          ...[50,100,200].map((ms) => GestureDetector(
+            onTap: () => setState(() => _chunkMs = ms),
+            child: Container(margin: const EdgeInsets.only(left:6), padding: const EdgeInsets.symmetric(horizontal:10,vertical:4),
+              decoration: BoxDecoration(color: _chunkMs==ms ? const Color(0xFFA26592) : const Color(0xFF241627), borderRadius: BorderRadius.circular(6)),
+              child: Text('${ms}ms', style: TextStyle(color: _chunkMs==ms ? Colors.white : Colors.white38, fontSize: 11)))))]),
+        const SizedBox(height: 12),
+        // ── Dubbing Sync ──
+        const Divider(color: Colors.white12, height: 16),
+        const Text('Dubbing Sync', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 4),
+        const Text('Fix delay between video and dubbed audio', style: TextStyle(color: Colors.white38, fontSize: 10)),
+        const SizedBox(height: 8),
+        Row(children: [
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Video Seek Back', style: TextStyle(color: Colors.white, fontSize: 12)),
+            Text('Seek video back on start to sync dubbing', style: TextStyle(color: Colors.white38, fontSize: 10)),
+          ])),
+          Text('${_syncOffsetSec.toStringAsFixed(1)}s', style: const TextStyle(color: Color(0xFFA26592), fontSize: 12)),
+        ]),
+        Slider(value: _syncOffsetSec, min: 0, max: 5, divisions: 10,
+          activeColor: const Color(0xFFA26592),
+          onChanged: (v) => setState(() => _syncOffsetSec = v)),
+        const SizedBox(height: 6),
+        Row(children: [
+          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Buffer Pause', style: TextStyle(color: Colors.white, fontSize: 12)),
+            Text('Pause video on start to fill dubbing buffer', style: TextStyle(color: Colors.white38, fontSize: 10)),
+          ])),
+          Switch(value: _bufferPause, onChanged: (v) => setState(() => _bufferPause = v), activeColor: const Color(0xFFA26592)),
+        ]),
+        if (_bufferPause) ...[
+          Row(children: [
+            const Expanded(child: Text('Pause Duration', style: TextStyle(color: Colors.white, fontSize: 12))),
+            Text('${_bufferPauseSec}s', style: const TextStyle(color: Color(0xFFA26592), fontSize: 12)),
+          ]),
+          Slider(value: _bufferPauseSec.toDouble(), min: 1, max: 8, divisions: 7,
+            activeColor: const Color(0xFFA26592),
+            onChanged: (v) => setState(() => _bufferPauseSec = v.round())),
+        ],
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(child: FilledButton(onPressed: _saveSettings,
+            style: FilledButton.styleFrom(backgroundColor: const Color(0xFFA26592).withOpacity(0.6), padding: const EdgeInsets.symmetric(vertical: 8)),
+            child: const Text('Save Settings', style: TextStyle(fontSize: 13)))),
+          const SizedBox(width: 8),
+          OutlinedButton(onPressed: () async {
+            final p = await SharedPreferences.getInstance();
+            await p.remove('gemini_silence_ms'); await p.remove('gemini_prefix_ms');
+            await p.remove('gemini_start_sens'); await p.remove('gemini_end_sens');
+            await p.remove('gemini_chunk_ms'); await p.remove('gemini_model');
+            setState(() {
+              _silenceMs=350; _prefixMs=20;
+              _startSens='START_SENSITIVITY_HIGH'; _endSens='END_SENSITIVITY_HIGH';
+              _chunkMs=100; _model='gemini-3.5-live-translate-preview'; _dubVolume=1.0; _origVolume=1.0; _accuracy='balanced'; _syncOffsetSec=2.0; _bufferPause=false; _bufferPauseSec=3;
+            });
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('↺ Reset to defaults'), duration: Duration(seconds: 1)));
+          }, style: OutlinedButton.styleFrom(foregroundColor: Colors.white38, side: const BorderSide(color: Colors.white12), padding: const EdgeInsets.symmetric(vertical: 8)),
+          child: const Text('Reset', style: TextStyle(fontSize: 13))),
+        ]),
+      ],
+    ])));
+}
+
+class _AccuracyBtn extends StatelessWidget {
+  final String key2;
+  final String label;
+  final String sub;
+  final String selected;
+  final void Function(String) onTap;
+  const _AccuracyBtn({required String key, required this.label, required this.sub, required this.selected, required this.onTap}) : key2 = key;
+  @override
+  Widget build(BuildContext context) => Expanded(child: GestureDetector(
+    onTap: () => onTap(key2),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: selected == key2 ? const Color(0xFFA26592).withOpacity(0.2) : const Color(0xFF241627),
+        border: Border.all(color: selected == key2 ? const Color(0xFFA26592) : Colors.white12),
+        borderRadius: BorderRadius.circular(8)),
+      child: Column(children: [
+        Text(label, style: TextStyle(color: selected==key2 ? Colors.white : Colors.white38, fontSize: 11, fontWeight: FontWeight.bold)),
+        Text(sub, style: TextStyle(color: selected==key2 ? Colors.white54 : Colors.white24, fontSize: 9), textAlign: TextAlign.center),
+      ]))));
+}
