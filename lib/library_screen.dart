@@ -8,7 +8,7 @@ import 'player.dart';
 import 'glass.dart';
 import 'l10n.dart';
 import 'main.dart' show showSnack;
-import 'shell.dart';
+import 'signals.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -277,9 +277,9 @@ class _LibraryScreenState extends State<LibraryScreen>{
   }
 
   void _openFolder(String path){
-    // Phase 1: انتخاب پوشه در Home — از طریق callback استاتیک shell
-    VzShell.openFolderInHome.value = path;
-    VzShell.openFolderInHome.notifyListeners();
+    // شِل به این سیگنال گوش می‌دهد: به Home سوئیچ می‌کند و پوشه را باز می‌کند
+    vzOpenFolderSignal.value = path;
+    vzOpenFolderSignal.notifyListeners();
   }
 
   Widget _empty(IconData icon, String title) => VzEmpty(

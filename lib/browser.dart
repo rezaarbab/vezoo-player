@@ -630,7 +630,7 @@ class BrowserScreenState extends State<BrowserScreen>{
                 );
               },
               childCount:fVids.length))),
-        const SliverPadding(padding:EdgeInsets.only(bottom:110)),
+        const SliverPadding(padding:EdgeInsets.only(bottom:130)),
       ],
     ),);
   }
