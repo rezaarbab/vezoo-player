@@ -40,7 +40,6 @@ LinearGradient _extGrad(String ext){
     default:    return const LinearGradient(colors:[Color(0xFF22222E),Color(0xFF131319)]);
   }
 }
-}
 
 Widget _badge(String text,Color color)=>Container(
   padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
@@ -638,7 +637,6 @@ class BrowserScreenState extends State<BrowserScreen>{
   void _openPanel(int page){
     // NOVA: پانل ۸-تبی حذف شد — History/Bookmarks/... در Library و Settings از طریق NavDock
   }
-}
 }
 
 // ── تایل پوشه — Bento افقی ──
