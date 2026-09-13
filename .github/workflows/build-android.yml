@@ -39,7 +39,6 @@ jobs:
 
       - name: Test
         run: flutter test --reporter expanded 2>&1 | tee test.log
-
       - name: Upload test report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -290,8 +289,25 @@ jobs:
       - name: Build APK
         run: |
           # فقط arm64-v8a — خروجی سبک برای اینترنت کم‌سرعت
-          flutter build apk --release --target-platform android-arm64 --split-per-abi
+          set +e
+          flutter build apk --release --target-platform android-arm64 --split-per-abi 2>&1 | tee build.log
+          EXIT=$?
+          echo "flutter build exit: $EXIT"
+          if [ $EXIT -ne 0 ]; then
+            echo "=== BUILD FAILED — last 120 lines ==="
+            tail -120 build.log
+          fi
           ls -la build/app/outputs/flutter-apk/ || true
+          exit $EXIT
+
+      - name: Upload build log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vezoo-build-failure-log
+          path: build.log
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: Pick slim APK
         id: pick
