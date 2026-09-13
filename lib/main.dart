@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'browser.dart';
+import 'shell.dart';
 import 'store.dart';
 import 'l10n.dart';
 import 'api_service.dart';
@@ -15,7 +16,7 @@ final GlobalKey<ScaffoldMessengerState> rootScaffoldKey = GlobalKey<ScaffoldMess
 
 /// نمایش snackbar که همیشه بالای navbar میاد — حتی از داخل sheet
 void showSnack(BuildContext ctx, String msg, {
-  Color color = const Color(0xFF35F2A2),
+  Color color = const Color(0xFF8B5CF6),
   int seconds = 5,
   String? actionLabel,
   VoidCallback? onAction,
@@ -46,7 +47,7 @@ void main() async {
   await ApiService.init();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Color(0xFF070908),
+    systemNavigationBarColor: Color(0xFF0B0B10),
     statusBarIconBrightness: Brightness.light,
   ));
   runApp(const MyApp());
@@ -146,5 +147,5 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     ));
   }
 
-  @override Widget build(BuildContext ctx)=>const BrowserScreen();
+  @override Widget build(BuildContext ctx)=>const VzShell();
 }

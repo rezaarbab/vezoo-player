@@ -458,4 +458,11 @@ class L {
   static String get downloading => _t({'en':'Downloading...','fa':'در حال دانلود...','ar':'جارٍ التنزيل...','ru':'Загрузка...','zh':'下载中...','ja':'ダウンロード中...','hi':'डाउनलोड हो रहा है...','id':'Mengunduh...'});
   static String get nopeersTimeout => _t({'en':'Timeout — no peers found','fa':'تایم‌اوت — پیری پیدا نشد','ar':'انتهى الوقت — لا أقران','ru':'Таймаут — нет пиров','zh':'超时 — 未找到节点','ja':'タイムアウト — ピアなし','hi':'टाइमआउट — कोई पीयर नहीं','id':'Timeout — tidak ada peers'});
 
+  // ── NOVA UI (v4) ──
+  static String get home => _t({'en':'Home','fa':'خانه','ar':'الرئيسية','ru':'Главная','zh':'主页','ja':'ホーム','hi':'होम','id':'Beranda'});
+  static String get library => _t({'en':'Library','fa':'کتابخانه','ar':'المكتبة','ru':'Библиотека','zh':'媒体库','ja':'ライブラリ','hi':'लाइब्रेरी','id':'Pustaka'});
+  static String get toolsSection => _t({'en':'Tools','fa':'ابزارها','ar':'الأدوات','ru':'Инструменты','zh':'工具','ja':'ツール','hi':'उपकरण','id':'Alat'});
+  static String get aboutSection => _t({'en':'About','fa':'درباره','ar':'حول','ru':'О приложении','zh':'关于','ja':'情報','hi':'परिचय','id':'Tentang'});
+  static String get retryAction => _t({'en':'Retry','fa':'تلاش مجدد','ar':'إعادة المحاولة','ru':'Повторить','zh':'重试','ja':'再試行','hi':'पुनः प्रयास','id':'Coba lagi'});
+  static String get openFolder => _t({'en':'Open folder','fa':'بازکردن پوشه','ar':'فتح المجلد','ru':'Открыть папку','zh':'打开文件夹','ja':'フォルダを開く','hi':'फ़ोल्डर खोलें','id':'Buka folder'});
 }

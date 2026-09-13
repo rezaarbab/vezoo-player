@@ -1,51 +1,45 @@
-// lib/browser.dart — مرورگر فایل حرفه‌ای
+// lib/browser.dart — Home: مرورگر فایل media-first (NOVA)
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as p;
 import 'store.dart';
-import 'ai_models_screen.dart';
-import 'iptv_screen.dart';
-import 'api_service.dart';
-import 'online_player_sheet.dart';
-import 'settings.dart' show ToolsTabBody;
-import 'package:url_launcher/url_launcher.dart' as ul;
 import 'player.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
-import 'theme.dart' show Vz, VzScanLine;
 
-const kBg      = Color(0xFF070908);
-const kSurface = Color(0xFF0E1210);
-const kCard    = Color(0xFF141A17);
-const kBorder  = Color(0xFF26322C);
-const kAccent  = Color(0xFF35F2A2);
-const kCyan    = Color(0xFFE8B44C);
-const kGreen   = Color(0xFF5FD0A0);
-const kAmber   = Color(0xFFE8B44C);
-const kRed     = Color(0xFFE8745C);
-const kPink    = Color(0xFFE8B44C);
-const kTextSec = Color(0xFFA9B8AE);
-const kTextDim = Color(0xFF6E7F74);
+// ── پالت NOVA — سازگاری با صفحات داخلی ──
+const kBg      = Color(0xFF0B0B10);
+const kSurface = Color(0xFF131319);
+const kCard    = Color(0xFF1A1A23);
+const kBorder  = Color(0xFF2A2A38);
+const kAccent  = Color(0xFF8B5CF6);
+const kCyan    = Color(0xFFA78BFA);
+const kGreen   = Color(0xFF34D399);
+const kAmber   = Color(0xFFFBBF24);
+const kRed     = Color(0xFFF87171);
+const kPink    = Color(0xFFEC4899);
+const kTextSec = Color(0xFF9CA0B4);
+const kTextDim = Color(0xFF5C5F73);
 
 enum _SortBy{name,date,size,type}
 
 LinearGradient _extGrad(String ext){
   switch(ext){
-    case 'mp4': return const LinearGradient(colors:[Color(0xFF35F2A2),Color(0xFF1F8A5F)]);
-    case 'mkv': return const LinearGradient(colors:[Color(0xFF35F2A2),Color(0xFF7FA893)]);
-    case 'avi': return const LinearGradient(colors:[Color(0xFF5FD0A0),Color(0xFF3E9B72)]);
-    case 'mov': return const LinearGradient(colors:[Color(0xFF2FA981),Color(0xFF14684A)]);
-    case 'webm':return const LinearGradient(colors:[Color(0xFF1F8A5F),Color(0xFF0F3D2C)]);
-    case 'flv': return const LinearGradient(colors:[Color(0xFF14684A),Color(0xFF0F4A33)]);
-    default:    return const LinearGradient(colors:[Color(0xFF1B231F),Color(0xFF0E1210)]);
+    case 'mp4': return const LinearGradient(colors:[Color(0xFF7C5CFC),Color(0xFF46349B)]);
+    case 'mkv': return const LinearGradient(colors:[Color(0xFF8B5CF6),Color(0xFF5A4199)]);
+    case 'avi': return const LinearGradient(colors:[Color(0xFF9F7AE8),Color(0xFF5D48A8)]);
+    case 'mov': return const LinearGradient(colors:[Color(0xFFEC4899),Color(0xFF8F2B5B)]);
+    case 'webm':return const LinearGradient(colors:[Color(0xFF6D28D9),Color(0xFF3B1B75)]);
+    case 'flv': return const LinearGradient(colors:[Color(0xFF5B2DA0),Color(0xFF2F1A52)]);
+    default:    return const LinearGradient(colors:[Color(0xFF22222E),Color(0xFF131319)]);
   }
+}
 }
 
 Widget _badge(String text,Color color)=>Container(
@@ -69,10 +63,10 @@ Future<Uint8List?> _loadThumb(String path)async{
 // ─────────────────────────────────────────────────────────────────────────────
 class BrowserScreen extends StatefulWidget{
   const BrowserScreen({super.key});
-  @override State<BrowserScreen> createState()=>_BrowserState();
+  @override State<BrowserScreen> createState()=>BrowserScreenState();
 }
 
-class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
+class BrowserScreenState extends State<BrowserScreen>{
   static const root='/storage/emulated/0';
   bool _granted=false,_checking=true;
   String _path=root;
@@ -119,6 +113,9 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
     }
   }
   void _goUp(){final par=p.dirname(_path);if(par!=_path&&par.startsWith('/storage'))_loadDir(par);}
+
+  /// API عمومی برای شِل — بازکردن مسیر از Library
+  void openPath(String path){ if(Directory(path).existsSync()) _loadDir(path); }
 
   int _sd(int v)=>_sortDesc?-v:v;
   List<File> get _sortedVideos{
@@ -405,54 +402,13 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
         extendBody:true,
         appBar:_selectMode?_selectBar():_normalBar(isSaved),
         body:_buildBody(),
-        floatingActionButtonLocation:FloatingActionButtonLocation.centerFloat,
-        floatingActionButton:_selectMode?null:_buildFABs(),
       ),
     );
   }
 
-  Widget _buildFABs()=>ClipRRect(
-    borderRadius:BorderRadius.circular(32),
-    child:BackdropFilter(
-      filter:ImageFilter.blur(sigmaX:24,sigmaY:24),
-      child:Container(
-        padding:const EdgeInsets.symmetric(horizontal:8,vertical:8),
-        decoration:BoxDecoration(
-          color:const Color(0xFF0E1210).withOpacity(0.82),
-          borderRadius:BorderRadius.circular(32),
-          border:Border.all(color:const Color(0xFF26322C).withOpacity(0.95)),
-          boxShadow:[BoxShadow(color:const Color(0xFF1F8A5F).withOpacity(0.22),blurRadius:32,offset:const Offset(0,10))],
-        ),
-        child:Row(mainAxisSize:MainAxisSize.min,children:[
-          _fabBtn(Icons.history_rounded,L.history,kTextSec,()=>_openPanel(0)),
-          const SizedBox(width:6),_fabBtn(Icons.bookmark_rounded,L.bookmarks,kAmber,()=>_openPanel(1)),
-          const SizedBox(width:6),_fabBtn(Icons.favorite_rounded,L.favorites,kPink,()=>_openPanel(2)),
-          const SizedBox(width:6),_fabBtn(Icons.push_pin_rounded,L.folders,kGreen,()=>_openPanel(3)),
-          const SizedBox(width:6),_fabBtn(Icons.tune_rounded,L.settings,kTextSec,()=>_openPanel(4)),
-        ]),
-      ),
-    ),
-  );
+  Widget _buildFABs()=>const SizedBox.shrink();
 
-  Widget _fabBtn(IconData icon,String tip,Color color,VoidCallback fn)=>Tooltip(
-    message:tip,
-    child:Material(
-      color:Colors.transparent,
-      child:InkWell(
-        onTap:fn,
-        borderRadius:BorderRadius.circular(18),
-        child:Container(
-          padding:const EdgeInsets.all(9),
-          decoration:BoxDecoration(
-            color:color.withOpacity(0.1),
-            borderRadius:BorderRadius.circular(18),
-            border:Border.all(color:color.withOpacity(0.22),width:0.8),
-          ),
-          child:Icon(icon,size:22,color:color),
-        ),
-      ),
-    ),
-  );
+  Widget _fabBtn(IconData icon,String tip,Color color,VoidCallback fn)=>const SizedBox.shrink();
 
   PreferredSizeWidget _normalBar(bool isSaved)=>AppBar(
     automaticallyImplyLeading:false,
@@ -469,7 +425,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
             const Icon(Icons.search_rounded,size:16,color:kTextDim),
             const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
-                style:const TextStyle(fontSize:14,color:Color(0xFFE8EFE9)),
+                style:const TextStyle(fontSize:14,color:Color(0xFFF4F4F8)),
                 decoration:InputDecoration.collapsed(
                   hintText:_globalSearch?L.searchingGlobal:L.searchHere,
                   hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
@@ -478,7 +434,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
           ]))
         :Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
             Text(_path==root?L.internalStorage:p.basename(_path),overflow:TextOverflow.ellipsis,
-                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFE8EFE9))),
+                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFF4F4F8))),
             if(_path!=root)Text(p.dirname(_path),overflow:TextOverflow.ellipsis,
                 style:const TextStyle(fontSize:10,color:kTextDim,height:1.2)),
           ]),
@@ -509,15 +465,7 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
       ],
       IconButton(icon:Icon(_searching?Icons.close_rounded:Icons.search_rounded,size:20),
           onPressed:(){setState((){_searching=!_searching;if(!_searching){_searchQuery='';_searchCtrl.clear();_searchResults=[];_globalSearch=false;}});}),
-      // دکمه پخش آنلاین
-      if(!_searching)IconButton(
-        icon:const Icon(Icons.wifi_tethering_rounded,size:20),
-        tooltip:L.onlineVideo,
-        onPressed:()=>showModalBottomSheet(context:context,isScrollControlled:true,backgroundColor:Colors.transparent,builder:(_)=>const OnlinePlayerSheet())),
-      if(!_searching)IconButton(
-        icon:const Icon(Icons.video_library_rounded,size:20,color:Color(0xFF5FD0A0)),
-        tooltip:'IPTV',
-        onPressed:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const IptvScreen()))),
+      // NOVA: Online/IPTV/Library/Settings از طریق NavDock — دکمه‌های تکراری حذف شد
       if(!_searching)...[
         if(_path!=root)IconButton(
           icon:Icon(isSaved?Icons.push_pin_rounded:Icons.push_pin_outlined,color:isSaved?kAmber:kTextSec,size:20),
@@ -688,48 +636,9 @@ class _BrowserState extends State<BrowserScreen> with TickerProviderStateMixin{
   }
 
   void _openPanel(int page){
-    final ctrl=DraggableScrollableController();
-    showModalBottomSheet(
-      context:context,isScrollControlled:true,
-      backgroundColor:Colors.transparent,
-      enableDrag:false,
-      builder:(ctx)=>DraggableScrollableSheet(
-        controller:ctrl,
-        initialChildSize:0.55,
-        minChildSize:0.35,
-        maxChildSize:0.97,
-        expand:false,
-        snap:true,
-        snapSizes:const[0.35,0.55,0.97],
-        shouldCloseOnMinExtent:false,
-        builder:(bctx,sc)=>Container(
-          decoration:BoxDecoration(
-            color:const Color(0xFF0E1210).withOpacity(0.97),
-            borderRadius:const BorderRadius.vertical(top:Radius.circular(26)),
-            border:Border.all(color:const Color(0xFF26322C).withOpacity(0.8),width:0.6)),
-          child:Column(children:[
-            // ── handle — drag اینجا کار میکنه ──
-            GestureDetector(
-              behavior:HitTestBehavior.translucent,
-              onVerticalDragUpdate:(d){
-                final size=MediaQuery.of(ctx).size.height;
-                final delta=-d.delta.dy/size;
-                final cur=ctrl.size;
-                ctrl.jumpTo((cur+delta).clamp(0.35,0.97));
-              },
-              onVerticalDragEnd:(d)async{
-                final cur=ctrl.size;
-                final target=cur>0.76?0.97:cur>0.45?0.55:0.35;
-                await ctrl.animateTo(target,duration:const Duration(milliseconds:250),curve:Curves.easeOut);
-                if(target<=0.35&&ctx.mounted)Navigator.pop(ctx);
-              },
-              child:SizedBox(height:22,child:Center(child:VzSheetHandle()))),
-            Expanded(child:BottomPanel(initialPage:page,noHandle:true,
-              onVideoTap:(path){Navigator.pop(ctx);_openVideoByPath(path);},
-              onFolderTap:(folder){Navigator.pop(ctx);_loadDir(folder);})),
-          ]))),
-    );
+    // NOVA: پانل ۸-تبی حذف شد — History/Bookmarks/... در Library و Settings از طریق NavDock
   }
+}
 }
 
 // ── تایل پوشه — Bento افقی ──
@@ -746,11 +655,11 @@ class _DirTile extends StatelessWidget{
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
       child:Row(children:[
         Container(width:34,height:34,decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF7FA893),Color(0xFF6B7F73)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          gradient:const LinearGradient(colors:[Color(0xFF8B7BB8),Color(0xFF5C5F73)],begin:Alignment.topLeft,end:Alignment.bottomRight),
           borderRadius:BorderRadius.circular(10)),
-          child:const Icon(Icons.folder_rounded,color:Color(0xFFE8EFE9),size:17)),
+          child:const Icon(Icons.folder_rounded,color:Color(0xFFF4F4F8),size:17)),
         const SizedBox(width:10),
-        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Color(0xFFE8EFE9)),maxLines:1,overflow:TextOverflow.ellipsis)),
+        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Color(0xFFF4F4F8)),maxLines:1,overflow:TextOverflow.ellipsis)),
         const Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
       ]),
     ),
@@ -818,7 +727,7 @@ class _VideoTile extends StatelessWidget{
                       child:snap.connectionState==ConnectionState.waiting
                           ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
                           :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
-                              style:const TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Color(0xFFE8EFE9),letterSpacing:1.5)),
+                              style:const TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Color(0xFFF4F4F8),letterSpacing:1.5)),
                     );
                   },
                 ),
@@ -829,18 +738,18 @@ class _VideoTile extends StatelessWidget{
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
                     decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(6)),
                     child:Text(fmt(Duration(seconds:dur)),
-                      style:const TextStyle(fontSize:10,color:Color(0xFFE8EFE9),fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
+                      style:const TextStyle(fontSize:10,color:Color(0xFFF4F4F8),fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
                 // انتخاب‌چک باکس
                 if(selectMode)Align(
                   alignment:Alignment.topLeft,
                   child:Padding(padding:const EdgeInsets.all(7),child:AnimatedContainer(
                     duration:const Duration(milliseconds:150),width:24,height:24,
                     decoration:BoxDecoration(
-                      gradient:selected?const LinearGradient(colors:[Color(0xFF5CF6C2),Color(0xFF1F8A5F)]):null,
+                      gradient:selected?const LinearGradient(colors:[Color(0xFFA78BFA),Color(0xFF6D28D9)]):null,
                       color:selected?null:Colors.black.withOpacity(0.45),
                       shape:BoxShape.circle,
                       border:selected?null:Border.all(color:Colors.white38,width:1.4)),
-                    child:selected?const Icon(Icons.check_rounded,color:Color(0xFF070908),size:17):null))),
+                    child:selected?const Icon(Icons.check_rounded,color:Color(0xFF0B0B10),size:17):null))),
                 // دکمه پخش شیشه‌ای وسط
                 if(!selectMode)Center(child:Container(
                   width:44,height:44,
@@ -860,7 +769,7 @@ class _VideoTile extends StatelessWidget{
             padding:const EdgeInsets.fromLTRB(10,9,10,10),
             child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
               Text(name,style:TextStyle(fontSize:12.5,fontWeight:FontWeight.w600,
-                  color:seen?kGreen:const Color(0xFFE8EFE9),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
+                  color:seen?kGreen:const Color(0xFFF4F4F8),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
               if(showPath)Padding(padding:const EdgeInsets.only(top:2),
                 child:Text(p.dirname(file.path),style:const TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
               const SizedBox(height:6),
@@ -940,382 +849,3 @@ class _VideoMenuState extends State<VideoMenu>{
   Widget _mi2(IconData icon,Color iconColor,String title,VoidCallback onTap)=>_mi(icon,iconColor,title,onTap);
 }
 
-// ── پانل شناور ──
-class BottomPanel extends StatefulWidget{
-  final int initialPage;
-  final ValueChanged<String> onVideoTap,onFolderTap;
-  final bool noHandle;
-  const BottomPanel({super.key,required this.initialPage,required this.onVideoTap,required this.onFolderTap,this.noHandle=false});
-  @override State<BottomPanel> createState()=>_BottomPanelState();
-}
-class _BottomPanelState extends State<BottomPanel> with SingleTickerProviderStateMixin{
-  late TabController _tab;
-  @override void initState(){super.initState();_tab=TabController(length:8,vsync:this,initialIndex:widget.initialPage.clamp(0,6));}
-  @override void dispose(){_tab.dispose();super.dispose();}
-  @override Widget build(BuildContext context)=>Column(children:[
-    if(!widget.noHandle)...[const SizedBox(height:10),const Center(child:VzSheetHandle()),const SizedBox(height:4)],
-    TabBar(controller:_tab,isScrollable:true,indicatorColor:kAccent,labelColor:kAccent,unselectedLabelColor:kTextSec,
-        labelStyle:const TextStyle(fontSize:12,fontWeight:FontWeight.w600),unselectedLabelStyle:const TextStyle(fontSize:12),
-        tabs:[Tab(icon:Icon(Icons.history_rounded,size:16),text:L.history),
-          Tab(icon:Icon(Icons.bookmark_rounded,size:16),text:L.bookmarks),
-          Tab(icon:Icon(Icons.favorite_rounded,size:16),text:L.favorites),
-          Tab(icon:Icon(Icons.push_pin_rounded,size:16),text:L.folders),
-          Tab(icon:Icon(Icons.queue_music_rounded,size:16),text:L.playlist),
-          Tab(icon:Icon(Icons.star_rounded,size:16),text:L.sponsors),
-          Tab(icon:Icon(Icons.build_rounded,size:16),text:L.tools),
-
-          Tab(icon:Icon(Icons.settings_rounded,size:16),text:L.app)]),
-    Expanded(child:TabBarView(controller:_tab,children:[
-      _histTab(),
-      _vList(Store.bookmarked.toList().reversed.toList(),Icons.bookmark_rounded,kAmber,
-        onRemove:(path)async{await Store.toggleBookmark(path);setState((){}); }),
-      _vList(Store.favorited.toList().reversed.toList(),Icons.favorite_rounded,kPink,
-        onRemove:(path)async{await Store.toggleFavorite(path);setState((){}); }),
-      _folderList(),_playlistTab(),_sponsorTab(),const ToolsTabBody(),_settingsTab(),
-    ])),
-    SizedBox(height:MediaQuery.of(context).viewPadding.bottom),
-  ]);
-
-  Widget _histTab()=>Column(children:[
-    if(Store.watchHistory.isNotEmpty)Padding(
-      padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-      child:Row(children:[
-        Expanded(child:Text(L.recentViews,style:TextStyle(fontWeight:FontWeight.w600,fontSize:13))),
-        TextButton.icon(icon:const Icon(Icons.delete_outline_rounded,size:15,color:kRed),label:Text(L.deleteAll,style:TextStyle(fontSize:12,color:kRed)),
-            onPressed:()async{final ok=await showDialog<bool>(context:context,builder:(ctx)=>AlertDialog(
-              title:Text(L.deleteAllHistory),
-              actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.cancel)),
-                FilledButton(style:FilledButton.styleFrom(backgroundColor:kRed),onPressed:()=>Navigator.pop(ctx,true),child:Text(L.delete))],
-            ));if(ok==true){await Store.clearHistory();setState((){});}})
-      ])),
-    Expanded(child:_vList(Store.watchHistory,Icons.history_rounded,kTextSec,
-        onLongPress:(path)async{await Store.removeFromHistory(path);setState((){});})),
-  ]);
-
-  Widget _vList(List<String> paths,IconData icon,Color color,{Function(String)?onLongPress, void Function(String)?onRemove}){
-    if(paths.isEmpty)return Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-      Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(16),border:Border.all(color:kBorder)),
-          child:Icon(icon,size:32,color:color.withOpacity(0.4))),
-      const SizedBox(height:12),Text(L.nothingYet,style:TextStyle(color:kTextSec)),
-    ]));
-    return ListView.builder(itemCount:paths.length,padding:const EdgeInsets.only(bottom:8),itemBuilder:(_,i){
-      final path=paths[i];
-      final isUrl = path.startsWith('http://') || path.startsWith('https://');
-      final exists = isUrl ? true : File(path).existsSync();
-      final displayName = isUrl ? Uri.parse(path).pathSegments.lastWhere((s)=>s.isNotEmpty,orElse:()=>path) : p.basename(path);
-      final displaySub = isUrl ? path : p.dirname(path);
-      return ListTile(dense:true,
-        leading:Container(width:30,height:30,decoration:BoxDecoration(color:color.withOpacity(0.1),borderRadius:BorderRadius.circular(7)),
-            child:Icon(isUrl ? Icons.link_rounded : icon,color:exists?color:kTextDim,size:15)),
-        title:Text(displayName,maxLines:1,overflow:TextOverflow.ellipsis,
-            style:TextStyle(fontSize:13,color:exists?Colors.white:kTextDim)),
-        subtitle:Text(displaySub,maxLines:1,overflow:TextOverflow.ellipsis,style:const TextStyle(fontSize:10,color:kTextDim)),
-        trailing:onRemove!=null?IconButton(
-          icon:const Icon(Icons.close_rounded,size:14,color:kRed),
-          onPressed:()=>onRemove(path)):null,
-        onTap:exists?(){
-          if(isUrl) widget.onVideoTap(path);
-          else widget.onVideoTap(path);
-        }:null,
-        onLongPress:(){
-          if(isUrl){
-            Clipboard.setData(ClipboardData(text:path));
-            showSnack(context, L.linkCopied, color: Color(0xFF35F2A2), seconds: 2);
-          } else if(onLongPress!=null) onLongPress(path);
-        });
-    });
-  }
-
-  Widget _folderList(){
-    final folders=Store.savedFolders;
-    if(folders.isEmpty)return Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-      Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(16),border:Border.all(color:kBorder)),
-          child:const Icon(Icons.push_pin_outlined,size:32,color:kTextDim)),
-      const SizedBox(height:12),Text(L.noSavedFolders,style:TextStyle(color:kTextSec)),
-      const SizedBox(height:6),Text(L.pinFolderHint,style:TextStyle(fontSize:11,color:kTextDim)),
-    ]));
-    return ListView.builder(itemCount:folders.length,itemBuilder:(_,i){
-      final folder=folders[i];final exists=Directory(folder).existsSync();
-      return ListTile(dense:true,
-        leading:Container(width:30,height:30,decoration:BoxDecoration(color:kAmber.withOpacity(0.1),borderRadius:BorderRadius.circular(7)),
-            child:Icon(Icons.folder_rounded,color:exists?kAmber:kTextDim,size:15)),
-        title:Text(p.basename(folder),maxLines:1,overflow:TextOverflow.ellipsis,style:const TextStyle(fontSize:13)),
-        subtitle:Text(folder,maxLines:1,overflow:TextOverflow.ellipsis,style:const TextStyle(fontSize:10,color:kTextDim)),
-        trailing:IconButton(icon:const Icon(Icons.push_pin_rounded,size:14,color:kRed),
-            onPressed:()async{await Store.toggleSavedFolder(folder);setState((){});}),
-        onTap:exists?()=>widget.onFolderTap(folder):null);
-    });
-  }
-
-  Widget _playlistTab(){
-    final playlists=Store.playlists;
-    return Column(children:[
-      Padding(padding:const EdgeInsets.symmetric(horizontal:12,vertical:8),
-        child:Row(children:[
-          Expanded(child:Text(L.playlist,style:TextStyle(fontWeight:FontWeight.w600,fontSize:13))),
-          FilledButton.icon(
-            style:FilledButton.styleFrom(padding:const EdgeInsets.symmetric(horizontal:10),minimumSize:const Size(0,32)),
-            icon:const Icon(Icons.add_rounded,size:16),label:Text(L.newItem,style:TextStyle(fontSize:12)),
-            onPressed:()async{
-              final ctrl=TextEditingController();
-              final name=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
-                title:Text(L.newPlaylist),
-                content:TextField(controller:ctrl,autofocus:true,
-                    decoration:InputDecoration(hintText:L.playlistName,border:OutlineInputBorder())),
-                actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.cancel)),
-                  FilledButton(onPressed:()=>Navigator.pop(ctx,ctrl.text.trim()),child:Text(L.create))],
-              ));
-              if(name!=null&&name.isNotEmpty){await Store.createPlaylist(name);setState((){});}
-            }),
-        ])),
-      const Divider(height:1),
-      if(playlists.isEmpty)Expanded(child:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-        Container(padding:const EdgeInsets.all(16),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(16),border:Border.all(color:kBorder)),
-            child:const Icon(Icons.queue_music_rounded,size:32,color:kTextDim)),
-        const SizedBox(height:12),Text(L.noPlaylists,style:TextStyle(color:kTextSec)),
-        const SizedBox(height:4),Text(L.createPlaylist,style:TextStyle(fontSize:11,color:kTextDim)),
-      ])))
-      else Expanded(child:ListView.builder(itemCount:playlists.keys.length,itemBuilder:(_,i){
-        final name=playlists.keys.elementAt(i);
-        final paths=playlists[name]!;
-        return ListTile(dense:true,
-          leading:Container(width:32,height:32,decoration:BoxDecoration(
-              gradient:const LinearGradient(colors:[kAccent,Color(0xFF1F8A5F)]),borderRadius:BorderRadius.circular(8)),
-              child:const Icon(Icons.queue_music_rounded,size:16,color:Colors.white)),
-          title:Text(name,style:const TextStyle(fontSize:13,fontWeight:FontWeight.w500)),
-          subtitle:Text('${paths.length}',style:const TextStyle(fontSize:11,color:kTextDim)),
-          trailing:PopupMenuButton<String>(
-            icon:const Icon(Icons.more_vert_rounded,size:18,color:kTextSec),
-            itemBuilder:(_)=>[
-              PopupMenuItem(value:'play',child:Text(L.play,style:TextStyle(fontSize:13))),
-              PopupMenuItem(value:'delete',child:Text(L.delete,style:TextStyle(fontSize:13,color:kRed))),
-            ],
-            onSelected:(v)async{
-              if(v=='delete'){
-                final ok=await showDialog<bool>(context:context,builder:(ctx)=>AlertDialog(
-                  title:Text('${L.delete} "$name"?'),
-                  actions:[TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.cancel)),
-                    FilledButton(style:FilledButton.styleFrom(backgroundColor:kRed),
-                        onPressed:()=>Navigator.pop(ctx,true),child:Text(L.delete))],
-                ));
-                if(ok==true){await Store.deletePlaylist(name);setState((){});}
-              }else if(v=='play'&&paths.isNotEmpty){
-                final files=paths.map((p)=>File(p)).where((f)=>f.existsSync()).toList();
-                if(files.isNotEmpty){
-                  Navigator.push(context,MaterialPageRoute(builder:(_)=>PlayerScreen(
-                    playlist:files, playlistIndex:0,
-                    subtitlePath:matchSubtitle(files.first.path),
-                  )));
-                }
-              }
-            }),
-          onTap:paths.isEmpty?null:(){
-            final files=paths.map((p)=>File(p)).where((f)=>f.existsSync()).toList();
-            if(files.isNotEmpty)Navigator.push(context,MaterialPageRoute(builder:(_)=>PlayerScreen(
-              playlist:files, playlistIndex:0,
-              subtitlePath:matchSubtitle(files.first.path),
-            )));
-          },
-        );
-      })),
-    ]);
-  }
-
-  Widget _sponsorTab(){
-    return FutureBuilder<List<Map<String,dynamic>>>(
-      future:ApiService.getSponsors(),
-      builder:(ctx,snap){
-        if(snap.connectionState==ConnectionState.waiting)
-          return Center(child:CircularProgressIndicator());
-        final list=snap.data??[];
-        if(list.isEmpty)return Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
-          Container(padding:const EdgeInsets.all(16),
-            decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(16),border:Border.all(color:kBorder)),
-            child:const Icon(Icons.star_rounded,size:32,color:kTextDim)),
-          const SizedBox(height:12),
-          Text(L.noSponsors,style:TextStyle(color:kTextSec)),
-        ]));
-        return ListView.builder(
-          padding:const EdgeInsets.all(12),
-          itemCount:list.length,
-          itemBuilder:(_,i){
-            final s=list[i];
-            final isFemale=(s['gender']??'male')=='female';
-            return Card(
-              color:kCard,
-              margin:const EdgeInsets.only(bottom:12),
-              shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(16),
-                side:const BorderSide(color:kBorder,width:0.5)),
-              child:Padding(padding:const EdgeInsets.all(16),child:Row(children:[
-                // آواتار
-                Container(width:56,height:56,
-                  decoration:BoxDecoration(
-                    gradient:LinearGradient(colors:isFemale?[const Color(0xFF63D9A8),const Color(0xFF63D9A8)]:[const Color(0xFF35F2A2),const Color(0xFF35F2A2)]),
-                    borderRadius:BorderRadius.circular(28)),
-                  child:(s['avatar_url']??'').isNotEmpty
-                    ?ClipRRect(borderRadius:BorderRadius.circular(28),child:Image.network(s['avatar_url'],width:56,height:56,fit:BoxFit.cover,errorBuilder:(_,__,___)=>Icon(isFemale?Icons.face_rounded:Icons.face_rounded,color:Colors.white,size:28)))
-                    :Icon(isFemale?Icons.face_rounded:Icons.face_rounded,color:Colors.white,size:28)),
-                const SizedBox(width:14),
-                // متن
-                Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-                  Text(s['name']??'',style:const TextStyle(fontWeight:FontWeight.bold,fontSize:15)),
-                  if((s['description']??'').isNotEmpty)Padding(
-                    padding:const EdgeInsets.only(top:4),
-                    child:Text(s['description'],style:const TextStyle(fontSize:12,color:kTextSec))),
-                ])),
-                // دکمه
-                if((s['link']??'').isNotEmpty)...[
-                  const SizedBox(width:8),
-                  FilledButton(
-                    style:FilledButton.styleFrom(
-                      padding:const EdgeInsets.symmetric(horizontal:12,vertical:8),
-                      minimumSize:const Size(0,36)),
-                    onPressed:()=>ul.launchUrl(Uri.parse(s['link']),mode:ul.LaunchMode.externalApplication),
-                    child:Text(L.view,style:TextStyle(fontSize:12))),
-                ],
-              ])),
-            );
-          });
-      });
-  }
-
-  Widget _settingsTab()=>FutureBuilder<Map<String,dynamic>?>(
-    future:ApiService.getConfig(),
-    builder:(ctx,snap){
-      final cfg=snap.data??{};
-      final channel=cfg['telegram_channel']??'';
-      final admin=cfg['telegram_admin']??'';
-      final reportText=cfg['report_text']??L.reportBug;
-      final remoteVer=cfg['app_version']??'';
-      final hasUpdate=remoteVer.isNotEmpty&&ApiService.isNewer(remoteVer,ApiService.appVersion);
-
-      return ListView(padding:const EdgeInsets.all(16),children:[
-        // هدر اپ — کارت Carbon-Scanner با scan line
-        ClipRRect(
-          borderRadius:BorderRadius.circular(24),
-          child:Stack(children:[
-            Container(padding:const EdgeInsets.all(18),decoration:const BoxDecoration(
-              gradient:LinearGradient(colors:[Color(0xFF0F4A33),Color(0xFF124A36),Color(0xFF0E1210)],begin:Alignment.topLeft,end:Alignment.bottomRight)),
-              child:Row(children:[
-                Container(padding:const EdgeInsets.all(10),decoration:BoxDecoration(
-                  color:Vz.accent.withOpacity(0.14),borderRadius:BorderRadius.circular(14),
-                  border:Border.all(color:Vz.accent.withOpacity(0.35))),
-                    child:const Icon(Icons.play_arrow_rounded,color:Vz.accent,size:26)),
-                const SizedBox(width:14),
-                Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-                  const Text('VEZOO',style:TextStyle(fontWeight:FontWeight.w800,fontSize:17,color:Color(0xFFE8EFE9),letterSpacing:2.5)),
-                  const SizedBox(height:2),
-                  Text('v${ApiService.appVersion} — PLAYER',
-                      style:const TextStyle(fontSize:10,color:Color(0xFF6E7F74),letterSpacing:1.2,fontFeatures:[FontFeature.tabularFigures()])),
-                ])),
-                if(snap.connectionState==ConnectionState.waiting)
-                  const SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:2,color:Vz.accent)),
-              ])),
-            Positioned(left:0,right:0,bottom:0,child:VzScanLine(height:2)),
-          ])),
-
-        const SizedBox(height:12),
-
-        // دکمه چک آپدیت
-        _appBtn(
-          icon:hasUpdate?Icons.system_update_rounded:Icons.check_circle_rounded,
-          color:hasUpdate?kAmber:kGreen,
-          label:hasUpdate?L.updateAvailable:L.upToDate,
-          onTap:hasUpdate?()async{
-            final url=cfg['download_url']??'';
-            if(url.isNotEmpty)await ul.launchUrl(Uri.parse(url),mode:ul.LaunchMode.externalApplication);
-          }:null,
-        ),
-
-        const SizedBox(height:8),
-
-        // زیرنویس AI
-        _appBtn(
-          icon:Icons.auto_awesome_rounded,color:const Color(0xFF35F2A2),
-          label:L.aiModels,
-          onTap:()=>Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())),
-        ),
-
-        const SizedBox(height:8),
-
-        // کانال تلگرام
-        if(channel.isNotEmpty)_appBtn(
-          icon:Icons.telegram_rounded,color:kCyan,
-          label:L.telegramChannel,
-          onTap:()=>ul.launchUrl(Uri.parse(channel),mode:ul.LaunchMode.externalApplication)),
-
-        const SizedBox(height:8),
-
-
-        // گزارش مشکل / پیشنهاد
-        if(admin.isNotEmpty)_appBtn(
-          icon:Icons.bug_report_rounded,color:kPink,
-          label:reportText,
-          onTap:()=>ul.launchUrl(Uri.parse(admin),mode:ul.LaunchMode.externalApplication)),
-
-        const SizedBox(height: 12),
-        const _LangPicker(),
-        const SizedBox(height:16),
-        Container(padding:const EdgeInsets.all(14),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(12),border:Border.all(color:kBorder)),
-            child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-              Text(L.features,style:TextStyle(fontWeight:FontWeight.w600,fontSize:13)),SizedBox(height:8),
-              Text('• MP4/MKV/AVI/...\n• SRT/VTT/ASS/SSA\n• HDR\n• Dual Sub',
-                  style:TextStyle(fontSize:12,color:kTextSec,height:1.7)),
-            ])),
-      ]);
-    });
-}
-
-Widget _appBtn({required IconData icon,required Color color,required String label,VoidCallback? onTap}){
-  return InkWell(
-    onTap:onTap,
-    borderRadius:BorderRadius.circular(16),
-    child:Container(
-      padding:const EdgeInsets.symmetric(horizontal:16,vertical:13),
-      decoration:BoxDecoration(color:kCard.withOpacity(0.72),borderRadius:BorderRadius.circular(16),
-          border:Border.all(color:onTap!=null?color.withOpacity(0.28):kBorder.withOpacity(0.7))),
-      child:Row(children:[
-        Container(width:32,height:32,decoration:BoxDecoration(
-          color:color.withOpacity(0.12),borderRadius:BorderRadius.circular(10),
-          border:Border.all(color:color.withOpacity(0.25),width:0.7)),
-          child:Icon(icon,color:onTap!=null?color:kTextDim,size:17)),
-        const SizedBox(width:12),
-        Expanded(child:Text(label,style:TextStyle(fontSize:13,color:onTap!=null?const Color(0xFFE8EFE9):kTextSec))),
-        if(onTap!=null)Icon(Icons.arrow_back_ios_new_rounded,size:12,color:kTextDim),
-      ]),
-    ),
-  );
-}
-
-
-class _LangPicker extends StatefulWidget {
-  const _LangPicker();
-  @override State<_LangPicker> createState() => _LangPickerState();
-}
-class _LangPickerState extends State<_LangPicker> {
-  @override Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(L.language, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 8),
-        Wrap(spacing: 6, runSpacing: 6, children: kSupportedLangs.map((lang) =>
-          GestureDetector(
-            onTap: () async { await L.set(lang); if (mounted) setState(() {}); },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: L.current == lang ? const Color(0xFF35F2A2) : const Color(0xFF1B231F),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: L.current == lang ? const Color(0xFF35F2A2) : const Color(0xFF26322C))),
-              child: Text(kLangNames[lang]!,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: L.current == lang ? const Color(0xFF070908) : Colors.white60,
-                  fontWeight: L.current == lang ? FontWeight.w600 : FontWeight.normal))),
-        )).toList()),
-      ]),
-    );
-  }
-}
