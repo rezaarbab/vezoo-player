@@ -98,11 +98,12 @@ void main() {
     testWidgets('VzMediaCard renders title, duration badge', (tester) async {
       await tester.pumpWidget(MaterialApp(
         theme: buildVezooTheme(),
-        home: const Scaffold(body: Center(child: VzMediaCard(
-          image: SizedBox.expand(),
+        home: Scaffold(body: Center(child: VzMediaCard(
+          image: const SizedBox.expand(),
           title: 'Big Buck Bunny',
           subtitle: 'Movies/Folder',
           duration: '12:34',
+          onTap: () {},
         ))),
       ));
       expect(find.text('Big Buck Bunny'), findsOneWidget);
