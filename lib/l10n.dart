@@ -315,6 +315,9 @@ class L {
 
   // ── تنظیمات ──
   static String get appearance => _t({'en':'Appearance','fa':'ظاهر','ar':'المظهر','ru':'Внешний вид','zh':'外观','ja':'外観','hi':'उपस्थिति','id':'Appearance'});
+  static String get themeDark => _t({'en':'Dark','fa':'تیره','ar':'داكن','ru':'Тёмная','zh':'深色','ja':'ダーク','hi':'डार्क','id':'Gelap'});
+  static String get themeLight => _t({'en':'Light','fa':'روشن','ar':'فاتح','ru':'Светлая','zh':'浅色','ja':'ライト','hi':'लाइट','id':'Terang'});
+  static String get themeSystem => _t({'en':'Auto','fa':'سیستمی','ar':'النظام','ru':'Системная','zh':'跟随系统','ja':'システム','hi':'सिस्टम','id':'Sistem'});
   static String get playback => _t({'en':'Audio / Playback','fa':'صدا / پخش','ar':'الصوت / التشغيل','ru':'Аудио/Воспр.','zh':'音频/播放','ja':'音声/再生','hi':'ऑडियो/प्लेबैक','id':'Audio / Playback'});
   static String get other => _t({'en':'Other','fa':'سایر','ar':'أخرى','ru':'Другое','zh':'其他','ja':'その他','hi':'अन्य','id':'Lainnya'});
   static String get gestures => _t({'en':'Gestures','fa':'ژست‌ها','ar':'الإيماءات','ru':'Жесты','zh':'手势','ja':'ジェスチャー','hi':'जेस्चर','id':'Gestures'});

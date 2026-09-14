@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'offline_translation_service.dart';
 import 'l10n.dart';
 
-const _bg = Color(0xFF070908);
-const _card = Color(0xFF141A17);
-const _accent = Color(0xFF35F2A2);
+const _bg = Vz.bgDeep;
+const _card = Vz.surface;
+const _accent = Vz.accent;
 
 class OfflineTranslationScreen extends StatefulWidget {
   const OfflineTranslationScreen({super.key});
@@ -87,7 +87,7 @@ class _State extends State<OfflineTranslationScreen> {
     backgroundColor: _bg,
     appBar: AppBar(
       backgroundColor: _bg,
-      title: const Text('Offline Translation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      title: Text('Offline Translation', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),
       actions: [
         IconButton(icon: const Icon(Icons.upload_rounded, color: Colors.white70), onPressed: _backup, tooltip: 'Backup'),
         IconButton(icon: const Icon(Icons.download_done_rounded, color: Colors.white70), onPressed: _import, tooltip: 'Import'),
@@ -113,7 +113,7 @@ class _State extends State<OfflineTranslationScreen> {
             style: TextStyle(color: Colors.white24, fontSize: 10), textAlign: TextAlign.center),
         ]));
 
-  Widget _sectionTitle(String t) => Text(t, style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600));
+  Widget _sectionTitle(String t) => Text(t, style: TextStyle(color: Vz.textDim, fontSize: 12, fontWeight: FontWeight.w600));
 
   Widget _langDropdown(String label, String value, List<String> langs, void Function(String) onChanged) =>
     Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -122,9 +122,9 @@ class _State extends State<OfflineTranslationScreen> {
         value: langs.contains(value) ? value : langs.first,
         dropdownColor: _card,
         isExpanded: true,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        style: TextStyle(color: Vz.text, fontSize: 12),
         underline: const SizedBox(),
-        hint: Text(label, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+        hint: Text(label, style: TextStyle(color: Vz.textDim, fontSize: 11)),
         items: langs.map((l) => DropdownMenuItem(value: l, child: Text(langNames[l] ?? l))).toList(),
         onChanged: (v) { if (v != null) onChanged(v); },
       ));
@@ -155,7 +155,7 @@ class _State extends State<OfflineTranslationScreen> {
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(m.name, style: TextStyle(color: isSelected ? Colors.white : Colors.white70,
                 fontWeight: FontWeight.bold, fontSize: 14)),
-              Text(m.desc, style: const TextStyle(color: Colors.white38, fontSize: 11)),
+              Text(m.desc, style: TextStyle(color: Vz.textDim, fontSize: 11)),
               Row(children: [
                 _tag('${m.langCount} زبان', Colors.blue),
                 const SizedBox(width: 4),
@@ -185,7 +185,7 @@ class _State extends State<OfflineTranslationScreen> {
                 backgroundColor: Colors.white12, color: _accent)),
             Padding(padding: const EdgeInsets.only(top: 4),
               child: Text('${(progress! * 100).toStringAsFixed(0)}%',
-                style: const TextStyle(color: Colors.white38, fontSize: 10))),
+                style: TextStyle(color: Vz.textDim, fontSize: 10))),
           ],
           // لیست زبان‌ها
           if (isSelected) ...[
@@ -196,7 +196,7 @@ class _State extends State<OfflineTranslationScreen> {
               children: m.langCodes.map((l) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(color: Colors.white.withOpacity(0.07), borderRadius: BorderRadius.circular(4)),
-                child: Text(langNames[l] ?? l, style: const TextStyle(color: Colors.white54, fontSize: 9)))).toList()),
+                child: Text(langNames[l] ?? l, style: TextStyle(color: Vz.textDim, fontSize: 9)))).toList()),
           ],
         ])));
   }

@@ -21,7 +21,7 @@ class LyricsSheet extends StatefulWidget {
   static Future<void> show(BuildContext ctx, String videoPath, void Function(String) onDone, {String? query}) =>
     showModalBottomSheet(
       context: ctx, isScrollControlled: true,
-      backgroundColor: const Color(0xFF0E1210),
+      backgroundColor: Vz.bgDeep,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => LyricsSheet(videoPath: videoPath, initialQuery: query, onDone: onDone),
     );
@@ -106,9 +106,9 @@ class _State extends State<LyricsSheet> {
         const VzSheetHandle(),
         Padding(padding: const EdgeInsets.symmetric(horizontal:16),
           child: Row(children: [
-            const Icon(Icons.music_note, color: Color(0xFF35F2A2), size: 20),
+            Icon(Icons.music_note, color: Vz.accent, size: 20),
             const SizedBox(width: 8),
-            Text(L.musicSubLabel, style: TextStyle(color:Colors.white, fontSize:16, fontWeight:FontWeight.bold)),
+            Text(L.musicSubLabel, style: TextStyle(color:Vz.text, fontSize:16, fontWeight:FontWeight.bold)),
             const Spacer(),
             IconButton(icon:const Icon(Icons.close,color:Colors.white38), onPressed:()=>Navigator.pop(ctx)),
           ]),
@@ -117,13 +117,13 @@ class _State extends State<LyricsSheet> {
           child: Row(children: [
             Expanded(child: TextField(
               controller: _ctrl,
-              style: const TextStyle(color:Colors.white, fontSize:13),
+              style: TextStyle(color:Vz.text, fontSize:13),
               textInputAction: TextInputAction.search,
               onSubmitted: (_) => _search(),
               decoration: InputDecoration(
                 hintText: L.searchSong,
                 hintStyle: const TextStyle(color:Colors.white30, fontSize:12),
-                filled: true, fillColor: const Color(0xFF1B231F),
+                filled: true, fillColor: Vz.card,
                 border: OutlineInputBorder(borderRadius:BorderRadius.circular(10), borderSide:BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal:12, vertical:10),
                 prefixIcon: const Icon(Icons.search, color:Colors.white38, size:18),
@@ -133,7 +133,7 @@ class _State extends State<LyricsSheet> {
             const SizedBox(width:8),
             FilledButton(
               onPressed: _loading ? null : _search,
-              style: FilledButton.styleFrom(backgroundColor:const Color(0xFF35F2A2), padding:const EdgeInsets.symmetric(horizontal:14,vertical:10)),
+              style: FilledButton.styleFrom(backgroundColor:Vz.accent, padding:const EdgeInsets.symmetric(horizontal:14,vertical:10)),
               child: _loading
                 ? SizedBox(width:16,height:16,child:CircularProgressIndicator(strokeWidth:2,color:Colors.white))
                 : Text(L.search, style:TextStyle(fontSize:12)),
@@ -145,7 +145,7 @@ class _State extends State<LyricsSheet> {
           child: Text(_error!, style:const TextStyle(color:Colors.red,fontSize:12))),
         Expanded(child: _results.isEmpty
           ? Center(child: Text(_loading ? L.searching2 : L.searchHint,
-              style:const TextStyle(color:Colors.white38,fontSize:13)))
+              style:TextStyle(color:Vz.textDim,fontSize:13)))
           : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal:8,vertical:4),
               itemCount: _results.length,
@@ -154,28 +154,28 @@ class _State extends State<LyricsSheet> {
                 return Container(
                   margin: const EdgeInsets.only(bottom:6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1B231F),
+                    color: Vz.card,
                     borderRadius: BorderRadius.circular(10)),
                   child: ListTile(
                     dense: true,
                     leading: Container(width:36,height:36,
-                      decoration:BoxDecoration(color:const Color(0xFF35F2A2).withOpacity(0.15),borderRadius:BorderRadius.circular(8)),
+                      decoration:BoxDecoration(color:Vz.accent.withOpacity(0.15),borderRadius:BorderRadius.circular(8)),
                       child: Icon(t.hasSynced ? Icons.lyrics_rounded : Icons.text_fields_rounded,
-                        color:t.hasSynced ? const Color(0xFF35F2A2) : Colors.white38, size:18)),
+                        color:t.hasSynced ? Vz.accent : Colors.white38, size:18)),
                     title: Text(t.title, style:const TextStyle(fontSize:13,color:Colors.white), maxLines:1, overflow:TextOverflow.ellipsis),
                     subtitle: Text('${t.artist}${t.album.isNotEmpty?" • ${t.album}":""}',
                       style:const TextStyle(fontSize:10,color:Colors.white54), maxLines:1, overflow:TextOverflow.ellipsis),
                     trailing: t.hasSynced
                       ? Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                          decoration:BoxDecoration(color:const Color(0xFF35F2A2).withOpacity(0.2),borderRadius:BorderRadius.circular(4)),
-                          child:const Text('SYNC',style:TextStyle(color:Color(0xFF35F2A2),fontSize:9,fontWeight:FontWeight.bold)))
+                          decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(4)),
+                          child:Text('SYNC', style:TextStyle(color:Vz.accent,fontSize:9,fontWeight:FontWeight.bold)))
                       : const Icon(Icons.download_rounded,size:16,color:Colors.white38),
                     onTap: _applying ? null : () => _apply(t),
                   ),
                 );
               },
             )),
-        if (_applying) const LinearProgressIndicator(color:Color(0xFF35F2A2), backgroundColor:Colors.white12),
+        if (_applying) LinearProgressIndicator(color:Vz.accent, backgroundColor:Colors.white12),
       ]),
     ),
   );

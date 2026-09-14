@@ -101,7 +101,7 @@ class VzGradButton extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: Vz.auroraGrad,
           borderRadius: BorderRadius.circular(radius),
-          boxShadow: const [Vz.glow],
+          boxShadow: [Vz.glow],
         ),
         child: Material(
           color: Colors.transparent,
@@ -141,7 +141,7 @@ class VzMintButton extends StatelessWidget {
             begin: Alignment.topLeft, end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(radius),
-          boxShadow: const [Vz.amberGlow],
+          boxShadow: [Vz.amberGlow],
         ),
         child: Material(
           color: Colors.transparent,
@@ -530,7 +530,7 @@ class VzNavDock extends StatelessWidget {
               color: Vz.surface.withOpacity(0.88),
               borderRadius: BorderRadius.circular(Rad.full),
               border: Border.all(color: Vz.borderHi.withOpacity(0.8), width: 0.7),
-              boxShadow: const [Vz.shadow],
+              boxShadow: [Vz.shadow],
             ),
             child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
               for (final (dest, icon) in _items)
@@ -555,7 +555,7 @@ class VzNavDock extends StatelessWidget {
           gradient: active ? Vz.accentGrad : null,
           color: active ? null : Colors.transparent,
           borderRadius: BorderRadius.circular(Rad.full),
-          boxShadow: active ? const [Vz.glowSoft] : null,
+          boxShadow: active ? [Vz.glowSoft] : null,
         ),
         child: Icon(
           icon,
@@ -697,7 +697,7 @@ Future<String?> showVzInputDialog({
         controller: ctrl,
         autofocus: true,
         maxLines: maxLines,
-        style: const TextStyle(fontSize: 14, color: Vz.text),
+        style: TextStyle(fontSize: 14, color: Vz.text),
         decoration: InputDecoration(hintText: hint),
       ),
       actionsPadding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
@@ -766,7 +766,7 @@ class VzSearchField extends StatelessWidget {
           border: Border.all(color: Vz.border, width: 0.7),
         ),
         child: Row(children: [
-          const Icon(Icons.search_rounded, size: 19, color: Vz.textDim),
+          Icon(Icons.search_rounded, size: 19, color: Vz.textDim),
           const SizedBox(width: Sp.sm),
           Expanded(
             child: readOnly
@@ -775,10 +775,10 @@ class VzSearchField extends StatelessWidget {
                   controller: controller,
                   autofocus: autofocus,
                   onChanged: onChanged,
-                  style: const TextStyle(fontSize: 13.5, color: Vz.text),
+                  style: TextStyle(fontSize: 13.5, color: Vz.text),
                   decoration: InputDecoration.collapsed(
                     hintText: hint,
-                    hintStyle: const TextStyle(color: Vz.textDim, fontSize: 13),
+                    hintStyle: TextStyle(color: Vz.textDim, fontSize: 13),
                   ),
                 ),
           ),
@@ -841,7 +841,7 @@ class VzMediaCard extends StatelessWidget {
               color: selected ? Vz.accent.withOpacity(0.75) : Vz.border.withOpacity(0.8),
               width: selected ? 1.2 : 0.7,
             ),
-            boxShadow: selected ? const [Vz.glowSoft] : null,
+            boxShadow: selected ? [Vz.glowSoft] : null,
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
             // ── media ──
@@ -857,7 +857,7 @@ class VzMediaCard extends StatelessWidget {
               Positioned.fill(
                 child: IgnorePointer(
                   child: DecoratedBox(
-                    decoration: const BoxDecoration(gradient: Vz.scrimGrad),
+                    decoration: BoxDecoration(gradient: Vz.scrimGrad),
                     child: const SizedBox.expand(),
                   ),
                 ),

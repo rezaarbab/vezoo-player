@@ -51,13 +51,13 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0E1210),
+        backgroundColor: Vz.bgDeep,
         title: Text(isStart ? L.startTime : L.endTime,
-          style: const TextStyle(color: Colors.white, fontSize: 14)),
+          style: TextStyle(color: Vz.text, fontSize: 14)),
         content: TextField(
           controller: ctrl, autofocus: true,
           style: const TextStyle(color: Colors.white),
-          decoration: const InputDecoration(hintText: '00:05', hintStyle: TextStyle(color: Colors.white38)),
+          decoration: InputDecoration(hintText: '00:05', hintStyle:TextStyle(color: Vz.textDim)),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.cancel)),
@@ -101,9 +101,9 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
     onPopInvokedWithResult: (didPop, _) async {
       if (didPop) return;
       final leave = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0E1210),
-        title: Text(L.unsavedChanges, style: TextStyle(color: Colors.white, fontSize: 15)),
-        content: Text(L.exitWithoutSave, style: TextStyle(color: Colors.white70)),
+        backgroundColor: Vz.bgDeep,
+        title: Text(L.unsavedChanges, style: TextStyle(color: Vz.text, fontSize: 15)),
+        content: Text(L.exitWithoutSave, style: TextStyle(color: Vz.textSec)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(L.stay)),
           FilledButton(onPressed: () => Navigator.pop(ctx, true),
@@ -113,37 +113,37 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
       if (leave == true && context.mounted) Navigator.pop(context);
     },
     child: Scaffold(
-      backgroundColor: const Color(0xFF0E1210),
+      backgroundColor: Vz.bgDeep,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1210),
-        title: Text('${L.editSrtTitle} (${_entries.length})', style: const TextStyle(color: Colors.white, fontSize: 14)),
+        backgroundColor: Vz.bgDeep,
+        title: Text('${L.editSrtTitle} (${_entries.length})', style: TextStyle(color: Vz.text, fontSize: 14)),
         actions: [
           if (_dirty) IconButton(
             icon: _saving
               ? const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color:Colors.white))
-              : const Icon(Icons.save, color: Color(0xFF35F2A2)),
+              : Icon(Icons.save, color: Vz.accent),
             onPressed: _saving ? null : _save,
           ),
         ],
       ),
       body: _entries.isEmpty
-        ? Center(child: Text(L.noSubtitleEdit, style: TextStyle(color: Colors.white54)))
+        ? Center(child: Text(L.noSubtitleEdit, style: TextStyle(color: Vz.textDim)))
         : ListView.builder(
             padding: const EdgeInsets.all(12),
             itemCount: _entries.length,
             itemBuilder: (_, i) => Container(
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: const Color(0xFF0E1210), borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: Vz.bgDeep, borderRadius: BorderRadius.circular(12)),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Row(children: [
-                  Text('#${i + 1}', style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                  Text('#${i + 1}', style: TextStyle(color: Vz.textDim, fontSize: 11)),
                   const Spacer(),
                   GestureDetector(onTap: () => _editTime(i, true),
-                    child: Text(_fmt(_entries[i].from), style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 12))),
-                  const Text('  →  ', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                    child: Text(_fmt(_entries[i].from), style: TextStyle(color: Vz.accent, fontSize: 12))),
+                  Text('  →  ', style:TextStyle(color: Vz.textDim, fontSize: 12)),
                   GestureDetector(onTap: () => _editTime(i, false),
-                    child: Text(_fmt(_entries[i].to), style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 12))),
+                    child: Text(_fmt(_entries[i].to), style: TextStyle(color: Vz.accent, fontSize: 12))),
                   const SizedBox(width: 8),
                   GestureDetector(onTap: () => _deleteEntry(i),
                     child: const Icon(Icons.delete_outline, color: Colors.red, size: 16)),
@@ -151,7 +151,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
                 const SizedBox(height: 6),
                 TextField(
                   controller: _textCtrls[i],
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  style: TextStyle(color: Vz.text, fontSize: 13),
                   maxLines: null,
                   onChanged: (_) => setState(() => _dirty = true),
                   decoration: const InputDecoration(
@@ -169,7 +169,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
           onPressed: _saving ? null : _save,
           icon: const Icon(Icons.save),
           label: Text(L.saveChanges),
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2), padding: const EdgeInsets.symmetric(vertical: 14)),
+          style: FilledButton.styleFrom(backgroundColor: Vz.accent, padding: const EdgeInsets.symmetric(vertical: 14)),
         )),
       )) : null,
     ),

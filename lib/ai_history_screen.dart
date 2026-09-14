@@ -24,10 +24,10 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
 
   Future<void> _remove(String path) async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.deleteFromHistory,style:TextStyle(color:Colors.white,fontSize:15)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.deleteFromHistory,style:TextStyle(color:Vz.text,fontSize:15)),
       content:Text(L.deleteFromHistoryDesc,
-        style:TextStyle(color:Colors.white70,fontSize:12)),
+        style:TextStyle(color:Vz.textSec,fontSize:12)),
       actions:[
         TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
         FilledButton(onPressed:()=>Navigator.pop(context,true),
@@ -45,19 +45,19 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    backgroundColor:const Color(0xFF0E1210),
+    backgroundColor:Vz.bgDeep,
     appBar:AppBar(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.aiHistory,style:TextStyle(color:Colors.white,fontSize:15)),
-      leading:IconButton(icon:const Icon(Icons.arrow_back,color:Colors.white),onPressed:()=>Navigator.pop(context)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.aiHistory,style:TextStyle(color:Vz.text,fontSize:15)),
+      leading:IconButton(icon:Icon(Icons.arrow_back,color:Vz.text),onPressed:()=>Navigator.pop(context)),
     ),
     body: _loading
-      ? Center(child:CircularProgressIndicator(color:Color(0xFF35F2A2)))
+      ? Center(child:CircularProgressIndicator(color:Vz.accent))
       : _videos.isEmpty
         ? Center(child:Padding(
             padding:EdgeInsets.all(24),
             child:Text(L.noAiHistoryYet,
-              style:TextStyle(color:Colors.white38,fontSize:13),textAlign:TextAlign.center)))
+              style:TextStyle(color:Vz.textDim,fontSize:13),textAlign:TextAlign.center)))
         : ListView.builder(
             padding:const EdgeInsets.all(12),
             itemCount:_videos.length,
@@ -66,16 +66,16 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
               final langs = WhisperService.existingLanguages(path);
               return Container(
                 margin:const EdgeInsets.only(bottom:8),
-                decoration:BoxDecoration(color:const Color(0xFF0E1210),borderRadius:BorderRadius.circular(12)),
+                decoration:BoxDecoration(color:Vz.bgDeep,borderRadius:BorderRadius.circular(12)),
                 child:ListTile(
                   onTap:()=>_openVideo(path),
-                  leading:const Icon(Icons.movie_outlined,color:Color(0xFF35F2A2)),
-                  title:Text(p.basename(path),style:const TextStyle(color:Colors.white,fontSize:13),
+                  leading:Icon(Icons.movie_outlined,color:Vz.accent),
+                  title:Text(p.basename(path),style:TextStyle(color:Vz.text,fontSize:13),
                     overflow:TextOverflow.ellipsis),
                   subtitle:Wrap(spacing:4,runSpacing:2,children:langs.map((l)=>Container(
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                    decoration:BoxDecoration(color:const Color(0xFF35F2A2).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
-                    child:Text(kLanguages[l]??l,style:const TextStyle(color:Color(0xFF35F2A2),fontSize:10)),
+                    decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                    child:Text(kLanguages[l]??l,style:TextStyle(color:Vz.accent,fontSize:10)),
                   )).toList()),
                   trailing:IconButton(
                     icon:const Icon(Icons.close,color:Colors.white38,size:18),

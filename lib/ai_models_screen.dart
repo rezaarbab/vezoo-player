@@ -34,10 +34,10 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
 
   Future<void> _clearCache() async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.clearAudioCache,style:TextStyle(color:Colors.white,fontSize:15)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.clearAudioCache,style:TextStyle(color:Vz.text,fontSize:15)),
       content:Text('${L.clearAudioCache}?',
-        style:const TextStyle(color:Colors.white70,fontSize:12)),
+        style:TextStyle(color:Vz.textSec,fontSize:12)),
       actions:[
         TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
         FilledButton(onPressed:()=>Navigator.pop(context,true),
@@ -112,26 +112,26 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
 
   @override
   Widget build(BuildContext ctx) => Scaffold(
-    backgroundColor:const Color(0xFF0E1210),
+    backgroundColor:Vz.bgDeep,
     appBar: AppBar(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.aiModelsLabel,style:TextStyle(color:Colors.white,fontSize:16)),
-      leading:IconButton(icon:const Icon(Icons.arrow_back,color:Colors.white),onPressed:()=>Navigator.pop(ctx)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.aiModelsLabel,style:TextStyle(color:Vz.text,fontSize:16)),
+      leading:IconButton(icon:Icon(Icons.arrow_back,color:Vz.text),onPressed:()=>Navigator.pop(ctx)),
       actions:[
         IconButton(
-          icon:const Icon(Icons.history,color:Color(0xFF35F2A2)),
+          icon:Icon(Icons.history,color:Vz.accent),
           tooltip:L.subtitleHistory,
           onPressed:()=>Navigator.push(ctx,MaterialPageRoute(builder:(_)=>const AiHistoryScreen())),
         ),
         IconButton(
-          icon:const Icon(Icons.playlist_add_check,color:Color(0xFF35F2A2)),
+          icon:Icon(Icons.playlist_add_check,color:Vz.accent),
           tooltip:L.batchQueue,
           onPressed:()=>Navigator.push(ctx,MaterialPageRoute(builder:(_)=>const AiBatchQueueScreen())),
         ),
       ],
     ),
     body: _loading
-      ? const Center(child:CircularProgressIndicator(color:Color(0xFF35F2A2)))
+      ? Center(child:CircularProgressIndicator(color:Vz.accent))
       : Column(children:[
           _infoCard(),
           _cacheCard(),
@@ -145,15 +145,15 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     padding:const EdgeInsets.fromLTRB(16,12,16,0),
     child:Container(
       padding:const EdgeInsets.all(12),
-      decoration:BoxDecoration(color:const Color(0xFF0E1210).withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.bgDeep.withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
-        const Icon(Icons.info_outline,color:Color(0xFF35F2A2),size:18),
+        Icon(Icons.info_outline,color:Vz.accent,size:18),
         const SizedBox(width:8),
         Expanded(child:Text(
           _ramMb!=null
             ? '${L.recommended}: ~${(_ramMb!/1024).toStringAsFixed(1)}GB'
             : L.canDownloadMultiple,
-          style:const TextStyle(color:Colors.white70,fontSize:12))),
+          style:TextStyle(color:Vz.textSec,fontSize:12))),
       ]),
     ),
   );
@@ -162,7 +162,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     padding:const EdgeInsets.fromLTRB(16,8,16,0),
     child:Container(
       padding:const EdgeInsets.all(12),
-      decoration:BoxDecoration(color:const Color(0xFF0E1210).withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.bgDeep.withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
         const Icon(Icons.storage,color:Colors.amber,size:18),
         const SizedBox(width:8),
@@ -170,7 +170,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
           _cacheCount>0
             ? '${L.cacheAudio}: $_cacheCount (${L.downloading} ${_cacheMb.toStringAsFixed(1)}MB)'
             : L.noAudioCache,
-          style:const TextStyle(color:Colors.white70,fontSize:12))),
+          style:TextStyle(color:Vz.textSec,fontSize:12))),
         if(_cacheCount>0) TextButton(
           onPressed:_clearingCache?null:_clearCache,
           child:_clearingCache
@@ -194,7 +194,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     child:Container(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
       decoration:BoxDecoration(
-        color:_filter==v?const Color(0xFF35F2A2):const Color(0xFF0E1210),
+        color:_filter==v?Vz.accent:Vz.bgDeep,
         borderRadius:BorderRadius.circular(20)),
       child:Text(label,style:TextStyle(color:_filter==v?Colors.white:Colors.white60,fontSize:12)),
     ),
@@ -211,14 +211,14 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     return Container(
       margin:const EdgeInsets.only(bottom:12),
       decoration:BoxDecoration(
-        color:const Color(0xFF0E1210),
+        color:Vz.bgDeep,
         borderRadius:BorderRadius.circular(16),
-        border:Border.all(color: act?const Color(0xFF35F2A2):(recommended?Colors.amber:Colors.white12), width:act||recommended?2:1),
+        border:Border.all(color: act?Vz.accent:(recommended?Colors.amber:Colors.white12), width:act||recommended?2:1),
       ),
       child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
 
         Row(children:[
-          _tag(m.name, const Color(0xFF35F2A2)),
+          _tag(m.name, Vz.accent),
           if(m.isQuantized)...[const SizedBox(width:6),_tag(m.variant.toUpperCase(), Colors.teal)],
           if(m.isCustom)...[const SizedBox(width:6),_tag(L.importModel, Colors.orange)],
           const SizedBox(width:8),
@@ -227,10 +227,10 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
           if(dl && !act)_tag(L.downloaded, Colors.blue),
           const Spacer(),
           Text('~${m.sizeMb>=1000 ? "${(m.sizeMb/1000).toStringAsFixed(1)}GB" : "${m.sizeMb}MB"}',
-            style:const TextStyle(color:Colors.white54,fontSize:12)),
+            style:TextStyle(color:Vz.textDim,fontSize:12)),
         ]),
         const SizedBox(height:6),
-        Text(m.desc,style:const TextStyle(color:Colors.white70,fontSize:12)),
+        Text(m.desc,style:TextStyle(color:Vz.textSec,fontSize:12)),
         const SizedBox(height:6),
         Row(children:[_stars(L.speed,m.speedStars), const SizedBox(width:16), _stars(L.accuracy,m.accStars)]),
 
@@ -238,14 +238,14 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
           const SizedBox(height:12),
           LinearProgressIndicator(
             value: prog>0&&prog<=1 ? prog : null,
-            backgroundColor:const Color(0xFF1B231F),
-            color:const Color(0xFF35F2A2), minHeight:6,
+            backgroundColor:Vz.card,
+            color:Vz.accent, minHeight:6,
             borderRadius:BorderRadius.circular(3),
           ),
           const SizedBox(height:4),
           Row(mainAxisAlignment:MainAxisAlignment.spaceBetween,children:[
             Text('${(prog*100).clamp(0,100).toInt()}%',
-              style:const TextStyle(color:Colors.white54,fontSize:11)),
+              style:TextStyle(color:Vz.textDim,fontSize:11)),
             TextButton(onPressed:()=>_cancel(m),
               child:Text(L.cancelResume,style:TextStyle(color:Colors.orange,fontSize:11))),
           ]),
@@ -259,7 +259,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
               icon:const Icon(Icons.download,size:16),
               label:Text('${L.download} (~${m.sizeMb>=1000 ? "${(m.sizeMb/1000).toStringAsFixed(1)}GB" : "${m.sizeMb}MB"})',
                 style:const TextStyle(fontSize:12)),
-              style:FilledButton.styleFrom(backgroundColor:const Color(0xFF35F2A2),
+              style:FilledButton.styleFrom(backgroundColor:Vz.accent,
                 shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
             )),
             if(dl&&!act) Expanded(child:FilledButton.icon(
@@ -276,9 +276,9 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
                 tooltip:L.delete,
                 onPressed:()async{
                   final ok=await showDialog<bool>(context:context,builder:(_)=>AlertDialog(
-                    backgroundColor:const Color(0xFF0E1210),
+                    backgroundColor:Vz.bgDeep,
                     title:Text(L.delete,style:TextStyle(color:Colors.white)),
-                    content:Text('${m.name}?',style:const TextStyle(color:Colors.white70)),
+                    content:Text('${m.name}?',style:TextStyle(color:Vz.textSec)),
                     actions:[
                       TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
                       FilledButton(onPressed:()=>Navigator.pop(context,true),
@@ -303,8 +303,8 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
   );
 
   Widget _stars(String label, int n) => Row(mainAxisSize:MainAxisSize.min,children:[
-    Text('$label: ',style:const TextStyle(color:Colors.white54,fontSize:11)),
+    Text('$label: ',style:TextStyle(color:Vz.textDim,fontSize:11)),
     ...List.generate(5,(i)=>Icon(i<n?Icons.star:Icons.star_border,size:12,
-      color:i<n?const Color(0xFF35F2A2):Colors.white24)),
+      color:i<n?Vz.accent:Colors.white24)),
   ]);
 }

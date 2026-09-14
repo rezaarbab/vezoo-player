@@ -9,14 +9,13 @@ import 'api_service.dart';
 import 'theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 /// نمایش snackbar که همیشه بالای navbar میاد
 /// کلید جهانی برای نمایش snackbar بالای همه چیز (حتی bottom sheet ها)
 final GlobalKey<ScaffoldMessengerState> rootScaffoldKey = GlobalKey<ScaffoldMessengerState>();
 
 /// نمایش snackbar که همیشه بالای navbar میاد — حتی از داخل sheet
 void showSnack(BuildContext ctx, String msg, {
-  Color color = const Color(0xFF8B5CF6),
+  Color? color,
   int seconds = 5,
   String? actionLabel,
   VoidCallback? onAction,
@@ -26,7 +25,7 @@ void showSnack(BuildContext ctx, String msg, {
     ..clearSnackBars()
     ..showSnackBar(SnackBar(
     content: Text(msg),
-    backgroundColor: color,
+    backgroundColor: color ?? Vz.accent,
     duration: Duration(seconds: seconds),
     behavior: SnackBarBehavior.floating,
     margin: const EdgeInsets.fromLTRB(12, 0, 12, 70),
@@ -45,11 +44,17 @@ void main() async {
   await L.load(); // بارگذاری زبان ذخیره‌شده
   await Store.load();
   await ApiService.init();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Color(0xFF0B0B10),
-    statusBarIconBrightness: Brightness.light,
-  ));
+
+  // ── Theme persistence hooks (wired to SharedPreferences) ──
+  storeThemePrefs = () async {
+    final p = await SharedPreferences.getInstance();
+    return p.getString('app_theme');
+  };
+  storeThemeSave = (v) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString('app_theme', v);
+  };
+
   runApp(const MyApp());
 }
 
@@ -57,11 +62,34 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    // VzTheme بالای MaterialApp تا بتونه theme data رو rebuild کنه
+    return VzTheme(
+      child: VzThemeScopeBuilder(),
+    );
+  }
+}
+
+/// جهت جلوگیری از flash اولیه، تم از روی VzThemeScope خونده میشه.
+class VzThemeScopeBuilder extends StatelessWidget {
+  const VzThemeScopeBuilder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // اسنپ‌شات تاریک/روشن از scope — با تغییر تم کل زیرمجموعه rebuild میشه
+    final dark = VzThemeScope.of(context) || Vz.isDark;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+      systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+    ));
     return MaterialApp(
       scaffoldMessengerKey: rootScaffoldKey,
       title: 'Vezoo',
       debugShowCheckedModeBanner: false,
-      theme: buildVezooTheme(),
+      theme: buildVezooTheme(dark: dark),
+      darkTheme: buildVezooTheme(dark: true),
+      themeMode: dark ? ThemeMode.dark : ThemeMode.light,
       builder: (ctx, child) => Directionality(
         textDirection: langDir(L.current),
         child: VzAmbientBg(child: child ?? const SizedBox.shrink()),

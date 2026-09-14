@@ -96,7 +96,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
 
   Color _statusColor(_ItemStatus s) => switch (s) {
     _ItemStatus.pending => Colors.white38,
-    _ItemStatus.running => const Color(0xFF35F2A2),
+    _ItemStatus.running => Vz.accent,
     _ItemStatus.done => Colors.green,
     _ItemStatus.error => Colors.red,
     _ItemStatus.skipped => Colors.orange,
@@ -115,10 +115,10 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
     final doneCount = _queue.where((q) => q.status == _ItemStatus.done).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0E1210),
+      backgroundColor: Vz.bgDeep,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0E1210),
-        title: Text('${L.batchQueue} (${_queue.length})', style: const TextStyle(color: Colors.white, fontSize: 14)),
+        backgroundColor: Vz.bgDeep,
+        title: Text('${L.batchQueue} (${_queue.length})', style: TextStyle(color: Vz.text, fontSize: 14)),
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: _running ? null : () => Navigator.pop(context)),
       ),
@@ -128,15 +128,15 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
           child: Column(children: [
             Row(children: [
               if (_downloaded.isNotEmpty) Expanded(child: DropdownButton<WhisperModelDef>(
-                value: _selected, isExpanded: true, dropdownColor: const Color(0xFF1B231F),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                value: _selected, isExpanded: true, dropdownColor: Vz.card,
+                style: TextStyle(color: Vz.text, fontSize: 12),
                 items: _downloaded.map((m) => DropdownMenuItem(value: m, child: Text(m.name))).toList(),
                 onChanged: _running ? null : (v) { if (v != null) setState(() => _selected = v); },
               )),
               const SizedBox(width: 8),
               Flexible(child: DropdownButton<String>(
-                value: _lang, dropdownColor: const Color(0xFF1B231F), isExpanded: false,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                value: _lang, dropdownColor: Vz.card, isExpanded: false,
+                style: TextStyle(color: Vz.text, fontSize: 12),
                 items: kLanguages.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: _running ? null : (v) { if (v != null) setState(() => _lang = v); },
               )),
@@ -147,26 +147,26 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                 onPressed: _running ? null : _addVideos,
                 icon: const Icon(Icons.add, size: 16),
                 label: Text(L.addVideo, style: TextStyle(fontSize: 12)),
-                style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFF35F2A2))),
+                style: OutlinedButton.styleFrom(side: BorderSide(color: Vz.accent)),
               )),
               const SizedBox(width: 8),
               Expanded(child: FilledButton.icon(
                 onPressed: (_running || _queue.isEmpty || _selected == null) ? (_running ? _cancelQueue : null) : _startQueue,
                 icon: Icon(_running ? Icons.stop : Icons.play_arrow, size: 16),
                 label: Text(_running ? L.cancelQueue : L.startProcessing, style: const TextStyle(fontSize: 12)),
-                style: FilledButton.styleFrom(backgroundColor: _running ? Colors.red : const Color(0xFF35F2A2)),
+                style: FilledButton.styleFrom(backgroundColor: _running ? Colors.red : Vz.accent),
               )),
             ]),
             if (_running) Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text('${doneCount}/${_queue.length}', style: const TextStyle(color: Colors.white54, fontSize: 11)),
+              child: Text('${doneCount}/${_queue.length}', style: TextStyle(color: Vz.textDim, fontSize: 11)),
             ),
           ]),
         ),
         const Divider(color: Colors.white12, height: 1),
         Expanded(
           child: _queue.isEmpty
-            ? Center(child: Text(L.noVideoAdded, style: TextStyle(color: Colors.white38, fontSize: 13)))
+            ? Center(child: Text(L.noVideoAdded, style: TextStyle(color: Vz.textDim, fontSize: 13)))
             : ListView.builder(
                 padding: const EdgeInsets.all(12),
                 itemCount: _queue.length,
@@ -176,14 +176,14 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF0E1210), borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: _currentIndex == i ? const Color(0xFF35F2A2) : Colors.white12),
+                      color: Vz.bgDeep, borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: _currentIndex == i ? Vz.accent : Colors.white12),
                     ),
                     child: Row(children: [
                       Icon(_statusIcon(item.status), color: _statusColor(item.status), size: 18),
                       const SizedBox(width: 10),
                       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Text(item.path.split('/').last, style: const TextStyle(color: Colors.white, fontSize: 12), overflow: TextOverflow.ellipsis),
+                        Text(item.path.split('/').last, style: TextStyle(color: Vz.text, fontSize: 12), overflow: TextOverflow.ellipsis),
                         if (item.message.isNotEmpty) Text(item.message, style: TextStyle(color: _statusColor(item.status), fontSize: 10)),
                       ])),
                       if (!_running) IconButton(

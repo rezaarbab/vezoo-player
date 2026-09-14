@@ -4,10 +4,10 @@ import 'iptv_service.dart';
 import 'player.dart';
 import 'l10n.dart';
 
-const kAccent = Color(0xFF8B5CF6); // NOVA violet
-const kBg = Color(0xFF0B0B10);
-const kCard = Color(0xFF1A1A23);
-const kBorder = Color(0xFF2A2A38);
+const kAccent = Vz.accent; // NOVA violet
+const kBg = Vz.bg;
+const kCard = Vz.card;
+const kBorder = Vz.border;
 
 class IptvScreen extends StatefulWidget {
   const IptvScreen({super.key});
@@ -55,9 +55,9 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (_) => StatefulBuilder(builder: (ctx, ss) => Column(mainAxisSize: MainAxisSize.min, children: [
         const SizedBox(height: 12),
-        const Text('Auto Refresh', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold)),
+        Text('Auto Refresh', style:TextStyle(color: Vz.text, fontSize: 15, fontWeight: FontWeight.bold)),
         if (_lastRefreshStr.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4),
-          child: Text('Last refresh: $_lastRefreshStr', style: const TextStyle(color: Colors.white38, fontSize: 12))),
+          child: Text('Last refresh: $_lastRefreshStr', style: TextStyle(color: Vz.textDim, fontSize: 12))),
         const SizedBox(height: 8),
         ...intervals.entries.map((e) => FutureBuilder<int>(
           future: IptvService.getRefreshInterval(_current!),
@@ -114,7 +114,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
       builder: (_) => StatefulBuilder(builder: (ctx, ss) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom, top: 16, left: 16, right: 16),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          const Text('Add IPTV', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+          Text('Add IPTV', style:TextStyle(color: Vz.text, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           // toggle
           Row(children: [
@@ -123,20 +123,20 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: !isM3u ? kAccent : const Color(0xFF22222E),
+                  color: !isM3u ? kAccent : Vz.cardHi,
                   borderRadius: BorderRadius.circular(8)),
                 child: const Text('Xtream Codes', textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))))),
+                  style: TextStyle(color: Vz.text, fontSize: 13, fontWeight: FontWeight.w600))))),
             const SizedBox(width: 8),
             Expanded(child: GestureDetector(
               onTap: () => ss(() => isM3u = true),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isM3u ? kAccent : const Color(0xFF22222E),
+                  color: isM3u ? kAccent : Vz.cardHi,
                   borderRadius: BorderRadius.circular(8)),
                 child: const Text('M3U Playlist', textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600))))),
+                  style: TextStyle(color: Vz.text, fontSize: 13, fontWeight: FontWeight.w600))))),
           ]),
           const SizedBox(height: 12),
           _field(nameCtrl, 'Name (optional)', Icons.label_rounded),
@@ -196,10 +196,10 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
   }
 
   Widget _field(TextEditingController c, String hint, IconData icon, {bool obscure=false}) =>
-    TextField(controller: c, obscureText: obscure, style: const TextStyle(color: Colors.white, fontSize: 13),
-      decoration: InputDecoration(hintText: hint, hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+    TextField(controller: c, obscureText: obscure, style: TextStyle(color: Vz.text, fontSize: 13),
+      decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
         prefixIcon: Icon(icon, size: 18, color: Colors.white38),
-        filled: true, fillColor: const Color(0xFF1A1A23),
+        filled: true, fillColor: Vz.card,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none)));
 
   @override Widget build(BuildContext context) => Scaffold(
@@ -207,7 +207,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
     backgroundColor: kBg,
     appBar: AppBar(
       backgroundColor: kBg,
-      title: const Text('IPTV', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+      title: Text('IPTV', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),
       actions: [
         if (_accounts.isNotEmpty) PopupMenuButton<IptvAccount>(
           icon: const Icon(Icons.switch_account_rounded, color: Colors.white70),
@@ -224,13 +224,13 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
             final confirm = await showDialog<bool>(
               context: context,
               builder: (_) => AlertDialog(
-                backgroundColor: const Color(0xFF1A1A23),
-                title: const Text('Delete Account?', style: TextStyle(color: Colors.white, fontSize: 16)),
+                backgroundColor: Vz.card,
+                title: Text('Delete Account?', style:TextStyle(color: Vz.text, fontSize: 16)),
                 content: Text('Remove "${_current!.name}"?\nThis cannot be undone.',
-                  style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                  style: TextStyle(color: Vz.textSec, fontSize: 13)),
                 actions: [
                   TextButton(onPressed: () => Navigator.pop(context, false),
-                    child: const Text('No', style: TextStyle(color: Colors.white54))),
+                    child: Text('No', style:TextStyle(color: Vz.textDim))),
                   FilledButton(onPressed: () => Navigator.pop(context, true),
                     style: FilledButton.styleFrom(backgroundColor: Colors.red),
                     child: const Text('Yes, Delete')),
@@ -268,9 +268,9 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
     child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
     const Icon(Icons.live_tv_rounded, size: 64, color: Colors.white12),
     const SizedBox(height: 16),
-    const Text('No IPTV account', style: TextStyle(color: Colors.white54, fontSize: 16)),
+    Text('No IPTV account', style:TextStyle(color: Vz.textDim, fontSize: 16)),
     const SizedBox(height: 8),
-    const Text('Add your Xtream Codes account\nor M3U playlist', style: TextStyle(color: Colors.white38, fontSize: 13), textAlign: TextAlign.center),
+    Text('Add your Xtream Codes account\nor M3U playlist', style: TextStyle(color: Vz.textDim, fontSize: 13), textAlign: TextAlign.center),
     const SizedBox(height: 24),
     FilledButton.icon(onPressed: _showAddAccount,
       icon: const Icon(Icons.add_rounded), label: const Text('Add Account'),
@@ -339,7 +339,7 @@ class _LiveTabState extends State<_LiveTab> {
       child: _loading ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         const CircularProgressIndicator(),
         const SizedBox(height: 16),
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Back', style: TextStyle(color: Colors.white70))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Back', style:TextStyle(color: Vz.textSec))),
       ])) : Column(children: [
         // search + back to groups
         Padding(padding: EdgeInsets.only(left:10, right:10, top:10, bottom: kb > 0 ? 0 : 10),
@@ -351,10 +351,10 @@ class _LiveTabState extends State<_LiveTab> {
             const SizedBox(width: 8),
             Expanded(child: TextField(
               onChanged: (v) => setState(() { _search = v; _applyFilter(); }),
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: Vz.text, fontSize: 13),
               decoration: InputDecoration(
                 hintText: _selCat != null ? _selCat!.name : 'All Channels | همه کانال‌ها',
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
                 prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
                 filled: true, fillColor: kCard,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -371,7 +371,7 @@ class _LiveTabState extends State<_LiveTab> {
               leading: ch.logo.isNotEmpty
                 ? ClipRRect(borderRadius: BorderRadius.circular(6), child: Image.network(ch.logo, width: 52, height: 36, fit: BoxFit.contain, errorBuilder: (_,__,___) => const Icon(Icons.live_tv_rounded, color: Colors.white38, size: 28)))
                 : const Icon(Icons.live_tv_rounded, color: Colors.white38, size: 28),
-              title: Text(ch.name, style: const TextStyle(color: Colors.white, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+              title: Text(ch.name, style: TextStyle(color: Vz.text, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
               onTap: () => widget.onPlay(ch.url, ch.name, channels: _channels.map((c)=>{'url':c.url,'name':c.name}).toList(), chanIdx: _channels.indexOf(ch), isLive: true));
           })),
       ]));
@@ -386,9 +386,9 @@ class _LiveTabState extends State<_LiveTab> {
       Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
         child: TextField(
           onChanged: (v) => setState(() { _search = v; if (v.isNotEmpty) { _selCat = null; _applyFilter(); } }),
-          style: const TextStyle(color: Colors.white, fontSize: 13),
+          style: TextStyle(color: Vz.text, fontSize: 13),
           decoration: InputDecoration(
-            hintText: 'جستجو در کانال‌ها...', hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+            hintText: 'جستجو در کانال‌ها...', hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
             prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
             filled: true, fillColor: kCard,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -397,7 +397,7 @@ class _LiveTabState extends State<_LiveTab> {
         child: Row(children: [
           const Icon(Icons.grid_view_rounded, size: 14, color: Colors.white38),
           const SizedBox(width: 6),
-          Text('${_cats.length} گروه', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          Text('${_cats.length} گروه', style: TextStyle(color: Vz.textDim, fontSize: 12)),
         ])),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.fromLTRB(10,0,10,20),
@@ -429,8 +429,8 @@ class _LiveTabState extends State<_LiveTab> {
                     color: kAccent, size: 18)),
                 const SizedBox(width: 10),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(cat.name, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  Text('$count کانال', style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                  Text(cat.name, style: TextStyle(color: Vz.text, fontSize: 12, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text('$count کانال', style: TextStyle(color: Vz.textDim, fontSize: 10)),
                 ])),
               ])));
         })),
@@ -446,7 +446,7 @@ class _LiveTabState extends State<_LiveTab> {
         decoration: BoxDecoration(
           color: _selCat?.id == cat?.id && (_selCat != null || cat == null) ? kAccent : kCard,
           borderRadius: BorderRadius.circular(16)),
-        child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)))));
+        child: Text(label, style: TextStyle(color: Vz.text, fontSize: 12)))));
 }
 
 // ── Movies ──
@@ -494,10 +494,10 @@ class _VodTabState extends State<_VodTab> {
               padding: EdgeInsets.zero, constraints: const BoxConstraints()),
             if (_selCat != null) const SizedBox(width: 8),
             Expanded(child: TextField(onChanged: (v) => setState(() { _search=v; _applyFilter(); }),
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: Vz.text, fontSize: 13),
               decoration: InputDecoration(
                 hintText: _selCat?.name ?? 'جستجوی فیلم...',
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
                 prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
                 filled: true, fillColor: kCard,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -520,7 +520,7 @@ class _VodTabState extends State<_VodTab> {
                         errorBuilder: (_,__,___) => Container(color: kCard, child: const Icon(Icons.movie_rounded, color: Colors.white12, size: 36)))
                     : Container(color: kCard, child: const Icon(Icons.movie_rounded, color: Colors.white12, size: 36)))),
                 const SizedBox(height: 4),
-                Text(v.name, style: const TextStyle(color: Colors.white70, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(v.name, style: TextStyle(color: Vz.textSec, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
               ]));
           })),
       ]);
@@ -533,15 +533,15 @@ class _VodTabState extends State<_VodTab> {
     return Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
         child: TextField(onChanged: (v) => setState(() { _search=v; if (v.isNotEmpty) { _selCat=null; _applyFilter(); } }),
-          style: const TextStyle(color: Colors.white, fontSize: 13),
-          decoration: InputDecoration(hintText: 'جستجوی فیلم...', hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: Vz.text, fontSize: 13),
+          decoration: InputDecoration(hintText: 'جستجوی فیلم...', hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
             prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
             filled: true, fillColor: kCard,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(vertical: 8)))),
       Padding(padding: const EdgeInsets.fromLTRB(10,0,10,6),
         child: Row(children: [const Icon(Icons.grid_view_rounded,size:14,color:Colors.white38),const SizedBox(width:6),
-          Text('${_cats.length} دسته‌بندی',style:const TextStyle(color:Colors.white38,fontSize:12))])),
+          Text('${_cats.length} دسته‌بندی',style:TextStyle(color:Vz.textDim,fontSize:12))])),
       Expanded(child: GridView.builder(
         padding: const EdgeInsets.fromLTRB(10,0,10,20),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -561,8 +561,8 @@ class _VodTabState extends State<_VodTab> {
                   child:Icon(cat.id=='__all__'?Icons.movie_rounded:Icons.folder_rounded,color:kAccent,size:18)),
                 const SizedBox(width:10),
                 Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[
-                  Text(cat.name,style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.w600),maxLines:1,overflow:TextOverflow.ellipsis),
-                  Text('$count فیلم',style:const TextStyle(color:Colors.white38,fontSize:10)),
+                  Text(cat.name,style:TextStyle(color:Vz.text,fontSize:12,fontWeight:FontWeight.w600),maxLines:1,overflow:TextOverflow.ellipsis),
+                  Text('$count فیلم',style:TextStyle(color:Vz.textDim,fontSize:10)),
                 ])),
               ])));
         })),
@@ -608,7 +608,7 @@ class _SeriesTabState extends State<_SeriesTab> {
       child: _loading ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
         const CircularProgressIndicator(),
         const SizedBox(height: 16),
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Back', style: TextStyle(color: Colors.white70))),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text('Back', style:TextStyle(color: Vz.textSec))),
       ])) : Column(children: [
         Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
           child: Row(children: [
@@ -618,10 +618,10 @@ class _SeriesTabState extends State<_SeriesTab> {
               padding: EdgeInsets.zero, constraints: const BoxConstraints()),
             if (_cats.isNotEmpty) const SizedBox(width: 8),
             Expanded(child: TextField(onChanged: (v) => setState(() { _search=v; _applyFilter(); }),
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: Vz.text, fontSize: 13),
               decoration: InputDecoration(
                 hintText: _selCat?.name ?? 'All Series | همه سریال‌ها',
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
                 prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
                 filled: true, fillColor: kCard,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -644,7 +644,7 @@ class _SeriesTabState extends State<_SeriesTab> {
                         errorBuilder: (_,__,___) => Container(color: kCard, child: const Icon(Icons.video_library_rounded, color: Colors.white12, size: 36)))
                     : Container(color: kCard, child: const Icon(Icons.video_library_rounded, color: Colors.white12, size: 36)))),
                 const SizedBox(height: 4),
-                Text(s.name, style: const TextStyle(color: Colors.white70, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(s.name, style: TextStyle(color: Vz.textSec, fontSize: 11), maxLines: 2, overflow: TextOverflow.ellipsis),
               ]));
           })),
       ]));
@@ -657,8 +657,8 @@ class _SeriesTabState extends State<_SeriesTab> {
     return Column(children: [
       Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
         child: TextField(onChanged: (v) { setState(() { _search=v; if(v.isNotEmpty){_showGrid=false;_selCat=null;} }); _applyFilter(); },
-          style: const TextStyle(color: Colors.white, fontSize: 13),
-          decoration: InputDecoration(hintText: 'جستجوی سریال...', hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+          style: TextStyle(color: Vz.text, fontSize: 13),
+          decoration: InputDecoration(hintText: 'جستجوی سریال...', hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
             prefixIcon: const Icon(Icons.search_rounded, size: 18, color: Colors.white38),
             filled: true, fillColor: kCard,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
@@ -682,8 +682,8 @@ class _SeriesTabState extends State<_SeriesTab> {
                   child:Icon(cat.id=='__all__'?Icons.video_library_rounded:Icons.folder_rounded,color:kAccent,size:18)),
                 const SizedBox(width:10),
                 Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[
-                  Text(cat.name,style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.w600),maxLines:1,overflow:TextOverflow.ellipsis),
-                  Text('$count سریال',style:const TextStyle(color:Colors.white38,fontSize:10)),
+                  Text(cat.name,style:TextStyle(color:Vz.text,fontSize:12,fontWeight:FontWeight.w600),maxLines:1,overflow:TextOverflow.ellipsis),
+                  Text('$count سریال',style:TextStyle(color:Vz.textDim,fontSize:10)),
                 ])),
               ])));
         })),
@@ -717,15 +717,15 @@ class _EpisodesSheetState extends State<_EpisodesSheet> {
       Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
       Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Text(widget.series.name, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.bold))),
+        child: Text(widget.series.name, style: TextStyle(color: Vz.text, fontSize: 15, fontWeight: FontWeight.bold))),
       if (_loading) const Expanded(child: Center(child: CircularProgressIndicator()))
       else Expanded(child: ListView.builder(controller: sc, itemCount: _episodes.length,
         itemBuilder: (_, i) {
           final ep = _episodes[i];
           return ListTile(dense: true,
             leading: CircleAvatar(backgroundColor: kAccent.withOpacity(0.2), radius: 18,
-              child: Text('${ep.episode}', style: const TextStyle(color: Colors.white, fontSize: 11))),
-            title: Text('S${ep.season}E${ep.episode} — ${ep.title}', style: const TextStyle(color: Colors.white, fontSize: 12)),
+              child: Text('${ep.episode}', style: TextStyle(color: Vz.text, fontSize: 11))),
+            title: Text('S${ep.season}E${ep.episode} — ${ep.title}', style: TextStyle(color: Vz.text, fontSize: 12)),
             onTap: () { Navigator.pop(context); widget.onPlay(ep.url, ep.title); });
         })),
     ]));

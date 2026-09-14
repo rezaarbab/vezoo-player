@@ -12,7 +12,7 @@ class LiveSubSheet extends StatefulWidget {
   static Future<void> show(BuildContext ctx, String videoPath, void Function(LiveSubConfig) onStart) =>
       showModalBottomSheet(
         context: ctx, isScrollControlled: true,
-        backgroundColor: const Color(0xFF0E1210),
+        backgroundColor: Vz.bgDeep,
         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
         builder: (_) => LiveSubSheet(videoPath: videoPath, onStart: onStart),
       );
@@ -61,14 +61,14 @@ class _State extends State<LiveSubSheet> {
       child: SingleChildScrollView(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
         child: _loading
-          ? SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: Color(0xFF35F2A2))))
+          ? SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: Vz.accent)))
           : Column(mainAxisSize: MainAxisSize.min, children: [
               Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 14),
               Row(children: [
                 const Icon(Icons.fiber_smart_record, color: Colors.red, size: 20),
                 const SizedBox(width: 8),
-                Text(L.liveSubtitleSettings, style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
+                Text(L.liveSubtitleSettings, style: TextStyle(color: Vz.text, fontSize: 17, fontWeight: FontWeight.bold)),
                 const Spacer(),
                 TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.close)),
               ]),
@@ -77,22 +77,22 @@ class _State extends State<LiveSubSheet> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: const Color(0xFF35F2A2).withOpacity(0.1), borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF35F2A2).withOpacity(0.3))),
+                decoration: BoxDecoration(color: Vz.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Vz.accent.withOpacity(0.3))),
                 child: Text(
                   L.liveSubDesc,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.5)),
+                  style: TextStyle(color: Vz.textSec, fontSize: 12, height: 1.5)),
               ),
 
               if (_models.isEmpty) ...[
                 Padding(padding: EdgeInsets.all(16), child: Text(L.noModelDownloaded2,
-                  textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 13))),
+                  textAlign: TextAlign.center, style: TextStyle(color: Vz.textDim, fontSize: 13))),
               ] else ...[
 
                 // ── مدل ──
                 _row(L.aiModel, DropdownButton<WhisperModelDef>(
-                  value: _selected, isExpanded: true, dropdownColor: const Color(0xFF1B231F),
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  value: _selected, isExpanded: true, dropdownColor: Vz.card,
+                  style: TextStyle(color: Vz.text, fontSize: 13),
                   items: _models.map((m) => DropdownMenuItem(value: m, child: Row(children: [
                     Text(m.name),
                     const SizedBox(width: 6),
@@ -104,8 +104,8 @@ class _State extends State<LiveSubSheet> {
 
                 // ── زبان ──
                 _row(L.language, DropdownButton<String>(
-                  value: _lang, isExpanded: true, dropdownColor: const Color(0xFF1B231F),
-                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  value: _lang, isExpanded: true, dropdownColor: Vz.card,
+                  style: TextStyle(color: Vz.text, fontSize: 13),
                   items: kLanguages.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) { if (v != null) setState(() => _lang = v); },
                 )),
@@ -144,7 +144,7 @@ class _State extends State<LiveSubSheet> {
                 if(_useOverlap)
                   Padding(padding:const EdgeInsets.only(top:4,right:4),child:Text(
                     L.overlapDesc,
-                    style:const TextStyle(color:Colors.white38,fontSize:10))),
+                    style:TextStyle(color:Vz.textDim,fontSize:10))),
                 const SizedBox(height:10),
 
                 // ── همگام‌سازی ترجمه آنلاین ──
@@ -153,13 +153,13 @@ class _State extends State<LiveSubSheet> {
                   const SizedBox(height:6),
                   Container(
                     padding:const EdgeInsets.symmetric(horizontal:10,vertical:4),
-                    decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(8)),
+                    decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(8)),
                     child:Row(children:[
-                      Text(L.targetLanguage,style:TextStyle(color:Colors.white60,fontSize:12)),
+                      Text(L.targetLanguage,style:TextStyle(color:Vz.textSec,fontSize:12)),
                       const SizedBox(width:8),
                       Expanded(child:DropdownButton<String>(
-                        value:_syncLang,isExpanded:true,dropdownColor:const Color(0xFF1B231F),
-                        style:const TextStyle(color:Colors.white,fontSize:12),
+                        value:_syncLang,isExpanded:true,dropdownColor:Vz.card,
+                        style:TextStyle(color:Vz.text,fontSize:12),
                         items:kTranslateLangDisplay.entries.map((e)=>
                           DropdownMenuItem(value:e.key,child:Text(e.value))).toList(),
                         onChanged:(v){if(v!=null)setState(()=>_syncLang=v);},
@@ -168,16 +168,16 @@ class _State extends State<LiveSubSheet> {
                   ),
                   Padding(padding:const EdgeInsets.only(top:4,right:4),child:Text(
                     L.syncTranslateDesc,
-                    style:const TextStyle(color:Colors.white38,fontSize:10))),
+                    style:TextStyle(color:Vz.textDim,fontSize:10))),
                 ],
                 const SizedBox(height:10),
 
                 // ── وقتی جا موند ──
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(12)),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(L.whenBehind, style: TextStyle(color: Colors.white60, fontSize: 12)),
+                    Text(L.whenBehind, style: TextStyle(color: Vz.textSec, fontSize: 12)),
                     const SizedBox(height: 8),
                     Row(children: [
                       Expanded(child: _behindChip(L.pauseVideo, LiveBehindAction.pause, Icons.pause_circle_outline)),
@@ -187,12 +187,12 @@ class _State extends State<LiveSubSheet> {
                     if (_behindAction == LiveBehindAction.slowDown) ...[
                       const SizedBox(height: 8),
                       Row(children: [
-                        Text(L.speedLabel, style: TextStyle(color: Colors.white54, fontSize: 12)),
+                        Text(L.speedLabel, style: TextStyle(color: Vz.textDim, fontSize: 12)),
                         ...[0.25, 0.5, 0.75].map((s) => Padding(
                           padding: const EdgeInsets.only(right: 6),
                           child: GestureDetector(onTap: () => setState(() => _behindSpeed = s), child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(color: _behindSpeed == s ? const Color(0xFF35F2A2) : const Color(0xFF0E1210), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: _behindSpeed == s ? Vz.accent : Vz.bgDeep, borderRadius: BorderRadius.circular(8)),
                             child: Text('${s}x', style: TextStyle(color: _behindSpeed == s ? Colors.white : Colors.white60, fontSize: 12)),
                           )),
                         )),
@@ -225,23 +225,23 @@ class _State extends State<LiveSubSheet> {
     ),
   );
 
-  Widget _rowLabel(String label) => Text(label, style: const TextStyle(color: Colors.white60, fontSize: 11));
+  Widget _rowLabel(String label) => Text(label, style: TextStyle(color: Vz.textSec, fontSize: 11));
 
   Widget _row(String label, Widget child) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-    Text(label, style: const TextStyle(color: Colors.white60, fontSize: 11)),
+    Text(label, style: TextStyle(color: Vz.textSec, fontSize: 11)),
     const SizedBox(height: 4),
     Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(10)),
       child: child),
   ]);
 
   Widget _switchRow(String label, bool val, void Function(bool) onChanged) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-    decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(12)),
+    decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(12)),
     child: Row(children: [
-      Text(label, style: const TextStyle(color: Colors.white, fontSize: 13)),
+      Text(label, style: TextStyle(color: Vz.text, fontSize: 13)),
       const Spacer(),
-      Switch(value: val, activeColor: const Color(0xFF35F2A2), onChanged: onChanged),
+      Switch(value: val, activeColor: Vz.accent, onChanged: onChanged),
     ]),
   );
 
@@ -250,7 +250,7 @@ class _State extends State<LiveSubSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: _chunkMs == ms ? const Color(0xFF35F2A2) : const Color(0xFF0E1210),
+        color: _chunkMs == ms ? Vz.accent : Vz.bgDeep,
         borderRadius: BorderRadius.circular(8)),
       child: Center(child: Text(label, style: TextStyle(color: _chunkMs == ms ? Colors.white : Colors.white60, fontSize: 12))),
     ),
@@ -261,7 +261,7 @@ class _State extends State<LiveSubSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: _behindAction == action ? Colors.red.withOpacity(0.2) : const Color(0xFF0E1210),
+        color: _behindAction == action ? Colors.red.withOpacity(0.2) : Vz.bgDeep,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: _behindAction == action ? Colors.red : Colors.white12)),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [

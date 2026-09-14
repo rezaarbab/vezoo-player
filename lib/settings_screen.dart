@@ -7,6 +7,7 @@ import 'vosk_models_screen.dart';
 import 'glass.dart';
 import 'l10n.dart';
 import 'api_service.dart';
+import 'theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -23,6 +24,11 @@ class _SettingsScreenState extends State<SettingsScreen>{
         children: [
           Text('Settings', style: Ty.title),
           const SizedBox(height: Sp.md),
+
+          // ── Appearance (theme picker) ──
+          VzSectionHeader(title: L.appearance),
+          const VzThemePicker(),
+          const SizedBox(height: Sp.xl),
 
           // ── Tools (yt-dlp, Gemini, VPN bypass, backup) ──
           const VzSectionHeader(title: 'Tools'),
@@ -78,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
         ],
       ])),
       if(onTap != null)
-        const Icon(Icons.chevron_right_rounded, size: 18, color: Vz.textDim),
+        Icon(Icons.chevron_right_rounded, size: 18, color: Vz.textDim),
     ]),
   );
 
@@ -103,7 +109,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
               child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24)),
             const SizedBox(width: Sp.md),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('VEZOO', style: TextStyle(
+              Text('VEZOO', style:TextStyle(
                 fontWeight: FontWeight.w800, fontSize: 17,
                 letterSpacing: 2.5, color: Vz.text)),
               const SizedBox(height: 2),
@@ -161,3 +167,150 @@ class _LangPickerState extends State<_LangPicker>{
     );
   }
 }
+
+/// انتخابگر تم NOVA Duo — سه حالت: سیستمی / تیره / روشن
+/// هر آیتم: پیش‌نمایش کوچک از پالت + عنوان. انتخاب = تغییر زنده کل اپ.
+class VzThemePicker extends StatelessWidget {
+  const VzThemePicker({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // VzTheme رو از بالا پیدا می‌کنیم
+    final vzTheme = context.findAncestorStateOfType<VzThemeState>();
+    final mode = vzTheme?.mode ?? VzThemeMode.system;
+
+    return Row(children: [
+      Expanded(child: _themeCard(
+        context: context,
+        mode: mode,
+        target: VzThemeMode.dark,
+        icon: Icons.dark_mode_rounded,
+        label: L.themeDark,
+        preview: _PalettePreview.dark(),
+      )),
+      const SizedBox(width: Sp.sm),
+      Expanded(child: _themeCard(
+        context: context,
+        mode: mode,
+        target: VzThemeMode.light,
+        icon: Icons.light_mode_rounded,
+        label: L.themeLight,
+        preview: _PalettePreview.light(),
+      )),
+      const SizedBox(width: Sp.sm),
+      Expanded(child: _themeCard(
+        context: context,
+        mode: mode,
+        target: VzThemeMode.system,
+        icon: Icons.brightness_auto_rounded,
+        label: L.themeSystem,
+        preview: _PalettePreview.auto(),
+      )),
+    ]);
+  }
+
+  Widget _themeCard({
+    required BuildContext context,
+    required VzThemeMode mode,
+    required VzThemeMode target,
+    required IconData icon,
+    required String label,
+    required Widget preview,
+  }) {
+    final selected = mode == target;
+    final vzTheme = context.findAncestorStateOfType<VzThemeState>();
+    return VzGlass(
+      padding: const EdgeInsets.all(Sp.sm),
+      onTap: () => vzTheme?.setMode(target),
+      borderColor: selected ? Vz.accent.withOpacity(0.65) : null,
+      boxShadow: selected ? [Vz.glowSoft] : null,
+      child: Column(mainAxisSize: MainAxisSize.min, children: [
+        preview,
+        const SizedBox(height: Sp.sm),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, size: 13,
+            color: selected ? Vz.accent : Vz.textDim),
+          const SizedBox(width: 4),
+          Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 11, fontWeight: FontWeight.w700,
+              color: selected ? Vz.accent : Vz.textSec))),
+        ]),
+      ]),
+    );
+  }
+}
+
+/// پیش‌نمایش پالت — سه نوار رنگی که حس تم رو نشون میده
+class _PalettePreview extends StatelessWidget {
+  final bool dark;
+  final bool auto;
+  const _PalettePreview._({required this.dark, this.auto = false});
+  const _PalettePreview.dark() : this._(dark: true);
+  const _PalettePreview.light() : this._(dark: false);
+  const _PalettePreview.auto() : this._(dark: true, auto: true);
+
+  @override
+  Widget build(BuildContext context) {
+    final isAuto = auto;
+    return Container(
+      height: 56,
+      decoration: BoxDecoration(
+        color: dark ? const Color(0xFF0B0B10) : const Color(0xFFF7F5FB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: dark ? const Color(0xFF2A2A38) : const Color(0xFFE4E1EE),
+          width: 0.8),
+      ),
+      child: Stack(children: [
+        // mini aurora blob
+        Positioned(
+          right: -14, top: -14,
+          child: Container(
+            width: 44, height: 44,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(colors: [
+                const Color(0xFF8B5CF6).withOpacity(0.4),
+                const Color(0xFF8B5CF6).withOpacity(0),
+              ]),
+            ),
+          ),
+        ),
+        // mini cards
+        Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Container(
+            width: 34, height: 5,
+            decoration: BoxDecoration(
+              color: dark ? const Color(0xFF2A2A38) : const Color(0xFFE4E1EE),
+              borderRadius: BorderRadius.circular(3)),
+          ),
+          const SizedBox(height: 4),
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 14, height: 4,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(colors: [
+                  Color(0xFFA78BFA), Color(0xFF8B5CF6)]),
+                borderRadius: BorderRadius.circular(2)),
+            ),
+            const SizedBox(width: 3),
+            Container(
+              width: 8, height: 4,
+              decoration: BoxDecoration(
+                color: dark ? const Color(0xFF1A1A23) : Colors.white,
+                borderRadius: BorderRadius.circular(2)),
+            ),
+          ]),
+        ])),
+        if (isAuto)
+          Positioned(
+            left: 4, bottom: 4,
+            child: Icon(Icons.brightness_auto_rounded,
+              size: 10, color: dark ? const Color(0xFF5C5F73) : const Color(0xFF9A97AB)),
+          ),
+      ]),
+    );
+  }
+}
+

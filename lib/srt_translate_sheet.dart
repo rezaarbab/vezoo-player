@@ -32,7 +32,7 @@ class SrtTranslateSheet extends StatefulWidget {
     void Function(String)? onSrtUpdated,
   }) => showModalBottomSheet(
     context: ctx, isScrollControlled: true,
-    backgroundColor: const Color(0xFF0E1210),
+    backgroundColor: Vz.bgDeep,
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     builder: (_) => SrtTranslateSheet(srtPath: srtPath, srtContent: srtContent, onDone: onDone, onDoneSecondary: onDoneSecondary, onSrtUpdated: onSrtUpdated),
   );
@@ -74,7 +74,7 @@ class _State extends State<SrtTranslateSheet> {
       },
     );
 
-    showSnack(context, L.startTranslate, color: const Color(0xFF35F2A2), seconds: 3);
+    showSnack(context, L.startTranslate, color: Vz.accent, seconds: 3);
   }
 
   @override
@@ -87,27 +87,27 @@ class _State extends State<SrtTranslateSheet> {
           Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 14),
           Row(children: [
-            const Icon(Icons.translate, color: Color(0xFF35F2A2), size: 20),
+            Icon(Icons.translate, color: Vz.accent, size: 20),
             const SizedBox(width: 8),
-            Text(L.translateSub, style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
+            Text(L.translateSub, style: TextStyle(color: Vz.text, fontSize: 17, fontWeight: FontWeight.bold)),
             const Spacer(),
             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.close)),
           ]),
           const SizedBox(height: 4),
           Text(L.cloudflareAiNote,
-            style: TextStyle(color: Colors.white54, fontSize: 11)),
+            style: TextStyle(color: Vz.textDim, fontSize: 11)),
           const SizedBox(height: 16),
 
           // ── انتخاب زبان مقصد ──
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(color: const Color(0xFF1B231F), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(12)),
             child: Row(children: [
-              Text(L.targetLang, style: TextStyle(color: Colors.white60, fontSize: 13)),
+              Text(L.targetLang, style: TextStyle(color: Vz.textSec, fontSize: 13)),
               const SizedBox(width: 8),
               Expanded(child: DropdownButton<String>(
-                value: _targetLang, isExpanded: true, dropdownColor: const Color(0xFF1B231F),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                value: _targetLang, isExpanded: true, dropdownColor: Vz.card,
+                style: TextStyle(color: Vz.text, fontSize: 13),
                 items: kTranslateLangDisplay.entries.map((e) =>
                   DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: (v) { if (v != null) setState(() => _targetLang = v); },
@@ -118,7 +118,7 @@ class _State extends State<SrtTranslateSheet> {
 
           // ── انتخاب Sub1 / Sub2 / هر دو ──
           Row(children:[
-            Text(L.applyTo, style: TextStyle(color: Colors.white60, fontSize: 12)),
+            Text(L.applyTo, style: TextStyle(color: Vz.textSec, fontSize: 12)),
             const SizedBox(width: 10),
             _chip('Sub 1', 0),
             const SizedBox(width: 6),
@@ -133,7 +133,7 @@ class _State extends State<SrtTranslateSheet> {
             icon: const Icon(Icons.translate),
             label: Text(L.startTranslate),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF35F2A2),
+              backgroundColor: Vz.accent,
               padding: const EdgeInsets.symmetric(vertical: 14)),
           )),
         ]),
@@ -146,7 +146,7 @@ class _State extends State<SrtTranslateSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: _subTarget == idx ? const Color(0xFF35F2A2) : const Color(0xFF1B231F),
+        color: _subTarget == idx ? Vz.accent : Vz.card,
         borderRadius: BorderRadius.circular(16)),
       child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Colors.white60, fontSize: 11)),
     ),

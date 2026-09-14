@@ -76,7 +76,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
       padding: const EdgeInsets.only(right: Sp.sm),
       child: VzChip(
         label: label, icon: icon, selected: active,
-        color: [Vz.accentHi, Vz.amber, Vz.magenta, Vz.accent, const Color(0xFF34D399)][idx],
+        color: [Vz.accentHi, Vz.amber, Vz.magenta, Vz.accent, Vz.green][idx],
         onTap: ()=>setState(()=>_tab=idx),
       ),
     );
@@ -106,8 +106,8 @@ class _LibraryScreenState extends State<LibraryScreen>{
         child: Row(children: [
           Expanded(child: Text(L.recentViews, style: Ty.caption)),
           TextButton.icon(
-            icon: const Icon(Icons.delete_outline_rounded, size: 15, color: Vz.red),
-            label: Text(L.deleteAll, style: const TextStyle(fontSize: 12, color: Vz.red)),
+            icon: Icon(Icons.delete_outline_rounded, size: 15, color: Vz.red),
+            label: Text(L.deleteAll, style: TextStyle(fontSize: 12, color: Vz.red)),
             onPressed: ()async{
               final ok = await showVzDialog<bool>(
                 context: context, title: L.deleteAllHistory,
@@ -159,7 +159,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
             ])),
             if(onRemove != null)
               IconButton(
-                icon: const Icon(Icons.close_rounded, size: 16, color: Vz.red),
+                icon: Icon(Icons.close_rounded, size: 16, color: Vz.red),
                 onPressed: ()=>onRemove(path)),
           ]),
         );
@@ -215,10 +215,10 @@ class _LibraryScreenState extends State<LibraryScreen>{
               Text('${paths.length}', style: Ty.caption.copyWith(fontSize: 10)),
             ])),
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert_rounded, size: 18, color: Vz.textSec),
+              icon: Icon(Icons.more_vert_rounded, size: 18, color: Vz.textSec),
               itemBuilder: (_)=>[
                 PopupMenuItem(value:'play', child: Text(L.play)),
-                PopupMenuItem(value:'delete', child: Text(L.delete, style: const TextStyle(color: Vz.red))),
+                PopupMenuItem(value:'delete', child: Text(L.delete, style: TextStyle(color: Vz.red))),
               ],
               onSelected:(v) async {
                 if(v=='delete'){
@@ -268,7 +268,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
                 style: Ty.caption.copyWith(fontSize: 10)),
             ])),
             IconButton(
-              icon: const Icon(Icons.push_pin_rounded, size: 16, color: Vz.red),
+              icon: Icon(Icons.push_pin_rounded, size: 16, color: Vz.red),
               onPressed: ()async{ await Store.toggleSavedFolder(folder); if(mounted) setState((){}); }),
           ]),
         );

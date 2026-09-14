@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'vosk_service.dart';
 
-const _bg   = Color(0xFF070908);
-const _card  = Color(0xFF141A17);
-const _acc   = Color(0xFF35F2A2);
+const _bg   = Vz.bgDeep;
+const _card  = Vz.surface;
+const _acc   = Vz.accent;
 const _gold  = Color(0xFFE8B44C);
 
 class VoskModelsScreen extends StatefulWidget {
@@ -32,8 +32,7 @@ class _State extends State<VoskModelsScreen> {
     appBar: AppBar(
       backgroundColor: _bg,
       elevation: 0,
-      title: const Text('Vosk — مدل‌های زبان',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+      title: Text('Vosk — مدل‌های زبان', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 16)),
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh_rounded, color: Colors.white54),
@@ -54,7 +53,7 @@ class _State extends State<VoskModelsScreen> {
           Expanded(child: Text(
             'مدل‌ها آفلاین کار میکنن • Small: سریع | Large: دقیق‌تر\n'
             'مسیر: /Download/Vezoo/VoskModels',
-            style: TextStyle(color: Colors.white54, fontSize: 11))),
+            style: TextStyle(color: Vz.textDim, fontSize: 11))),
         ])),
       // لیست
       Expanded(child: ListView(
@@ -69,7 +68,7 @@ class _State extends State<VoskModelsScreen> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF141A17),
+                color: Vz.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.orange.withOpacity(0.3))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -80,14 +79,14 @@ class _State extends State<VoskModelsScreen> {
                     SizedBox(width: 8),
                     Text('مدل‌های Custom', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 13)),
                     SizedBox(width: 8),
-                    Text('(دانلود دستی)', style: TextStyle(color: Colors.white38, fontSize: 10)),
+                    Text('(دانلود دستی)', style: TextStyle(color: Vz.textDim, fontSize: 10)),
                   ])),
                 ...VoskService.customModels.map((m) => Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(children: [
                     const Icon(Icons.folder_rounded, color: Colors.white38, size: 14),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(m.name, style: const TextStyle(color: Colors.white70, fontSize: 12))),
+                    Expanded(child: Text(m.name, style: TextStyle(color: Vz.textSec, fontSize: 12))),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -120,10 +119,10 @@ class _State extends State<VoskModelsScreen> {
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
             child: Row(children: [
               Text(models.first.name.split(' ').first,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14)),
               const SizedBox(width: 8),
               Text(langCode.toUpperCase(),
-                style: const TextStyle(color: Colors.white38, fontSize: 10)),
+                style: TextStyle(color: Vz.textDim, fontSize: 10)),
               const Spacer(),
               if (anyDownloaded)
                 Container(
@@ -162,7 +161,7 @@ class _State extends State<VoskModelsScreen> {
                 color: m.isLarge ? _gold : _acc,
                 fontSize: 10, fontWeight: FontWeight.bold))),
           const SizedBox(width: 6),
-          Text(m.size, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          Text(m.size, style: TextStyle(color: Vz.textDim, fontSize: 11)),
           const Spacer(),
           // دکمه
           if (isLoading)
@@ -199,7 +198,7 @@ class _State extends State<VoskModelsScreen> {
               backgroundColor: Colors.white10, color: _acc)),
           const SizedBox(height: 3),
           Text('${(prog! * 100).toStringAsFixed(0)}%${prog > 0.87 ? " — در حال extract..." : ""}',
-            style: const TextStyle(color: Colors.white38, fontSize: 9)),
+            style: TextStyle(color: Vz.textDim, fontSize: 9)),
         ],
         if (logMsg != null && !isLoading) ...[
           const SizedBox(height: 3),
@@ -210,8 +209,8 @@ class _State extends State<VoskModelsScreen> {
 
   void _confirmDelete(VoskModel m) {
     showDialog(context: context, builder: (_) => AlertDialog(
-      backgroundColor: const Color(0xFF141A17),
-      title: Text('حذف ${m.name}?', style: const TextStyle(color: Colors.white, fontSize: 14)),
+      backgroundColor: Vz.surface,
+      title: Text('حذف ${m.name}?', style: TextStyle(color: Vz.text, fontSize: 14)),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('لغو')),
         FilledButton(

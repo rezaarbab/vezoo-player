@@ -54,15 +54,15 @@ class _State extends State<OnlinePlayerSheet> {
   void _checkCookies() => setState(() => _hasCookies = YtDlpService.hasCookies());
 
   Future<void> _showCookieSheet(BuildContext ctx) async {
-    showModalBottomSheet(context: ctx, isScrollControlled: true, backgroundColor: const Color(0xFF141A17),
+    showModalBottomSheet(context: ctx, isScrollControlled: true, backgroundColor: Vz.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => StatefulBuilder(builder: (ctx2, ss) => DraggableScrollableSheet(
         initialChildSize: 0.75, maxChildSize: 0.95, minChildSize: 0.5, expand: false,
         builder: (_, sc) => ListView(controller: sc, padding: const EdgeInsets.all(20), children: [
           Row(children: [
-            const Icon(Icons.cookie_rounded, color: Color(0xFF35F2A2), size: 20),
+            Icon(Icons.cookie_rounded, color: Vz.accent, size: 20),
             const SizedBox(width: 8),
-            const Text('مدیریت Cookie', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text('مدیریت Cookie', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 16)),
             const Spacer(),
             TextButton(onPressed: () => Navigator.pop(ctx2), child: const Text('بستن')),
           ]),
@@ -96,7 +96,7 @@ class _State extends State<OnlinePlayerSheet> {
             },
             icon: const Icon(Icons.upload_file_rounded, size: 18),
             label: const Text('ایمپورت cookies.txt'),
-            style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2))),
+            style: FilledButton.styleFrom(backgroundColor: Vz.accent)),
           const SizedBox(height: 8),
           if (_hasCookies) OutlinedButton.icon(
             onPressed: () async {
@@ -109,7 +109,7 @@ class _State extends State<OnlinePlayerSheet> {
             style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.red))),
           const SizedBox(height: 20),
           // راهنما
-          const Text('📖 راهنمای دریافت Cookie', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+          Text('📖 راهنمای دریافت Cookie', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14)),
           const SizedBox(height: 12),
           _cookieMethod('1️⃣ Chrome Extension (آسان‌ترین)', [
             'نصب افزونه "Get cookies.txt LOCALLY" از Chrome Web Store',
@@ -139,36 +139,36 @@ class _State extends State<OnlinePlayerSheet> {
             child: const Text(
               '💡 نکته: Cookie باید از مرورگری باشه که به اون سایت login کردی. '
               'بعد از import، اینستا، TikTok و سایت‌های نیاز به login کار میکنن.',
-              style: TextStyle(color: Colors.white60, fontSize: 11))),
+              style: TextStyle(color: Vz.textSec, fontSize: 11))),
           const SizedBox(height: 20),
         ]))));
   }
 
   Widget _cookieMethod(String title, List<String> steps) => Container(
     padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(color: const Color(0xFF141A17), borderRadius: BorderRadius.circular(10)),
+    decoration: BoxDecoration(color: Vz.surface, borderRadius: BorderRadius.circular(10)),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+      Text(title, style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
       const SizedBox(height: 8),
       ...steps.asMap().entries.map((e) => Padding(
         padding: const EdgeInsets.only(bottom: 4),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${e.key+1}. ', style: const TextStyle(color: Color(0xFF35F2A2), fontSize: 11, fontWeight: FontWeight.bold)),
-          Expanded(child: Text(e.value, style: const TextStyle(color: Colors.white60, fontSize: 11))),
+          Text('${e.key+1}. ', style: TextStyle(color: Vz.accent, fontSize: 11, fontWeight: FontWeight.bold)),
+          Expanded(child: Text(e.value, style: TextStyle(color: Vz.textSec, fontSize: 11))),
         ]))),
     ]));
 
   void _showSupportedSites(BuildContext ctx) {
     showDialog(context: ctx, builder: (_) => AlertDialog(
-      backgroundColor: const Color(0xFF141A17),
+      backgroundColor: Vz.surface,
       title: Row(children: [
-        const Icon(Icons.public_rounded, color: Color(0xFF35F2A2), size: 18),
+        Icon(Icons.public_rounded, color: Vz.accent, size: 18),
         const SizedBox(width: 8),
-        const Text('سایت‌های پشتیبانی شده', style: TextStyle(color: Colors.white, fontSize: 14)),
+        Text('سایت‌های پشتیبانی شده', style:TextStyle(color: Vz.text, fontSize: 14)),
         const Spacer(),
         Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(color: const Color(0xFF35F2A2), borderRadius: BorderRadius.circular(12)),
-          child: const Text('۱۰۰۰+ سایت', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))),
+          decoration: BoxDecoration(color: Vz.accent, borderRadius: BorderRadius.circular(12)),
+          child: Text('۱۰۰۰+ سایت', style:TextStyle(color: Vz.text, fontSize: 10, fontWeight: FontWeight.bold))),
       ]),
       content: SizedBox(width: 280, height: 350,
         child: ListView.separated(
@@ -177,10 +177,10 @@ class _State extends State<OnlinePlayerSheet> {
           itemBuilder: (_, i) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(YtDlpService.supportedSites[i],
-              style: const TextStyle(color: Colors.white70, fontSize: 13))))),
+              style: TextStyle(color: Vz.textSec, fontSize: 13))))),
       actions: [TextButton(
         onPressed: () => Navigator.pop(ctx),
-        child: const Text('بستن', style: TextStyle(color: Color(0xFF35F2A2))))],
+        child: Text('بستن', style:TextStyle(color: Vz.accent)))],
     ));
   }
   @override void dispose() { _ctrl.dispose(); _yt.close(); super.dispose(); }
@@ -388,7 +388,7 @@ class _State extends State<OnlinePlayerSheet> {
     return DraggableScrollableSheet(
       initialChildSize: 0.7, maxChildSize: 0.95, minChildSize: 0.4,
       builder: (_, sc) => Container(
-        decoration: const BoxDecoration(color: Color(0xFF0E1210),
+        decoration: BoxDecoration(color: Vz.bgDeep,
           borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
         child: Column(children: [
           Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 10),
@@ -420,14 +420,14 @@ class _State extends State<OnlinePlayerSheet> {
                 ]))),
             const SizedBox(width: 4),
             Expanded(child: TextField(controller: _ctrl,
-              style: const TextStyle(color: Colors.white, fontSize: 13),
+              style: TextStyle(color: Vz.text, fontSize: 13),
               decoration: InputDecoration(
                 hintText: 'YouTube / Instagram / TikTok / ۱۰۰۰+ سایت...',
-                hintStyle: const TextStyle(color: Colors.white38, fontSize: 12),
+                hintStyle: TextStyle(color: Vz.textDim, fontSize: 12),
                 suffixIcon: _ctrl.text.isNotEmpty ? IconButton(
                   icon: const Icon(Icons.clear, size: 16, color: Colors.white38),
                   onPressed: () { _ctrl.clear(); setState(() {}); }) : null,
-                filled: true, fillColor: const Color(0xFF141A17),
+                filled: true, fillColor: Vz.surface,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10)),
               onChanged: (_) => setState(() {}),
@@ -441,7 +441,7 @@ class _State extends State<OnlinePlayerSheet> {
                 child: Text(L.cancel, style: const TextStyle(fontSize: 12)))
             else
               FilledButton(onPressed: () => _analyze(_ctrl.text),
-                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2),
+                style: FilledButton.styleFrom(backgroundColor: Vz.accent,
                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12)),
                 child: const Icon(Icons.play_arrow_rounded, size: 22)),
           ])),
@@ -453,10 +453,10 @@ class _State extends State<OnlinePlayerSheet> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               if (_dlProgress > 0 && _dlProgress < 1) ClipRRect(borderRadius: BorderRadius.circular(4),
                 child: LinearProgressIndicator(value: _dlProgress, minHeight: 6,
-                  backgroundColor: Colors.white12, color: const Color(0xFF35F2A2))),
+                  backgroundColor: Colors.white12, color: Vz.accent)),
               const SizedBox(height: 4),
               Row(children: [
-                Expanded(child: Text(_dlStatus, style: const TextStyle(color: Colors.white60, fontSize: 11))),
+                Expanded(child: Text(_dlStatus, style: TextStyle(color: Vz.textSec, fontSize: 11))),
                 if (_loading) GestureDetector(onTap: _cancel,
                   child: Text(L.cancel, style: const TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.w600))),
               ]),
@@ -469,7 +469,7 @@ class _State extends State<OnlinePlayerSheet> {
                 onPressed: _streamTorrent,
                 icon: const Icon(Icons.play_arrow_rounded, size: 18),
                 label: Text(L.streamNow),
-                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF5FD0A0)))),
+                style: FilledButton.styleFrom(backgroundColor: Vz.green))),
               const SizedBox(width: 8),
               Expanded(child: OutlinedButton.icon(
                 onPressed: _downloadTorrent,
@@ -483,17 +483,17 @@ class _State extends State<OnlinePlayerSheet> {
               // YouTube qualities
               if (_qualities.isNotEmpty) ...[
                 if (_title != null) Padding(padding: const EdgeInsets.only(bottom: 8),
-                  child: Text(_title!, style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  child: Text(_title!, style: TextStyle(color: Vz.textSec, fontSize: 13),
                     maxLines: 2, overflow: TextOverflow.ellipsis)),
                 ...List.generate(_qualities.length, (i) {
                   final q = _qualities[i];
                   return Container(margin: const EdgeInsets.only(bottom: 6),
-                    decoration: BoxDecoration(color: const Color(0xFF141A17), borderRadius: BorderRadius.circular(10)),
+                    decoration: BoxDecoration(color: Vz.surface, borderRadius: BorderRadius.circular(10)),
                     child: ListTile(dense: true,
-                      leading: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF35F2A2), size: 20),
-                      title: Text(q.label, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      leading: Icon(Icons.play_circle_outline_rounded, color: Vz.accent, size: 20),
+                      title: Text(q.label, style: TextStyle(color: Vz.text, fontSize: 13)),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(icon: const Icon(Icons.play_arrow_rounded, color: Color(0xFF35F2A2), size: 22),
+                        IconButton(icon: Icon(Icons.play_arrow_rounded, color: Vz.accent, size: 22),
                           onPressed: () => _playYt(q.url), tooltip: L.play),
                         IconButton(icon: const Icon(Icons.download_rounded, color: Colors.white54, size: 20),
                           onPressed: () => _downloadYt(q.url, q.label), tooltip: L.download),
@@ -503,7 +503,7 @@ class _State extends State<OnlinePlayerSheet> {
               // Recent
               if (_qualities.isEmpty && !torrentReady && _recentUrls.isNotEmpty) ...[
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text(L.recentUrls, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(L.recentUrls, style: TextStyle(color: Vz.textDim, fontSize: 12)),
                   TextButton(onPressed: () async {
                     final p = await SharedPreferences.getInstance();
                     await p.remove(_kKey); setState(() => _recentUrls = []);
@@ -514,7 +514,7 @@ class _State extends State<OnlinePlayerSheet> {
                     ? Icons.cloud_queue_rounded : _detectType(_recentUrls[i]) == _UrlType.youtube
                     ? Icons.smart_display_rounded : Icons.link_rounded,
                     color: Colors.white38, size: 16),
-                  title: Text(_recentUrls[i], style: const TextStyle(color: Colors.white60, fontSize: 11),
+                  title: Text(_recentUrls[i], style: TextStyle(color: Vz.textSec, fontSize: 11),
                     maxLines: 1, overflow: TextOverflow.ellipsis),
                   onTap: () { _ctrl.text = _recentUrls[i]; setState(() {}); _analyze(_recentUrls[i]); })),
               ],

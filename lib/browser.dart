@@ -14,30 +14,30 @@ import 'l10n.dart';
 import 'glass.dart';
 
 // ── پالت NOVA — سازگاری با صفحات داخلی ──
-const kBg      = Color(0xFF0B0B10);
-const kSurface = Color(0xFF131319);
-const kCard    = Color(0xFF1A1A23);
-const kBorder  = Color(0xFF2A2A38);
-const kAccent  = Color(0xFF8B5CF6);
-const kCyan    = Color(0xFFA78BFA);
-const kGreen   = Color(0xFF34D399);
-const kAmber   = Color(0xFFFBBF24);
-const kRed     = Color(0xFFF87171);
-const kPink    = Color(0xFFEC4899);
-const kTextSec = Color(0xFF9CA0B4);
-const kTextDim = Color(0xFF5C5F73);
+const kBg      = Vz.bg;
+const kSurface = Vz.surface;
+const kCard    = Vz.card;
+const kBorder  = Vz.border;
+const kAccent  = Vz.accent;
+const kCyan    = Vz.accentHi;
+const kGreen   = Vz.green;
+const kAmber   = Vz.amber;
+const kRed     = Vz.red;
+const kPink    = Vz.magenta;
+const kTextSec = Vz.textSec;
+const kTextDim = Vz.textDim;
 
 enum _SortBy{name,date,size,type}
 
 LinearGradient _extGrad(String ext){
   switch(ext){
     case 'mp4': return const LinearGradient(colors:[Color(0xFF7C5CFC),Color(0xFF46349B)]);
-    case 'mkv': return const LinearGradient(colors:[Color(0xFF8B5CF6),Color(0xFF5A4199)]);
+    case 'mkv': return LinearGradient(colors:[Vz.accent,Color(0xFF5A4199)]);
     case 'avi': return const LinearGradient(colors:[Color(0xFF9F7AE8),Color(0xFF5D48A8)]);
-    case 'mov': return const LinearGradient(colors:[Color(0xFFEC4899),Color(0xFF8F2B5B)]);
+    case 'mov': return LinearGradient(colors:[Vz.magenta,Color(0xFF8F2B5B)]);
     case 'webm':return const LinearGradient(colors:[Color(0xFF6D28D9),Color(0xFF3B1B75)]);
     case 'flv': return const LinearGradient(colors:[Color(0xFF5B2DA0),Color(0xFF2F1A52)]);
-    default:    return const LinearGradient(colors:[Color(0xFF22222E),Color(0xFF131319)]);
+    default:    return LinearGradient(colors:[Vz.cardHi,Vz.surface]);
   }
 }
 
@@ -424,7 +424,7 @@ class BrowserScreenState extends State<BrowserScreen>{
             const Icon(Icons.search_rounded,size:16,color:kTextDim),
             const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
-                style:const TextStyle(fontSize:14,color:Color(0xFFF4F4F8)),
+                style:TextStyle(fontSize:14,color:Vz.text),
                 decoration:InputDecoration.collapsed(
                   hintText:_globalSearch?L.searchingGlobal:L.searchHere,
                   hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
@@ -433,7 +433,7 @@ class BrowserScreenState extends State<BrowserScreen>{
           ]))
         :Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
             Text(_path==root?L.internalStorage:p.basename(_path),overflow:TextOverflow.ellipsis,
-                style:const TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Color(0xFFF4F4F8))),
+                style:TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Vz.text)),
             if(_path!=root)Text(p.dirname(_path),overflow:TextOverflow.ellipsis,
                 style:const TextStyle(fontSize:10,color:kTextDim,height:1.2)),
           ]),
@@ -653,11 +653,11 @@ class _DirTile extends StatelessWidget{
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
       child:Row(children:[
         Container(width:34,height:34,decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF8B7BB8),Color(0xFF5C5F73)],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          gradient:const LinearGradient(colors:[Color(0xFF8B7BB8),Vz.textDim],begin:Alignment.topLeft,end:Alignment.bottomRight),
           borderRadius:BorderRadius.circular(10)),
-          child:const Icon(Icons.folder_rounded,color:Color(0xFFF4F4F8),size:17)),
+          child:Icon(Icons.folder_rounded,color:Vz.text,size:17)),
         const SizedBox(width:10),
-        Expanded(child:Text(p.basename(dir.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Color(0xFFF4F4F8)),maxLines:1,overflow:TextOverflow.ellipsis)),
+        Expanded(child:Text(p.basename(dir.path),style:TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis)),
         const Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
       ]),
     ),
@@ -713,7 +713,7 @@ class _VideoTile extends StatelessWidget{
                         // گرادیانت پایین برای خوانایی
                         Container(decoration:const BoxDecoration(
                           gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
-                            colors:[Color(0xB30E1210),Colors.transparent]))),
+                            colors:[Vz.glassDark,Colors.transparent]))),
                         if(seen)Align(alignment:Alignment.topLeft,child:Padding(
                           padding:const EdgeInsets.all(7),
                           child:Icon(Icons.check_circle_rounded,color:kAccent,size:19))),
@@ -725,7 +725,7 @@ class _VideoTile extends StatelessWidget{
                       child:snap.connectionState==ConnectionState.waiting
                           ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
                           :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
-                              style:const TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Color(0xFFF4F4F8),letterSpacing:1.5)),
+                              style:TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Vz.text,letterSpacing:1.5)),
                     );
                   },
                 ),
@@ -736,18 +736,18 @@ class _VideoTile extends StatelessWidget{
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
                     decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(6)),
                     child:Text(fmt(Duration(seconds:dur)),
-                      style:const TextStyle(fontSize:10,color:Color(0xFFF4F4F8),fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
+                      style:TextStyle(fontSize:10,color:Vz.text,fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
                 // انتخاب‌چک باکس
                 if(selectMode)Align(
                   alignment:Alignment.topLeft,
                   child:Padding(padding:const EdgeInsets.all(7),child:AnimatedContainer(
                     duration:const Duration(milliseconds:150),width:24,height:24,
                     decoration:BoxDecoration(
-                      gradient:selected?const LinearGradient(colors:[Color(0xFFA78BFA),Color(0xFF6D28D9)]):null,
+                      gradient:selected?LinearGradient(colors:[Vz.accentHi,Color(0xFF6D28D9)]):null,
                       color:selected?null:Colors.black.withOpacity(0.45),
                       shape:BoxShape.circle,
                       border:selected?null:Border.all(color:Colors.white38,width:1.4)),
-                    child:selected?const Icon(Icons.check_rounded,color:Color(0xFF0B0B10),size:17):null))),
+                    child:selected?Icon(Icons.check_rounded,color:Vz.bg,size:17):null))),
                 // دکمه پخش شیشه‌ای وسط
                 if(!selectMode)Center(child:Container(
                   width:44,height:44,
@@ -767,7 +767,7 @@ class _VideoTile extends StatelessWidget{
             padding:const EdgeInsets.fromLTRB(10,9,10,10),
             child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
               Text(name,style:TextStyle(fontSize:12.5,fontWeight:FontWeight.w600,
-                  color:seen?kGreen:const Color(0xFFF4F4F8),height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
+                  color:seen?kGreen:Vz.text,height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
               if(showPath)Padding(padding:const EdgeInsets.only(top:2),
                 child:Text(p.dirname(file.path),style:const TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
               const SizedBox(height:6),

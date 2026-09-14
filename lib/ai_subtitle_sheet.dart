@@ -21,7 +21,7 @@ class AiSubtitleSheet extends StatefulWidget {
   }) =>
     showModalBottomSheet(
       context:ctx, isScrollControlled:true,
-      backgroundColor:const Color(0xFF0E1210),
+      backgroundColor:Vz.bgDeep,
       shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
       builder:(_)=>AiSubtitleSheet(videoPath:videoPath, onDone:onDone, onPreview:onPreview),
     );
@@ -91,9 +91,9 @@ class _State extends State<AiSubtitleSheet> {
       final fullErr = '$e\n\n$st';
       if(mounted) setState((){ _running=false; _mode='new'; _status=fullErr; });
       if(mounted) showDialog(context:context, builder:(_)=>AlertDialog(
-        backgroundColor:const Color(0xFF141A17),
+        backgroundColor:Vz.surface,
         title:const Text('خطا', style:TextStyle(color:Colors.red)),
-        content:SingleChildScrollView(child:SelectableText(fullErr, style:const TextStyle(color:Colors.white70, fontSize:11, fontFamily:'monospace'))),
+        content:SingleChildScrollView(child:SelectableText(fullErr, style:TextStyle(color:Vz.textSec, fontSize:11, fontFamily:'monospace'))),
         actions:[TextButton(onPressed:()=>Navigator.pop(context), child:const Text('بستن'))],
       ));
     } finally {
@@ -107,7 +107,7 @@ class _State extends State<AiSubtitleSheet> {
     try {
       final improved = await WhisperService.improveSrt(_srtPath!);
       setState((){ _srtPath=improved; _improving=false; });
-      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFF35F2A2));
+      if(mounted) showSnack(context, L.improvedSubtitle, color: Vz.accent);
     } catch(e){
       setState(()=>_improving=false);
       if(mounted) showSnack(context, L.errorMsg(e));
@@ -119,7 +119,7 @@ class _State extends State<AiSubtitleSheet> {
     setState(()=>_improvingLang=lang);
     try {
       await WhisperService.improveSrt(WhisperService.bestSrtPath(widget.videoPath, lang));
-      if(mounted) showSnack(context, L.improvedSubtitle, color: const Color(0xFF35F2A2));
+      if(mounted) showSnack(context, L.improvedSubtitle, color: Vz.accent);
     } catch(e){
       if(mounted) showSnack(context, L.errorMsg(e));
     } finally {
@@ -129,9 +129,9 @@ class _State extends State<AiSubtitleSheet> {
 
   Future<void> _deleteLang(String lang) async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.deleteSubtitle,style:TextStyle(color:Colors.white,fontSize:15)),
-      content:Text('${kLanguages[lang]??lang}?',style:const TextStyle(color:Colors.white70)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.deleteSubtitle,style:TextStyle(color:Vz.text,fontSize:15)),
+      content:Text('${kLanguages[lang]??lang}?',style:TextStyle(color:Vz.textSec)),
       actions:[
         TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
         FilledButton(onPressed:()=>Navigator.pop(context,true),
@@ -146,10 +146,10 @@ class _State extends State<AiSubtitleSheet> {
 
   Future<void> _deleteAll() async {
     final ok = await showDialog<bool>(context:context, builder:(_)=>AlertDialog(
-      backgroundColor:const Color(0xFF0E1210),
-      title:Text(L.deleteAllSubtitles,style:TextStyle(color:Colors.white,fontSize:15)),
+      backgroundColor:Vz.bgDeep,
+      title:Text(L.deleteAllSubtitles,style:TextStyle(color:Vz.text,fontSize:15)),
       content:Text(L.deleteAllSubtitles,
-        style:const TextStyle(color:Colors.white70)),
+        style:TextStyle(color:Vz.textSec)),
       actions:[
         TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),
         FilledButton(onPressed:()=>Navigator.pop(context,true),
@@ -171,16 +171,16 @@ class _State extends State<AiSubtitleSheet> {
         const VzSheetHandle(),
         const Icon(Icons.wifi_off_rounded, color: Colors.white38, size: 48),
         const SizedBox(height:16),
-        Text(L.aiSubtitleOffline, style: TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.bold)),
+        Text(L.aiSubtitleOffline, style: TextStyle(color:Vz.text,fontSize:16,fontWeight:FontWeight.bold)),
         const SizedBox(height:8),
         Text(
           L.onlineOnlyLocal,
           textAlign: TextAlign.center,
-          style: TextStyle(color:Colors.white60, fontSize:13, height:1.6)),
+          style: TextStyle(color:Vz.textSec, fontSize:13, height:1.6)),
         const SizedBox(height:20),
         FilledButton(
           onPressed: () => Navigator.pop(ctx),
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF35F2A2)),
+          style: FilledButton.styleFrom(backgroundColor: Vz.accent),
           child: Text(L.close)),
       ]),
     ));  // end online SafeArea
@@ -191,14 +191,14 @@ class _State extends State<AiSubtitleSheet> {
       child:SingleChildScrollView(
         padding:EdgeInsets.only(left:16,right:16,top:16,bottom:MediaQuery.of(ctx).viewInsets.bottom+16),
         child:_loading
-          ? SizedBox(height:120,child:Center(child:CircularProgressIndicator(color: const Color(0xFF35F2A2))))
+          ? SizedBox(height:120,child:Center(child:CircularProgressIndicator(color: Vz.accent)))
           : Column(mainAxisSize:MainAxisSize.min,children:[
             const VzSheetHandle(),
             const SizedBox(height:14),
             Row(children:[
-              const Icon(Icons.auto_awesome,color: const Color(0xFF35F2A2),size:20),
+              Icon(Icons.auto_awesome,color: Vz.accent,size:20),
               const SizedBox(width:8),
-              Text(L.aiSubLabel,style:TextStyle(color:Colors.white,fontSize:17,fontWeight:FontWeight.bold)),
+              Text(L.aiSubLabel,style:TextStyle(color:Vz.text,fontSize:17,fontWeight:FontWeight.bold)),
               const Spacer(),
               TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close)),
             ]),
@@ -221,7 +221,7 @@ class _State extends State<AiSubtitleSheet> {
     Padding(
       padding: EdgeInsets.only(bottom:8),
       child: Align(alignment:Alignment.centerRight,
-        child:Text(L.builtSubtitles,style:TextStyle(color:Colors.white60,fontSize:12))),
+        child:Text(L.builtSubtitles,style:TextStyle(color:Vz.textSec,fontSize:12))),
     ),
 
     ..._existingLangs.map((lang){
@@ -230,17 +230,17 @@ class _State extends State<AiSubtitleSheet> {
       return Container(
         margin:const EdgeInsets.only(bottom:8),
         padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
-        decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(12)),
+        decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(12)),
         child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Row(children:[
             const Icon(Icons.star,color:Colors.amber,size:16),
             const SizedBox(width:8),
-            Text(kLanguages[lang]??lang,style:const TextStyle(color:Colors.white,fontSize:14)),
+            Text(kLanguages[lang]??lang,style:TextStyle(color:Vz.text,fontSize:14)),
             if(improved)...[
               const SizedBox(width:6),
               Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                decoration:BoxDecoration(color:const Color(0xFF35F2A2).withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
-                child:Text(L.improved,style:TextStyle(color: const Color(0xFF35F2A2),fontSize:10))),
+                decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                child:Text(L.improved,style:TextStyle(color: Vz.accent,fontSize:10))),
             ],
           ]),
           const SizedBox(height:8),
@@ -249,7 +249,7 @@ class _State extends State<AiSubtitleSheet> {
               scrollDirection:Axis.horizontal,
               child:Row(children:[
                 IconButton(
-                  icon:const Icon(Icons.share,color: const Color(0xFF35F2A2),size:18),
+                  icon:Icon(Icons.share,color: Vz.accent,size:18),
                   tooltip:L.share,
                   onPressed:()=>SharePlus.instance.share(ShareParams(
                     files:[XFile(WhisperService.bestSrtPath(widget.videoPath, lang))],
@@ -268,9 +268,9 @@ class _State extends State<AiSubtitleSheet> {
                 ),
                 improving
                   ? Padding(padding:EdgeInsets.all(8),
-                      child:SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFF35F2A2))))
+                      child:SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:2,color: Vz.accent)))
                   : IconButton(
-                      icon:const Icon(Icons.auto_fix_high,color: const Color(0xFF35F2A2),size:18),
+                      icon:Icon(Icons.auto_fix_high,color: Vz.accent,size:18),
                       tooltip:L.improveSubtitle,
                       onPressed:()=>_improveLang(lang),
                       constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
@@ -289,7 +289,7 @@ class _State extends State<AiSubtitleSheet> {
                 widget.onDone(WhisperService.bestSrtPath(widget.videoPath, lang));
                 Navigator.pop(context);
               },
-              style:FilledButton.styleFrom(backgroundColor:const Color(0xFF35F2A2),
+              style:FilledButton.styleFrom(backgroundColor:Vz.accent,
                 minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:14),
                 shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(8))),
               child:Text(L.use,style:TextStyle(fontSize:12)),
@@ -303,9 +303,9 @@ class _State extends State<AiSubtitleSheet> {
     Row(children:[
       Expanded(child:OutlinedButton.icon(
         onPressed:()=>setState(()=>_mode='new'),
-        icon:const Icon(Icons.add,size:16,color: const Color(0xFF35F2A2)),
-        label:Text(L.createNewLang,style:TextStyle(color: const Color(0xFF35F2A2),fontSize:13)),
-        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFF35F2A2)),
+        icon:Icon(Icons.add,size:16,color: Vz.accent),
+        label:Text(L.createNewLang,style:TextStyle(color: Vz.accent,fontSize:13)),
+        style:OutlinedButton.styleFrom(side:BorderSide(color: Vz.accent),
           padding:const EdgeInsets.symmetric(vertical:12),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
       )),
@@ -328,15 +328,15 @@ class _State extends State<AiSubtitleSheet> {
         trailing:FilledButton.icon(
           onPressed:(){ Navigator.pop(context); Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())); },
           icon:const Icon(Icons.download,size:14),label:Text(L.download,style:TextStyle(fontSize:12)),
-          style:FilledButton.styleFrom(backgroundColor:const Color(0xFF35F2A2),
+          style:FilledButton.styleFrom(backgroundColor:Vz.accent,
             minimumSize:const Size(0,32),padding:const EdgeInsets.symmetric(horizontal:12)),
         ))
     else _row(
       icon:Icons.memory,
       child:DropdownButton<WhisperModelDef>(
-        value:_selected, dropdownColor:const Color(0xFF1B231F),
+        value:_selected, dropdownColor:Vz.card,
         underline:const SizedBox(), isExpanded:true,
-        style:const TextStyle(color:Colors.white,fontSize:13),
+        style:TextStyle(color:Vz.text,fontSize:13),
         items:_downloaded.map((m)=>DropdownMenuItem(value:m,
           child:Text('${m.name} ${m.isQuantized?"(${m.variant})":""}'))).toList(),
         onChanged:(v){ if(v!=null) setState(()=>_selected=v); },
@@ -345,9 +345,9 @@ class _State extends State<AiSubtitleSheet> {
     const SizedBox(height:10),
 
     _row(icon:Icons.language, child:DropdownButton<String>(
-      value:_lang, dropdownColor:const Color(0xFF1B231F),
+      value:_lang, dropdownColor:Vz.card,
       underline:const SizedBox(), isExpanded:true,
-      style:const TextStyle(color:Colors.white,fontSize:13),
+      style:TextStyle(color:Vz.text,fontSize:13),
       items:kLanguages.entries.map((e){
         final has = _existingLangs.contains(e.key);
         return DropdownMenuItem(value:e.key,child:Row(children:[
@@ -362,13 +362,13 @@ class _State extends State<AiSubtitleSheet> {
     // ── ترجمه به انگلیسی (همیشه در دسترس) ──
     Container(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-      decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
-        const Icon(Icons.translate,color: const Color(0xFF35F2A2),size:18),
+        Icon(Icons.translate,color: Vz.accent,size:18),
         const SizedBox(width:10),
         Expanded(child:Text(L.translateToEn,
-          style:TextStyle(color:Colors.white,fontSize:12))),
-        Switch(value:_translate,activeColor:const Color(0xFF35F2A2),
+          style:TextStyle(color:Vz.text,fontSize:12))),
+        Switch(value:_translate,activeColor:Vz.accent,
           onChanged:(v)=>setState(()=>_translate=v)),
       ]),
     ),
@@ -377,12 +377,12 @@ class _State extends State<AiSubtitleSheet> {
     // ── انتخاب موتور — V1 و V2 همیشه هر دو در دسترس‌اند ──
     Container(
       padding:const EdgeInsets.all(10),
-      decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(12)),
       child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
         Row(children:[
-          Icon(Icons.settings_suggest,color: const Color(0xFF35F2A2),size:16),
+          Icon(Icons.settings_suggest,color: Vz.accent,size:16),
           SizedBox(width:8),
-          Text(L.aiModel,style:TextStyle(color:Colors.white70,fontSize:12)),
+          Text(L.aiModel,style:TextStyle(color:Vz.textSec,fontSize:12)),
         ]),
         const SizedBox(height:8),
         Row(children:[
@@ -396,12 +396,12 @@ class _State extends State<AiSubtitleSheet> {
 
     Container(
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-      decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
-        const Icon(Icons.graphic_eq,color: const Color(0xFF35F2A2),size:18),
+        Icon(Icons.graphic_eq,color: Vz.accent,size:18),
         const SizedBox(width:10),
-        Expanded(child:Text(L.vadMode,style:TextStyle(color:Colors.white,fontSize:13))),
-        Switch(value:_useVad,activeColor:const Color(0xFF35F2A2),
+        Expanded(child:Text(L.vadMode,style:TextStyle(color:Vz.text,fontSize:13))),
+        Switch(value:_useVad,activeColor:Vz.accent,
           onChanged:(v)=>setState(()=>_useVad=v)),
       ]),
     ),
@@ -425,23 +425,23 @@ class _State extends State<AiSubtitleSheet> {
       Container(
         margin:const EdgeInsets.only(bottom:10),
         padding:const EdgeInsets.symmetric(horizontal:10,vertical:8),
-        decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(10)),
+        decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(10)),
         child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           Row(children:[
-            const Icon(Icons.insights,color: const Color(0xFF35F2A2),size:16),
+            Icon(Icons.insights,color: Vz.accent,size:16),
             const SizedBox(width:8),
-            Text('${L.accuracy}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
+            Text('${L.accuracy}: ',style:TextStyle(color:Vz.textDim,fontSize:12)),
             Text(estimateAccuracy(_selected!,_lang),
-              style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.bold)),
+              style:TextStyle(color:Vz.text,fontSize:12,fontWeight:FontWeight.bold)),
           ]),
           if(_videoDurationMs>0)...[
             const SizedBox(height:4),
             Row(children:[
-              const Icon(Icons.timer_outlined,color: const Color(0xFF35F2A2),size:16),
+              Icon(Icons.timer_outlined,color: Vz.accent,size:16),
               const SizedBox(width:8),
-              Text('${L.sleepTimer}: ',style:TextStyle(color:Colors.white54,fontSize:12)),
+              Text('${L.sleepTimer}: ',style:TextStyle(color:Vz.textDim,fontSize:12)),
               Text(WhisperService.estimateProcessingTime(_videoDurationMs,_selected!,_engine),
-                style:const TextStyle(color:Colors.white,fontSize:12,fontWeight:FontWeight.bold)),
+                style:TextStyle(color:Vz.text,fontSize:12,fontWeight:FontWeight.bold)),
             ]),
           ],
         ]),
@@ -463,7 +463,7 @@ class _State extends State<AiSubtitleSheet> {
         icon:const Icon(Icons.subtitles),
         label:Text(L.aiSubtitle,style:TextStyle(fontSize:15)),
         style:FilledButton.styleFrom(
-          backgroundColor:const Color(0xFF35F2A2),
+          backgroundColor:Vz.accent,
           padding:const EdgeInsets.symmetric(vertical:14),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
         ),
@@ -478,17 +478,17 @@ class _State extends State<AiSubtitleSheet> {
 
   List<Widget> _buildRunning()=>[
     const SizedBox(height:8),
-    Text(_status,style:const TextStyle(color:Colors.white,fontSize:14),textAlign:TextAlign.center),
+    Text(_status,style:TextStyle(color:Vz.text,fontSize:14),textAlign:TextAlign.center),
     const SizedBox(height:12),
     LinearProgressIndicator(
       value:_progress>0&&_progress<=1 ? _progress : null,
-      backgroundColor:const Color(0xFF1B231F),
-      color:const Color(0xFF35F2A2), minHeight:6,
+      backgroundColor:Vz.card,
+      color:Vz.accent, minHeight:6,
       borderRadius:BorderRadius.circular(3),
     ),
     const SizedBox(height:4),
     Text(_progress>0 ? '${(_progress*100).clamp(0,100).toInt()}%':'',
-      style:const TextStyle(color:Colors.white54,fontSize:12),textAlign:TextAlign.center),
+      style:TextStyle(color:Vz.textDim,fontSize:12),textAlign:TextAlign.center),
     const SizedBox(height:12),
     OutlinedButton.icon(
       onPressed:()async{ await WhisperService.cancelExtraction(); if(mounted) setState((){ _running=false; _mode='new'; }); },
@@ -498,7 +498,7 @@ class _State extends State<AiSubtitleSheet> {
     ),
     const SizedBox(height:6),
     Text(L.processing,
-      style:TextStyle(color:Colors.white38,fontSize:11),textAlign:TextAlign.center),
+      style:TextStyle(color:Vz.textDim,fontSize:11),textAlign:TextAlign.center),
   ];
 
   List<Widget> _buildDone()=>[
@@ -506,21 +506,21 @@ class _State extends State<AiSubtitleSheet> {
     const Icon(Icons.check_circle,color:Colors.green,size:44),
     const SizedBox(height:6),
     Text('${L.subtitleLoaded} (${kLanguages[_lang]??_lang})',
-      style:const TextStyle(color:Colors.white,fontSize:16,fontWeight:FontWeight.bold)),
+      style:TextStyle(color:Vz.text,fontSize:16,fontWeight:FontWeight.bold)),
     const SizedBox(height:4),
     Text(_srtPath?.split('/').last??'',
-      style:const TextStyle(color:Colors.white54,fontSize:11),textAlign:TextAlign.center),
+      style:TextStyle(color:Vz.textDim,fontSize:11),textAlign:TextAlign.center),
     const SizedBox(height:14),
 
     SizedBox(width:double.infinity,child:OutlinedButton.icon(
       onPressed:_improving?null:_improve,
       icon:_improving
-        ? const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2,color: const Color(0xFF35F2A2)))
-        : const Icon(Icons.auto_fix_high,size:16,color: const Color(0xFF35F2A2)),
+        ? SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:2,color: Vz.accent))
+        : Icon(Icons.auto_fix_high,size:16,color: Vz.accent),
       label:Text(_improving?L.improving:L.improveSubtitle,
-        style:const TextStyle(color: const Color(0xFF35F2A2),fontSize:13)),
+        style:TextStyle(color: Vz.accent,fontSize:13)),
       style:OutlinedButton.styleFrom(
-        side:const BorderSide(color: const Color(0xFF35F2A2)),
+        side:BorderSide(color: Vz.accent),
         padding:const EdgeInsets.symmetric(vertical:12),
         shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
       ),
@@ -531,9 +531,9 @@ class _State extends State<AiSubtitleSheet> {
     Row(children:[
       Expanded(child:OutlinedButton.icon(
         onPressed:()=>SharePlus.instance.share(ShareParams(files:[XFile(_srtPath!)],text:L.vezooSubtitle)),
-        icon:const Icon(Icons.share,size:15,color: const Color(0xFF35F2A2)),
-        label:Text(L.share,style:TextStyle(color: const Color(0xFF35F2A2),fontSize:12,fontWeight:FontWeight.bold)),
-        style:OutlinedButton.styleFrom(side:const BorderSide(color: const Color(0xFF35F2A2)),
+        icon:Icon(Icons.share,size:15,color: Vz.accent),
+        label:Text(L.share,style:TextStyle(color: Vz.accent,fontSize:12,fontWeight:FontWeight.bold)),
+        style:OutlinedButton.styleFrom(side:BorderSide(color: Vz.accent),
           padding:const EdgeInsets.symmetric(vertical:10),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
       )),
@@ -544,7 +544,7 @@ class _State extends State<AiSubtitleSheet> {
           if(mounted)setState((){}); // رفرش بعد از برگشت از ویرایشگر
         },
         icon:const Icon(Icons.edit,size:15,color:Colors.white70),
-        label:Text(L.edit,style:TextStyle(color:Colors.white70,fontSize:12)),
+        label:Text(L.edit,style:TextStyle(color:Vz.textSec,fontSize:12)),
         style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
           padding:const EdgeInsets.symmetric(vertical:10),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
@@ -554,10 +554,10 @@ class _State extends State<AiSubtitleSheet> {
         Expanded(child:OutlinedButton.icon(
           onPressed:(){
             widget.onPreview!(_srtPath!);
-            showSnack(context, L.previewLoaded, color: const Color(0xFF35F2A2), seconds: 2);
+            showSnack(context, L.previewLoaded, color: Vz.accent, seconds: 2);
           },
           icon:const Icon(Icons.visibility,size:15,color:Colors.white70),
-          label:Text(L.preview,style:TextStyle(color:Colors.white70,fontSize:12)),
+          label:Text(L.preview,style:TextStyle(color:Vz.textSec,fontSize:12)),
           style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
             padding:const EdgeInsets.symmetric(vertical:10),
             shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
@@ -571,7 +571,7 @@ class _State extends State<AiSubtitleSheet> {
       icon:const Icon(Icons.subtitles),
       label:Text(L.loadSubtitle),
       style:FilledButton.styleFrom(
-        backgroundColor:const Color(0xFF35F2A2),
+        backgroundColor:Vz.accent,
         padding:const EdgeInsets.symmetric(vertical:14),
         shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12)),
       ),
@@ -588,9 +588,9 @@ class _State extends State<AiSubtitleSheet> {
       child:Container(
         padding:const EdgeInsets.symmetric(vertical:8,horizontal:8),
         decoration:BoxDecoration(
-          color:active?const Color(0xFF35F2A2):const Color(0xFF0E1210),
+          color:active?Vz.accent:Vz.bgDeep,
           borderRadius:BorderRadius.circular(10),
-          border:Border.all(color:active?const Color(0xFF35F2A2):Colors.white12),
+          border:Border.all(color:active?Vz.accent:Colors.white12),
         ),
         child:Column(children:[
           Text(label,style:TextStyle(color:active?Colors.white:Colors.white70,fontSize:13,fontWeight:FontWeight.bold)),
@@ -603,9 +603,9 @@ class _State extends State<AiSubtitleSheet> {
 
   Widget _row({required IconData icon, required Widget child, Widget? trailing})=>Container(
     padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
-    decoration:BoxDecoration(color:const Color(0xFF1B231F),borderRadius:BorderRadius.circular(12)),
+    decoration:BoxDecoration(color:Vz.card,borderRadius:BorderRadius.circular(12)),
     child:Row(children:[
-      Icon(icon,color:const Color(0xFF35F2A2),size:18),
+      Icon(icon,color:Vz.accent,size:18),
       const SizedBox(width:10),
       Expanded(child:child),
       if(trailing!=null) trailing,
