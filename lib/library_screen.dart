@@ -143,7 +143,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           onTap: exists ? ()=>_openVideoByPath(path) : null,
           onLongPress: isUrl
-            ? (){ Clipboard.setData(const ClipboardData(text: path)); showSnack(context, L.linkCopied, seconds: 2); }
+            ? (){ Clipboard.setData(ClipboardData(text: path)); showSnack(context, L.linkCopied, seconds: 2); }
             : (onLongPress != null ? ()=>onLongPress(path) : null),
           child: Row(children: [
             VzIconBadge(

@@ -33,12 +33,17 @@ jobs:
         run: flutter pub get
 
       - name: Analyze
-        run: flutter analyze --no-pub 2>&1 | tee analyze.log
+        run: |
+          set -o pipefail
+          flutter analyze --no-pub 2>&1 | tee analyze.log
         # fail روی error — info/warning گزارش می‌شود ولی build را نمی‌بندد در فاز مهاجرت
         continue-on-error: true
 
       - name: Test
-        run: flutter test --reporter expanded 2>&1 | tee test.log
+        run: |
+          set -o pipefail
+          flutter test --reporter expanded 2>&1 | tee test.log
+
       - name: Upload test report artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -288,17 +293,10 @@ jobs:
 
       - name: Build APK
         run: |
+          set -o pipefail
           # فقط arm64-v8a — خروجی سبک برای اینترنت کم‌سرعت
-          set +e
           flutter build apk --release --target-platform android-arm64 --split-per-abi 2>&1 | tee build.log
-          EXIT=$?
-          echo "flutter build exit: $EXIT"
-          if [ $EXIT -ne 0 ]; then
-            echo "=== BUILD FAILED — last 120 lines ==="
-            tail -120 build.log
-          fi
           ls -la build/app/outputs/flutter-apk/ || true
-          exit $EXIT
 
       - name: Upload build log (on failure)
         if: failure()
