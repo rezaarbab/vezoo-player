@@ -35,9 +35,8 @@ jobs:
       - name: Analyze
         run: |
           set -o pipefail
-          flutter analyze --no-pub 2>&1 | tee analyze.log
-        # fail روی error — info/warning گزارش می‌شود ولی build را نمی‌بندد در فاز مهاجرت
-        continue-on-error: true
+          flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.log
+        # Analyzer errors block the build; warnings and infos remain visible.
 
       - name: Test
         run: |
