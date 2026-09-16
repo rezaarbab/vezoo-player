@@ -15,40 +15,43 @@ void main() {
         addTearDown(tester.view.resetDevicePixelRatio);
         addTearDown(() => buildVezooTheme());
         final semantics = tester.ensureSemantics();
-        addTearDown(semantics.dispose);
-        var selected = VzNavDest.home;
-        await tester.pumpWidget(MaterialApp(
-          theme: buildVezooTheme(dark: dark),
-          home: MediaQuery(
-            data: const MediaQueryData(
-              size: Size(320, 640),
-              textScaler: TextScaler.linear(2),
-              padding: EdgeInsets.only(bottom: 24),
+        try {
+          var selected = VzNavDest.home;
+          await tester.pumpWidget(MaterialApp(
+            theme: buildVezooTheme(dark: dark),
+            home: MediaQuery(
+              data: const MediaQueryData(
+                size: Size(320, 640),
+                textScaler: TextScaler.linear(2),
+                padding: EdgeInsets.only(bottom: 24),
+              ),
+              child: Directionality(
+                textDirection: direction,
+                child: StatefulBuilder(builder: (context, setState) => Scaffold(
+                  bottomNavigationBar: VzNavDock(
+                    current: selected,
+                    onSelect: (dest) => setState(() => selected = dest),
+                  ),
+                )),
+              ),
             ),
-            child: Directionality(
-              textDirection: direction,
-              child: StatefulBuilder(builder: (context, setState) => Scaffold(
-                bottomNavigationBar: VzNavDock(
-                  current: selected,
-                  onSelect: (dest) => setState(() => selected = dest),
-                ),
-              )),
-            ),
-          ),
-        ));
-        final labels = direction == TextDirection.rtl
-            ? ['خانه', 'زنده', 'آنلاین', 'کتابخانه', 'تنظیمات']
-            : ['Home', 'Live', 'Discover', 'Library', 'Settings'];
-        for (var i = 0; i < labels.length; i++) {
-          final text = find.text(labels[i]);
-          expect(text, findsOneWidget);
-          await tester.tap(text);
-          await tester.pumpAndSettle();
-          expect(selected, VzNavDest.values[i]);
-          final node = tester.getSemantics(find.bySemanticsLabel(labels[i]));
-          expect(node.hasFlag(SemanticsFlag.isSelected), isTrue);
-          expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-          expect(tester.takeException(), isNull);
+          ));
+          final labels = direction == TextDirection.rtl
+              ? ['خانه', 'زنده', 'آنلاین', 'کتابخانه', 'تنظیمات']
+              : ['Home', 'Live', 'Discover', 'Library', 'Settings'];
+          for (var i = 0; i < labels.length; i++) {
+            final text = find.text(labels[i]);
+            expect(text, findsOneWidget);
+            await tester.tap(text);
+            await tester.pumpAndSettle();
+            expect(selected, VzNavDest.values[i]);
+            final node = tester.getSemantics(find.bySemanticsLabel(labels[i]));
+            expect(node.hasFlag(SemanticsFlag.isSelected), isTrue);
+            expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
+            expect(tester.takeException(), isNull);
+          }
+        } finally {
+          semantics.dispose();
         }
       });
     }
