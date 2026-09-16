@@ -8,7 +8,7 @@ import 'theme.dart';
 
 Color get _bg => Vz.bgDeep;
 Color get _card => Vz.surface;
-Color get _acc => Vz.accent;
+Color get _accent => Vz.accent;
 
 class OfflineTranslationScreen extends StatefulWidget {
   const OfflineTranslationScreen({super.key});

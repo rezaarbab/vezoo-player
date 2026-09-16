@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.1.0+7
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.10.7 <4.0.0'
 
 dependencies:
   flutter:
@@ -44,6 +44,8 @@ dependencies:
   dio: ^5.4.0
   http: ^1.2.0
   google_mlkit_translation: ^0.11.0
+  flutter_onnxruntime: ^1.8.5
+  dart_sentencepiece_tokenizer: ^1.4.1
 
 dev_dependencies:
   flutter_test:
