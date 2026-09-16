@@ -25,16 +25,13 @@ class _VzShellState extends State<VzShell>{
     setState(()=>_dest = VzNavDest.home);
     // یک frame بعد از فعال شدن Home
     WidgetsBinding.instance.addPostFrameCallback((_){
-      final ctx = _browserKey.currentContext;
-      if(ctx != null){
-        final state = ctx.findAncestorStateOfType<BrowserScreenState>();
-        state?.openPath(path);
-      }
+      if (!mounted) return;
+      _browserKey.currentState?.openPath(path);
     });
   }
 
   // برای Home یک key پایدار — Home همیشه در درخت می‌ماند (Stack)
-  final GlobalKey _browserKey = GlobalKey();
+  final GlobalKey<BrowserScreenState> _browserKey = GlobalKey<BrowserScreenState>();
 
   @override
   void initState(){
@@ -50,7 +47,7 @@ class _VzShellState extends State<VzShell>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      extendBody: true,
+      extendBody: false,
       body: _buildBody(),
       bottomNavigationBar: VzNavDock(
         current: _dest,
@@ -73,10 +70,7 @@ class _VzShellState extends State<VzShell>{
   Widget _buildBody(){
     return Stack(children: [
       // Home زیر همه می‌ماند — mount دائم
-      _offstage(VzNavDest.home, KeyedSubtree(
-        key: _browserKey,
-        child: const BrowserScreen(),
-      )),
+      _offstage(VzNavDest.home, BrowserScreen(key: _browserKey)),
       _offstage(VzNavDest.live, const IptvScreen()),
       _offstage(VzNavDest.library, const LibraryScreen()),
       _offstage(VzNavDest.settings, const SettingsScreen()),
@@ -85,15 +79,21 @@ class _VzShellState extends State<VzShell>{
 
   Widget _offstage(VzNavDest dest, Widget child){
     final active = _dest == dest;
-    return IgnorePointer(
-      ignoring: !active,
-      child: TickerMode(
-        enabled: active,
-        child: AnimatedOpacity(
-          duration: Mo.normal,
-          curve: Mo.easeOut,
-          opacity: active ? 1 : 0,
-          child: child,
+    return ExcludeSemantics(
+      excluding: !active,
+      child: ExcludeFocus(
+        excluding: !active,
+        child: IgnorePointer(
+          ignoring: !active,
+          child: TickerMode(
+            enabled: active,
+            child: AnimatedOpacity(
+              duration: Mo.normal,
+              curve: Mo.easeOut,
+              opacity: active ? 1 : 0,
+              child: child,
+            ),
+          ),
         ),
       ),
     );

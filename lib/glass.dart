@@ -521,25 +521,23 @@ class VzNavDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(Rad.full),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: Sp.xs, vertical: Sp.xs),
-            decoration: BoxDecoration(
-              color: Vz.surface.withOpacity(0.88),
-              borderRadius: BorderRadius.circular(Rad.full),
-              border: Border.all(color: Vz.borderHi.withOpacity(0.8), width: 0.7),
-              boxShadow: [Vz.shadow],
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              for (final (dest, icon) in _items)
-                _dockItem(context, dest, icon),
-            ]),
-          ),
+    VzThemeScope.of(context);
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Vz.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Vz.border),
+          boxShadow: [Vz.shadow],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Row(children: [
+            for (final (dest, icon) in _items)
+              Expanded(child: _dockItem(context, dest, icon)),
+          ]),
         ),
       ),
     );
@@ -547,23 +545,44 @@ class VzNavDock extends StatelessWidget {
 
   Widget _dockItem(BuildContext context, VzNavDest dest, IconData icon) {
     final active = current == dest;
-    return GestureDetector(
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final label = rtl ? switch (dest) {
+      VzNavDest.home => 'خانه',
+      VzNavDest.live => 'زنده',
+      VzNavDest.discover => 'آنلاین',
+      VzNavDest.library => 'کتابخانه',
+      VzNavDest.settings => 'تنظیمات',
+    } : dest.label;
+    return Semantics(
+      selected: active,
+      button: true,
+      label: label,
       onTap: () => onSelect(dest),
-      child: AnimatedContainer(
-        duration: Mo.normal,
-        curve: Mo.easeOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: active ? 15 : 12, vertical: active ? 9 : 9),
-        decoration: BoxDecoration(
-          gradient: active ? Vz.accentGrad : null,
-          color: active ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(Rad.full),
-          boxShadow: active ? [Vz.glowSoft] : null,
-        ),
-        child: Icon(
-          icon,
-          size: 21,
-          color: active ? Colors.white : Vz.textDim,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: label,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => onSelect(dest),
+            borderRadius: BorderRadius.circular(18),
+            child: AnimatedContainer(
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero : Mo.fast,
+              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 10),
+              decoration: BoxDecoration(
+                color: active ? Vz.accent.withOpacity(0.12) : Colors.transparent,
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Icon(icon, size: 23, color: active ? Vz.accent : Vz.textSec),
+                const SizedBox(height: 5),
+                Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700,
+                    color: active ? Vz.accent : Vz.textSec)),
+              ]),
+            ),
+          ),
         ),
       ),
     );
