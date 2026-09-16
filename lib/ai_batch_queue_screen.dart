@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'whisper_service.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 enum _ItemStatus { pending, running, done, error, skipped }
 

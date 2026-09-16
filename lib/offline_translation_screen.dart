@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'offline_translation_service.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 Color get _bg => Vz.bgDeep;
 Color get _card => Vz.surface;

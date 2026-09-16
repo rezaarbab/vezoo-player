@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 import 'whisper_service.dart';
 import 'player.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 /// تاریخچه‌ی ویدیوهایی که برایشان زیرنویس AI ساخته شده
 class AiHistoryScreen extends StatefulWidget {

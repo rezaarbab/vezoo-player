@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'iptv_service.dart';
 import 'player.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 Color get kAccent => Vz.accent; // NOVA violet
 Color get kBg => Vz.bg;

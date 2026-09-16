@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'vosk_service.dart';
+import 'theme.dart';
 
 Color get _bg => Vz.bgDeep;
 Color get _card => Vz.surface;

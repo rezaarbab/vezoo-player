@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'whisper_service.dart';
 import 'srt_translation_service.dart' show kTranslateLangDisplay, kTranslateLangs;
 import 'l10n.dart';
+import 'theme.dart';
 
 /// تنظیمات زیرنویس زنده — قبل از شروع پردازش تکه‌تکه
 class LiveSubSheet extends StatefulWidget {

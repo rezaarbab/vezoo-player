@@ -3,6 +3,7 @@ import 'opensubtitles_service.dart';
 import 'srt_translate_sheet.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
+import 'theme.dart';
 
 /// شیت جستجو و دانلود زیرنویس آنلاین از OpenSubtitles
 class OpenSubtitlesSheet extends StatefulWidget {

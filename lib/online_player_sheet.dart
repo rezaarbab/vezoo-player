@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'player.dart';
 import 'l10n.dart';
+import 'theme.dart';
 
 enum _UrlType { direct, youtube, torrent, ytdlp }
 

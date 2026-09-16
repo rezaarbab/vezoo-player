@@ -4,6 +4,7 @@ import 'ai_batch_queue_screen.dart';
 import 'ai_history_screen.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
+import 'theme.dart';
 
 class AiModelsScreen extends StatefulWidget {
   const AiModelsScreen({super.key});

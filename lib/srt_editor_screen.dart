@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'whisper_service.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
+import 'theme.dart';
 
 /// ویرایشگر دستی زیرنویس — اصلاح متن و زمان‌بندی هر خط
 class SrtEditorScreen extends StatefulWidget {

@@ -5,6 +5,7 @@ import 'srt_translation_service.dart';
 import 'whisper_service.dart' show WhisperService;
 import 'main.dart' show showSnack;
 import 'l10n.dart';
+import 'theme.dart';
 
 /// شیت ترجمه زیرنویس — آنلاین (Cloudflare) یا آفلاین (ML Kit)
 class SrtTranslateSheet extends StatefulWidget {

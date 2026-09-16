@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'whisper_service.dart';
+import 'theme.dart';
 
 /// صفحه تست AI v2 — whisper.cpp بومی (native)
 /// فقط برای اعتبارسنجی که libvezoo_whisper.so درست کار می‌کند.
