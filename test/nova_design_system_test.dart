@@ -53,6 +53,17 @@ void main() {
       expect(Vz.auroraGrad.colors.last, const Color(0xFFEC4899));
     });
 
+    test('Scrim tokens + scrimGrad — media thumbnail overlay', () {
+      // رگرسیون: scrim* باید در پالت runtime موجود باشد (قبلاً undefined بود)
+      expect(Vz.scrimTop.value, equals(0x000B0B10));
+      expect(Vz.scrimMid.value, equals(0x800B0B10));
+      expect(Vz.scrimBot.value, equals(0xE60B0B10));
+      expect(Vz.scrimGrad.colors, hasLength(3));
+      expect(Vz.scrimGrad.colors.first, equals(Vz.scrimBot));
+      expect(Vz.scrimGrad.colors.last, equals(Vz.scrimTop));
+      expect(Vz.scrimGrad.stops, equals(const [0.0, 0.45, 1.0]));
+    });
+
     test('Theme — dark, Material 3, NOVA colors', () {
       final theme = buildVezooTheme();
       expect(theme.brightness, Brightness.dark);
@@ -93,6 +104,16 @@ void main() {
       ));
       expect(find.text('History'), findsOneWidget);
       expect(find.byIcon(Icons.history_rounded), findsOneWidget);
+    });
+
+    testWidgets('VzIconBadge — const-safe + default color = accent', (tester) async {
+      // رگرسیون: default قبلی `Vz.accent` در const constructor خطای compile می‌داد
+      await tester.pumpWidget(MaterialApp(
+        theme: buildVezooTheme(),
+        home: const Scaffold(body: Center(child: VzIconBadge(icon: Icons.star_rounded))),
+      ));
+      final icon = tester.widget<Icon>(find.byIcon(Icons.star_rounded));
+      expect(icon.color, equals(Vz.accent));
     });
 
     testWidgets('VzMediaCard renders title, duration badge', (tester) async {

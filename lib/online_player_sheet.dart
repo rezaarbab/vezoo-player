@@ -136,7 +136,7 @@ class _State extends State<OnlinePlayerSheet> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-            child: const Text(
+            child: Text(
               '💡 نکته: Cookie باید از مرورگری باشه که به اون سایت login کردی. '
               'بعد از import، اینستا، TikTok و سایت‌های نیاز به login کار میکنن.',
               style: TextStyle(color: Vz.textSec, fontSize: 11))),

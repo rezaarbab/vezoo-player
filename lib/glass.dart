@@ -179,27 +179,30 @@ class _PressScaleState extends State<_PressScale>{
 /// آیکون‌باکس گرد نرم
 class VzIconBadge extends StatelessWidget {
   final IconData icon;
-  final Color color;
+  final Color? color;
   final double size;
   final double box;
   const VzIconBadge({
     super.key,
     required this.icon,
-    this.color = Vz.accent,
+    this.color,
     this.size = 18,
     this.box = 40,
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: box, height: box,
-    decoration: BoxDecoration(
-      color: color.withOpacity(0.13),
-      borderRadius: BorderRadius.circular(box * 0.32),
-      border: Border.all(color: color.withOpacity(0.26), width: 0.7),
-    ),
-    child: Icon(icon, color: color, size: size),
-  );
+  Widget build(BuildContext context) {
+    final c = color ?? Vz.accent; // default از پالت runtime (const نیست)
+    return Container(
+      width: box, height: box,
+      decoration: BoxDecoration(
+        color: c.withOpacity(0.13),
+        borderRadius: BorderRadius.circular(box * 0.32),
+        border: Border.all(color: c.withOpacity(0.26), width: 0.7),
+      ),
+      child: Icon(icon, color: c, size: size),
+    );
+  }
 }
 
 /// هندل drag بالای sheet ها

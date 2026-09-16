@@ -117,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
                 style: Ty.overline.copyWith(fontSize: 10)),
             ])),
             if(snap.connectionState == ConnectionState.waiting)
-              const SizedBox(width: 16, height: 16,
+              SizedBox(width: 16, height: 16,
                 child: CircularProgressIndicator(strokeWidth: 2, color: Vz.accent)),
           ]),
           const SizedBox(height: Sp.lg),

@@ -125,7 +125,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   color: !isM3u ? kAccent : Vz.cardHi,
                   borderRadius: BorderRadius.circular(8)),
-                child: const Text('Xtream Codes', textAlign: TextAlign.center,
+                child: Text('Xtream Codes', textAlign: TextAlign.center,
                   style: TextStyle(color: Vz.text, fontSize: 13, fontWeight: FontWeight.w600))))),
             const SizedBox(width: 8),
             Expanded(child: GestureDetector(
@@ -135,7 +135,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   color: isM3u ? kAccent : Vz.cardHi,
                   borderRadius: BorderRadius.circular(8)),
-                child: const Text('M3U Playlist', textAlign: TextAlign.center,
+                child: Text('M3U Playlist', textAlign: TextAlign.center,
                   style: TextStyle(color: Vz.text, fontSize: 13, fontWeight: FontWeight.w600))))),
           ]),
           const SizedBox(height: 12),

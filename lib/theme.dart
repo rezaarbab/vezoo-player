@@ -149,6 +149,11 @@ class Vz {
   static Color get badgeBg   => _dark ? _P.badgeBg   : _L.badgeBg;
   static Color get sheen     => _dark ? _P.sheen     : _L.sheen;
 
+  // ── scrim: gradient روی thumbnails (در هر دو مود یکسان)
+  static Color get scrimTop => _dark ? _P.scrimTop : _L.scrimTop;
+  static Color get scrimMid => _dark ? _P.scrimMid : _L.scrimMid;
+  static Color get scrimBot => _dark ? _P.scrimBot : _L.scrimBot;
+
   // ── OVI: overlay-video palette — ALWAYS dark, for player surfaces on top of video.
   // Player must never follow light theme (it sits on dark video content).
   static const oviBg      = Color(0xFF07070B);

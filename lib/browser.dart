@@ -240,7 +240,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     return showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
       title:Text(title),
       content:Column(mainAxisSize:MainAxisSize.min,children:all.map((folder)=>ListTile(
-        leading:const Icon(Icons.folder_rounded,color:kAmber),title:Text(p.basename(folder)),
+        leading:Icon(Icons.folder_rounded,color:kAmber),title:Text(p.basename(folder)),
         onTap:()=>Navigator.pop(ctx,folder),
       )).toList()),
     ));
@@ -348,7 +348,7 @@ class BrowserScreenState extends State<BrowserScreen>{
             child:Row(children:[
               Icon(Icons.fiber_manual_record_rounded,size:8,color:kGreen.withOpacity(0.6)),
               const SizedBox(width:6),
-              Expanded(child:Text(p.basename(s),style:const TextStyle(fontSize:11,color:kTextSec))),
+              Expanded(child:Text(p.basename(s),style:TextStyle(fontSize:11,color:kTextSec))),
             ]),
           )),
         ]else _iRow(Icons.subtitles_rounded,kTextDim,L.subtitle,L.notFound),
@@ -380,7 +380,7 @@ class BrowserScreenState extends State<BrowserScreen>{
       Container(padding:const EdgeInsets.all(4),decoration:BoxDecoration(color:iconColor.withOpacity(0.1),borderRadius:BorderRadius.circular(5)),
           child:Icon(icon,size:12,color:iconColor)),
       const SizedBox(width:8),
-      Text('$label: ',style:const TextStyle(color:kTextSec,fontSize:12)),
+      Text('$label: ',style:TextStyle(color:kTextSec,fontSize:12)),
       Expanded(child:Text(val,style:const TextStyle(fontSize:12,height:1.4),overflow:TextOverflow.ellipsis,maxLines:2)),
     ]),
   );
@@ -421,21 +421,21 @@ class BrowserScreenState extends State<BrowserScreen>{
             border:Border.all(color:kAccent.withOpacity(0.25)),
           ),
           child:Row(children:[
-            const Icon(Icons.search_rounded,size:16,color:kTextDim),
+            Icon(Icons.search_rounded,size:16,color:kTextDim),
             const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
                 style:TextStyle(fontSize:14,color:Vz.text),
                 decoration:InputDecoration.collapsed(
                   hintText:_globalSearch?L.searchingGlobal:L.searchHere,
-                  hintStyle:const TextStyle(color:kTextDim,fontSize:13)),
+                  hintStyle:TextStyle(color:kTextDim,fontSize:13)),
                 onChanged:(v){setState(()=>_searchQuery=v);if(_globalSearch)_runGlobalSearch(v);})),
-            if(_searchRunning)const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
+            if(_searchRunning)SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
           ]))
         :Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
             Text(_path==root?L.internalStorage:p.basename(_path),overflow:TextOverflow.ellipsis,
                 style:TextStyle(fontSize:16,fontWeight:FontWeight.w700,color:Vz.text)),
             if(_path!=root)Text(p.dirname(_path),overflow:TextOverflow.ellipsis,
-                style:const TextStyle(fontSize:10,color:kTextDim,height:1.2)),
+                style:TextStyle(fontSize:10,color:kTextDim,height:1.2)),
           ]),
     actions:[
       if(_searching)...[
@@ -523,7 +523,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     title:Text('${_selected.length} ${L.select}',style:const TextStyle(fontSize:15)),
     actions:[
       if(_selected.isNotEmpty)IconButton(
-        icon:const Icon(Icons.play_circle_rounded,color:kAccent,size:26),
+        icon:Icon(Icons.play_circle_rounded,color:kAccent,size:26),
         tooltip:L.play,
         onPressed:(){
           final sorted=_filteredVideos.where((v)=>_selected.contains(v.path)).toList();
@@ -536,7 +536,7 @@ class BrowserScreenState extends State<BrowserScreen>{
         }),
       TextButton.icon(icon:const Icon(Icons.select_all_rounded,size:18),label:Text(L.allItems,style:TextStyle(fontSize:13)),
           onPressed:()=>setState(()=>_selected.addAll(_filteredVideos.map((v)=>v.path)))),
-      IconButton(icon:const Icon(Icons.delete_outline_rounded,color:kRed,size:22),
+      IconButton(icon:Icon(Icons.delete_outline_rounded,color:kRed,size:22),
           onPressed:_selected.isEmpty?null:()=>_confirmDelete(_selected.map((s)=>File(s)).toList())),
     ],
   );
@@ -545,7 +545,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     if(_checking)return Center(child:CircularProgressIndicator());
     if(!_granted)return Center(child:Padding(padding:const EdgeInsets.all(32),child:Column(mainAxisSize:MainAxisSize.min,children:[
       Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(20),border:Border.all(color:kBorder)),
-          child:const Icon(Icons.folder_off_rounded,size:48,color:kTextSec)),
+          child:Icon(Icons.folder_off_rounded,size:48,color:kTextSec)),
       const SizedBox(height:20),
       Text(L.permissionNeeded,textAlign:TextAlign.center,style:TextStyle(color:kTextSec)),
       const SizedBox(height:20),
@@ -557,10 +557,10 @@ class BrowserScreenState extends State<BrowserScreen>{
       Container(width:double.infinity,padding:const EdgeInsets.symmetric(horizontal:16,vertical:7),color:kSurface.withOpacity(0.85),
           child:Row(children:[
             Icon(Icons.folder_open_rounded,size:12,color:kAccent.withOpacity(0.85)),const SizedBox(width:6),
-            Expanded(child:Text(_path,style:const TextStyle(fontSize:10,color:kTextDim),overflow:TextOverflow.ellipsis)),
-            if(_searchRunning)const SizedBox(width:12,height:12,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
+            Expanded(child:Text(_path,style:TextStyle(fontSize:10,color:kTextDim),overflow:TextOverflow.ellipsis)),
+            if(_searchRunning)SizedBox(width:12,height:12,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
             if(_globalSearch&&!_searchRunning&&_searchResults.isNotEmpty)
-              Text('${_searchResults.length}',style:const TextStyle(fontSize:10,color:kAccent)),
+              Text('${_searchResults.length}',style:TextStyle(fontSize:10,color:kAccent)),
           ])),
       Expanded(child:_buildList()),
     ]);
@@ -579,7 +579,7 @@ class BrowserScreenState extends State<BrowserScreen>{
           border:Border.all(color:kBorder.withOpacity(0.8))),
         child:Icon(Icons.grid_view_rounded,size:34,color:kTextDim)),
       const SizedBox(height:16),
-      Text(L.noFilesFound,style:const TextStyle(color:kTextSec,fontSize:14)),
+      Text(L.noFilesFound,style:TextStyle(color:kTextSec,fontSize:14)),
     ]));
 
     // ── Bento Grid layout ──
@@ -590,7 +590,7 @@ class BrowserScreenState extends State<BrowserScreen>{
         child:Row(children:[
           Icon(Icons.folder_rounded,size:15,color:kAccent),
           const SizedBox(width:6),
-          Expanded(child:Text(_path,style:const TextStyle(fontSize:11,color:kTextDim),overflow:TextOverflow.ellipsis)),
+          Expanded(child:Text(_path,style:TextStyle(fontSize:11,color:kTextDim),overflow:TextOverflow.ellipsis)),
         ]))
       : const SizedBox.shrink();
 
@@ -653,12 +653,12 @@ class _DirTile extends StatelessWidget{
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
       child:Row(children:[
         Container(width:34,height:34,decoration:BoxDecoration(
-          gradient:const LinearGradient(colors:[Color(0xFF8B7BB8),Vz.textDim],begin:Alignment.topLeft,end:Alignment.bottomRight),
+          gradient:LinearGradient(colors:[const Color(0xFF8B7BB8),Vz.textDim],begin:Alignment.topLeft,end:Alignment.bottomRight),
           borderRadius:BorderRadius.circular(10)),
           child:Icon(Icons.folder_rounded,color:Vz.text,size:17)),
         const SizedBox(width:10),
         Expanded(child:Text(p.basename(dir.path),style:TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis)),
-        const Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
+        Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
       ]),
     ),
   );
@@ -711,7 +711,7 @@ class _VideoTile extends StatelessWidget{
                       return Stack(fit:StackFit.expand,children:[
                         Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true),
                         // گرادیانت پایین برای خوانایی
-                        Container(decoration:const BoxDecoration(
+                        Container(decoration:BoxDecoration(
                           gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
                             colors:[Vz.glassDark,Colors.transparent]))),
                         if(seen)Align(alignment:Alignment.topLeft,child:Padding(
@@ -769,15 +769,15 @@ class _VideoTile extends StatelessWidget{
               Text(name,style:TextStyle(fontSize:12.5,fontWeight:FontWeight.w600,
                   color:seen?kGreen:Vz.text,height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
               if(showPath)Padding(padding:const EdgeInsets.only(top:2),
-                child:Text(p.dirname(file.path),style:const TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
+                child:Text(p.dirname(file.path),style:TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
               const SizedBox(height:6),
               Row(children:[
                 if(hasSub)_badge('SUB',kGreen),
                 if(bkm)...[const SizedBox(width:4),_badge('★',kAmber)],
                 if(fav)...[const SizedBox(width:4),_badge('◆',kPink)],
-                if(rating>0)...[const SizedBox(width:4),Text('${'★'*rating}',style:const TextStyle(fontSize:9.5,color:kAmber))],
+                if(rating>0)...[const SizedBox(width:4),Text('${'★'*rating}',style:TextStyle(fontSize:9.5,color:kAmber))],
                 const Spacer(),
-                Text(sizeStr(file),style:const TextStyle(fontSize:10,color:kTextDim)),
+                Text(sizeStr(file),style:TextStyle(fontSize:10,color:kTextDim)),
               ]),
             ]),
           ),
@@ -803,7 +803,7 @@ class _VideoMenuState extends State<VideoMenu>{
     const SizedBox(height:8),
     Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:Row(children:[
       Container(width:40,height:40,decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(10),border:Border.all(color:kBorder)),
-          child:const Icon(Icons.video_file_rounded,color:kAccent,size:20)),
+          child:Icon(Icons.video_file_rounded,color:kAccent,size:20)),
       const SizedBox(width:12),
       Expanded(child:Text(p.basename(widget.file.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:13),maxLines:2)),
     ])),
@@ -823,7 +823,7 @@ class _VideoMenuState extends State<VideoMenu>{
       final name=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
         title:Text(L.playlist),
         content:Column(mainAxisSize:MainAxisSize.min,children:playlists.map((pl)=>ListTile(
-          dense:true,leading:const Icon(Icons.queue_music_rounded,color:kCyan,size:18),
+          dense:true,leading:Icon(Icons.queue_music_rounded,color:kCyan,size:18),
           title:Text(pl,style:const TextStyle(fontSize:13)),
           onTap:()=>Navigator.pop(ctx,pl))).toList()),
         actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.cancel))],

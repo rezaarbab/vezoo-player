@@ -47,7 +47,7 @@ class _State extends State<VoskModelsScreen> {
           color: _acc.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: _acc.withOpacity(0.25))),
-        child: const Row(children: [
+        child: Row(children: [
           Icon(Icons.info_outline_rounded, color: _acc, size: 15),
           SizedBox(width: 8),
           Expanded(child: Text(
@@ -72,8 +72,8 @@ class _State extends State<VoskModelsScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.orange.withOpacity(0.3))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(2, 0, 2, 8),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
                   child: Row(children: [
                     Icon(Icons.folder_special_rounded, color: Colors.orange, size: 16),
                     SizedBox(width: 8),
@@ -186,7 +186,7 @@ class _State extends State<VoskModelsScreen> {
                   color: _acc.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: _acc.withOpacity(0.4))),
-                child: const Text('دانلود',
+                child: Text('دانلود',
                   style: TextStyle(color: _acc, fontSize: 11, fontWeight: FontWeight.bold)))),
         ]),
         if (isLoading) ...[

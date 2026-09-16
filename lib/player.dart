@@ -2278,7 +2278,7 @@ class _PlayerState extends State<PlayerScreen>{
                 child: Container(
                   decoration: BoxDecoration(color: Colors.black.withOpacity(0.75), borderRadius: BorderRadius.circular(20)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const Padding(padding: EdgeInsets.only(left: 10, top: 6, bottom: 6),
+                    Padding(padding: const EdgeInsets.only(left: 10, top: 6, bottom: 6),
                       child: Icon(Icons.translate, color: Vz.accent, size: 12)),
                     const SizedBox(width: 5),
                     Padding(

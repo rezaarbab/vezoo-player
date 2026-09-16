@@ -73,7 +73,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   late bool _s1v, _s2v;
 
   final List<Color> _textColors=const[Colors.white,Color(0xFFFFEB3B),Color(0xFF69F0AE),Color(0xFF40C4FF),Color(0xFFFF8A65),Color(0xFFFF80AB)];
-  final List<Color> _bgColors=const[Colors.black,Color(0xFF0D1B2A),Color(0xFF1B2E1B),Color(0xFF2A1B1B),Vz.card,Colors.transparent];
+  final List<Color> _bgColors=[Colors.black,Color(0xFF0D1B2A),Color(0xFF1B2E1B),Color(0xFF2A1B1B),Vz.card,Colors.transparent];
 
   bool _hwDecode=true;
   bool _embeddedSub=true;
