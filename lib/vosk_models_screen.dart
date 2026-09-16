@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'vosk_service.dart';
 
-const _bg   = Vz.bgDeep;
-const _card  = Vz.surface;
-const _acc   = Vz.accent;
+Color get _bg => Vz.bgDeep;
+Color get _card => Vz.surface;
+Color get _acc => Vz.accent;
 const _gold  = Color(0xFFE8B44C);
 
 class VoskModelsScreen extends StatefulWidget {

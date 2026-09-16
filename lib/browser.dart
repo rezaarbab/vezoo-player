@@ -14,18 +14,18 @@ import 'l10n.dart';
 import 'glass.dart';
 
 // ── پالت NOVA — سازگاری با صفحات داخلی ──
-const kBg      = Vz.bg;
-const kSurface = Vz.surface;
-const kCard    = Vz.card;
-const kBorder  = Vz.border;
-const kAccent  = Vz.accent;
-const kCyan    = Vz.accentHi;
-const kGreen   = Vz.green;
-const kAmber   = Vz.amber;
-const kRed     = Vz.red;
-const kPink    = Vz.magenta;
-const kTextSec = Vz.textSec;
-const kTextDim = Vz.textDim;
+Color get kBg      => Vz.bg;
+Color get kSurface => Vz.surface;
+Color get kCard    => Vz.card;
+Color get kBorder  => Vz.border;
+Color get kAccent  => Vz.accent;
+Color get kCyan    => Vz.accentHi;
+Color get kGreen   => Vz.green;
+Color get kAmber   => Vz.amber;
+Color get kRed     => Vz.red;
+Color get kPink    => Vz.magenta;
+Color get kTextSec => Vz.textSec;
+Color get kTextDim => Vz.textDim;
 
 enum _SortBy{name,date,size,type}
 

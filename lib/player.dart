@@ -2431,8 +2431,8 @@ class _PlayerState extends State<PlayerScreen>{
               if(_isHDR||_resStr.isNotEmpty||_fpsStr.isNotEmpty)
                 Row(children:[
                   if(_isHDR)_infoBadge('HDR',Vz.green),
-                  if(_resStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_resStr,Vz.accent)],
-                  if(_fpsStr.isNotEmpty)...[const SizedBox(width:4),_infoBadge(_fpsStr,Vz.accent)],
+                  if(_resStr.isNotEmpty)...[SizedBox(width:4),_infoBadge(_resStr,Vz.accent)],
+                  if(_fpsStr.isNotEmpty)...[SizedBox(width:4),_infoBadge(_fpsStr,Vz.accent)],
                 ]),
             ])),
           if(_sleepAt!=null)GestureDetector(onTap:_showSleepDialog,child:Padding(

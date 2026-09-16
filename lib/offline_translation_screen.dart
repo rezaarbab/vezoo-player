@@ -5,9 +5,9 @@ import 'package:file_picker/file_picker.dart';
 import 'offline_translation_service.dart';
 import 'l10n.dart';
 
-const _bg = Vz.bgDeep;
-const _card = Vz.surface;
-const _accent = Vz.accent;
+Color get _bg => Vz.bgDeep;
+Color get _card => Vz.surface;
+Color get _acc => Vz.accent;
 
 class OfflineTranslationScreen extends StatefulWidget {
   const OfflineTranslationScreen({super.key});

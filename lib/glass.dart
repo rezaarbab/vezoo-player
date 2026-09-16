@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 
-export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo;
+export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  GLASS SURFACES

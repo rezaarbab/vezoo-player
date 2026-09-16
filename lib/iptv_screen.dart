@@ -4,10 +4,10 @@ import 'iptv_service.dart';
 import 'player.dart';
 import 'l10n.dart';
 
-const kAccent = Vz.accent; // NOVA violet
-const kBg = Vz.bg;
-const kCard = Vz.card;
-const kBorder = Vz.border;
+Color get kAccent => Vz.accent; // NOVA violet
+Color get kBg => Vz.bg;
+Color get kCard => Vz.card;
+Color get kBorder => Vz.border;
 
 class IptvScreen extends StatefulWidget {
   const IptvScreen({super.key});
