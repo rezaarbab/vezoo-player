@@ -1335,7 +1335,7 @@ class VzMediaCard extends StatelessWidget {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white.withValues(alpha: 0.24), width: 1),
                         ),
-                        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
+                        child: Icon(VzIcons.data('play'), color: Colors.white, size: 22),
                       ),
                     ),
                   ),

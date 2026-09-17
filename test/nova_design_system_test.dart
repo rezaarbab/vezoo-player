@@ -7,6 +7,12 @@ import 'package:player/vz_presets.dart';
 import 'package:player/vz_icons.dart';
 
 void main() {
+  // تست‌های ویجت با انیمیشن‌های بی‌نهایت (نفس‌کشیدن داک) هرگز settle نمی‌شوند،
+  // مگر انیمیشن‌ها خاموش باشند — که دقیقاً همان حالتی است که کاربر هم
+  // می‌تواند از تنظیمات انتخاب کند. قبل از هر تست خاموش، بعد آزاد می‌کنیم.
+  setUp(() => Vz.previewAnimations(false));
+  tearDown(() => Vz.previewAnimations(true));
+
   group('NOVA Design System — Tokens', () {
     test('Color palette — VOID', () {
       // رنگ‌های پایه از پرسِت فعال خوانده می‌شوند (نه هاردکد).

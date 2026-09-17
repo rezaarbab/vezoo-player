@@ -145,7 +145,8 @@ class Vz {
   Vz._();
 
   static bool _dark = true;
-  static int _accentIndex = 0;
+  // -1 = رنگ خودِ پرسِت (پیش‌فرض). کاربر می‌تواند پالت دیگری انتخاب کند.
+  static int _accentIndex = -1;
   static bool _anim = true;
   static VzPreset _preset = kVzPresets.first;
   static VzBgMode _bgMode = VzBgMode.gradient;
@@ -210,6 +211,11 @@ class Vz {
 
   /// Internal: called by VzTheme / buildVezooTheme before building.
   static void _setDark(bool v) { _dark = v; }
+
+  /// فقط برای تست/پیش‌نمایش — کلید انیمیشن را بدون VzTheme ست می‌کند.
+  /// در اپ واقعی از تنظیمات (VzThemeState.setAnimations) استفاده کن.
+  @visibleForTesting
+  static void previewAnimations(bool v) => _anim = v;
   static void _setAccentIndex(int i) {
     // -1 یعنی «رنگ خود پرسِت»
     _accentIndex = i < 0 ? -1 : i.clamp(0, kVzAccents.length - 1);
