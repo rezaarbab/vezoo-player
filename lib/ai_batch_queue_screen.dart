@@ -96,11 +96,11 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
   }
 
   Color _statusColor(_ItemStatus s) => switch (s) {
-    _ItemStatus.pending => Colors.white38,
+    _ItemStatus.pending => Vz.textDim,
     _ItemStatus.running => Vz.accent,
     _ItemStatus.done => Colors.green,
     _ItemStatus.error => Colors.red,
-    _ItemStatus.skipped => Colors.orange,
+    _ItemStatus.skipped => Vz.amber,
   };
 
   IconData _statusIcon(_ItemStatus s) => switch (s) {
@@ -164,7 +164,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
             ),
           ]),
         ),
-        const Divider(color: Colors.white12, height: 1),
+        Divider(color: Vz.border, height: 1),
         Expanded(
           child: _queue.isEmpty
             ? Center(child: Text(L.noVideoAdded, style: TextStyle(color: Vz.textDim, fontSize: 13)))
@@ -178,7 +178,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Vz.bgDeep, borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: _currentIndex == i ? Vz.accent : Colors.white12),
+                      border: Border.all(color: _currentIndex == i ? Vz.accent : Vz.border),
                     ),
                     child: Row(children: [
                       Icon(_statusIcon(item.status), color: _statusColor(item.status), size: 18),
@@ -188,7 +188,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
                         if (item.message.isNotEmpty) Text(item.message, style: TextStyle(color: _statusColor(item.status), fontSize: 10)),
                       ])),
                       if (!_running) IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white38, size: 16),
+                        icon: Icon(Icons.close, color: Vz.textDim, size: 16),
                         onPressed: () => _removeItem(i),
                       ),
                     ]),

@@ -168,8 +168,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       final sel=c.value==_vs.bgColor;
       return GestureDetector(onTap:()=>_ch(()=>_vs.bgColor=c.value),child:Container(width:34,height:34,
         decoration:BoxDecoration(color:c==Colors.transparent?null:c,shape:BoxShape.circle,
-            border:Border.all(color:sel?Colors.white:Colors.white24,width:sel?3:1)),
-        child:c==Colors.transparent?const Center(child:Icon(Icons.block,size:18,color:Colors.white38)):null));
+            border:Border.all(color:sel?Colors.white:Vz.border,width:sel?3:1)),
+        child:c==Colors.transparent?const Center(child:Icon(Icons.block,size:18,color:Vz.textDim)):null));
     }).toList()),
     Text('${L.transparency}: ${(_vs.bgOpacity*100).round()}%'),
     Slider(min:0,max:1,value:_vs.bgOpacity,onChanged:(v)=>_ch(()=>_vs.bgOpacity=v)),
@@ -277,7 +277,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     const Divider(height:24),
     // حالت شب
     Text('${L.nightMode}: ${(_vs.nightOpacity*100).round()}%'),
-    Slider(min:0,max:1,value:_vs.nightOpacity,activeColor:Colors.orange,onChanged:(v)=>_ch(()=>_vs.nightOpacity=v)),
+    Slider(min:0,max:1,value:_vs.nightOpacity,activeColor:Vz.amber,onChanged:(v)=>_ch(()=>_vs.nightOpacity=v)),
   ]));
 
   // ──────── تب زیرنویس ۲ ────────
@@ -292,7 +292,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
           onChanged:(v){setState(()=>_s2v=v);widget.onSub2Visible(v);}),
       OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickSub2();},
           icon:const Icon(Icons.file_open),label:Text(L.loadSubSub2)),
-      if(widget.sub2Path!=null)Text('${L.files}: '+p.basename(widget.sub2Path!),style:const TextStyle(fontSize:11,color:Colors.white54)),
+      if(widget.sub2Path!=null)Text('${L.files}: '+p.basename(widget.sub2Path!),style:TextStyle(fontSize:11,color:Vz.textSec)),
       const SizedBox(height:8),
       SwitchListTile(contentPadding:EdgeInsets.zero,
         title:Text(L.subDragCopy),
@@ -322,9 +322,9 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       Text(L.bgColor),const SizedBox(height:8),
       Wrap(spacing:10,children:[Colors.black,Vz.cardHi,const Color(0xFF16213E),Colors.transparent].map((c)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.bgColor=c.value),
-          child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Colors.white12:c,shape:BoxShape.circle,
-            border:Border.all(color:c.value==vs2.bgColor?Colors.white:Colors.white24,width:c.value==vs2.bgColor?3:1)),
-            child:c==Colors.transparent?const Icon(Icons.block,size:18,color:Colors.white38):null))).toList()),
+          child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Vz.border:c,shape:BoxShape.circle,
+            border:Border.all(color:c.value==vs2.bgColor?Colors.white:Vz.border,width:c.value==vs2.bgColor?3:1)),
+            child:c==Colors.transparent?Icon(Icons.block,size:18,color:Vz.textDim):null))).toList()),
       const SizedBox(height:12),
 
       // ── چینش ──
@@ -334,7 +334,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
           GestureDetector(onTap:()=>ch2(()=>vs2.textAlign=e.$2),
             child:Container(padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
               decoration:BoxDecoration(color:vs2.textAlign==e.$2?Vz.accent:Vz.cardHi,borderRadius:BorderRadius.circular(8)),
-              child:Text(e.$1,style:TextStyle(color:vs2.textAlign==e.$2?Colors.white:Colors.white60,fontSize:12)))),
+              child:Text(e.$1,style:TextStyle(color:vs2.textAlign==e.$2?Colors.white:Vz.textSec,fontSize:12)))),
           const SizedBox(width:6),
         ],
       ]),
@@ -350,13 +350,13 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       const SizedBox(height:12),
 
       // ── انتخاب فونت ──
-      const Divider(color:Colors.white12),
+      Divider(color:Vz.border),
       Text(L.font,style:TextStyle(fontSize:13)),const SizedBox(height:8),
       Wrap(spacing:8,runSpacing:6,children:['','Vazirmatn','IRANSansMobile','Roboto','Tahoma'].map((f)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.fontFamily=f),
           child:Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
             decoration:BoxDecoration(color:vs2.fontFamily==f?Vz.accent:Vz.cardHi,borderRadius:BorderRadius.circular(8)),
-            child:Text(f.isEmpty?L.defaultFont:f,style:TextStyle(color:vs2.fontFamily==f?Colors.white:Colors.white60,fontSize:12,fontFamily:f.isEmpty?null:f))))).toList()),
+            child:Text(f.isEmpty?L.defaultFont:f,style:TextStyle(color:vs2.fontFamily==f?Colors.white:Vz.textSec,fontSize:12,fontFamily:f.isEmpty?null:f))))).toList()),
       const SizedBox(height:12),
 
       // ── دیلی ──
@@ -376,7 +376,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   // ──────── تب سایر ────────
   Widget _otherTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     // ── انتخاب زبان ──
-    Text(L.language, style:const TextStyle(color:Colors.white70,fontSize:13)),
+    Text(L.language, style:TextStyle(color:Vz.textSec,fontSize:13)),
     const SizedBox(height:10),
     Wrap(spacing:8,runSpacing:8,children:[
       for(final lang in kSupportedLangs)
@@ -388,14 +388,14 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
               color:L.current==lang?Vz.accent:Vz.cardHi,
               borderRadius:BorderRadius.circular(20),
               border:Border.all(
-                color:L.current==lang?Vz.accent:Colors.white24,
+                color:L.current==lang?Vz.accent:Vz.border,
                 width:1.5)),
             child:Text(kLangNames[lang]!,style:TextStyle(
-              color:L.current==lang?Colors.white:Colors.white70,
+              color:L.current==lang?Colors.white:Vz.textSec,
               fontSize:13,fontWeight:L.current==lang?FontWeight.w600:FontWeight.normal))),
         ),
     ]),
-    const Divider(height:24,color:Colors.white12),
+    Divider(height:24,color:Vz.border),
     // پیش‌نمایش اسکراب (دسترسی سریع)
     SwitchListTile(contentPadding:EdgeInsets.zero,
       title:Text(L.seekPreview),
@@ -409,7 +409,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         label:Text(L.saveVideoSettings)),
     const SizedBox(height:6),
     Text(L.saveVideoSettingsDesc,
-        style:TextStyle(fontSize:12,color:Colors.white54)),
+        style:TextStyle(fontSize:12,color:Vz.textSec)),
     const Divider(height:28),
     Text(L.guide,style:TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:8),
     _helpRow(L.swipeHorizontal,L.seekVideo),
@@ -440,10 +440,10 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       onSelectionChanged:(s){setState(()=>_hwDecode=s.first);widget.onHwDecode(s.first);},
     ),
     const SizedBox(height:4),
-    Text('HW: ${L.hwDecode} | SW: ${L.swDecode}',style:TextStyle(fontSize:11,color:Colors.white54)),
+    Text('HW: ${L.hwDecode} | SW: ${L.swDecode}',style:TextStyle(fontSize:11,color:Vz.textSec)),
     if(widget.videoWidth!=null&&widget.videoHeight!=null)...[
       const Divider(height:18),
-      Text(L.resolution,style:TextStyle(fontSize:12,color:Colors.white54)),const SizedBox(height:4),
+      Text(L.resolution,style:TextStyle(fontSize:12,color:Vz.textSec)),const SizedBox(height:4),
       Text('${widget.videoWidth}×${widget.videoHeight}',style:const TextStyle(fontSize:14,color:Colors.greenAccent,fontWeight:FontWeight.bold)),
     ],
   ]));
@@ -451,8 +451,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   Widget _helpRow(String key,String val)=>Padding(
     padding:const EdgeInsets.symmetric(vertical:3),
     child:Row(children:[
-      SizedBox(width:160,child:Text(key,style:const TextStyle(color:Colors.white70,fontSize:12))),
-      Text(val,style:const TextStyle(color:Colors.white54,fontSize:12)),
+      SizedBox(width:160,child:Text(key,style:TextStyle(color:Vz.textSec,fontSize:12))),
+      Text(val,style:TextStyle(color:Vz.textSec,fontSize:12)),
     ]),
   );
 }
@@ -514,7 +514,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
           const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Support Vezoo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
             SizedBox(height: 2),
-            Text('If Vezoo has been useful, consider supporting us', style: TextStyle(color: Colors.white54, fontSize: 11)),
+            Text('If Vezoo has been useful, consider supporting us', style: TextStyle(color: Vz.textSec, fontSize: 11)),
           ])),
           const Icon(Icons.favorite_rounded, color: Colors.pink, size: 20),
         ])))),
@@ -529,8 +529,8 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: Icon(Icons.record_voice_over_rounded, color: Vz.accent),
         title: const Text('Vosk — مدل‌های زبان', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        subtitle: const Text('آفلاین • ۱۸ زبان • زیرنویس زنده بدون اینترنت', style: TextStyle(color: Colors.white38, fontSize: 11)),
-        trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white38),
+        subtitle: const Text('آفلاین • ۱۸ زبان • زیرنویس زنده بدون اینترنت', style: TextStyle(color: Vz.textDim, fontSize: 11)),
+        trailing: Icon(Icons.chevron_right_rounded, color: Vz.textDim),
         onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => const VoskModelsScreen()))),
       const SizedBox(height: 12),
 
@@ -543,7 +543,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
             Text(L.backupImport, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
           ]),
           const SizedBox(height: 4),
-          Text(L.backupPath, style: const TextStyle(color: Colors.white54, fontSize: 11)),
+          Text(L.backupPath, style: TextStyle(color: Vz.textSec, fontSize: 11)),
           const SizedBox(height: 10),
           Row(children: [
             Expanded(child: FilledButton.icon(
@@ -560,7 +560,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
           if (_loading) ...[const SizedBox(height:8), const LinearProgressIndicator()],
           if (_status.isNotEmpty) Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: Text(_status, style: const TextStyle(color: Colors.white60, fontSize: 11))),
+            child: Text(_status, style: TextStyle(color: Vz.textSec, fontSize: 11))),
         ]),
       ),
     ]),
@@ -614,16 +614,16 @@ class _YtDlpCardState extends State<_YtDlpCard> {
         const Spacer(),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(color: Colors.white12, borderRadius: BorderRadius.circular(6)),
-          child: Text('v$_version', style: const TextStyle(color: Colors.white54, fontSize: 10))),
+          decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(6)),
+          child: Text('v$_version', style: TextStyle(color: Vz.textSec, fontSize: 10))),
       ]),
       const SizedBox(height: 4),
-      const Text('پشتیبانی از ۱۰۰۰+ سایت', style: TextStyle(color: Colors.white38, fontSize: 11)),
+      const Text('پشتیبانی از ۱۰۰۰+ سایت', style: TextStyle(color: Vz.textDim, fontSize: 11)),
       if (_status.isNotEmpty) ...[
         const SizedBox(height: 8),
         Text(_status, style: TextStyle(
-          color: _status.startsWith('❌') ? Colors.redAccent :
-                 _status.startsWith('✅') ? Colors.greenAccent : Colors.white60,
+          color: _status.startsWith('❌') ? Vz.red :
+                 _status.startsWith('✅') ? Colors.greenAccent : Vz.textSec,
           fontSize: 11)),
       ],
       const SizedBox(height: 10),
@@ -688,7 +688,7 @@ class _IptvVpnBypassCardState extends State<_IptvVpnBypassCard> {
         Switch(value: _enabled, onChanged: _toggle, activeColor: Vz.accent),
       ]),
       const Text('IPTV: Direct connection | Gemini: Through VPN',
-        style: TextStyle(color: Colors.white54, fontSize: 11)),
+        style: TextStyle(color: Vz.textSec, fontSize: 11)),
       if (_enabled) ...[
         const SizedBox(height: 8),
         Container(padding: const EdgeInsets.all(8),
@@ -797,18 +797,18 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         const SizedBox(width: 8),
         const Expanded(child: Text('Gemini Live Translation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
         if (_key != null && _key!.isNotEmpty) const Icon(Icons.check_circle_rounded, color: Colors.green, size: 16),
-        IconButton(icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, color: Colors.white38, size: 20),
+        IconButton(icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, color: Vz.textDim, size: 20),
           onPressed: () => setState(() => _expanded = !_expanded), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
       ]),
-      const Text('Real-time AI dubbing & subtitles', style: TextStyle(color: Colors.white54, fontSize: 11)),
+      const Text('Real-time AI dubbing & subtitles', style: TextStyle(color: Vz.textSec, fontSize: 11)),
       const SizedBox(height: 10),
       TextField(controller: _ctrl, obscureText: !_show,
         style: const TextStyle(color: Colors.white, fontSize: 12),
-        decoration: InputDecoration(hintText: 'AIza...', hintStyle: const TextStyle(color: Colors.white24),
+        decoration: InputDecoration(hintText: 'AIza...', hintStyle: TextStyle(color: Vz.border),
           filled: true, fillColor: Vz.surface,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          suffixIcon: IconButton(icon: Icon(_show ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 18, color: Colors.white38),
+          suffixIcon: IconButton(icon: Icon(_show ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 18, color: Vz.textDim),
             onPressed: () => setState(() => _show = !_show)))),
       const SizedBox(height: 8),
       Row(children: [
@@ -843,18 +843,18 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
       const SizedBox(height: 8),
       InkWell(onTap: () {}, child: Text('Get free API key → aistudio.google.com', style:TextStyle(color: Vz.accent, fontSize: 11, decoration: TextDecoration.underline))),
       if (_expanded) ...[
-        const Divider(color: Colors.white12, height: 20),
-        const Text('Advanced Settings', style: TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.bold)),
+        Divider(color: Vz.border, height: 20),
+        const Text('Advanced Settings', style: TextStyle(color: Vz.textSec, fontSize: 13, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Silence Duration', style: TextStyle(color: Colors.white, fontSize: 12)),
-          Text('Delay after speech ends', style: TextStyle(color: Colors.white38, fontSize: 10)),
+          Text('Delay after speech ends', style: TextStyle(color: Vz.textDim, fontSize: 10)),
         ])), Text('${_silenceMs}ms', style: TextStyle(color: Vz.accent, fontSize: 12))]),
         Slider(value: _silenceMs.toDouble(), min: 100, max: 2000, divisions: 19,
           activeColor: Vz.accent, onChanged: (v) => setState(() => _silenceMs = v.round())),
         Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('Prefix Padding', style: TextStyle(color: Colors.white, fontSize: 12)),
-          Text('Audio before speech detection', style: TextStyle(color: Colors.white38, fontSize: 10)),
+          Text('Audio before speech detection', style: TextStyle(color: Vz.textDim, fontSize: 10)),
         ])), Text('${_prefixMs}ms', style: TextStyle(color: Vz.accent, fontSize: 12))]),
         Slider(value: _prefixMs.toDouble(), min: 0, max: 200, divisions: 20,
           activeColor: Vz.accent, onChanged: (v) => setState(() => _prefixMs = v.round())),
@@ -892,12 +892,12 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
           _AccuracyBtn(key: 'accurate', label: 'Accurate', sub: 'High quality', selected: _accuracy, onTap: (v) => setState(() => _accuracy = v)),
         ]),
         const SizedBox(height: 12),
-        const Divider(color: Colors.white12, height: 1),
+        Divider(color: Vz.border, height: 1),
         const SizedBox(height: 10),
-        const Text('Volume Control', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+        const Text('Volume Control', style: TextStyle(color: Vz.textSec, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         Row(children: [
-          const Icon(Icons.volume_up_rounded, color: Colors.white38, size: 16),
+          Icon(Icons.volume_up_rounded, color: Vz.textDim, size: 16),
           const SizedBox(width: 8),
           const Expanded(child: Text('Dub Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
           Text('${(_dubVolume*100).round()}%', style: TextStyle(color: Vz.accent, fontSize: 12)),
@@ -909,7 +909,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
             const MethodChannel('com.vezoo.player/gemini_live').invokeMethod('setDubVolume', {'volume': v});
           }),
         Row(children: [
-          const Icon(Icons.tv_rounded, color: Colors.white38, size: 16),
+          Icon(Icons.tv_rounded, color: Vz.textDim, size: 16),
           const SizedBox(width: 8),
           const Expanded(child: Text('Original Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
           Text('${(_origVolume*100).round()}%', style: TextStyle(color: Vz.accent, fontSize: 12)),
@@ -921,7 +921,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
             },
             child: Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(color: _origVolume == 0 ? Colors.red.withOpacity(0.2) : Vz.card, borderRadius: BorderRadius.circular(6)),
-              child: Text(_origVolume == 0 ? '🔇 Muted' : '🔊', style: TextStyle(color: _origVolume == 0 ? Colors.red : Colors.white38, fontSize: 11)))),
+              child: Text(_origVolume == 0 ? '🔇 Muted' : '🔊', style: TextStyle(color: _origVolume == 0 ? Colors.red : Vz.textDim, fontSize: 11)))),
         ]),
         Slider(value: _origVolume, min: 0, max: 1, divisions: 20,
           activeColor: Vz.accent,
@@ -935,18 +935,18 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
             onTap: () => setState(() => _chunkMs = ms),
             child: Container(margin: const EdgeInsets.only(left:6), padding: const EdgeInsets.symmetric(horizontal:10,vertical:4),
               decoration: BoxDecoration(color: _chunkMs==ms ? Vz.accent : Vz.card, borderRadius: BorderRadius.circular(6)),
-              child: Text('${ms}ms', style: TextStyle(color: _chunkMs==ms ? Colors.white : Colors.white38, fontSize: 11)))))]),
+              child: Text('${ms}ms', style: TextStyle(color: _chunkMs==ms ? Colors.white : Vz.textDim, fontSize: 11)))))]),
         const SizedBox(height: 12),
         // ── Dubbing Sync ──
-        const Divider(color: Colors.white12, height: 16),
-        const Text('Dubbing Sync', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+        Divider(color: Vz.border, height: 16),
+        const Text('Dubbing Sync', style: TextStyle(color: Vz.textSec, fontSize: 12, fontWeight: FontWeight.bold)),
         const SizedBox(height: 4),
-        const Text('Fix delay between video and dubbed audio', style: TextStyle(color: Colors.white38, fontSize: 10)),
+        const Text('Fix delay between video and dubbed audio', style: TextStyle(color: Vz.textDim, fontSize: 10)),
         const SizedBox(height: 8),
         Row(children: [
           const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Video Seek Back', style: TextStyle(color: Colors.white, fontSize: 12)),
-            Text('Seek video back on start to sync dubbing', style: TextStyle(color: Colors.white38, fontSize: 10)),
+            Text('Seek video back on start to sync dubbing', style: TextStyle(color: Vz.textDim, fontSize: 10)),
           ])),
           Text('${_syncOffsetSec.toStringAsFixed(1)}s', style: TextStyle(color: Vz.accent, fontSize: 12)),
         ]),
@@ -957,7 +957,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         Row(children: [
           const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('Buffer Pause', style: TextStyle(color: Colors.white, fontSize: 12)),
-            Text('Pause video on start to fill dubbing buffer', style: TextStyle(color: Colors.white38, fontSize: 10)),
+            Text('Pause video on start to fill dubbing buffer', style: TextStyle(color: Vz.textDim, fontSize: 10)),
           ])),
           Switch(value: _bufferPause, onChanged: (v) => setState(() => _bufferPause = v), activeColor: Vz.accent),
         ]),
@@ -988,7 +988,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
             });
             if (mounted) ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('↺ Reset to defaults'), duration: Duration(seconds: 1)));
-          }, style: OutlinedButton.styleFrom(foregroundColor: Colors.white38, side: const BorderSide(color: Colors.white12), padding: const EdgeInsets.symmetric(vertical: 8)),
+          }, style: OutlinedButton.styleFrom(foregroundColor: Vz.textDim, side: BorderSide(color: Vz.border), padding: const EdgeInsets.symmetric(vertical: 8)),
           child: const Text('Reset', style: TextStyle(fontSize: 13))),
         ]),
       ],
@@ -1009,10 +1009,10 @@ class _AccuracyBtn extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
         color: selected == key2 ? Vz.accent.withOpacity(0.2) : Vz.card,
-        border: Border.all(color: selected == key2 ? Vz.accent : Colors.white12),
+        border: Border.all(color: selected == key2 ? Vz.accent : Vz.border),
         borderRadius: BorderRadius.circular(8)),
       child: Column(children: [
-        Text(label, style: TextStyle(color: selected==key2 ? Colors.white : Colors.white38, fontSize: 11, fontWeight: FontWeight.bold)),
-        Text(sub, style: TextStyle(color: selected==key2 ? Colors.white54 : Colors.white24, fontSize: 9), textAlign: TextAlign.center),
+        Text(label, style: TextStyle(color: selected==key2 ? Colors.white : Vz.textDim, fontSize: 11, fontWeight: FontWeight.bold)),
+        Text(sub, style: TextStyle(color: selected==key2 ? Vz.textSec : Vz.border, fontSize: 9), textAlign: TextAlign.center),
       ]))));
 }

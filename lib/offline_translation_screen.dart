@@ -90,8 +90,8 @@ class _State extends State<OfflineTranslationScreen> {
       backgroundColor: _bg,
       title: Text('Offline Translation', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),
       actions: [
-        IconButton(icon: const Icon(Icons.upload_rounded, color: Colors.white70), onPressed: _backup, tooltip: 'Backup'),
-        IconButton(icon: const Icon(Icons.download_done_rounded, color: Colors.white70), onPressed: _import, tooltip: 'Import'),
+        IconButton(icon: Icon(Icons.upload_rounded, color: Vz.textSec), onPressed: _backup, tooltip: 'Backup'),
+        IconButton(icon: Icon(Icons.download_done_rounded, color: Vz.textSec), onPressed: _import, tooltip: 'Import'),
       ]),
     body: _loading ? const Center(child: CircularProgressIndicator())
       : ListView(padding: const EdgeInsets.all(12), children: [
@@ -101,7 +101,7 @@ class _State extends State<OfflineTranslationScreen> {
           Row(children: [
             Expanded(child: _langDropdown('Source', _srcLang, _current.langCodes, (v) async {
               await OfflineTranslationService.setSrcLang(v); setState(() => _srcLang = v); })),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, color: Colors.white38)),
+            const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, color: Vz.textDim)),
             Expanded(child: _langDropdown('Target', _tgtLang, _current.langCodes, (v) async {
               await OfflineTranslationService.setTgtLang(v); setState(() => _tgtLang = v); })),
           ]),
@@ -111,7 +111,7 @@ class _State extends State<OfflineTranslationScreen> {
           ...kOfflineModels.map((m) => _modelCard(m)),
           const SizedBox(height: 12),
           const Text('مدل‌ها در /Download/Vezoo/OfflineModels ذخیره میشن',
-            style: TextStyle(color: Colors.white24, fontSize: 10), textAlign: TextAlign.center),
+            style: TextStyle(color: Vz.border, fontSize: 10), textAlign: TextAlign.center),
         ]));
 
   Widget _sectionTitle(String t) => Text(t, style: TextStyle(color: Vz.textDim, fontSize: 12, fontWeight: FontWeight.w600));
@@ -151,16 +151,16 @@ class _State extends State<OfflineTranslationScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [
             Icon(isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_unchecked_rounded,
-              color: isSelected ? _accent : Colors.white38, size: 18),
+              color: isSelected ? _accent : Vz.textDim, size: 18),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(m.name, style: TextStyle(color: isSelected ? Colors.white : Colors.white70,
+              Text(m.name, style: TextStyle(color: isSelected ? Colors.white : Vz.textSec,
                 fontWeight: FontWeight.bold, fontSize: 14)),
               Text(m.desc, style: TextStyle(color: Vz.textDim, fontSize: 11)),
               Row(children: [
                 _tag('${m.langCount} زبان', Colors.blue),
                 const SizedBox(width: 4),
-                _tag('~${m.sizeMb}MB', Colors.orange),
+                _tag('~${m.sizeMb}MB', Vz.amber),
                 if (isDownloaded) ...[const SizedBox(width: 4), _tag('✓ دانلود شده', Colors.green)],
               ]),
             ])),
@@ -183,7 +183,7 @@ class _State extends State<OfflineTranslationScreen> {
             const SizedBox(height: 8),
             ClipRRect(borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(value: progress, minHeight: 4,
-                backgroundColor: Colors.white12, color: _accent)),
+                backgroundColor: Vz.border, color: _accent)),
             Padding(padding: const EdgeInsets.only(top: 4),
               child: Text('${(progress! * 100).toStringAsFixed(0)}%',
                 style: TextStyle(color: Vz.textDim, fontSize: 10))),
@@ -191,7 +191,7 @@ class _State extends State<OfflineTranslationScreen> {
           // لیست زبان‌ها
           if (isSelected) ...[
             const SizedBox(height: 10),
-            const Divider(color: Colors.white12, height: 1),
+            Divider(color: Vz.border, height: 1),
             const SizedBox(height: 8),
             Wrap(spacing: 4, runSpacing: 4,
               children: m.langCodes.map((l) => Container(

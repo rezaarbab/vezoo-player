@@ -1,6 +1,6 @@
 // test/ink_overlays_test.dart
 // INK sheets and dialogs.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/ink/ink_components.dart';
 

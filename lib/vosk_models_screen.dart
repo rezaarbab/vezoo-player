@@ -36,7 +36,7 @@ class _State extends State<VoskModelsScreen> {
       title: Text('Vosk — مدل‌های زبان', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 16)),
       actions: [
         IconButton(
-          icon: const Icon(Icons.refresh_rounded, color: Colors.white54),
+          icon: Icon(Icons.refresh_rounded, color: Vz.textSec),
           onPressed: () => setState(() {})),
       ]),
     body: Column(children: [
@@ -71,32 +71,32 @@ class _State extends State<VoskModelsScreen> {
               decoration: BoxDecoration(
                 color: Vz.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange.withOpacity(0.3))),
+                border: Border.all(color: Vz.amber.withOpacity(0.3))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
                   child: Row(children: [
-                    Icon(Icons.folder_special_rounded, color: Colors.orange, size: 16),
+                    Icon(Icons.folder_special_rounded, color: Vz.amber, size: 16),
                     SizedBox(width: 8),
-                    Text('مدل‌های Custom', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 13)),
+                    Text('مدل‌های Custom', style: TextStyle(color: Vz.amber, fontWeight: FontWeight.bold, fontSize: 13)),
                     SizedBox(width: 8),
                     Text('(دانلود دستی)', style: TextStyle(color: Vz.textDim, fontSize: 10)),
                   ])),
                 ...VoskService.customModels.map((m) => Padding(
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Row(children: [
-                    const Icon(Icons.folder_rounded, color: Colors.white38, size: 14),
+                    Icon(Icons.folder_rounded, color: Vz.textDim, size: 14),
                     const SizedBox(width: 8),
                     Expanded(child: Text(m.name, style: TextStyle(color: Vz.textSec, fontSize: 12))),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.orange.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
-                      child: const Text('Custom', style: TextStyle(color: Colors.orange, fontSize: 9))),
+                      decoration: BoxDecoration(color: Vz.amber.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+                      child: Text('Custom', style: TextStyle(color: Vz.amber, fontSize: 9))),
                     const SizedBox(width: 8),
                     GestureDetector(
                       onTap: () => _confirmDelete(m),
-                      child: const Icon(Icons.delete_outline_rounded, color: Colors.white24, size: 16)),
+                      child: Icon(Icons.delete_outline_rounded, color: Vz.border, size: 16)),
                   ]))),
               ])),
           ],
@@ -177,7 +177,7 @@ class _State extends State<VoskModelsScreen> {
           else if (isDl)
             GestureDetector(
               onTap: () => _confirmDelete(m),
-              child: const Icon(Icons.delete_outline_rounded, color: Colors.white24, size: 18))
+              child: Icon(Icons.delete_outline_rounded, color: Vz.border, size: 18))
           else
             GestureDetector(
               onTap: () => _download(m),
@@ -203,7 +203,7 @@ class _State extends State<VoskModelsScreen> {
         ],
         if (logMsg != null && !isLoading) ...[
           const SizedBox(height: 3),
-          Text(logMsg, style: const TextStyle(color: Colors.redAccent, fontSize: 9)),
+          Text(logMsg, style: TextStyle(color: Vz.red, fontSize: 9)),
         ],
       ]));
   }

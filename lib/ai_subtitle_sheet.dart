@@ -19,10 +19,7 @@ class AiSubtitleSheet extends StatefulWidget {
     BuildContext ctx, String videoPath, void Function(String) onDone, {
     void Function(String)? onPreview,
   }) =>
-    showModalBottomSheet(
-      context:ctx, isScrollControlled:true,
-      backgroundColor:Vz.bgDeep,
-      shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
+    showVzSheet(context: ctx,
       builder:(_)=>AiSubtitleSheet(videoPath:videoPath, onDone:onDone, onPreview:onPreview),
     );
 
@@ -169,7 +166,7 @@ class _State extends State<AiSubtitleSheet> {
       padding: const EdgeInsets.all(24),
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         const VzSheetHandle(),
-        const Icon(Icons.wifi_off_rounded, color: Colors.white38, size: 48),
+        Icon(Icons.wifi_off_rounded, color: Vz.textDim, size: 48),
         const SizedBox(height:16),
         Text(L.aiSubtitleOffline, style: TextStyle(color:Vz.text,fontSize:16,fontWeight:FontWeight.bold)),
         const SizedBox(height:8),
@@ -257,7 +254,7 @@ class _State extends State<AiSubtitleSheet> {
                   constraints:const BoxConstraints(),padding:const EdgeInsets.all(6),
                 ),
                 IconButton(
-                  icon:const Icon(Icons.edit,color:Colors.white70,size:18),
+                  icon:Icon(Icons.edit,color:Vz.textSec,size:18),
                   tooltip:L.edit,
                   onPressed:()async{
                     await Navigator.push(context,MaterialPageRoute(
@@ -324,7 +321,7 @@ class _State extends State<AiSubtitleSheet> {
   // ── حالت ساخت جدید ──
   List<Widget> _buildNew()=>[
     if(_downloaded.isEmpty)
-      _row(icon:Icons.memory, child:Text(L.noModelDownloaded,style:TextStyle(color:Colors.orange,fontSize:13)),
+      _row(icon:Icons.memory, child:Text(L.noModelDownloaded,style:TextStyle(color:Vz.amber,fontSize:13)),
         trailing:FilledButton.icon(
           onPressed:(){ Navigator.pop(context); Navigator.push(context,MaterialPageRoute(builder:(_)=>const AiModelsScreen())); },
           icon:const Icon(Icons.download,size:14),label:Text(L.download,style:TextStyle(fontSize:12)),
@@ -411,12 +408,12 @@ class _State extends State<AiSubtitleSheet> {
       Container(
         margin:const EdgeInsets.only(bottom:10),
         padding:const EdgeInsets.all(10),
-        decoration:BoxDecoration(color:Colors.orange.withOpacity(0.15),borderRadius:BorderRadius.circular(10)),
+        decoration:BoxDecoration(color:Vz.amber.withOpacity(0.15),borderRadius:BorderRadius.circular(10)),
         child:Row(children:[
-          Icon(Icons.warning_amber,color:Colors.orange,size:16),
+          Icon(Icons.warning_amber,color:Vz.amber,size:16),
           SizedBox(width:8),
           Expanded(child:Text(L.createNewLang,
-            style:TextStyle(color:Colors.orange,fontSize:11))),
+            style:TextStyle(color:Vz.amber,fontSize:11))),
         ]),
       ),
 
@@ -451,10 +448,10 @@ class _State extends State<AiSubtitleSheet> {
       if(_existingLangs.isNotEmpty)...[
         OutlinedButton(
           onPressed:()=>setState(()=>_mode='pick'),
-          style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+          style:OutlinedButton.styleFrom(side:BorderSide(color:Vz.border),
             padding:const EdgeInsets.symmetric(vertical:14,horizontal:16),
             shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(12))),
-          child:const Icon(Icons.arrow_back,color:Colors.white70,size:18),
+          child:Icon(Icons.arrow_back,color:Vz.textSec,size:18),
         ),
         const SizedBox(width:8),
       ],
@@ -543,9 +540,9 @@ class _State extends State<AiSubtitleSheet> {
           await Navigator.push(context,MaterialPageRoute(builder:(_)=>SrtEditorScreen(srtPath:_srtPath!)));
           if(mounted)setState((){}); // رفرش بعد از برگشت از ویرایشگر
         },
-        icon:const Icon(Icons.edit,size:15,color:Colors.white70),
+        icon:Icon(Icons.edit,size:15,color:Vz.textSec),
         label:Text(L.edit,style:TextStyle(color:Vz.textSec,fontSize:12)),
-        style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+        style:OutlinedButton.styleFrom(side:BorderSide(color:Vz.border),
           padding:const EdgeInsets.symmetric(vertical:10),
           shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
       )),
@@ -556,9 +553,9 @@ class _State extends State<AiSubtitleSheet> {
             widget.onPreview!(_srtPath!);
             showSnack(context, L.previewLoaded, color: Vz.accent, seconds: 2);
           },
-          icon:const Icon(Icons.visibility,size:15,color:Colors.white70),
+          icon:Icon(Icons.visibility,size:15,color:Vz.textSec),
           label:Text(L.preview,style:TextStyle(color:Vz.textSec,fontSize:12)),
-          style:OutlinedButton.styleFrom(side:const BorderSide(color:Colors.white24),
+          style:OutlinedButton.styleFrom(side:BorderSide(color:Vz.border),
             padding:const EdgeInsets.symmetric(vertical:10),
             shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(10))),
         )),
@@ -590,12 +587,12 @@ class _State extends State<AiSubtitleSheet> {
         decoration:BoxDecoration(
           color:active?Vz.accent:Vz.bgDeep,
           borderRadius:BorderRadius.circular(10),
-          border:Border.all(color:active?Vz.accent:Colors.white12),
+          border:Border.all(color:active?Vz.accent:Vz.border),
         ),
         child:Column(children:[
-          Text(label,style:TextStyle(color:active?Colors.white:Colors.white70,fontSize:13,fontWeight:FontWeight.bold)),
+          Text(label,style:TextStyle(color:active?Colors.white:Vz.textSec,fontSize:13,fontWeight:FontWeight.bold)),
           const SizedBox(height:2),
-          Text(sub,style:TextStyle(color:active?Colors.white70:Colors.white38,fontSize:10)),
+          Text(sub,style:TextStyle(color:active?Vz.textSec:Vz.textDim,fontSize:10)),
         ]),
       ),
     );

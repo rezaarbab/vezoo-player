@@ -199,9 +199,7 @@ class BrowserScreenState extends State<BrowserScreen>{
   }
 
   void _showVideoMenu(File f){
-    showModalBottomSheet(
-      context:context,backgroundColor:kSurface,
-      shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(24))),
+    showVzSheet(context: context,
       builder:(ctx)=>VideoMenu(
         file:f,
         onDone:()async{Navigator.pop(ctx);await Store.load();_loadDir(_path);},
@@ -703,7 +701,7 @@ class _VideoTile extends StatelessWidget{
                 if(selectMode)
                   Container(color:kBorder,child:Icon(
                     selected?Icons.check_rounded:Icons.circle_outlined,
-                    color:selected?kAccent:Colors.white38,size:30))
+                    color:selected?kAccent:Vz.textDim,size:30))
                 else FutureBuilder<Uint8List?>(
                   future:_loadThumb(file.path),
                   builder:(ctx,snap){
@@ -746,7 +744,7 @@ class _VideoTile extends StatelessWidget{
                       gradient:selected?LinearGradient(colors:[Vz.accentHi,Color(0xFF6D28D9)]):null,
                       color:selected?null:Colors.black.withOpacity(0.45),
                       shape:BoxShape.circle,
-                      border:selected?null:Border.all(color:Colors.white38,width:1.4)),
+                      border:selected?null:Border.all(color:Vz.textDim,width:1.4)),
                     child:selected?Icon(Icons.check_rounded,color:Vz.bg,size:17):null))),
                 // دکمه پخش شیشه‌ای وسط
                 if(!selectMode)Center(child:Container(

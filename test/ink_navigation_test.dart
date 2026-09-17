@@ -1,6 +1,6 @@
 // test/ink_navigation_test.dart
 // InkTabBar behaviour across themes, directions, sizes and text scaling.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/ink/ink_components.dart';

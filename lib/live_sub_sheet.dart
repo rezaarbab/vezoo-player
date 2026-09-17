@@ -3,6 +3,7 @@ import 'whisper_service.dart';
 import 'srt_translation_service.dart' show kTranslateLangDisplay, kTranslateLangs;
 import 'l10n.dart';
 import 'theme.dart';
+import 'glass.dart';
 
 /// تنظیمات زیرنویس زنده — قبل از شروع پردازش تکه‌تکه
 class LiveSubSheet extends StatefulWidget {
@@ -11,10 +12,7 @@ class LiveSubSheet extends StatefulWidget {
   const LiveSubSheet({super.key, required this.videoPath, required this.onStart});
 
   static Future<void> show(BuildContext ctx, String videoPath, void Function(LiveSubConfig) onStart) =>
-      showModalBottomSheet(
-        context: ctx, isScrollControlled: true,
-        backgroundColor: Vz.bgDeep,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      showVzSheet(context: ctx,
         builder: (_) => LiveSubSheet(videoPath: videoPath, onStart: onStart),
       );
 
@@ -64,7 +62,7 @@ class _State extends State<LiveSubSheet> {
         child: _loading
           ? SizedBox(height: 100, child: Center(child: CircularProgressIndicator(color: Vz.accent)))
           : Column(mainAxisSize: MainAxisSize.min, children: [
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+              Container(width: 40, height: 4, decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
               const SizedBox(height: 14),
               Row(children: [
                 const Icon(Icons.fiber_smart_record, color: Colors.red, size: 20),
@@ -194,7 +192,7 @@ class _State extends State<LiveSubSheet> {
                           child: GestureDetector(onTap: () => setState(() => _behindSpeed = s), child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(color: _behindSpeed == s ? Vz.accent : Vz.bgDeep, borderRadius: BorderRadius.circular(8)),
-                            child: Text('${s}x', style: TextStyle(color: _behindSpeed == s ? Colors.white : Colors.white60, fontSize: 12)),
+                            child: Text('${s}x', style: TextStyle(color: _behindSpeed == s ? Colors.white : Vz.textSec, fontSize: 12)),
                           )),
                         )),
                       ]),
@@ -253,7 +251,7 @@ class _State extends State<LiveSubSheet> {
       decoration: BoxDecoration(
         color: _chunkMs == ms ? Vz.accent : Vz.bgDeep,
         borderRadius: BorderRadius.circular(8)),
-      child: Center(child: Text(label, style: TextStyle(color: _chunkMs == ms ? Colors.white : Colors.white60, fontSize: 12))),
+      child: Center(child: Text(label, style: TextStyle(color: _chunkMs == ms ? Colors.white : Vz.textSec, fontSize: 12))),
     ),
   );
 
@@ -264,11 +262,11 @@ class _State extends State<LiveSubSheet> {
       decoration: BoxDecoration(
         color: _behindAction == action ? Colors.red.withOpacity(0.2) : Vz.bgDeep,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: _behindAction == action ? Colors.red : Colors.white12)),
+        border: Border.all(color: _behindAction == action ? Colors.red : Vz.border)),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Icon(icon, size: 14, color: _behindAction == action ? Colors.red : Colors.white54),
+        Icon(icon, size: 14, color: _behindAction == action ? Colors.red : Vz.textSec),
         const SizedBox(width: 6),
-        Text(label, style: TextStyle(color: _behindAction == action ? Colors.red : Colors.white60, fontSize: 11)),
+        Text(label, style: TextStyle(color: _behindAction == action ? Colors.red : Vz.textSec, fontSize: 11)),
       ]),
     ),
   );

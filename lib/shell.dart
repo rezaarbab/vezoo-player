@@ -1,6 +1,7 @@
 // lib/shell.dart — پوسته اصلی اپ با NavDock
 // Home (browser) • Live (IPTV) • Discover (online) • Library • Settings
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'browser.dart' show BrowserScreen, BrowserScreenState;
 import 'iptv_screen.dart' show IptvScreen;
 import 'online_player_sheet.dart' show OnlinePlayerSheet;
@@ -9,7 +10,7 @@ import 'settings_screen.dart';
 import 'signals.dart';
 import 'glass.dart';
 
-/// پوسته اصلی — ناوبری dock شناور با ۵ مقصد
+/// پوسته اصلی — IndexedStack با ۵ مقصد (Discover به‌صورت مودال باز می‌شود)
 class VzShell extends StatefulWidget {
   const VzShell({super.key});
   @override State<VzShell> createState()=>_VzShellState();
@@ -17,6 +18,14 @@ class VzShell extends StatefulWidget {
 
 class _VzShellState extends State<VzShell>{
   VzNavDest _dest = VzNavDest.home;
+
+  /// ترتیب تب‌های واقعی — Discover در این لیست نیست چون مودال است.
+  static const _tabs = [VzNavDest.home, VzNavDest.live, VzNavDest.library, VzNavDest.settings];
+
+  int get _index {
+    final i = _tabs.indexOf(_dest);
+    return i < 0 ? 0 : i;
+  }
 
   void _onOpenFolderSignal(){
     final path = vzOpenFolderSignal.value;
@@ -33,7 +42,7 @@ class _VzShellState extends State<VzShell>{
     });
   }
 
-  // برای Home یک key پایدار — Home همیشه در درخت می‌ماند (Stack)
+  // برای Home یک key پایدار — Home همیشه در درخت می‌ماند (IndexedStack)
   final GlobalKey _browserKey = GlobalKey();
 
   @override
@@ -47,54 +56,38 @@ class _VzShellState extends State<VzShell>{
     super.dispose();
   }
 
+  void _onSelect(VzNavDest d){
+    HapticFeedback.selectionClick();
+    if(d==VzNavDest.discover){
+      // Discover = پخش آنلاین (مودال، وابسته به تب جاری نیست)
+      showModalBottomSheet(
+        context: context, isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_)=>const OnlinePlayerSheet());
+      return;
+    }
+    if(d == _dest) return;
+    setState(()=>_dest=d);
+  }
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
       extendBody: true,
-      body: _buildBody(),
+      // IndexedStack: state هر تب حفظ می‌شود و هیچ صفحه‌ای با opacity صفر
+      // در هر فریم composite نمی‌شود.
+      body: IndexedStack(
+        index: _index,
+        children: [
+          KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
+          const IptvScreen(),
+          const LibraryScreen(),
+          const SettingsScreen(),
+        ],
+      ),
       bottomNavigationBar: VzNavDock(
         current: _dest,
-        onSelect: (d){
-          if(d==VzNavDest.discover){
-            // Discover = پخش آنلاین (sheet)
-            showModalBottomSheet(
-              context: context, isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (_)=>const OnlinePlayerSheet());
-            return;
-          }
-          setState(()=>_dest=d);
-        },
-      ),
-    );
-  }
-
-  // IndexedStack: state همه صفحه‌ها حفظ می‌شود، transition نرم با AnimatedOpacity
-  Widget _buildBody(){
-    return Stack(children: [
-      // Home زیر همه می‌ماند — mount دائم
-      _offstage(VzNavDest.home, KeyedSubtree(
-        key: _browserKey,
-        child: const BrowserScreen(),
-      )),
-      _offstage(VzNavDest.live, const IptvScreen()),
-      _offstage(VzNavDest.library, const LibraryScreen()),
-      _offstage(VzNavDest.settings, const SettingsScreen()),
-    ]);
-  }
-
-  Widget _offstage(VzNavDest dest, Widget child){
-    final active = _dest == dest;
-    return IgnorePointer(
-      ignoring: !active,
-      child: TickerMode(
-        enabled: active,
-        child: AnimatedOpacity(
-          duration: Mo.normal,
-          curve: Mo.easeOut,
-          opacity: active ? 1 : 0,
-          child: child,
-        ),
+        onSelect: _onSelect,
       ),
     );
   }

@@ -6,6 +6,7 @@ import 'whisper_service.dart' show WhisperService;
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'theme.dart';
+import 'glass.dart';
 
 /// شیت ترجمه زیرنویس — آنلاین (Cloudflare) یا آفلاین (ML Kit)
 class SrtTranslateSheet extends StatefulWidget {
@@ -31,10 +32,7 @@ class SrtTranslateSheet extends StatefulWidget {
     void Function(String)? onDoneSecondary,
     String? srtContent,
     void Function(String)? onSrtUpdated,
-  }) => showModalBottomSheet(
-    context: ctx, isScrollControlled: true,
-    backgroundColor: Vz.bgDeep,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+  }) => showVzSheet(context: ctx,
     builder: (_) => SrtTranslateSheet(srtPath: srtPath, srtContent: srtContent, onDone: onDone, onDoneSecondary: onDoneSecondary, onSrtUpdated: onSrtUpdated),
   );
 
@@ -85,7 +83,7 @@ class _State extends State<SrtTranslateSheet> {
       child: SingleChildScrollView(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 14),
           Row(children: [
             Icon(Icons.translate, color: Vz.accent, size: 20),
@@ -149,7 +147,7 @@ class _State extends State<SrtTranslateSheet> {
       decoration: BoxDecoration(
         color: _subTarget == idx ? Vz.accent : Vz.card,
         borderRadius: BorderRadius.circular(16)),
-      child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Colors.white60, fontSize: 11)),
+      child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Vz.textSec, fontSize: 11)),
     ),
   );
 }

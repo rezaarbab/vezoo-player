@@ -3,22 +3,17 @@
 // INK sources never import the legacy UI layer.
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/ink/ink_components.dart';
 
-Widget _host(Widget child, {TextDirection? direction, double textScale = 1}) {
-  return MaterialApp(
-    theme: inkThemeData(dark: Ink.isDark),
-    home: MediaQuery(
-      data: MediaQueryData(textScaler: TextScaler.linear(textScale)),
-      child: Directionality(
-        textDirection: direction ?? TextDirection.ltr,
-        child: Scaffold(body: child),
-      ),
-    ),
-  );
+// Ignore standalone documentation/comments, not references in executable code.
+bool _usesLegacyUi(String source) {
+  final code = source.replaceAll(RegExp(r'^\s*//[^\r\n]*', multiLine: true), '');
+  return code.contains('theme.dart') ||
+      code.contains('glass.dart') ||
+      RegExp(r'\bVz[A-Z]\w*|\bVz\b').hasMatch(code);
 }
 
 void main() {

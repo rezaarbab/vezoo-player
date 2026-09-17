@@ -197,7 +197,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
       decoration:BoxDecoration(
         color:_filter==v?Vz.accent:Vz.bgDeep,
         borderRadius:BorderRadius.circular(20)),
-      child:Text(label,style:TextStyle(color:_filter==v?Colors.white:Colors.white60,fontSize:12)),
+      child:Text(label,style:TextStyle(color:_filter==v?Colors.white:Vz.textSec,fontSize:12)),
     ),
   );
 
@@ -214,14 +214,14 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
       decoration:BoxDecoration(
         color:Vz.bgDeep,
         borderRadius:BorderRadius.circular(16),
-        border:Border.all(color: act?Vz.accent:(recommended?Colors.amber:Colors.white12), width:act||recommended?2:1),
+        border:Border.all(color: act?Vz.accent:(recommended?Colors.amber:Vz.border), width:act||recommended?2:1),
       ),
       child:Padding(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
 
         Row(children:[
           _tag(m.name, Vz.accent),
           if(m.isQuantized)...[const SizedBox(width:6),_tag(m.variant.toUpperCase(), Colors.teal)],
-          if(m.isCustom)...[const SizedBox(width:6),_tag(L.importModel, Colors.orange)],
+          if(m.isCustom)...[const SizedBox(width:6),_tag(L.importModel, Vz.amber)],
           const SizedBox(width:8),
           if(act)_tag(L.active, Colors.green),
           if(recommended)...[const SizedBox(width:6),_tag(L.recommended, Colors.amber)],
@@ -248,7 +248,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
             Text('${(prog*100).clamp(0,100).toInt()}%',
               style:TextStyle(color:Vz.textDim,fontSize:11)),
             TextButton(onPressed:()=>_cancel(m),
-              child:Text(L.cancelResume,style:TextStyle(color:Colors.orange,fontSize:11))),
+              child:Text(L.cancelResume,style:TextStyle(color:Vz.amber,fontSize:11))),
           ]),
         ],
 
@@ -306,6 +306,6 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
   Widget _stars(String label, int n) => Row(mainAxisSize:MainAxisSize.min,children:[
     Text('$label: ',style:TextStyle(color:Vz.textDim,fontSize:11)),
     ...List.generate(5,(i)=>Icon(i<n?Icons.star:Icons.star_border,size:12,
-      color:i<n?Vz.accent:Colors.white24)),
+      color:i<n?Vz.accent:Vz.border)),
   ]);
 }

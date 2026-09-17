@@ -1,16 +1,24 @@
-// lib/glass.dart — Vezoo NOVA Core Components
-// Glass surfaces • media cards • nav dock • states • motion
+// lib/glass.dart — Vezoo VOID Core Components
+//
+// Flat • hairline-ruled • single accent • zero blur.
+// Every public signature is unchanged from NOVA so existing screens keep
+// working, but the surfaces are now solid (no BackdropFilter) which also
+// removes a real cost: each blurred card was forcing a saveLayer per frame.
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 
 export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg;
 
+/// Flat surface colours, read once per build.
+Color get _vzSurface => Vz.card;
+Color get _vzLine => Vz.border;
+
 // ─────────────────────────────────────────────────────────────────────────────
-//  GLASS SURFACES
+//  SURFACES
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// کارت شیشه‌ای NOVA — بدون گرید، استروک نرم + inner highlight
+/// کارت VOID — سطح تخت + خط مویی. بدون blur، بدون گرید.
 class VzGlass extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -18,7 +26,7 @@ class VzGlass extends StatelessWidget {
   final double radius;
   final Color? tint;
   final Color? borderColor;
-  final double blur;
+  final double blur; // kept for API compat — VOID is flat, ignored
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final Gradient? gradient;
@@ -41,24 +49,16 @@ class VzGlass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final body = ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: tint ?? Vz.card.withOpacity(0.72),
-            gradient: gradient,
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(
-              color: borderColor ?? Vz.border.withOpacity(0.8),
-              width: 0.7,
-            ),
-          ),
-          child: child,
-        ),
+    final body = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: gradient == null ? (tint ?? _vzSurface) : null,
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: borderColor ?? _vzLine, width: 1),
+        boxShadow: boxShadow,
       ),
+      child: child,
     );
     final interactive = onTap != null || onLongPress != null;
     if (!interactive) {
@@ -79,7 +79,7 @@ class VzGlass extends StatelessWidget {
   }
 }
 
-/// دکمه Aurora — اکشن اصلی با گرادیان و glow
+/// دکمه اصلی VOID — گرادیان کهربایی، متن تیره برای کنتراست کافی
 class VzGradButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -99,16 +99,29 @@ class VzGradButton extends StatelessWidget {
       onTap: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: Vz.auroraGrad,
+          gradient: Vz.accentGrad,
           borderRadius: BorderRadius.circular(radius),
-          boxShadow: [Vz.glow],
+          boxShadow: onTap == null ? null : [Vz.glowSoft],
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(radius),
-            child: Padding(padding: padding, child: child),
+            child: Padding(
+              padding: padding,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                  fontWeight: FontWeight.w700, fontSize: 13.5),
+                child: IconTheme.merge(
+                  data: IconThemeData(
+                    color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                    size: 18),
+                  child: child,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -116,7 +129,7 @@ class VzGradButton extends StatelessWidget {
   }
 }
 
-/// دکمه ثانویه — glass با استروک
+/// دکمه ثانویه VOID — سطح تخت + خط مویی
 class VzMintButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
@@ -136,19 +149,26 @@ class VzMintButton extends StatelessWidget {
       onTap: onTap,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFFFCE16A), Color(0xFFFBBF24)],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-          ),
+          color: Vz.cardHi,
           borderRadius: BorderRadius.circular(radius),
-          boxShadow: [Vz.amberGlow],
+          border: Border.all(color: Vz.borderHi, width: 1),
         ),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(radius),
-            child: Padding(padding: padding, child: child),
+            child: Padding(
+              padding: padding,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: Vz.text, fontWeight: FontWeight.w700, fontSize: 13),
+                child: IconTheme.merge(
+                  data: IconThemeData(color: Vz.text, size: 18),
+                  child: child,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -176,7 +196,7 @@ class _PressScaleState extends State<_PressScale>{
   );
 }
 
-/// آیکون‌باکس گرد نرم
+/// آیکون‌باکس — مربع نرم‌گوشه با زمینه‌ی کم‌رنگ accent
 class VzIconBadge extends StatelessWidget {
   final IconData icon;
   final Color? color;
@@ -196,9 +216,9 @@ class VzIconBadge extends StatelessWidget {
     return Container(
       width: box, height: box,
       decoration: BoxDecoration(
-        color: c.withOpacity(0.13),
-        borderRadius: BorderRadius.circular(box * 0.32),
-        border: Border.all(color: c.withOpacity(0.26), width: 0.7),
+        color: c.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(box * 0.30),
+        border: Border.all(color: c.withOpacity(0.24), width: 1),
       ),
       child: Icon(icon, color: c, size: size),
     );
@@ -211,10 +231,10 @@ class VzSheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(
     child: Container(
-      width: 44, height: 4.5,
+      width: 40, height: 4,
       decoration: BoxDecoration(
-        color: Vz.textDim.withOpacity(0.55),
-        borderRadius: BorderRadius.circular(3),
+        color: Vz.borderHi,
+        borderRadius: BorderRadius.circular(2),
       ),
     ),
   );
@@ -224,7 +244,8 @@ class VzSheetHandle extends StatelessWidget {
 //  BUTTON VARIANTS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// دکمه دایره‌ای شیشه‌ای — برای overlay ها و player controls
+/// دکمه دایره‌ای — برای overlay ها و player controls.
+/// تخت و بدون blur تا روی ویدیو هم روان بماند.
 class VzGlassIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
@@ -239,23 +260,19 @@ class VzGlassIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return _PressScale(
       onTap: onTap,
-      child: ClipOval(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            width: size, height: size,
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.32),
-              border: Border.all(color: Colors.white.withOpacity(0.14), width: 0.8),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onTap,
-                customBorder: const CircleBorder(),
-                child: Icon(icon, color: color ?? Colors.white, size: size * 0.46),
-              ),
-            ),
+      child: Container(
+        width: size, height: size,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.42),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.16), width: 1),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: Icon(icon, color: color ?? Colors.white, size: size * 0.46),
           ),
         ),
       ),
@@ -285,12 +302,12 @@ class VzChip extends StatelessWidget {
     return _PressScale(
       onTap: onTap,
       child: Material(
-        color: selected ? c.withOpacity(0.16) : Vz.card.withOpacity(0.7),
+        color: selected ? c.withOpacity(0.14) : Vz.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rad.full),
           side: BorderSide(
-            color: selected ? c.withOpacity(0.55) : Vz.border,
-            width: selected ? 1 : 0.7,
+            color: selected ? c.withOpacity(0.6) : Vz.border,
+            width: 1,
           ),
         ),
         child: InkWell(
@@ -326,9 +343,9 @@ class VzBadge extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
     decoration: BoxDecoration(
-      color: Colors.black.withOpacity(0.55),
+      color: Vz.badgeBg,
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.5), width: 0.6),
+      border: Border.all(color: color.withOpacity(0.55), width: 1),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       if (icon != null) ...[
@@ -346,7 +363,7 @@ class VzBadge extends StatelessWidget {
 //  STATES — empty / loading / error
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Empty state استاندارد — آیکون دایره‌ای + متن + CTA اختیاری
+/// Empty state استاندارد — آیکون + متن + CTA اختیاری
 class VzEmpty extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -367,13 +384,13 @@ class VzEmpty extends StatelessWidget {
         padding: const EdgeInsets.all(Sp.xxl),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Container(
-            width: 84, height: 84,
+            width: 80, height: 80,
             decoration: BoxDecoration(
               color: c.withOpacity(0.08),
-              shape: BoxShape.circle,
-              border: Border.all(color: c.withOpacity(0.22), width: 1),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: c.withOpacity(0.20), width: 1),
             ),
-            child: Icon(icon, size: 36, color: c.withOpacity(0.75)),
+            child: Icon(icon, size: 34, color: c.withOpacity(0.8)),
           ),
           const SizedBox(height: Sp.lg),
           Text(title, style: Ty.heading),
@@ -385,8 +402,7 @@ class VzEmpty extends StatelessWidget {
             const SizedBox(height: Sp.xl),
             VzGradButton(
               onTap: onCta,
-              child: Text(ctaLabel!, style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13.5)),
+              child: Text(ctaLabel!),
             ),
           ],
         ]),
@@ -430,7 +446,11 @@ class _VzShimmerState extends State<VzShimmer> with SingleTickerProviderStateMix
         shaderCallback:(bounds)=>LinearGradient(
           begin: Alignment(-1 - _c.value*2, 0),
           end: Alignment(1 - _c.value*2, 0),
-          colors: const [Color(0x1422222E), Color(0x3A3A4C4C), Color(0x1422222E)],
+          colors: [
+            Vz.cardHi.withOpacity(0.05),
+            Vz.borderHi.withOpacity(0.35),
+            Vz.cardHi.withOpacity(0.05),
+          ],
         ).createShader(bounds),
         child: widget.child,
       );
@@ -450,8 +470,8 @@ class VzSkeletonCard extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         color: Vz.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Vz.border, width: 0.6),
+        borderRadius: BorderRadius.circular(Rad.md),
+        border: Border.all(color: Vz.border, width: 1),
       ),
       child: AspectRatio(
         aspectRatio: aspectRatio,
@@ -465,7 +485,7 @@ class VzSkeletonCard extends StatelessWidget {
 //  SECTION HEADER
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// سربرگ بخش — عنوان + اکشن اختیاری
+/// سربرگ بخش — برچسب ریز uppercase + خط مویی تا انتهای ردیف
 class VzSectionHeader extends StatelessWidget {
   final String title;
   final String? actionLabel;
@@ -474,29 +494,314 @@ class VzSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(0, Sp.sm, 0, Sp.md),
+    padding: const EdgeInsets.fromLTRB(0, Sp.lg, 0, Sp.sm),
     child: Row(children: [
-      Container(
-        width: 4, height: 16,
-        decoration: BoxDecoration(
-          gradient: Vz.accentGrad,
-          borderRadius: BorderRadius.circular(2),
-        ),
+      Text(
+        title.toUpperCase(),
+        style: Ty.overline.copyWith(color: Vz.textDim),
       ),
-      const SizedBox(width: Sp.sm),
-      Expanded(child: Text(title, style: Ty.heading.copyWith(fontSize: 15))),
-      if (actionLabel != null)
+      const SizedBox(width: Sp.md),
+      Expanded(child: Container(height: 1, color: Vz.border)),
+      if (actionLabel != null) ...[
+        const SizedBox(width: Sp.sm),
         TextButton(
           onPressed: onAction,
           style: TextButton.styleFrom(
-            foregroundColor: Vz.accentHi,
+            foregroundColor: Vz.accent,
             padding: const EdgeInsets.symmetric(horizontal: Sp.sm),
-            minimumSize: const Size(0, 32),
+            minimumSize: const Size(0, 30),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: Text(actionLabel!, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
+          child: Text(actionLabel!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
         ),
+      ],
     ]),
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SHEET KIT — واژگان مشترک همه‌ی bottom sheet ها
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// ورودی رسمی شیت‌ها. همه‌ی شیت‌های اپ از این استفاده می‌کنند تا chrome یکسان
+/// داشته باشند (سطح، گوشه، safe-area) و با تم هماهنگ بمانند.
+Future<T?> showVzSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool isScrollControlled = true,
+  bool showDragHandle = false,
+  Color? backgroundColor,
+}) => showModalBottomSheet<T>(
+  context: context,
+  isScrollControlled: isScrollControlled,
+  useSafeArea: true,
+  backgroundColor: backgroundColor ?? Vz.surface,
+  surfaceTintColor: Colors.transparent,
+  showDragHandle: showDragHandle,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
+  ),
+  builder: builder,
+);
+
+/// برچسب ریز بخش داخل شیت — uppercase + خط مویی
+class VzSectionLabel extends StatelessWidget {
+  final String text;
+  final Widget? trailing;
+  const VzSectionLabel({super.key, required this.text, this.trailing});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: Sp.md, bottom: Sp.sm),
+    child: Row(children: [
+      Text(text.toUpperCase(), style: Ty.overline),
+      const SizedBox(width: Sp.sm),
+      Expanded(child: Container(height: 1, color: Vz.border)),
+      if (trailing != null) ...[const SizedBox(width: Sp.sm), trailing!],
+    ]),
+  );
+}
+
+/// هدر استاندارد شیت — دستگیره + آیکون + عنوان + زیرعنوان + دکمه بستن
+class VzSheetHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final Widget? trailing;
+  final bool handle;
+  final VoidCallback? onClose;
+  const VzSheetHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.trailing,
+    this.handle = true,
+    this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      if (handle) const Padding(
+        padding: EdgeInsets.only(top: Sp.sm, bottom: Sp.xs),
+        child: VzSheetHandle(),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.sm, Sp.sm),
+        child: Row(children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: Vz.accent),
+            const SizedBox(width: Sp.md),
+          ],
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: Ty.heading, maxLines: 1, overflow: TextOverflow.ellipsis),
+              if (subtitle != null) ...[
+                const SizedBox(height: 2),
+                Text(subtitle!, style: Ty.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ],
+            ])),
+          if (trailing != null) trailing!,
+          if (onClose != null)
+            IconButton(
+              onPressed: onClose,
+              icon: Icon(Icons.close_rounded, size: 20, color: Vz.textSec),
+              tooltip: 'Close'),
+        ]),
+      ),
+      Container(height: 1, color: Vz.border),
+    ]);
+  }
+}
+
+/// ردیف شیت — عنوان/زیرعنوان + کنترل دلخواه سمت راست
+class VzSheetRow extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final Widget? trailing;
+  final Color? accent;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry padding;
+  const VzSheetRow({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.icon,
+    this.trailing,
+    this.accent,
+    this.onTap,
+    this.padding = const EdgeInsets.symmetric(horizontal: Sp.lg, vertical: 11),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Padding(
+      padding: padding,
+      child: Row(children: [
+        if (icon != null) ...[
+          Icon(icon, size: 19, color: accent ?? Vz.textSec),
+          const SizedBox(width: Sp.md),
+        ],
+        Expanded(child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title, style: Ty.label.copyWith(fontSize: 13.5)),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(subtitle!, style: Ty.caption.copyWith(fontSize: 11)),
+            ],
+          ])),
+        if (trailing != null) trailing!,
+      ]),
+    );
+    if (onTap == null) return row;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(onTap: onTap, child: row),
+    );
+  }
+}
+
+/// سگمنت انتخاب — چند گزینه‌ی هم‌عرض داخل یک قاب
+class VzSegmented extends StatelessWidget {
+  final List<String> labels;
+  final int value;
+  final ValueChanged<int> onChanged;
+  const VzSegmented({
+    super.key,
+    required this.labels,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(Sp.xs),
+      decoration: BoxDecoration(
+        color: Vz.card,
+        borderRadius: BorderRadius.circular(Rad.sm),
+        border: Border.all(color: Vz.border),
+      ),
+      child: Row(children: [
+        for (var i = 0; i < labels.length; i++) ...[
+          if (i > 0) const SizedBox(width: Sp.xs),
+          Expanded(child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(Rad.xs),
+              onTap: () => onChanged(i),
+              child: AnimatedContainer(
+                duration: Mo.fast,
+                curve: Mo.easeOut,
+                padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
+                decoration: BoxDecoration(
+                  color: i == value ? Vz.accent.withOpacity(0.14) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(Rad.xs),
+                  border: Border.all(
+                    color: i == value ? Vz.accent : Colors.transparent),
+                ),
+                child: Text(
+                  labels[i],
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: i == value ? Vz.accent : Vz.textSec),
+                ),
+              ),
+            ),
+          )),
+        ],
+      ]),
+    );
+  }
+}
+
+/// ردیف سوییچ با عنوان/زیرعنوان
+class VzSwitchRow extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  const VzSwitchRow({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) => VzSheetRow(
+    title: title,
+    subtitle: subtitle,
+    trailing: Switch(value: value, onChanged: onChanged),
+  );
+}
+
+/// ردیف اسلایدر با برچسب و مقدار عددی
+class VzSliderRow extends StatelessWidget {
+  final String title;
+  final double value;
+  final double min;
+  final double max;
+  final int? divisions;
+  final String Function(double)? format;
+  final ValueChanged<double> onChanged;
+  const VzSliderRow({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChanged,
+    this.min = 0,
+    this.max = 1,
+    this.divisions,
+    this.format,
+  });
+
+  @override
+  Widget build(BuildContext context) => Column(children: [
+    Padding(
+      padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.lg, 0),
+      child: Row(children: [
+        Expanded(child: Text(title, style: Ty.label.copyWith(fontSize: 13))),
+        Text(format?.call(value) ?? value.toStringAsFixed(2),
+          style: Ty.mono.copyWith(color: Vz.accent)),
+      ]),
+    ),
+    Slider(
+      value: value.clamp(min, max),
+      min: min, max: max, divisions: divisions,
+      onChanged: onChanged,
+    ),
+  ]);
+}
+
+/// دکمه اصلی تمام‌عرض شیت
+class VzPrimaryButton extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final bool busy;
+  const VzPrimaryButton({super.key, required this.child, this.onTap, this.busy = false});
+
+  @override
+  Widget build(BuildContext context) => VzGradButton(
+    onTap: busy ? null : onTap,
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    child: Center(
+      child: busy
+        ? const SizedBox(width: 18, height: 18,
+            child: CircularProgressIndicator(strokeWidth: 2))
+        : child,
+    ),
   );
 }
 
@@ -523,24 +828,18 @@ class VzNavDock extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(Rad.full),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: Sp.xs, vertical: Sp.xs),
-            decoration: BoxDecoration(
-              color: Vz.surface.withOpacity(0.88),
-              borderRadius: BorderRadius.circular(Rad.full),
-              border: Border.all(color: Vz.borderHi.withOpacity(0.8), width: 0.7),
-              boxShadow: [Vz.shadow],
-            ),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              for (final (dest, icon) in _items)
-                _dockItem(context, dest, icon),
-            ]),
-          ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: Sp.xs, vertical: Sp.xs),
+        decoration: BoxDecoration(
+          color: Vz.dockFill,
+          borderRadius: BorderRadius.circular(Rad.full),
+          border: Border.all(color: Vz.borderHi, width: 1),
+          boxShadow: [Vz.shadow],
         ),
+        child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+          for (final (dest, icon) in _items)
+            _dockItem(context, dest, icon),
+        ]),
       ),
     );
   }
@@ -549,21 +848,21 @@ class VzNavDock extends StatelessWidget {
     final active = current == dest;
     return GestureDetector(
       onTap: () => onSelect(dest),
+      behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: Mo.normal,
         curve: Mo.easeOut,
-        padding: EdgeInsets.symmetric(
-          horizontal: active ? 15 : 12, vertical: active ? 9 : 9),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          gradient: active ? Vz.accentGrad : null,
-          color: active ? null : Colors.transparent,
+          color: active ? Vz.accent : Colors.transparent,
           borderRadius: BorderRadius.circular(Rad.full),
-          boxShadow: active ? [Vz.glowSoft] : null,
         ),
         child: Icon(
           icon,
           size: 21,
-          color: active ? Colors.white : Vz.textDim,
+          color: active
+              ? (Vz.isDark ? const Color(0xFF1A1203) : Colors.white)
+              : Vz.textDim,
         ),
       ),
     );
@@ -585,7 +884,7 @@ extension VzNavDestX on VzNavDest {
 //  DIALOGS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// دیالوگ استاندارد NOVA — آیکون + عنوان + متن + دکمه‌های معنادار
+/// دیالوگ استاندارد VOID — آیکون + عنوان + متن + دکمه‌های معنادار
 Future<T?> showVzDialog<T>({
   required BuildContext context,
   required String title,
@@ -606,16 +905,16 @@ Future<T?> showVzDialog<T>({
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.lg),
-        side: BorderSide(color: Vz.border, width: 0.7),
+        side: BorderSide(color: Vz.border, width: 1),
       ),
       title: Row(children: [
         if (icon != null) ...[
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: c.withOpacity(0.13),
+              color: c.withOpacity(0.12),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: c.withOpacity(0.3), width: 0.7),
+              border: Border.all(color: c.withOpacity(0.28), width: 1),
             ),
             child: Icon(icon, size: 18, color: c),
           ),
@@ -631,8 +930,7 @@ Future<T?> showVzDialog<T>({
             Expanded(child: VzMintButton(
               onTap: () => Navigator.pop(ctx),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: Text(cancelLabel, textAlign: TextAlign.center,
-                style: const TextStyle(color: Color(0xFF171204), fontWeight: FontWeight.w700, fontSize: 13)),
+              child: Text(cancelLabel, textAlign: TextAlign.center),
             )),
           if (cancelLabel != null) const SizedBox(width: Sp.sm),
           if (confirmLabel != null)
@@ -649,7 +947,11 @@ Future<T?> showVzDialog<T>({
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(confirmLabel, textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                      style: TextStyle(
+                        color: destructive
+                            ? Colors.white
+                            : (Vz.isDark ? const Color(0xFF1A1203) : Colors.white),
+                        fontWeight: FontWeight.w700, fontSize: 13)),
                   ),
                 ),
               ),
@@ -679,16 +981,16 @@ Future<String?> showVzInputDialog({
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Rad.lg),
-        side: BorderSide(color: Vz.border, width: 0.7),
+        side: BorderSide(color: Vz.border, width: 1),
       ),
       title: Row(children: [
         if (icon != null) ...[
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Vz.accent.withOpacity(0.13),
+              color: Vz.accent.withOpacity(0.12),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Vz.accent.withOpacity(0.3), width: 0.7),
+              border: Border.all(color: Vz.accent.withOpacity(0.28), width: 1),
             ),
             child: Icon(icon, size: 18, color: Vz.accent),
           ),
@@ -709,8 +1011,7 @@ Future<String?> showVzInputDialog({
           Expanded(child: VzMintButton(
             onTap: () => Navigator.pop(ctx),
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(cancelLabel ?? 'Cancel', textAlign: TextAlign.center,
-              style: const TextStyle(color: Color(0xFF171204), fontWeight: FontWeight.w700, fontSize: 13)),
+            child: Text(cancelLabel ?? 'Cancel', textAlign: TextAlign.center),
           )),
           const SizedBox(width: Sp.sm),
           Expanded(child: DecoratedBox(
@@ -726,7 +1027,9 @@ Future<String?> showVzInputDialog({
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(confirmLabel ?? 'OK', textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13)),
+                    style: TextStyle(
+                      color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                      fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
               ),
             ),
@@ -764,9 +1067,9 @@ class VzSearchField extends StatelessWidget {
         height: 46,
         padding: const EdgeInsets.symmetric(horizontal: Sp.md),
         decoration: BoxDecoration(
-          color: Vz.card.withOpacity(0.85),
+          color: Vz.card,
           borderRadius: BorderRadius.circular(Rad.sm),
-          border: Border.all(color: Vz.border, width: 0.7),
+          border: Border.all(color: Vz.border, width: 1),
         ),
         child: Row(children: [
           Icon(Icons.search_rounded, size: 19, color: Vz.textDim),
@@ -841,8 +1144,8 @@ class VzMediaCard extends StatelessWidget {
             color: Vz.card,
             borderRadius: BorderRadius.circular(radius),
             border: Border.all(
-              color: selected ? Vz.accent.withOpacity(0.75) : Vz.border.withOpacity(0.8),
-              width: selected ? 1.2 : 0.7,
+              color: selected ? Vz.accent : Vz.border,
+              width: 1,
             ),
             boxShadow: selected ? [Vz.glowSoft] : null,
           ),
@@ -875,13 +1178,22 @@ class VzMediaCard extends StatelessWidget {
               // مدت پایین-راست
               if (duration != null)
                 Positioned(right: Sp.sm, bottom: Sp.sm,
-                  child: VzBadge(text: duration!, color: Colors.white)),
-              // دکمه پخش شیشه‌ای
+                  child: VzBadge(text: duration!, color: Colors.white),
+                ),
+              // دکمه پخش
               if (onTap != null)
                 Positioned.fill(
                   child: IgnorePointer(
                     child: Center(
-                      child: VzGlassIconButton(icon: Icons.play_arrow_rounded, size: 42),
+                      child: Container(
+                        width: 42, height: 42,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white.withOpacity(0.24), width: 1),
+                        ),
+                        child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
+                      ),
                     ),
                   ),
                 ),
@@ -891,7 +1203,7 @@ class VzMediaCard extends StatelessWidget {
                   child: IgnorePointer(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Vz.accent.withOpacity(0.16),
+                        color: Vz.accent.withOpacity(0.18),
                         borderRadius: BorderRadius.vertical(top: Radius.circular(radius - 1)),
                       ),
                       child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 28),

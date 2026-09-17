@@ -4,7 +4,7 @@
 // the legacy NOVA screens.
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:permission_handler/permission_handler.dart';
@@ -615,7 +615,7 @@ class _InkRecentScreenState extends State<InkRecentScreen> {
                 accentBar: true,
                 semanticLabel: entry.key,
                 child: Row(children: [
-                  const Icon(Icons.queue_music_rounded,
+                  Icon(Icons.queue_music_rounded,
                       size: 20, color: Ink.accent),
                   const SizedBox(width: InkSp.x3),
                   Expanded(

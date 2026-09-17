@@ -137,7 +137,7 @@ class _State extends State<WhisperV2TestScreen> {
           )),
         ]),
       ),
-      const Divider(color: Colors.white12, height: 1),
+      Divider(color: Vz.border, height: 1),
       Expanded(
         child: Container(
           width: double.infinity,

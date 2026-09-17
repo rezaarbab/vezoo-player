@@ -6,19 +6,19 @@ import 'package:player/glass.dart';
 
 void main() {
   group('NOVA Design System — Tokens', () {
-    test('Color palette — Obsidian & Aurora', () {
-      expect(Vz.bg.value, equals(0xFF0B0B10));
-      expect(Vz.bgDeep.value, equals(0xFF07070B));
-      expect(Vz.surface.value, equals(0xFF131319));
-      expect(Vz.card.value, equals(0xFF1A1A23));
-      expect(Vz.cardHi.value, equals(0xFF22222E));
-      expect(Vz.accent.value, equals(0xFF8B5CF6));
-      expect(Vz.accentHi.value, equals(0xFFA78BFA));
-      expect(Vz.magenta.value, equals(0xFFEC4899));
-      expect(Vz.green.value, equals(0xFF34D399));
+    test('Color palette — VOID', () {
+      expect(Vz.bg.value, equals(0xFF0A0A0C));
+      expect(Vz.bgDeep.value, equals(0xFF050507));
+      expect(Vz.surface.value, equals(0xFF121216));
+      expect(Vz.card.value, equals(0xFF17171C));
+      expect(Vz.cardHi.value, equals(0xFF1F1F26));
+      expect(Vz.accent.value, equals(0xFFF59E0B));
+      expect(Vz.accentHi.value, equals(0xFFFBBF24));
+      expect(Vz.magenta.value, equals(0xFFFB7185));
+      expect(Vz.green.value, equals(0xFF4ADE80));
       expect(Vz.amber.value, equals(0xFFFBBF24));
       expect(Vz.red.value, equals(0xFFF87171));
-      expect(Vz.text.value, equals(0xFFF4F4F8));
+      expect(Vz.text.value, equals(0xFFF5F5F7));
     });
 
     test('Typography scale — sizes & weights', () {
@@ -47,17 +47,17 @@ void main() {
       expect(Rad.xl, 28.0); expect(Rad.full, 999.0);
     });
 
-    test('Aurora gradient — 3 stops', () {
+    test('Accent gradient — amber ramp, 3 stops', () {
       expect(Vz.auroraGrad.colors.length, 3);
-      expect(Vz.auroraGrad.colors.first, const Color(0xFFA78BFA));
-      expect(Vz.auroraGrad.colors.last, const Color(0xFFEC4899));
+      expect(Vz.auroraGrad.colors.first, const Color(0xFFFBBF24));
+      expect(Vz.auroraGrad.colors.last, const Color(0xFFB45309));
     });
 
     test('Scrim tokens + scrimGrad — media thumbnail overlay', () {
       // رگرسیون: scrim* باید در پالت runtime موجود باشد (قبلاً undefined بود)
-      expect(Vz.scrimTop.value, equals(0x000B0B10));
-      expect(Vz.scrimMid.value, equals(0x800B0B10));
-      expect(Vz.scrimBot.value, equals(0xE60B0B10));
+      expect(Vz.scrimTop.value, equals(0x000A0A0C));
+      expect(Vz.scrimMid.value, equals(0x800A0A0C));
+      expect(Vz.scrimBot.value, equals(0xE60A0A0C));
       expect(Vz.scrimGrad.colors, hasLength(3));
       expect(Vz.scrimGrad.colors.first, equals(Vz.scrimBot));
       expect(Vz.scrimGrad.colors.last, equals(Vz.scrimTop));

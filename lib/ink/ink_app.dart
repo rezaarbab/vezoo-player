@@ -1,7 +1,7 @@
 // lib/ink/ink_app.dart
 // Standalone app entry for the INK interface. Nothing here imports the legacy
 // theme/glass/shell files, so the default build is untouched.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

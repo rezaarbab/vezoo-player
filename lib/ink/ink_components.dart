@@ -1,6 +1,6 @@
 // lib/ink/ink_components.dart
 // INK component set — flat paper surfaces, ink outlines, hard offset shadows.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 import 'ink_tokens.dart';
 
 export 'ink_tokens.dart';

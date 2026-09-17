@@ -79,7 +79,7 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
                     child:Text(kLanguages[l]??l,style:TextStyle(color:Vz.accent,fontSize:10)),
                   )).toList()),
                   trailing:IconButton(
-                    icon:const Icon(Icons.close,color:Colors.white38,size:18),
+                    icon:Icon(Icons.close,color:Vz.textDim,size:18),
                     onPressed:()=>_remove(path),
                   ),
                 ),

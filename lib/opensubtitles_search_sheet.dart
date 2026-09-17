@@ -4,6 +4,7 @@ import 'srt_translate_sheet.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'theme.dart';
+import 'glass.dart';
 
 /// شیت جستجو و دانلود زیرنویس آنلاین از OpenSubtitles
 class OpenSubtitlesSheet extends StatefulWidget {
@@ -13,11 +14,7 @@ class OpenSubtitlesSheet extends StatefulWidget {
   const OpenSubtitlesSheet({super.key, required this.videoPath, required this.onDone, this.onDoneSecondary});
 
   static Future<void> show(BuildContext ctx, String videoPath, void Function(String) onDone, {void Function(String)? onDoneSecondary}) =>
-      showModalBottomSheet(
-        context: ctx,
-        isScrollControlled: true,
-        backgroundColor: Vz.bgDeep,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      showVzSheet(context: ctx,
         builder: (_) => OpenSubtitlesSheet(videoPath: videoPath, onDone: onDone, onDoneSecondary: onDoneSecondary),
       );
 
@@ -122,7 +119,7 @@ class _State extends State<OpenSubtitlesSheet> {
       child: SingleChildScrollView(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 14),
           Row(children: [
             Icon(Icons.cloud_download_outlined, color: Vz.accent, size: 20),
@@ -209,13 +206,13 @@ class _State extends State<OpenSubtitlesSheet> {
             decoration: BoxDecoration(color: Vz.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
             child: Text(f.type == 'tvshow' ? L.tvShow : L.movie, style: TextStyle(color: Vz.accent, fontSize: 10))),
         ]),
-        trailing: const Icon(Icons.chevron_left, color: Colors.white38, size: 18),
+        trailing: Icon(Icons.chevron_left, color: Vz.textDim, size: 18),
       ),
     )).toList();
   }
 
   Widget _posterFallback() => Container(width: 42, height: 58, color: Vz.bgDeep,
-    child: const Icon(Icons.movie_outlined, color: Colors.white24, size: 20));
+    child: Icon(Icons.movie_outlined, color: Vz.border, size: 20));
 
   List<Widget> _buildEpisodePicker() => [
     Text(_selectedFeature?.title ?? '', style: TextStyle(color: Vz.text, fontSize: 14, fontWeight: FontWeight.bold)),
@@ -239,10 +236,10 @@ class _State extends State<OpenSubtitlesSheet> {
     decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(10)),
     child: Row(children: [
       Expanded(child: Text(label, style: TextStyle(color: Vz.textSec, fontSize: 12))),
-      IconButton(icon: const Icon(Icons.remove, color: Colors.white54, size: 16),
+      IconButton(icon: Icon(Icons.remove, color: Vz.textSec, size: 16),
         onPressed: value > 1 ? () => onChanged(value - 1) : null, constraints: const BoxConstraints(), padding: const EdgeInsets.all(4)),
       Text('$value', style: TextStyle(color: Vz.text, fontSize: 14, fontWeight: FontWeight.bold)),
-      IconButton(icon: const Icon(Icons.add, color: Colors.white54, size: 16),
+      IconButton(icon: Icon(Icons.add, color: Vz.textSec, size: 16),
         onPressed: () => onChanged(value + 1), constraints: const BoxConstraints(), padding: const EdgeInsets.all(4)),
     ]),
   );
@@ -294,7 +291,7 @@ class _State extends State<OpenSubtitlesSheet> {
       decoration: BoxDecoration(
         color: _subTarget == idx ? Vz.accent : Vz.card,
         borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Colors.white60, fontSize: 12)),
+      child: Text(label, style: TextStyle(color: _subTarget == idx ? Colors.white : Vz.textSec, fontSize: 12)),
     ),
   );
 
@@ -305,7 +302,7 @@ class _State extends State<OpenSubtitlesSheet> {
       decoration: BoxDecoration(
         color: _langFilter == code ? Vz.accent : Vz.card,
         borderRadius: BorderRadius.circular(20)),
-      child: Text(label, style: TextStyle(color: _langFilter == code ? Colors.white : Colors.white60, fontSize: 11)),
+      child: Text(label, style: TextStyle(color: _langFilter == code ? Colors.white : Vz.textSec, fontSize: 11)),
     ),
   );
 }

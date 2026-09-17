@@ -1,6 +1,6 @@
 // lib/ink/ink_shell.dart
 // INK shell: flat index bar + paper background over an IndexedStack.
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Ink;
 
 import 'ink_components.dart';
 import 'ink_screens.dart';

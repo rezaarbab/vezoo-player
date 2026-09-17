@@ -1,5 +1,13 @@
-// lib/theme.dart - Vezoo Design System v5 "NOVA Duo"
-// Dual-mode: Obsidian dark + Porcelain light + aurora accents + glass surfaces
+// lib/theme.dart — Vezoo Design System v6 "VOID"
+//
+// Cinematic dark-first design language.
+//   • one accent  (amber)  — no more purple/pink aurora soup
+//   • flat surfaces        — no blur, no glass, no noise (fast on low-end devices)
+//   • 1px hairline rules   — structure comes from lines, not shadows
+//   • two modes            — VOID (dark) / DAYLIGHT (light)
+//
+// Public API is unchanged (Vz, Sp, Rad, Ty, Mo, VzTheme…) so every existing
+// screen keeps compiling while getting the new look for free.
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,103 +18,98 @@ import 'package:flutter/services.dart';
 enum VzThemeMode { system, dark, light }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  PALETTES - Obsidian (dark) & Porcelain (light)
+//  PALETTE — VOID (dark) / DAYLIGHT (light)
 // ─────────────────────────────────────────────────────────────────────────────
 class _P {
-  // Obsidian base - deep near-black with cool violet undertone
-  static const bg       = Color(0xFF0B0B10);
-  static const bgDeep   = Color(0xFF07070B);
-  static const surface  = Color(0xFF131319);
-  static const card     = Color(0xFF1A1A23);
-  static const cardHi   = Color(0xFF22222E);
-  static const border   = Color(0xFF2A2A38);
-  static const borderHi = Color(0xFF3A3A4C);
+  // VOID base — neutral near-black, no color cast
+  static const bg       = Color(0xFF0A0A0C);
+  static const bgDeep   = Color(0xFF050507);
+  static const surface  = Color(0xFF121216);
+  static const card     = Color(0xFF17171C);
+  static const cardHi   = Color(0xFF1F1F26);
+  static const border   = Color(0xFF26262E);
+  static const borderHi = Color(0xFF33333D);
 
-  // Aurora accents
-  static const accent   = Color(0xFF8B5CF6);
-  static const accentHi = Color(0xFFA78BFA);
-  static const magenta  = Color(0xFFEC4899);
-  static const deep     = Color(0xFF6D28D9);
+  // Single accent — amber. `magenta`/`deep` kept as secondary hues for
+  // favourites and warnings so old call sites still resolve.
+  static const accent   = Color(0xFFF59E0B);
+  static const accentHi = Color(0xFFFBBF24);
+  static const magenta  = Color(0xFFFB7185);
+  static const deep     = Color(0xFFB45309);
 
   // Semantic
-  static const green    = Color(0xFF34D399);
+  static const green    = Color(0xFF4ADE80);
   static const amber    = Color(0xFFFBBF24);
   static const red      = Color(0xFFF87171);
-  static const mauve    = Color(0xFF9CA0B4);
+  static const mauve    = Color(0xFF71717A);
 
   // Text
-  static const text     = Color(0xFFF4F4F8);
-  static const textSec  = Color(0xFF9CA0B4);
-  static const textDim  = Color(0xFF5C5F73);
+  static const text     = Color(0xFFF5F5F7);
+  static const textSec  = Color(0xFFA1A1AA);
+  static const textDim  = Color(0xFF6B6B76);
 
-  // Scrim on media thumbnails
-  static const scrimTop = Color(0x000B0B10);
-  static const scrimMid = Color(0x800B0B10);
-  static const scrimBot = Color(0xE60B0B10);
+  // Scrim on media thumbnails (identical in both modes)
+  static const scrimTop = Color(0x000A0A0C);
+  static const scrimMid = Color(0x800A0A0C);
+  static const scrimBot = Color(0xE60A0A0C);
 
-  // Glass
-  static const glassCard = Color(0xB81A1A23); // card @ 72%
-  static const glassDark = Color(0x52000000); // player overlay button bg
-  static const glassLine = Color(0x24FFFFFF); // white @ 14%
-  static const dockFill  = Color(0xE0131319); // surface @ 88%
-  static const badgeBg   = Color(0x8C000000); // black @ 55%
-  static const sheen     = Color(0x14FFFFFF); // inner highlight
+  // Overlays
+  static const glassCard = Color(0xF217171C);
+  static const glassDark = Color(0x66000000);
+  static const glassLine = Color(0x1FFFFFFF);
+  static const dockFill  = Color(0xF5121216);
+  static const badgeBg   = Color(0xB3000000);
+  static const sheen     = Color(0x0AFFFFFF);
 
-  static const hero1 = Color(0xFF2A1E4A);
-  static const hero2 = Color(0xFF16122A);
+  static const hero1 = Color(0xFF1A1A20);
+  static const hero2 = Color(0xFF101014);
 }
 
 class _L {
-  // Porcelain base - warm paper white with violet undertone
-  static const bg       = Color(0xFFF7F5FB);
-  static const bgDeep   = Color(0xFFEFEDF6);
+  // DAYLIGHT base — clean neutral paper
+  static const bg       = Color(0xFFF6F6F8);
+  static const bgDeep   = Color(0xFFEDEDF1);
   static const surface  = Color(0xFFFFFFFF);
   static const card     = Color(0xFFFFFFFF);
-  static const cardHi   = Color(0xFFF1EEF9);
-  static const border   = Color(0xFFE4E1EE);
-  static const borderHi = Color(0xFFCFCADF);
+  static const cardHi   = Color(0xFFF1F1F4);
+  static const border   = Color(0xFFE3E3E8);
+  static const borderHi = Color(0xFFCFCFD6);
 
-  // Aurora accents - saturated for light bg
-  static const accent   = Color(0xFF7C3AED);
-  static const accentHi = Color(0xFF8B5CF6);
-  static const magenta  = Color(0xFFDB2777);
-  static const deep     = Color(0xFF6D28D9);
+  static const accent   = Color(0xFFB45309);
+  static const accentHi = Color(0xFFD97706);
+  static const magenta  = Color(0xFFE11D48);
+  static const deep     = Color(0xFF92400E);
 
-  // Semantic
   static const green    = Color(0xFF059669);
   static const amber    = Color(0xFFD97706);
   static const red      = Color(0xFFDC2626);
-  static const mauve    = Color(0xFF64748B);
+  static const mauve    = Color(0xFF71717A);
 
-  // Text
-  static const text     = Color(0xFF171522);
-  static const textSec  = Color(0xFF5D5A6E);
-  static const textDim  = Color(0xFF9A97AB);
+  static const text     = Color(0xFF101014);
+  static const textSec  = Color(0xFF52525B);
+  static const textDim  = Color(0xFF8E8E99);
 
-  // Scrim on media thumbnails (same dark scrim works on both)
-  static const scrimTop = Color(0x000B0B10);
-  static const scrimMid = Color(0x800B0B10);
-  static const scrimBot = Color(0xE60B0B10);
+  static const scrimTop = Color(0x000A0A0C);
+  static const scrimMid = Color(0x800A0A0C);
+  static const scrimBot = Color(0xE60A0A0C);
 
-  // Glass
-  static const glassCard = Color(0xD9FFFFFF); // white @ 85%
-  static const glassDark = Color(0x2E0F0B1A);  // dark overlay for media controls
-  static const glassLine = Color(0x1F171522);  // ink @ 12%
-  static const dockFill  = Color(0xE6FFFFFF);  // white @ 90%
-  static const badgeBg   = Color(0x8C000000);
-  static const sheen     = Color(0x0A171522);
+  static const glassCard = Color(0xF7FFFFFF);
+  static const glassDark = Color(0x33000000);
+  static const glassLine = Color(0x14000000);
+  static const dockFill  = Color(0xF7FFFFFF);
+  static const badgeBg   = Color(0xB3000000);
+  static const sheen     = Color(0x08000000);
 
-  static const hero1 = Color(0xFFEDE9F8);
-  static const hero2 = Color(0xFFF7F5FB);
+  static const hero1 = Color(0xFFE9E9EF);
+  static const hero2 = Color(0xFFF6F6F8);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Vz - runtime palette. Resolves dark/light at build time.
+//  Vz — runtime palette. Resolves dark/light at build time.
 // ─────────────────────────────────────────────────────────────────────────────
 class Vz {
   Vz._();
 
-  // ── runtime state ──
   static bool _dark = true;
 
   /// Whether the active palette is dark. Set by VzTheme before first frame.
@@ -141,7 +144,7 @@ class Vz {
   static Color get textSec  => _dark ? _P.textSec  : _L.textSec;
   static Color get textDim  => _dark ? _P.textDim  : _L.textDim;
 
-  // ── glass ──
+  // ── overlays ──
   static Color get glassCard => _dark ? _P.glassCard : _L.glassCard;
   static Color get glassDark => _dark ? _P.glassDark : _L.glassDark;
   static Color get glassLine => _dark ? _P.glassLine : _L.glassLine;
@@ -149,25 +152,26 @@ class Vz {
   static Color get badgeBg   => _dark ? _P.badgeBg   : _L.badgeBg;
   static Color get sheen     => _dark ? _P.sheen     : _L.sheen;
 
-  // ── scrim: gradient روی thumbnails (در هر دو مود یکسان)
+  // ── scrim: gradient روی thumbnails (در هر دو مود یکسان) ──
   static Color get scrimTop => _dark ? _P.scrimTop : _L.scrimTop;
   static Color get scrimMid => _dark ? _P.scrimMid : _L.scrimMid;
   static Color get scrimBot => _dark ? _P.scrimBot : _L.scrimBot;
 
   // ── OVI: overlay-video palette — ALWAYS dark, for player surfaces on top of video.
   // Player must never follow light theme (it sits on dark video content).
-  static const oviBg      = Color(0xFF07070B);
-  static const oviSurface = Color(0xFF131319);
-  static const oviCard    = Color(0xFF1A1A23);
-  static const oviCardHi  = Color(0xFF22222E);
-  static const oviBorder  = Color(0xFF2A2A38);
-  static const oviText    = Color(0xFFF4F4F8);
-  static const oviTextSec = Color(0xFF9CA0B4);
-  static const oviTextDim = Color(0xFF5C5F73);
+  static const oviBg      = Color(0xFF050507);
+  static const oviSurface = Color(0xFF121216);
+  static const oviCard    = Color(0xFF17171C);
+  static const oviCardHi  = Color(0xFF1F1F26);
+  static const oviBorder  = Color(0xFF26262E);
+  static const oviText    = Color(0xFFF5F5F7);
+  static const oviTextSec = Color(0xFFA1A1AA);
+  static const oviTextDim = Color(0xFF6B6B76);
 
   // ── gradients ──
+  /// Primary accent ramp — amber only. (legacy name kept)
   static LinearGradient get auroraGrad => LinearGradient(
-    colors: [accentHi, accent, magenta],
+    colors: [accentHi, accent, _dark ? _P.deep : _L.deep],
     stops: const [0.0, 0.55, 1.0],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
@@ -175,6 +179,7 @@ class Vz {
     colors: [accentHi, accent],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
+  /// Flat cinematic wash for headers/hero areas.
   static LinearGradient get heroGrad => LinearGradient(
     colors: [_dark ? _P.hero1 : _L.hero1, _dark ? _P.hero2 : _L.hero2, bg],
     stops: const [0.0, 0.55, 1.0],
@@ -188,20 +193,20 @@ class Vz {
 
   // ── shadows (tinted per mode) ──
   static BoxShadow get glow => BoxShadow(
-    color: accent.withOpacity(0.20), blurRadius: 28, offset: const Offset(0, 8),
+    color: accent.withOpacity(0.22), blurRadius: 24, offset: const Offset(0, 8),
   );
   static BoxShadow get glowSoft => BoxShadow(
-    color: accent.withOpacity(0.12), blurRadius: 18, offset: const Offset(0, 4),
+    color: accent.withOpacity(0.14), blurRadius: 14, offset: const Offset(0, 4),
   );
   static BoxShadow get shadow => BoxShadow(
-    color: (_dark ? const Color(0xFF000000) : const Color(0xFF6B6480)).withOpacity(0.16),
-    blurRadius: 24, offset: const Offset(0, 6),
+    color: (_dark ? const Color(0xFF000000) : const Color(0xFF6B6480)).withOpacity(0.18),
+    blurRadius: 20, offset: const Offset(0, 6),
   );
   static BoxShadow get amberGlow => BoxShadow(
-    color: amber.withOpacity(0.18), blurRadius: 20, offset: const Offset(0, 6),
+    color: amber.withOpacity(0.20), blurRadius: 18, offset: const Offset(0, 6),
   );
   static BoxShadow get redGlow => BoxShadow(
-    color: red.withOpacity(0.20), blurRadius: 20, offset: const Offset(0, 6),
+    color: red.withOpacity(0.20), blurRadius: 18, offset: const Offset(0, 6),
   );
 }
 
@@ -254,18 +259,36 @@ abstract final class Mo {
 //  VzTheme - InheritedWidget bridging mode changes to the Vz getters
 // ─────────────────────────────────────────────────────────────────────────────
 class VzThemeScope extends InheritedWidget {
-  const VzThemeScope({super.key, required this.isDark, required super.child});
+  const VzThemeScope({
+    super.key,
+    required this.isDark,
+    required this.mode,
+    required super.child,
+  });
 
   /// Snapshot of dark mode captured at build time — dependents rebuild on change.
   final bool isDark;
 
+  /// Snapshot of the user's chosen mode (system/dark/light).
+  final VzThemeMode mode;
+
+  static VzThemeScope? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<VzThemeScope>();
+
   static bool of(BuildContext context) {
-    final w = context.dependOnInheritedWidgetOfExactType<VzThemeScope>();
+    final w = maybeOf(context);
     return w?.isDark ?? Vz.isDark;
   }
 
+  /// Reads the selected mode through the inherited widget, so widgets that
+  /// call this rebuild whenever the mode changes — even when the resolved
+  /// brightness stays the same (e.g. dark → system while still dark).
+  static VzThemeMode modeOf(BuildContext context) =>
+      maybeOf(context)?.mode ?? VzThemeMode.system;
+
   @override
-  bool updateShouldNotify(VzThemeScope oldWidget) => isDark != oldWidget.isDark;
+  bool updateShouldNotify(VzThemeScope oldWidget) =>
+      isDark != oldWidget.isDark || mode != oldWidget.mode;
 }
 
 /// Root stateful theming widget. Place above MaterialApp.
@@ -331,7 +354,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final dark = _isDarkNow;
     Vz._setDark(dark);
-    return VzThemeScope(isDark: dark, child: widget.child);
+    return VzThemeScope(isDark: dark, mode: _mode, child: widget.child);
   }
 }
 
@@ -343,7 +366,8 @@ Future<void> Function(String)? storeThemeSave;
 // ─────────────────────────────────────────────────────────────────────────────
 //  AMBIENT BACKGROUND
 // ─────────────────────────────────────────────────────────────────────────────
-/// پس‌زمینه محیطی NOVA: پایه‌ی تم + دو حباب aurora در گوشه‌ها
+/// پس‌زمینه VOID: پایه‌ی تیره + یک هاله‌ی بسیار ملایم accent در بالا.
+/// عمداً ساده و بدون blur — روی دستگاه‌های ضعیف هم روان می‌ماند.
 class VzAmbientBg extends StatelessWidget {
   final Widget child;
   const VzAmbientBg({super.key, required this.child});
@@ -353,25 +377,28 @@ class VzAmbientBg extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(color: Vz.bg),
       child: Stack(children: [
-        Positioned(left: -160, top: -180, child: _blob(Vz.accent.withOpacity(0.15))),
-        Positioned(right: -180, bottom: -200, child: _blob(Vz.magenta.withOpacity(0.12))),
+        Positioned(
+          top: -240, right: -180,
+          child: IgnorePointer(
+            child: Container(
+              width: 520, height: 520,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(colors: [
+                  Vz.accent.withOpacity(Vz.isDark ? 0.07 : 0.05),
+                  Vz.accent.withOpacity(0),
+                ]),
+              ),
+            ),
+          ),
+        ),
         child,
       ]),
     );
   }
-
-  Widget _blob(Color color) => IgnorePointer(
-    child: Container(
-      width: 460, height: 460,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: RadialGradient(colors: [color, color.withOpacity(0)]),
-      ),
-    ),
-  );
 }
 
-/// خط اسکن Aurora - انیمیشن ریز در هدرهای فعال
+/// خط اسکن افقی — انیمیشن ریز در هدرهای فعال
 class VzScanLine extends StatefulWidget {
   final double height;
   final Color color;
@@ -392,8 +419,9 @@ class _VzScanLineState extends State<VzScanLine> with SingleTickerProviderStateM
           Positioned(left:x.clamp(-40,w+40)-20,top:0,bottom:0,width:60,
             child:Container(decoration:BoxDecoration(
               gradient:LinearGradient(colors:[
-                widget.color.withOpacity(0),widget.color.withOpacity(0.55),widget.color.withOpacity(0)])),
+                widget.color.withOpacity(0),widget.color.withOpacity(0.55),widget.color.withOpacity(0)]),
             )),
+          ),
         ]));
       });
     });
@@ -415,14 +443,16 @@ ThemeData buildVezooTheme({bool dark = true}) {
   final scheme = ColorScheme(
     brightness: dark ? Brightness.dark : Brightness.light,
     primary: Vz.accent,
-    onPrimary: Colors.white,
-    secondary: Vz.magenta,
-    onSecondary: Colors.white,
+    onPrimary: dark ? const Color(0xFF1A1203) : Colors.white,
+    secondary: Vz.accentHi,
+    onSecondary: dark ? const Color(0xFF1A1203) : Colors.white,
     surface: Vz.surface,
     onSurface: Vz.text,
     error: Vz.red,
     onError: Colors.white,
   );
+  final rSm = BorderRadius.circular(Rad.sm);
+  final rLg = BorderRadius.circular(Rad.lg);
   return ThemeData(
     useMaterial3: true,
     brightness: dark ? Brightness.dark : Brightness.light,
@@ -452,24 +482,26 @@ ThemeData buildVezooTheme({bool dark = true}) {
         borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
       ),
     ),
-    sliderTheme: const SliderThemeData(
-      activeTrackColor: null,
-      inactiveTrackColor: Color(0x22F4F4F8),
-      thumbColor: Colors.white,
+    sliderTheme: SliderThemeData(
+      activeTrackColor: Vz.accent,
+      inactiveTrackColor: Vz.border,
+      thumbColor: Vz.accent,
+      overlayColor: Vz.accent.withOpacity(0.14),
       trackHeight: 3,
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Colors.white : Vz.mauve),
+        (s) => s.contains(WidgetState.selected) ? Vz.accent : Vz.mauve),
       trackColor: WidgetStateProperty.resolveWith(
-        (s) => s.contains(WidgetState.selected) ? Vz.accent : Vz.cardHi),
+        (s) => s.contains(WidgetState.selected)
+            ? Vz.accent.withOpacity(0.35) : Vz.cardHi),
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: Vz.card,
-      side: BorderSide(color: Vz.border, width: 0.6),
+      side: BorderSide(color: Vz.border, width: 1),
       labelStyle: TextStyle(fontSize: 12, color: Vz.text),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Rad.full))),
+      shape: RoundedRectangleBorder(borderRadius: rSm),
     ),
     tabBarTheme: TabBarThemeData(
       indicatorColor: Vz.accent,
@@ -478,14 +510,13 @@ ThemeData buildVezooTheme({bool dark = true}) {
       indicatorSize: TabBarIndicatorSize.label,
       dividerColor: Colors.transparent,
     ),
-    dividerColor: Vz.border.withOpacity(0.55),
+    dividerColor: Vz.border,
+    dividerTheme: DividerThemeData(color: Vz.border, thickness: 1, space: 1),
     dialogTheme: DialogThemeData(
       backgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Vz.text),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(Rad.lg)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: rLg),
     ),
     listTileTheme: ListTileThemeData(
       contentPadding: const EdgeInsets.symmetric(horizontal: Sp.lg, vertical: 2),
@@ -493,74 +524,54 @@ ThemeData buildVezooTheme({bool dark = true}) {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Vz.card.withOpacity(0.75),
+      fillColor: Vz.card,
       hintStyle: TextStyle(color: Vz.textDim, fontSize: 13),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rad.sm),
-        borderSide: BorderSide(color: Vz.border),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rad.sm),
-        borderSide: BorderSide(color: Vz.border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(Rad.sm),
-        borderSide: BorderSide(color: Vz.accent, width: 1.2),
-      ),
+      border: OutlineInputBorder(borderRadius: rSm, borderSide: BorderSide(color: Vz.border)),
+      enabledBorder: OutlineInputBorder(borderRadius: rSm, borderSide: BorderSide(color: Vz.border)),
+      focusedBorder: OutlineInputBorder(borderRadius: rSm, borderSide: BorderSide(color: Vz.accent, width: 1.4)),
     ),
     popupMenuTheme: PopupMenuThemeData(
       color: Vz.cardHi,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(Rad.md)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: rSm),
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: Vz.accent,
-      foregroundColor: Colors.white,
+      foregroundColor: dark ? const Color(0xFF1A1203) : Colors.white,
       elevation: 0, focusElevation: 0, hoverElevation: 0,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(Rad.lg)),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: rSm),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: Vz.accent,
-        foregroundColor: Colors.white,
+        foregroundColor: dark ? const Color(0xFF1A1203) : Colors.white,
         textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(Rad.sm)),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: rSm),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: Vz.text,
         side: BorderSide(color: Vz.borderHi),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(Rad.sm)),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: rSm),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(foregroundColor: Vz.accentHi),
+      style: TextButton.styleFrom(foregroundColor: Vz.accent),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: Vz.cardHi,
       contentTextStyle: TextStyle(color: Vz.text, fontSize: 13),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rad.sm),
-        side: BorderSide(color: Vz.border.withOpacity(0.8)),
+        borderRadius: rSm,
+        side: BorderSide(color: Vz.border),
       ),
       insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
     ),
     tooltipTheme: TooltipThemeData(
-      decoration: BoxDecoration(
-        color: Vz.cardHi,
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-      ),
+      decoration: BoxDecoration(color: Vz.cardHi, borderRadius: BorderRadius.circular(8)),
       textStyle: TextStyle(fontSize: 11, color: Vz.text),
     ),
     progressIndicatorTheme: ProgressIndicatorThemeData(
