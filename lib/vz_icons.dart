@@ -49,8 +49,6 @@ abstract class VzIconPack {
 class BiliIconPack extends VzIconPack {
   const BiliIconPack();
 
-  static const _family = 'VanFont';
-
   /// گلیف‌هایی که با اطمینان شناسایی شده‌اند.
   static const Map<String, int> known = {
     'like':     0xE6E0, // قلب/لایک — از pic/like.svg
@@ -72,19 +70,88 @@ class BiliIconPack extends VzIconPack {
     0xE721, 0xE723, 0xE724, 0xE725, 0xE744, 0xEEE3,
   ];
 
+  /// کدپوینت → IconData به‌صورت **const**.
+  ///
+  /// مهم: AOT باید بیلد بده بدون `--no-tree-shake-icons`. هر `IconData` که در
+  /// زمان اجرا ساخته شود، tree-shaking آیکون‌های فونت را می‌شکند. چون کدپوینت
+  /// این فونت ثابت است، همه از پیش به const تبدیل شده‌اند.
+  static const Map<int, IconData> _glyphs = {
+    0xE604: IconData(0xE604, fontFamily: 'VanFont'),
+    0xE616: IconData(0xE616, fontFamily: 'VanFont'),
+    0xE62B: IconData(0xE62B, fontFamily: 'VanFont'),
+    0xE62F: IconData(0xE62F, fontFamily: 'VanFont'),
+    0xE634: IconData(0xE634, fontFamily: 'VanFont'),
+    0xE635: IconData(0xE635, fontFamily: 'VanFont'),
+    0xE638: IconData(0xE638, fontFamily: 'VanFont'),
+    0xE639: IconData(0xE639, fontFamily: 'VanFont'),
+    0xE63A: IconData(0xE63A, fontFamily: 'VanFont'),
+    0xE63C: IconData(0xE63C, fontFamily: 'VanFont'),
+    0xE63D: IconData(0xE63D, fontFamily: 'VanFont'),
+    0xE63E: IconData(0xE63E, fontFamily: 'VanFont'),
+    0xE646: IconData(0xE646, fontFamily: 'VanFont'),
+    0xE658: IconData(0xE658, fontFamily: 'VanFont'),
+    0xE664: IconData(0xE664, fontFamily: 'VanFont'),
+    0xE665: IconData(0xE665, fontFamily: 'VanFont'),
+    0xE666: IconData(0xE666, fontFamily: 'VanFont'),
+    0xE670: IconData(0xE670, fontFamily: 'VanFont'),
+    0xE672: IconData(0xE672, fontFamily: 'VanFont'),
+    0xE673: IconData(0xE673, fontFamily: 'VanFont'),
+    0xE67D: IconData(0xE67D, fontFamily: 'VanFont'),
+    0xE6CB: IconData(0xE6CB, fontFamily: 'VanFont'),
+    0xE6CC: IconData(0xE6CC, fontFamily: 'VanFont'),
+    0xE6CD: IconData(0xE6CD, fontFamily: 'VanFont'),
+    0xE6CE: IconData(0xE6CE, fontFamily: 'VanFont'),
+    0xE6CF: IconData(0xE6CF, fontFamily: 'VanFont'),
+    0xE6D0: IconData(0xE6D0, fontFamily: 'VanFont'),
+    0xE6D1: IconData(0xE6D1, fontFamily: 'VanFont'),
+    0xE6E0: IconData(0xE6E0, fontFamily: 'VanFont'),
+    0xE6E1: IconData(0xE6E1, fontFamily: 'VanFont'),
+    0xE6E2: IconData(0xE6E2, fontFamily: 'VanFont'),
+    0xE6E3: IconData(0xE6E3, fontFamily: 'VanFont'),
+    0xE6E4: IconData(0xE6E4, fontFamily: 'VanFont'),
+    0xE6E5: IconData(0xE6E5, fontFamily: 'VanFont'),
+    0xE6E6: IconData(0xE6E6, fontFamily: 'VanFont'),
+    0xE6E7: IconData(0xE6E7, fontFamily: 'VanFont'),
+    0xE6E8: IconData(0xE6E8, fontFamily: 'VanFont'),
+    0xE6E9: IconData(0xE6E9, fontFamily: 'VanFont'),
+    0xE6EA: IconData(0xE6EA, fontFamily: 'VanFont'),
+    0xE6EB: IconData(0xE6EB, fontFamily: 'VanFont'),
+    0xE6EC: IconData(0xE6EC, fontFamily: 'VanFont'),
+    0xE6ED: IconData(0xE6ED, fontFamily: 'VanFont'),
+    0xE6EE: IconData(0xE6EE, fontFamily: 'VanFont'),
+    0xE6EF: IconData(0xE6EF, fontFamily: 'VanFont'),
+    0xE6F0: IconData(0xE6F0, fontFamily: 'VanFont'),
+    0xE6F1: IconData(0xE6F1, fontFamily: 'VanFont'),
+    0xE6F2: IconData(0xE6F2, fontFamily: 'VanFont'),
+    0xE6F7: IconData(0xE6F7, fontFamily: 'VanFont'),
+    0xE706: IconData(0xE706, fontFamily: 'VanFont'),
+    0xE707: IconData(0xE707, fontFamily: 'VanFont'),
+    0xE70F: IconData(0xE70F, fontFamily: 'VanFont'),
+    0xE71C: IconData(0xE71C, fontFamily: 'VanFont'),
+    0xE71D: IconData(0xE71D, fontFamily: 'VanFont'),
+    0xE71E: IconData(0xE71E, fontFamily: 'VanFont'),
+    0xE71F: IconData(0xE71F, fontFamily: 'VanFont'),
+    0xE720: IconData(0xE720, fontFamily: 'VanFont'),
+    0xE721: IconData(0xE721, fontFamily: 'VanFont'),
+    0xE723: IconData(0xE723, fontFamily: 'VanFont'),
+    0xE724: IconData(0xE724, fontFamily: 'VanFont'),
+    0xE725: IconData(0xE725, fontFamily: 'VanFont'),
+    0xE744: IconData(0xE744, fontFamily: 'VanFont'),
+    0xEEE3: IconData(0xEEE3, fontFamily: 'VanFont'),
+  };
+
+  /// آیکون ثابت برای یک کدپوینت (بدون ساخت runtime).
+  static IconData glyph(int codePoint) =>
+      _glyphs[codePoint] ?? Icons.help_outline;
+
   /// نام‌هایی که این پک پشتیبانی می‌کند.
   static bool has(String name) =>
       known.containsKey(name) || name.startsWith('van');
 
-  /// ساخت IconData از یک کدپوینت فونت.
-  ///
-  /// سازنده‌ی IconData کانستراکتور const دارد، پس analyzer وقتی کدپوینت
-  /// runtime باشد هشدار می‌دهد. این تنها راه ساخت آیکون از یک فونت سفارشی
-  /// با کدپوینت پویا است، پس هشدار را آگاهانه نادیده می‌گیریم.
+  /// ساخت IconData از یک کدپوینت فونت — همیشه از map ثابت، پس AOT-safe.
   static IconData _icon(String name) {
     final cp = known[name] ?? _parseHex(name);
-    // ignore: non_const_argument_for_const_parameter
-    return IconData(cp, fontFamily: _family);
+    return glyph(cp);
   }
 
   static int _parseHex(String name) {

@@ -96,8 +96,7 @@ class VzIconGalleryScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(child: Center(child: Icon(
-                  // ignore: non_const_argument_for_const_parameter
-                  IconData(cp, fontFamily: 'VanFont'),
+                  BiliIconPack.glyph(cp),
                   size: 34,
                   color: named ? Vz.accent : Vz.text))),
                 Text(entry.key,
