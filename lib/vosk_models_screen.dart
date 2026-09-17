@@ -45,9 +45,9 @@ class _State extends State<VoskModelsScreen> {
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: _acc.withOpacity(0.1),
+          color: _acc.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _acc.withOpacity(0.25))),
+          border: Border.all(color: _acc.withValues(alpha: 0.25))),
         child: Row(children: [
           Icon(Icons.info_outline_rounded, color: _acc, size: 15),
           SizedBox(width: 8),
@@ -71,7 +71,7 @@ class _State extends State<VoskModelsScreen> {
               decoration: BoxDecoration(
                 color: Vz.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Vz.amber.withOpacity(0.3))),
+                border: Border.all(color: Vz.amber.withValues(alpha: 0.3))),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(2, 0, 2, 8),
@@ -91,7 +91,7 @@ class _State extends State<VoskModelsScreen> {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Vz.amber.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(color: Vz.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
                       child: Text('Custom', style: TextStyle(color: Vz.amber, fontSize: 9))),
                     const SizedBox(width: 8),
                     GestureDetector(
@@ -111,7 +111,7 @@ class _State extends State<VoskModelsScreen> {
         color: _card,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: anyDownloaded ? _acc.withOpacity(0.3) : Colors.transparent)),
+          color: anyDownloaded ? _acc.withValues(alpha: 0.3) : Colors.transparent)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -129,7 +129,7 @@ class _State extends State<VoskModelsScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.15),
+                    color: Colors.green.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4)),
                   child: const Text('✓ نصب شده',
                     style: TextStyle(color: Colors.green, fontSize: 9, fontWeight: FontWeight.bold))),
@@ -155,7 +155,7 @@ class _State extends State<VoskModelsScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: m.isLarge ? _gold.withOpacity(0.15) : _acc.withOpacity(0.12),
+              color: m.isLarge ? _gold.withValues(alpha: 0.15) : _acc.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(4)),
             child: Text(m.isLarge ? 'Large' : 'Small',
               style: TextStyle(
@@ -184,9 +184,9 @@ class _State extends State<VoskModelsScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _acc.withOpacity(0.15),
+                  color: _acc.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: _acc.withOpacity(0.4))),
+                  border: Border.all(color: _acc.withValues(alpha: 0.4))),
                 child: Text('دانلود',
                   style: TextStyle(color: _acc, fontSize: 11, fontWeight: FontWeight.bold)))),
         ]),

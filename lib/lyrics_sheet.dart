@@ -156,7 +156,7 @@ class _State extends State<LyricsSheet> {
                   child: ListTile(
                     dense: true,
                     leading: Container(width:36,height:36,
-                      decoration:BoxDecoration(color:Vz.accent.withOpacity(0.15),borderRadius:BorderRadius.circular(8)),
+                      decoration:BoxDecoration(color:Vz.accent.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(8)),
                       child: Icon(t.hasSynced ? Icons.lyrics_rounded : Icons.text_fields_rounded,
                         color:t.hasSynced ? Vz.accent : Vz.textDim, size:18)),
                     title: Text(t.title, style:const TextStyle(fontSize:13,color:Colors.white), maxLines:1, overflow:TextOverflow.ellipsis),
@@ -164,7 +164,7 @@ class _State extends State<LyricsSheet> {
                       style:TextStyle(fontSize:10,color:Vz.textSec), maxLines:1, overflow:TextOverflow.ellipsis),
                     trailing: t.hasSynced
                       ? Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                          decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(4)),
+                          decoration:BoxDecoration(color:Vz.accent.withValues(alpha: 0.2),borderRadius:BorderRadius.circular(4)),
                           child:Text('SYNC', style:TextStyle(color:Vz.accent,fontSize:9,fontWeight:FontWeight.bold)))
                       : Icon(Icons.download_rounded,size:16,color:Vz.textDim),
                     onTap: _applying ? null : () => _apply(t),

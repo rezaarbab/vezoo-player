@@ -236,7 +236,7 @@ class _State extends State<AiSubtitleSheet> {
             if(improved)...[
               const SizedBox(width:6),
               Container(padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                decoration:BoxDecoration(color:Vz.accent.withValues(alpha: 0.2),borderRadius:BorderRadius.circular(6)),
                 child:Text(L.improved,style:TextStyle(color: Vz.accent,fontSize:10))),
             ],
           ]),
@@ -408,7 +408,7 @@ class _State extends State<AiSubtitleSheet> {
       Container(
         margin:const EdgeInsets.only(bottom:10),
         padding:const EdgeInsets.all(10),
-        decoration:BoxDecoration(color:Vz.amber.withOpacity(0.15),borderRadius:BorderRadius.circular(10)),
+        decoration:BoxDecoration(color:Vz.amber.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(10)),
         child:Row(children:[
           Icon(Icons.warning_amber,color:Vz.amber,size:16),
           SizedBox(width:8),

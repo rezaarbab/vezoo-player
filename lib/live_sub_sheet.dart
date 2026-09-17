@@ -76,8 +76,8 @@ class _State extends State<LiveSubSheet> {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 10),
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Vz.accent.withOpacity(0.1), borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Vz.accent.withOpacity(0.3))),
+                decoration: BoxDecoration(color: Vz.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Vz.accent.withValues(alpha: 0.3))),
                 child: Text(
                   L.liveSubDesc,
                   style: TextStyle(color: Vz.textSec, fontSize: 12, height: 1.5)),
@@ -260,7 +260,7 @@ class _State extends State<LiveSubSheet> {
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       decoration: BoxDecoration(
-        color: _behindAction == action ? Colors.red.withOpacity(0.2) : Vz.bgDeep,
+        color: _behindAction == action ? Colors.red.withValues(alpha: 0.2) : Vz.bgDeep,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: _behindAction == action ? Colors.red : Vz.border)),
       child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [

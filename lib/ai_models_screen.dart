@@ -146,7 +146,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     padding:const EdgeInsets.fromLTRB(16,12,16,0),
     child:Container(
       padding:const EdgeInsets.all(12),
-      decoration:BoxDecoration(color:Vz.bgDeep.withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.bgDeep.withValues(alpha: 0.8),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
         Icon(Icons.info_outline,color:Vz.accent,size:18),
         const SizedBox(width:8),
@@ -163,7 +163,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
     padding:const EdgeInsets.fromLTRB(16,8,16,0),
     child:Container(
       padding:const EdgeInsets.all(12),
-      decoration:BoxDecoration(color:Vz.bgDeep.withOpacity(0.8),borderRadius:BorderRadius.circular(12)),
+      decoration:BoxDecoration(color:Vz.bgDeep.withValues(alpha: 0.8),borderRadius:BorderRadius.circular(12)),
       child:Row(children:[
         const Icon(Icons.storage,color:Colors.amber,size:18),
         const SizedBox(width:8),
@@ -299,7 +299,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
 
   Widget _tag(String t, Color c) => Container(
     padding:const EdgeInsets.symmetric(horizontal:8,vertical:3),
-    decoration:BoxDecoration(color:c.withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+    decoration:BoxDecoration(color:c.withValues(alpha: 0.2),borderRadius:BorderRadius.circular(6)),
     child:Text(t,style:TextStyle(color:c,fontSize:11,fontWeight:FontWeight.bold)),
   );
 

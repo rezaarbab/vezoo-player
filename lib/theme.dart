@@ -193,20 +193,20 @@ class Vz {
 
   // ── shadows (tinted per mode) ──
   static BoxShadow get glow => BoxShadow(
-    color: accent.withOpacity(0.22), blurRadius: 24, offset: const Offset(0, 8),
+    color: accent.withValues(alpha: 0.22), blurRadius: 24, offset: const Offset(0, 8),
   );
   static BoxShadow get glowSoft => BoxShadow(
-    color: accent.withOpacity(0.14), blurRadius: 14, offset: const Offset(0, 4),
+    color: accent.withValues(alpha: 0.14), blurRadius: 14, offset: const Offset(0, 4),
   );
   static BoxShadow get shadow => BoxShadow(
-    color: (_dark ? const Color(0xFF000000) : const Color(0xFF6B6480)).withOpacity(0.18),
+    color: (_dark ? const Color(0xFF000000) : const Color(0xFF6B6480)).withValues(alpha: 0.18),
     blurRadius: 20, offset: const Offset(0, 6),
   );
   static BoxShadow get amberGlow => BoxShadow(
-    color: amber.withOpacity(0.20), blurRadius: 18, offset: const Offset(0, 6),
+    color: amber.withValues(alpha: 0.20), blurRadius: 18, offset: const Offset(0, 6),
   );
   static BoxShadow get redGlow => BoxShadow(
-    color: red.withOpacity(0.20), blurRadius: 18, offset: const Offset(0, 6),
+    color: red.withValues(alpha: 0.20), blurRadius: 18, offset: const Offset(0, 6),
   );
 }
 
@@ -385,8 +385,8 @@ class VzAmbientBg extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(colors: [
-                  Vz.accent.withOpacity(Vz.isDark ? 0.07 : 0.05),
-                  Vz.accent.withOpacity(0),
+                  Vz.accent.withValues(alpha: Vz.isDark ? 0.07 : 0.05),
+                  Vz.accent.withValues(alpha: 0),
                 ]),
               ),
             ),
@@ -419,7 +419,7 @@ class _VzScanLineState extends State<VzScanLine> with SingleTickerProviderStateM
           Positioned(left:x.clamp(-40,w+40)-20,top:0,bottom:0,width:60,
             child:Container(decoration:BoxDecoration(
               gradient:LinearGradient(colors:[
-                widget.color.withOpacity(0),widget.color.withOpacity(0.55),widget.color.withOpacity(0)]),
+                widget.color.withValues(alpha: 0),widget.color.withValues(alpha: 0.55),widget.color.withValues(alpha: 0)]),
             )),
           ),
         ]));
@@ -459,8 +459,8 @@ ThemeData buildVezooTheme({bool dark = true}) {
     colorScheme: scheme,
     scaffoldBackgroundColor: Vz.bg,
     canvasColor: Vz.bg,
-    splashColor: Vz.accent.withOpacity(0.10),
-    highlightColor: Vz.accent.withOpacity(0.05),
+    splashColor: Vz.accent.withValues(alpha: 0.10),
+    highlightColor: Vz.accent.withValues(alpha: 0.05),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -486,7 +486,7 @@ ThemeData buildVezooTheme({bool dark = true}) {
       activeTrackColor: Vz.accent,
       inactiveTrackColor: Vz.border,
       thumbColor: Vz.accent,
-      overlayColor: Vz.accent.withOpacity(0.14),
+      overlayColor: Vz.accent.withValues(alpha: 0.14),
       trackHeight: 3,
     ),
     switchTheme: SwitchThemeData(
@@ -494,7 +494,7 @@ ThemeData buildVezooTheme({bool dark = true}) {
         (s) => s.contains(WidgetState.selected) ? Vz.accent : Vz.mauve),
       trackColor: WidgetStateProperty.resolveWith(
         (s) => s.contains(WidgetState.selected)
-            ? Vz.accent.withOpacity(0.35) : Vz.cardHi),
+            ? Vz.accent.withValues(alpha: 0.35) : Vz.cardHi),
       trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
     ),
     chipTheme: ChipThemeData(

@@ -7,18 +7,18 @@ import 'package:player/glass.dart';
 void main() {
   group('NOVA Design System — Tokens', () {
     test('Color palette — VOID', () {
-      expect(Vz.bg.value, equals(0xFF0A0A0C));
-      expect(Vz.bgDeep.value, equals(0xFF050507));
-      expect(Vz.surface.value, equals(0xFF121216));
-      expect(Vz.card.value, equals(0xFF17171C));
-      expect(Vz.cardHi.value, equals(0xFF1F1F26));
-      expect(Vz.accent.value, equals(0xFFF59E0B));
-      expect(Vz.accentHi.value, equals(0xFFFBBF24));
-      expect(Vz.magenta.value, equals(0xFFFB7185));
-      expect(Vz.green.value, equals(0xFF4ADE80));
-      expect(Vz.amber.value, equals(0xFFFBBF24));
-      expect(Vz.red.value, equals(0xFFF87171));
-      expect(Vz.text.value, equals(0xFFF5F5F7));
+      expect(Vz.bg.toARGB32(), equals(0xFF0A0A0C));
+      expect(Vz.bgDeep.toARGB32(), equals(0xFF050507));
+      expect(Vz.surface.toARGB32(), equals(0xFF121216));
+      expect(Vz.card.toARGB32(), equals(0xFF17171C));
+      expect(Vz.cardHi.toARGB32(), equals(0xFF1F1F26));
+      expect(Vz.accent.toARGB32(), equals(0xFFF59E0B));
+      expect(Vz.accentHi.toARGB32(), equals(0xFFFBBF24));
+      expect(Vz.magenta.toARGB32(), equals(0xFFFB7185));
+      expect(Vz.green.toARGB32(), equals(0xFF4ADE80));
+      expect(Vz.amber.toARGB32(), equals(0xFFFBBF24));
+      expect(Vz.red.toARGB32(), equals(0xFFF87171));
+      expect(Vz.text.toARGB32(), equals(0xFFF5F5F7));
     });
 
     test('Typography scale — sizes & weights', () {
@@ -55,9 +55,9 @@ void main() {
 
     test('Scrim tokens + scrimGrad — media thumbnail overlay', () {
       // رگرسیون: scrim* باید در پالت runtime موجود باشد (قبلاً undefined بود)
-      expect(Vz.scrimTop.value, equals(0x000A0A0C));
-      expect(Vz.scrimMid.value, equals(0x800A0A0C));
-      expect(Vz.scrimBot.value, equals(0xE60A0A0C));
+      expect(Vz.scrimTop.toARGB32(), equals(0x000A0A0C));
+      expect(Vz.scrimMid.toARGB32(), equals(0x800A0A0C));
+      expect(Vz.scrimBot.toARGB32(), equals(0xE60A0A0C));
       expect(Vz.scrimGrad.colors, hasLength(3));
       expect(Vz.scrimGrad.colors.first, equals(Vz.scrimBot));
       expect(Vz.scrimGrad.colors.last, equals(Vz.scrimTop));

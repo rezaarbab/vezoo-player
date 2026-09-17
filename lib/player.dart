@@ -1160,7 +1160,7 @@ class _PlayerState extends State<PlayerScreen>{
             const Spacer(),
             Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:2),
               decoration:BoxDecoration(
-                color:_dgActive?Colors.green.withOpacity(0.2):Colors.red.withOpacity(0.2),
+                color:_dgActive?Colors.green.withValues(alpha: 0.2):Colors.red.withValues(alpha: 0.2),
                 borderRadius:BorderRadius.circular(8)),
               child:Text(_dgActive?'ACTIVE':'OFF',style:TextStyle(
                 color:_dgActive?Colors.green:Colors.red,fontSize:10,fontWeight:FontWeight.bold))),
@@ -1475,7 +1475,7 @@ class _PlayerState extends State<PlayerScreen>{
   Widget _infoRow(IconData icon,Color iconColor,String label,String val)=>Padding(
     padding:const EdgeInsets.symmetric(vertical:4),
     child:Row(children:[
-      Container(padding:const EdgeInsets.all(5),decoration:BoxDecoration(color:iconColor.withOpacity(0.1),borderRadius:BorderRadius.circular(6)),
+      Container(padding:const EdgeInsets.all(5),decoration:BoxDecoration(color:iconColor.withValues(alpha: 0.1),borderRadius:BorderRadius.circular(6)),
           child:Icon(icon,size:13,color:iconColor)),
       const SizedBox(width:10),
       Text('$label',style:TextStyle(color:Vz.oviTextDim,fontSize:12)),
@@ -1491,9 +1491,9 @@ class _PlayerState extends State<PlayerScreen>{
     child:Container(
       padding:const EdgeInsets.all(6),
       decoration:BoxDecoration(
-        color:Colors.black.withOpacity(0.65),
+        color:Colors.black.withValues(alpha: 0.65),
         borderRadius:BorderRadius.circular(8),
-        border:Border.all(color:Colors.white.withOpacity(0.18)),
+        border:Border.all(color:Colors.white.withValues(alpha: 0.18)),
       ),
       child:Icon(icon,size:15,color:Vz.oviTextSec),
     ),
@@ -1506,9 +1506,9 @@ class _PlayerState extends State<PlayerScreen>{
       child:Container(
         padding:const EdgeInsets.all(6),
         decoration:BoxDecoration(
-          color:Colors.black.withOpacity(0.55),
+          color:Colors.black.withValues(alpha: 0.55),
           borderRadius:BorderRadius.circular(8),
-          border:Border.all(color:Colors.white.withOpacity(0.15)),
+          border:Border.all(color:Colors.white.withValues(alpha: 0.15)),
         ),
         child:Icon(icon,size:16,color:Vz.oviTextSec),
       ),
@@ -1518,8 +1518,8 @@ class _PlayerState extends State<PlayerScreen>{
   // badge کوچک برای top bar
   Widget _infoBadge(String text,Color color)=>Container(
     padding:const EdgeInsets.symmetric(horizontal:5,vertical:1),
-    decoration:BoxDecoration(color:color.withOpacity(0.15),borderRadius:BorderRadius.circular(4),
-        border:Border.all(color:color.withOpacity(0.4),width:0.5)),
+    decoration:BoxDecoration(color:color.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(4),
+        border:Border.all(color:color.withValues(alpha: 0.4),width:0.5)),
     child:Text(text,style:TextStyle(fontSize:9,color:color,fontWeight:FontWeight.w700)),
   );
 
@@ -1984,13 +1984,13 @@ class _PlayerState extends State<PlayerScreen>{
         )),
         if(_embeddedSubEnabled&&_embeddedSubText!=null)Positioned(left:4,right:4,bottom:4,child:Container(
           padding:const EdgeInsets.symmetric(horizontal:6,vertical:3),
-          color:Color(_vs.bgColor).withOpacity(_vs.bgOpacity),
+          color:Color(_vs.bgColor).withValues(alpha: _vs.bgOpacity),
           child:Text(_embeddedSubText!,textAlign:TextAlign.center,style:TextStyle(
             fontSize:_vs.fontSize*0.7,color:Color(_vs.textColor),fontWeight:FontWeight.bold)),
         ))
         else if(_subText!=null)Positioned(left:4,right:4,bottom:4,child:Container(
           padding:const EdgeInsets.symmetric(horizontal:6,vertical:3),
-          color:Color(_vs.bgColor).withOpacity(_vs.bgOpacity),
+          color:Color(_vs.bgColor).withValues(alpha: _vs.bgOpacity),
           child:Text(_subText!,textAlign:TextAlign.center,style:TextStyle(
             fontSize:_vs.fontSize*0.7,color:Color(_vs.textColor),fontWeight:FontWeight.bold)),
         )),
@@ -2021,7 +2021,7 @@ class _PlayerState extends State<PlayerScreen>{
           child:IgnorePointer(child:Container(
             padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
             decoration:BoxDecoration(
-              color:Color(_vs2.bgColor).withOpacity(_vs2.bgOpacity.clamp(0.5,0.95)),
+                color:Color(_vs2.bgColor).withValues(alpha: _vs2.bgOpacity.clamp(0.5,0.95)),
               borderRadius:BorderRadius.circular(10)),
             child:Text(_dgText2,
               textAlign:TextAlign.center,
@@ -2038,7 +2038,7 @@ class _PlayerState extends State<PlayerScreen>{
           child:IgnorePointer(child:Container(
             padding:const EdgeInsets.symmetric(horizontal:12,vertical:8),
             decoration:BoxDecoration(
-              color:Color(_vs.bgColor).withOpacity(_vs.bgOpacity.clamp(0.5,0.95)),
+                color:Color(_vs.bgColor).withValues(alpha: _vs.bgOpacity.clamp(0.5,0.95)),
               borderRadius:BorderRadius.circular(10)),
             child:Text(_dgText,
               textAlign:TextAlign.center,
@@ -2057,7 +2057,7 @@ class _PlayerState extends State<PlayerScreen>{
             child:Container(
               padding:const EdgeInsets.symmetric(horizontal:10,vertical:5),
               decoration:BoxDecoration(
-                color:Color(_vs.bgColor).withOpacity(_vs.bgOpacity),
+                color:Color(_vs.bgColor).withValues(alpha: _vs.bgOpacity),
                 borderRadius:BorderRadius.circular(5),
                 border:_vs.borderSize>0?Border.all(color:Colors.black26,width:_vs.borderSize*0.5):null,
               ),
@@ -2079,7 +2079,7 @@ class _PlayerState extends State<PlayerScreen>{
             alignment:_vs.textAlign==1?Alignment.bottomRight:_vs.textAlign==0?Alignment.bottomLeft:Alignment.bottomCenter,
             child:Container(
               padding:const EdgeInsets.symmetric(horizontal:10,vertical:5),
-              decoration:BoxDecoration(color:Color(_vs.bgColor).withOpacity(_vs.bgOpacity),borderRadius:BorderRadius.circular(5)),
+              decoration:BoxDecoration(color:Color(_vs.bgColor).withValues(alpha: _vs.bgOpacity),borderRadius:BorderRadius.circular(5)),
               child:Text(sub,textAlign:align,style:TextStyle(
                 fontFamily:_vs.fontFamily.isEmpty?null:_vs.fontFamily,
                 fontSize:_vs.fontSize,color:Color(_vs.textColor),
@@ -2096,7 +2096,7 @@ class _PlayerState extends State<PlayerScreen>{
             alignment:_vs2.textAlign==1?Alignment.bottomRight:_vs2.textAlign==0?Alignment.bottomLeft:Alignment.bottomCenter,
             child:Container(
               padding:const EdgeInsets.symmetric(horizontal:10,vertical:5),
-              decoration:BoxDecoration(color:Color(_vs2.bgColor).withOpacity(_vs2.bgOpacity),borderRadius:BorderRadius.circular(5)),
+              decoration:BoxDecoration(color:Color(_vs2.bgColor).withValues(alpha: _vs2.bgOpacity),borderRadius:BorderRadius.circular(5)),
               child:Text(sub2,
                 textAlign:TextAlign.values.elementAt(_vs2.textAlign.clamp(0,2)),
                 style:TextStyle(
@@ -2115,12 +2115,12 @@ class _PlayerState extends State<PlayerScreen>{
           Positioned(top:0,left:0,right:0,child:LinearProgressIndicator(
             value:(_duration.inMilliseconds>0&&_repeatA!=null&&_repeatB!=null)
                 ?(_repeatB!.inMilliseconds-_repeatA!.inMilliseconds)/_duration.inMilliseconds:0,
-            backgroundColor:Vz.oviBorder,color:Vz.accent.withOpacity(0.6),
+            backgroundColor:Vz.oviBorder,color:Vz.accent.withValues(alpha: 0.6),
           )),
 
         // ── حالت شب ──
         if(_vs.nightOpacity>0)Positioned.fill(child:IgnorePointer(
-            child:Container(color:const Color(0xFFFF7700).withOpacity(_vs.nightOpacity*0.35)))),
+            child:Container(color:const Color(0xFFFF7700).withValues(alpha: _vs.nightOpacity*0.35)))),
 
         // ── لایه اشاره (بدون onLongPress — تداخل با drag) ──
         if(!_locked)Positioned.fill(child:GestureDetector(
@@ -2227,7 +2227,7 @@ class _PlayerState extends State<PlayerScreen>{
               Container(
                 margin:EdgeInsets.only(top:_seekThumbData!=null?4:0),
                 padding:const EdgeInsets.symmetric(horizontal:14,vertical:6),
-                decoration:BoxDecoration(color:Colors.black.withOpacity(0.75),borderRadius:BorderRadius.circular(8),
+                decoration:BoxDecoration(color:Colors.black.withValues(alpha: 0.75),borderRadius:BorderRadius.circular(8),
                     border:Border.all(color:Vz.oviTextDim,width:0.5)),
                 child:Text(fmt(Duration(milliseconds:_seekDragMs.round())),
                     style:const TextStyle(fontSize:15,fontWeight:FontWeight.bold,color:Colors.white)),
@@ -2245,7 +2245,7 @@ class _PlayerState extends State<PlayerScreen>{
             width:52,
             child:Container(
               decoration:BoxDecoration(
-                color:Colors.black.withOpacity(0.7),
+                color:Colors.black.withValues(alpha: 0.7),
                 borderRadius:BorderRadius.circular(26),
                 border:_fastSeekLocked?Border.all(color:Vz.amber,width:1.5):null,
               ),
@@ -2276,7 +2276,7 @@ class _PlayerState extends State<PlayerScreen>{
               builder: (_,__,___) => Center(child: GestureDetector(
                 onTap: _showTranslationPanel,
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.75), borderRadius: BorderRadius.circular(20)),
+                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.75), borderRadius: BorderRadius.circular(20)),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Padding(padding: const EdgeInsets.only(left: 10, top: 6, bottom: 6),
                       child: Icon(Icons.translate, color: Vz.accent, size: 12)),
@@ -2317,7 +2317,7 @@ class _PlayerState extends State<PlayerScreen>{
               valueListenable: LiveSubState.notifier,
               builder: (_,__,___) => Center(child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.75),
+                  color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(20)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   GestureDetector(
@@ -2365,14 +2365,14 @@ class _PlayerState extends State<PlayerScreen>{
         // ── اورلی خطا با دکمه تلاش مجدد — باگ IPTV: بعد از fail دیگه چیزی لود نمی‌شد ──
         if(_loadFailed&&!_buffering)Positioned.fill(
           child:Container(
-            color:Colors.black.withOpacity(0.82),
+            color:Colors.black.withValues(alpha: 0.82),
             child:Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
               Container(
                 padding:const EdgeInsets.all(16),
                 decoration:BoxDecoration(
-                  color:Colors.white.withOpacity(0.06),
+                  color:Colors.white.withValues(alpha: 0.06),
                   shape:BoxShape.circle,
-                  border:Border.all(color:Colors.white.withOpacity(0.12)),
+                  border:Border.all(color:Colors.white.withValues(alpha: 0.12)),
                 ),
                 child:const Icon(Icons.wifi_off_rounded,color:Vz.oviTextSec,size:40)),
               const SizedBox(height:18),
@@ -2403,7 +2403,7 @@ class _PlayerState extends State<PlayerScreen>{
 
         if(_overlay!=null)Center(child:Container(
           padding:const EdgeInsets.symmetric(horizontal:20,vertical:10),
-          decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(10)),
+          decoration:BoxDecoration(color:Colors.black.withValues(alpha: 0.65),borderRadius:BorderRadius.circular(10)),
           child:Text(_overlay!,style:const TextStyle(fontSize:18,fontWeight:FontWeight.bold)),
         )),
 
@@ -2411,7 +2411,7 @@ class _PlayerState extends State<PlayerScreen>{
 
 
         if(_locked)Positioned(top:16,left:16,child:SafeArea(child:FloatingActionButton.small(
-          backgroundColor:Colors.black.withOpacity(0.55),elevation:0,
+          backgroundColor:Colors.black.withValues(alpha: 0.55),elevation:0,
           onPressed:()=>setState(()=>_locked=false),child:const Icon(Icons.lock_rounded,color:Vz.oviText),
         ))),
       ]),
@@ -2455,9 +2455,9 @@ class _PlayerState extends State<PlayerScreen>{
                 margin:const EdgeInsets.symmetric(horizontal:2,vertical:10),
                 padding:const EdgeInsets.all(4),
                 decoration:BoxDecoration(
-                  color:_embeddedSubEnabled?Vz.accent:Vz.accent.withOpacity(0.15),
+                  color:_embeddedSubEnabled?Vz.accent:Vz.accent.withValues(alpha: 0.15),
                   borderRadius:BorderRadius.circular(6),
-                  border:Border.all(color:Vz.accent.withOpacity(_embeddedSubEnabled?0:0.4)),
+                  border:Border.all(color:Vz.accent.withValues(alpha: _embeddedSubEnabled?0:0.4)),
                 ),
                 child:Icon(Icons.subtitles_rounded,size:16,
                     color:_embeddedSubEnabled?Colors.white:Vz.accent),
@@ -2645,18 +2645,18 @@ class _PlayerState extends State<PlayerScreen>{
               decoration:BoxDecoration(
                 // paused → solid accent (actionable), playing → quiet glass
                 color:_playing
-                    ? Colors.white.withOpacity(0.10)
+                    ? Colors.white.withValues(alpha: 0.10)
                     : Vz.accent,
                 shape:BoxShape.circle,
                 border:Border.all(
                   color:_playing
-                      ? Colors.white.withOpacity(0.22)
+                      ? Colors.white.withValues(alpha: 0.22)
                       : Vz.accentHi,
                   width:1),
                 boxShadow:[BoxShadow(
                   color:_playing
-                      ? Colors.black.withOpacity(0.30)
-                      : Vz.accent.withOpacity(0.28),
+                      ? Colors.black.withValues(alpha: 0.30)
+                      : Vz.accent.withValues(alpha: 0.28),
                   blurRadius:24,offset:const Offset(0,8),
                 )],
               ),
@@ -2703,7 +2703,7 @@ class _PlayerState extends State<PlayerScreen>{
           Expanded(child:SliderTheme(
             data:SliderTheme.of(context).copyWith(
               activeTrackColor:Vz.accent,
-              inactiveTrackColor:Colors.white.withOpacity(0.15),
+              inactiveTrackColor:Colors.white.withValues(alpha: 0.15),
               thumbColor:Vz.accentHi,
               thumbShape:const RoundSliderThumbShape(enabledThumbRadius:6,elevation:3),
               overlayShape:SliderComponentShape.noOverlay,
@@ -2746,7 +2746,7 @@ class _PlayerState extends State<PlayerScreen>{
       const SizedBox(width:8),
       GestureDetector(onTap:(){setState((){_repeatA=null;_repeatB=null;_abActive=false;});_showOverlay(L.aToB);},
           child:Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:4),
-              decoration:BoxDecoration(color:Colors.red.withOpacity(0.7),borderRadius:BorderRadius.circular(6)),
+              decoration:BoxDecoration(color:Colors.red.withValues(alpha: 0.7),borderRadius:BorderRadius.circular(6)),
               child:const Icon(Icons.clear,size:16))),
     ],
     const SizedBox(width:8),
@@ -2779,7 +2779,7 @@ class _PlayerState extends State<PlayerScreen>{
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.8),
+            color: Colors.green.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(6)),
           child: const Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.record_voice_over_rounded, size:12, color:Colors.white),
@@ -2802,7 +2802,7 @@ class _PlayerState extends State<PlayerScreen>{
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-            decoration: BoxDecoration(color: Vz.green.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: Vz.green.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(6)),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.record_voice_over_rounded, size:12, color:Colors.white),
               SizedBox(width:3),
@@ -2826,7 +2826,7 @@ class _PlayerState extends State<PlayerScreen>{
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-            decoration: BoxDecoration(color: Vz.accent.withOpacity(0.8), borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: Vz.accent.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(6)),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.subtitles_rounded, size:12, color:Colors.white),
               SizedBox(width:3),
@@ -2839,7 +2839,7 @@ class _PlayerState extends State<PlayerScreen>{
         onTap: () => _showAiLogDialog(),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal:8, vertical:4),
-          decoration: BoxDecoration(color: Colors.green.withOpacity(0.5), borderRadius: BorderRadius.circular(6)),
+          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(6)),
           child: const Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.bug_report_rounded, size:12, color:Colors.white),
             SizedBox(width:3),
@@ -3303,7 +3303,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Gemini DUB ──
       Container(
         decoration: BoxDecoration(
-          color: _geminiEnabled ? Vz.green.withOpacity(0.1) : Vz.oviSurface,
+          color: _geminiEnabled ? Vz.green.withValues(alpha: 0.1) : Vz.oviSurface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: _geminiEnabled ? Vz.green : Vz.oviBorder)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3324,7 +3324,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: !_geminiSubMode ? Vz.green.withOpacity(0.2) : Vz.oviSurface,
+                    color: !_geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.oviSurface,
                     border: Border.all(color: !_geminiSubMode ? Vz.green : Vz.oviBorder),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
@@ -3338,7 +3338,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: _geminiSubMode ? Vz.green.withOpacity(0.2) : Vz.oviSurface,
+                    color: _geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.oviSurface,
                     border: Border.all(color: _geminiSubMode ? Vz.green : Vz.oviBorder),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
@@ -3407,7 +3407,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Vosk Subtitle ──
       Container(
         decoration: BoxDecoration(
-          color: _voskEnabled ? Vz.accent.withOpacity(0.1) : Vz.oviSurface,
+          color: _voskEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.oviSurface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: _voskEnabled ? Vz.accent : Vz.oviBorder)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3472,7 +3472,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? Vz.accent.withOpacity(0.15) : Vz.oviSurface,
+                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
                         border: Border.all(color: _useOffline ? Vz.accent : Vz.oviBorder),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3497,7 +3497,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? Vz.accent.withOpacity(0.15) : Vz.oviSurface,
+                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
                         border: Border.all(color: !_useOffline ? Vz.accent : Vz.oviBorder),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3564,7 +3564,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Android STT ──
       Container(
         decoration: BoxDecoration(
-          color: _androidEnabled ? Vz.accent.withOpacity(0.1) : Vz.oviSurface,
+          color: _androidEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.oviSurface,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: _androidEnabled ? Vz.accent : Vz.oviBorder)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3621,7 +3621,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? Vz.accent.withOpacity(0.15) : Vz.oviSurface,
+                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
                         border: Border.all(color: _useOffline ? Vz.accent : Vz.oviBorder),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -3646,7 +3646,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? Vz.accent.withOpacity(0.15) : Vz.oviSurface,
+                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
                         border: Border.all(color: !_useOffline ? Vz.accent : Vz.oviBorder),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

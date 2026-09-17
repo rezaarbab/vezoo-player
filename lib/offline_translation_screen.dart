@@ -101,7 +101,7 @@ class _State extends State<OfflineTranslationScreen> {
           Row(children: [
             Expanded(child: _langDropdown('Source', _srcLang, _current.langCodes, (v) async {
               await OfflineTranslationService.setSrcLang(v); setState(() => _srcLang = v); })),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, color: Vz.textDim)),
+            Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward_rounded, color: Vz.textDim)),
             Expanded(child: _langDropdown('Target', _tgtLang, _current.langCodes, (v) async {
               await OfflineTranslationService.setTgtLang(v); setState(() => _tgtLang = v); })),
           ]),
@@ -110,7 +110,7 @@ class _State extends State<OfflineTranslationScreen> {
           const SizedBox(height: 8),
           ...kOfflineModels.map((m) => _modelCard(m)),
           const SizedBox(height: 12),
-          const Text('مدل‌ها در /Download/Vezoo/OfflineModels ذخیره میشن',
+          Text('مدل‌ها در /Download/Vezoo/OfflineModels ذخیره میشن',
             style: TextStyle(color: Vz.border, fontSize: 10), textAlign: TextAlign.center),
         ]));
 
@@ -145,7 +145,7 @@ class _State extends State<OfflineTranslationScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: isSelected ? _accent.withOpacity(0.12) : _card,
+          color: isSelected ? _accent.withValues(alpha: 0.12) : _card,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: isSelected ? _accent : Colors.transparent, width: 1.5)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -196,7 +196,7 @@ class _State extends State<OfflineTranslationScreen> {
             Wrap(spacing: 4, runSpacing: 4,
               children: m.langCodes.map((l) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.07), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(4)),
                 child: Text(langNames[l] ?? l, style: TextStyle(color: Vz.textDim, fontSize: 9)))).toList()),
           ],
         ])));
@@ -204,7 +204,7 @@ class _State extends State<OfflineTranslationScreen> {
 
   Widget _tag(String label, Color color) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-    decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(4)),
+    decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
     child: Text(label, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w600)));
 }
 

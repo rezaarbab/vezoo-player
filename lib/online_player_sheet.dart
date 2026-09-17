@@ -72,9 +72,9 @@ class _State extends State<OnlinePlayerSheet> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: _hasCookies ? Colors.green.withOpacity(0.1) : Vz.amber.withOpacity(0.1),
+              color: _hasCookies ? Colors.green.withValues(alpha: 0.1) : Vz.amber.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: _hasCookies ? Colors.green.withOpacity(0.3) : Vz.amber.withOpacity(0.3))),
+              border: Border.all(color: _hasCookies ? Colors.green.withValues(alpha: 0.3) : Vz.amber.withValues(alpha: 0.3))),
             child: Row(children: [
               Icon(_hasCookies ? Icons.check_circle_rounded : Icons.warning_rounded,
                 color: _hasCookies ? Colors.green : Vz.amber, size: 18),
@@ -136,7 +136,7 @@ class _State extends State<OnlinePlayerSheet> {
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: Colors.blue.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
             child: Text(
               '💡 نکته: Cookie باید از مرورگری باشه که به اون سایت login کردی. '
               'بعد از import، اینستا، TikTok و سایت‌های نیاز به login کار میکنن.',
@@ -411,7 +411,7 @@ class _State extends State<OnlinePlayerSheet> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: _hasCookies ? Colors.green.withOpacity(0.2) : Vz.border,
+                  color: _hasCookies ? Colors.green.withValues(alpha: 0.2) : Vz.border,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(color: _hasCookies ? Colors.green : Vz.border)),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [

@@ -43,8 +43,8 @@ LinearGradient _extGrad(String ext){
 
 Widget _badge(String text,Color color)=>Container(
   padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-  decoration:BoxDecoration(color:color.withOpacity(0.12),borderRadius:BorderRadius.circular(5),
-      border:Border.all(color:color.withOpacity(0.35),width:0.7)),
+  decoration:BoxDecoration(color:color.withValues(alpha: 0.12),borderRadius:BorderRadius.circular(5),
+      border:Border.all(color:color.withValues(alpha: 0.35),width:0.7)),
   child:Text(text,style:TextStyle(fontSize:10,color:color,fontWeight:FontWeight.w600,height:1.2)),
 );
 
@@ -344,7 +344,7 @@ class BrowserScreenState extends State<BrowserScreen>{
           ...allSubs.map((s)=>Padding(
             padding:const EdgeInsets.only(right:24,top:2),
             child:Row(children:[
-              Icon(Icons.fiber_manual_record_rounded,size:8,color:kGreen.withOpacity(0.6)),
+              Icon(Icons.fiber_manual_record_rounded,size:8,color:kGreen.withValues(alpha: 0.6)),
               const SizedBox(width:6),
               Expanded(child:Text(p.basename(s),style:TextStyle(fontSize:11,color:kTextSec))),
             ]),
@@ -375,7 +375,7 @@ class BrowserScreenState extends State<BrowserScreen>{
   Widget _iRow(IconData icon,Color iconColor,String label,String val)=>Padding(
     padding:const EdgeInsets.symmetric(vertical:4),
     child:Row(crossAxisAlignment:CrossAxisAlignment.start,children:[
-      Container(padding:const EdgeInsets.all(4),decoration:BoxDecoration(color:iconColor.withOpacity(0.1),borderRadius:BorderRadius.circular(5)),
+      Container(padding:const EdgeInsets.all(4),decoration:BoxDecoration(color:iconColor.withValues(alpha: 0.1),borderRadius:BorderRadius.circular(5)),
           child:Icon(icon,size:12,color:iconColor)),
       const SizedBox(width:8),
       Text('$label: ',style:TextStyle(color:kTextSec,fontSize:12)),
@@ -416,7 +416,7 @@ class BrowserScreenState extends State<BrowserScreen>{
           decoration:BoxDecoration(
             color:kCard,
             borderRadius:BorderRadius.circular(14),
-            border:Border.all(color:kAccent.withOpacity(0.25)),
+            border:Border.all(color:kAccent.withValues(alpha: 0.25)),
           ),
           child:Row(children:[
             Icon(Icons.search_rounded,size:16,color:kTextDim),
@@ -516,7 +516,7 @@ class BrowserScreenState extends State<BrowserScreen>{
 
   PreferredSizeWidget _selectBar()=>AppBar(
     automaticallyImplyLeading:false,
-    backgroundColor:kAccent.withOpacity(0.15),
+    backgroundColor:kAccent.withValues(alpha: 0.15),
     leading:IconButton(icon:const Icon(Icons.close_rounded,size:20),onPressed:()=>setState((){_selectMode=false;_selected.clear();})),
     title:Text('${_selected.length} ${L.select}',style:const TextStyle(fontSize:15)),
     actions:[
@@ -552,9 +552,9 @@ class BrowserScreenState extends State<BrowserScreen>{
     ])));
 
     return Column(children:[
-      Container(width:double.infinity,padding:const EdgeInsets.symmetric(horizontal:16,vertical:7),color:kSurface.withOpacity(0.85),
+      Container(width:double.infinity,padding:const EdgeInsets.symmetric(horizontal:16,vertical:7),color:kSurface.withValues(alpha: 0.85),
           child:Row(children:[
-            Icon(Icons.folder_open_rounded,size:12,color:kAccent.withOpacity(0.85)),const SizedBox(width:6),
+            Icon(Icons.folder_open_rounded,size:12,color:kAccent.withValues(alpha: 0.85)),const SizedBox(width:6),
             Expanded(child:Text(_path,style:TextStyle(fontSize:10,color:kTextDim),overflow:TextOverflow.ellipsis)),
             if(_searchRunning)SizedBox(width:12,height:12,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
             if(_globalSearch&&!_searchRunning&&_searchResults.isNotEmpty)
@@ -573,8 +573,8 @@ class BrowserScreenState extends State<BrowserScreen>{
     if(total==0)return Center(child:Column(mainAxisSize:MainAxisSize.min,children:[
       Container(padding:const EdgeInsets.all(18),
         decoration:BoxDecoration(
-          color:kCard.withOpacity(0.6),shape:BoxShape.circle,
-          border:Border.all(color:kBorder.withOpacity(0.8))),
+          color:kCard.withValues(alpha: 0.6),shape:BoxShape.circle,
+          border:Border.all(color:kBorder.withValues(alpha: 0.8))),
         child:Icon(Icons.grid_view_rounded,size:34,color:kTextDim)),
       const SizedBox(height:16),
       Text(L.noFilesFound,style:TextStyle(color:kTextSec,fontSize:14)),
@@ -645,9 +645,9 @@ class _DirTile extends StatelessWidget{
     onTap:onTap,
     child:Container(
       decoration:BoxDecoration(
-        color:kCard.withOpacity(0.72),
+        color:kCard.withValues(alpha: 0.72),
         borderRadius:BorderRadius.circular(18),
-        border:Border.all(color:kBorder.withOpacity(0.7))),
+        border:Border.all(color:kBorder.withValues(alpha: 0.7))),
       padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
       child:Row(children:[
         Container(width:34,height:34,decoration:BoxDecoration(
@@ -687,10 +687,10 @@ class _VideoTile extends StatelessWidget{
         duration:const Duration(milliseconds:180),
         curve:Curves.easeOut,
         decoration:BoxDecoration(
-          color:selected?kAccent.withOpacity(0.14):kCard.withOpacity(0.72),
+          color:selected?kAccent.withValues(alpha: 0.14):kCard.withValues(alpha: 0.72),
           borderRadius:BorderRadius.circular(20),
-          border:Border.all(color:selected?kAccent.withOpacity(0.7):kBorder.withOpacity(0.75)),
-          boxShadow:selected?[BoxShadow(color:kAccent.withOpacity(0.2),blurRadius:20,offset:const Offset(0,6))]:null,
+          border:Border.all(color:selected?kAccent.withValues(alpha: 0.7):kBorder.withValues(alpha: 0.75)),
+          boxShadow:selected?[BoxShadow(color:kAccent.withValues(alpha: 0.2),blurRadius:20,offset:const Offset(0,6))]:null,
         ),
         child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
           // ── پوستر ──
@@ -732,7 +732,7 @@ class _VideoTile extends StatelessWidget{
                   alignment:Alignment.bottomRight,
                   child:Padding(padding:const EdgeInsets.all(7),child:Container(
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                    decoration:BoxDecoration(color:Colors.black.withOpacity(0.65),borderRadius:BorderRadius.circular(6)),
+                    decoration:BoxDecoration(color:Colors.black.withValues(alpha: 0.65),borderRadius:BorderRadius.circular(6)),
                     child:Text(fmt(Duration(seconds:dur)),
                       style:TextStyle(fontSize:10,color:Vz.text,fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
                 // انتخاب‌چک باکس
@@ -742,7 +742,7 @@ class _VideoTile extends StatelessWidget{
                     duration:const Duration(milliseconds:150),width:24,height:24,
                     decoration:BoxDecoration(
                       gradient:selected?LinearGradient(colors:[Vz.accentHi,Color(0xFF6D28D9)]):null,
-                      color:selected?null:Colors.black.withOpacity(0.45),
+                      color:selected?null:Colors.black.withValues(alpha: 0.45),
                       shape:BoxShape.circle,
                       border:selected?null:Border.all(color:Vz.textDim,width:1.4)),
                     child:selected?Icon(Icons.check_rounded,color:Vz.bg,size:17):null))),
@@ -750,9 +750,9 @@ class _VideoTile extends StatelessWidget{
                 if(!selectMode)Center(child:Container(
                   width:44,height:44,
                   decoration:BoxDecoration(
-                    color:Colors.black.withOpacity(0.35),
+                    color:Colors.black.withValues(alpha: 0.35),
                     shape:BoxShape.circle,
-                    border:Border.all(color:Colors.white.withOpacity(0.25)),
+                    border:Border.all(color:Colors.white.withValues(alpha: 0.25)),
                   ),
                   child:Icon(Icons.play_arrow_rounded,
                     color:seen?kAccent:Colors.white,size:28),
@@ -839,7 +839,7 @@ class _VideoMenuState extends State<VideoMenu>{
     const SizedBox(height:8),
   ])));
   Widget _mi(IconData icon,Color iconColor,String title,VoidCallback onTap)=>ListTile(dense:true,
-    leading:Container(width:30,height:30,decoration:BoxDecoration(color:iconColor.withOpacity(0.1),borderRadius:BorderRadius.circular(7)),
+    leading:Container(width:30,height:30,decoration:BoxDecoration(color:iconColor.withValues(alpha: 0.1),borderRadius:BorderRadius.circular(7)),
         child:Icon(icon,color:iconColor,size:15)),
     title:Text(title,style:const TextStyle(fontSize:13)),onTap:onTap);
   Widget _mi2(IconData icon,Color iconColor,String title,VoidCallback onTap)=>_mi(icon,iconColor,title,onTap);

@@ -169,7 +169,7 @@ class _State extends State<OpenSubtitlesSheet> {
           if (_error != null) Container(
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(color: Colors.red.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
             child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
           ),
 
@@ -203,7 +203,7 @@ class _State extends State<OpenSubtitlesSheet> {
           if (f.year != null) Text(f.year!, style: TextStyle(color: Vz.textDim, fontSize: 11)),
           const SizedBox(width: 6),
           Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(color: Vz.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(6)),
+            decoration: BoxDecoration(color: Vz.accent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(6)),
             child: Text(f.type == 'tvshow' ? L.tvShow : L.movie, style: TextStyle(color: Vz.accent, fontSize: 10))),
         ]),
         trailing: Icon(Icons.chevron_left, color: Vz.textDim, size: 18),
@@ -265,14 +265,14 @@ class _State extends State<OpenSubtitlesSheet> {
         decoration: BoxDecoration(color: Vz.card, borderRadius: BorderRadius.circular(12)),
         child: Row(children: [
           Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(color: Vz.accent.withOpacity(0.2), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: Vz.accent.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(8)),
             child: Text(s.language.toUpperCase(), style: TextStyle(color: Vz.accent, fontSize: 11, fontWeight: FontWeight.bold))),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(s.release.isEmpty ? L.noName : s.release, style: TextStyle(color: Vz.text, fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
             const SizedBox(height: 2),
             Row(children: [
-              if (s.hd) Container(padding: const EdgeInsets.symmetric(horizontal: 4), decoration: BoxDecoration(color: Colors.green.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+              if (s.hd) Container(padding: const EdgeInsets.symmetric(horizontal: 4), decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
                 child: const Text('HD', style: TextStyle(color: Colors.green, fontSize: 9))),
               const SizedBox(width: 6),
               Text('${s.downloadCount} ${L.downloadCount}', style: TextStyle(color: Vz.textDim, fontSize: 10)),

@@ -263,7 +263,7 @@ class VzThemePicker extends StatelessWidget {
           curve: Mo.easeOut,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Vz.accent.withOpacity(0.12) : Colors.transparent,
+            color: selected ? Vz.accent.withValues(alpha: 0.12) : Colors.transparent,
             borderRadius: BorderRadius.circular(Rad.sm),
             border: Border.all(
               color: selected ? Vz.accent : Vz.border,

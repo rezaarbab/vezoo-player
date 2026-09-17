@@ -75,7 +75,7 @@ class _AiHistoryScreenState extends State<AiHistoryScreen> {
                     overflow:TextOverflow.ellipsis),
                   subtitle:Wrap(spacing:4,runSpacing:2,children:langs.map((l)=>Container(
                     padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                    decoration:BoxDecoration(color:Vz.accent.withOpacity(0.2),borderRadius:BorderRadius.circular(6)),
+                    decoration:BoxDecoration(color:Vz.accent.withValues(alpha: 0.2),borderRadius:BorderRadius.circular(6)),
                     child:Text(kLanguages[l]??l,style:TextStyle(color:Vz.accent,fontSize:10)),
                   )).toList()),
                   trailing:IconButton(

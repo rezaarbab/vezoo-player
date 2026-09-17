@@ -420,11 +420,11 @@ class _LiveTabState extends State<_LiveTab> {
                 color: kCard,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: kBorder),
-                boxShadow: [BoxShadow(color: kAccent.withOpacity(0.08), blurRadius: 12, offset: const Offset(0,4))]),
+                boxShadow: [BoxShadow(color: kAccent.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0,4))]),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               child: Row(children: [
                 Container(width: 36, height: 36,
-                  decoration: BoxDecoration(color: kAccent.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: kAccent.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
                   child: Icon(cat.id == '__all__' ? Icons.live_tv_rounded : Icons.folder_rounded,
                     color: kAccent, size: 18)),
                 const SizedBox(width: 10),
@@ -554,10 +554,10 @@ class _VodTabState extends State<_VodTab> {
             onTap: () => setState(() { _showGrid=false; _selCat=cat.id=='__all__'?null:cat; _search=''; _applyFilter(); if(cat.id=='__all__')_filtered=List.from(_vods); }),
             child: Container(
               decoration: BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(12),border:Border.all(color:kBorder),
-                boxShadow:[BoxShadow(color:kAccent.withOpacity(0.08),blurRadius:12,offset:const Offset(0,4))]),
+                boxShadow:[BoxShadow(color:kAccent.withValues(alpha: 0.08),blurRadius:12,offset:const Offset(0,4))]),
               padding: const EdgeInsets.symmetric(horizontal:12,vertical:10),
               child: Row(children: [
-                Container(width:36,height:36,decoration:BoxDecoration(color:kAccent.withOpacity(0.15),borderRadius:BorderRadius.circular(8)),
+                Container(width:36,height:36,decoration:BoxDecoration(color:kAccent.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(8)),
                   child:Icon(cat.id=='__all__'?Icons.movie_rounded:Icons.folder_rounded,color:kAccent,size:18)),
                 const SizedBox(width:10),
                 Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[
@@ -675,10 +675,10 @@ class _SeriesTabState extends State<_SeriesTab> {
             onTap: () => setState(() { _showGrid=false; _selCat=cat.id=='__all__'?null:cat; _search=''; _applyFilter(); if(cat.id=='__all__')_filtered=List.from(_series); }),
             child: Container(
               decoration: BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(12),border:Border.all(color:kBorder),
-                boxShadow:[BoxShadow(color:kAccent.withOpacity(0.08),blurRadius:12,offset:const Offset(0,4))]),
+                boxShadow:[BoxShadow(color:kAccent.withValues(alpha: 0.08),blurRadius:12,offset:const Offset(0,4))]),
               padding: const EdgeInsets.symmetric(horizontal:12,vertical:10),
               child: Row(children: [
-                Container(width:36,height:36,decoration:BoxDecoration(color:kAccent.withOpacity(0.15),borderRadius:BorderRadius.circular(8)),
+                Container(width:36,height:36,decoration:BoxDecoration(color:kAccent.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(8)),
                   child:Icon(cat.id=='__all__'?Icons.video_library_rounded:Icons.folder_rounded,color:kAccent,size:18)),
                 const SizedBox(width:10),
                 Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisAlignment:MainAxisAlignment.center,children:[
@@ -722,7 +722,7 @@ class _EpisodesSheetState extends State<_EpisodesSheet> {
         itemBuilder: (_, i) {
           final ep = _episodes[i];
           return ListTile(dense: true,
-            leading: CircleAvatar(backgroundColor: kAccent.withOpacity(0.2), radius: 18,
+            leading: CircleAvatar(backgroundColor: kAccent.withValues(alpha: 0.2), radius: 18,
               child: Text('${ep.episode}', style: TextStyle(color: Vz.text, fontSize: 11))),
             title: Text('S${ep.season}E${ep.episode} — ${ep.title}', style: TextStyle(color: Vz.text, fontSize: 12)),
             onTap: () { Navigator.pop(context); widget.onPlay(ep.url, ep.title); });

@@ -216,9 +216,9 @@ class VzIconBadge extends StatelessWidget {
     return Container(
       width: box, height: box,
       decoration: BoxDecoration(
-        color: c.withOpacity(0.12),
+        color: c.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(box * 0.30),
-        border: Border.all(color: c.withOpacity(0.24), width: 1),
+        border: Border.all(color: c.withValues(alpha: 0.24), width: 1),
       ),
       child: Icon(icon, color: c, size: size),
     );
@@ -263,9 +263,9 @@ class VzGlassIconButton extends StatelessWidget {
       child: Container(
         width: size, height: size,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.42),
+          color: Colors.black.withValues(alpha: 0.42),
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withOpacity(0.16), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.16), width: 1),
         ),
         child: Material(
           color: Colors.transparent,
@@ -302,11 +302,11 @@ class VzChip extends StatelessWidget {
     return _PressScale(
       onTap: onTap,
       child: Material(
-        color: selected ? c.withOpacity(0.14) : Vz.card,
+        color: selected ? c.withValues(alpha: 0.14) : Vz.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(Rad.full),
           side: BorderSide(
-            color: selected ? c.withOpacity(0.6) : Vz.border,
+            color: selected ? c.withValues(alpha: 0.6) : Vz.border,
             width: 1,
           ),
         ),
@@ -345,7 +345,7 @@ class VzBadge extends StatelessWidget {
     decoration: BoxDecoration(
       color: Vz.badgeBg,
       borderRadius: BorderRadius.circular(6),
-      border: Border.all(color: color.withOpacity(0.55), width: 1),
+      border: Border.all(color: color.withValues(alpha: 0.55), width: 1),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       if (icon != null) ...[
@@ -386,11 +386,11 @@ class VzEmpty extends StatelessWidget {
           Container(
             width: 80, height: 80,
             decoration: BoxDecoration(
-              color: c.withOpacity(0.08),
+              color: c.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: c.withOpacity(0.20), width: 1),
+              border: Border.all(color: c.withValues(alpha: 0.20), width: 1),
             ),
-            child: Icon(icon, size: 34, color: c.withOpacity(0.8)),
+            child: Icon(icon, size: 34, color: c.withValues(alpha: 0.8)),
           ),
           const SizedBox(height: Sp.lg),
           Text(title, style: Ty.heading),
@@ -447,9 +447,9 @@ class _VzShimmerState extends State<VzShimmer> with SingleTickerProviderStateMix
           begin: Alignment(-1 - _c.value*2, 0),
           end: Alignment(1 - _c.value*2, 0),
           colors: [
-            Vz.cardHi.withOpacity(0.05),
-            Vz.borderHi.withOpacity(0.35),
-            Vz.cardHi.withOpacity(0.05),
+            Vz.cardHi.withValues(alpha: 0.05),
+            Vz.borderHi.withValues(alpha: 0.35),
+            Vz.cardHi.withValues(alpha: 0.05),
           ],
         ).createShader(bounds),
         child: widget.child,
@@ -536,7 +536,6 @@ Future<T?> showVzSheet<T>({
   isScrollControlled: isScrollControlled,
   useSafeArea: true,
   backgroundColor: backgroundColor ?? Vz.surface,
-  surfaceTintColor: Colors.transparent,
   showDragHandle: showDragHandle,
   shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
@@ -701,7 +700,7 @@ class VzSegmented extends StatelessWidget {
                 curve: Mo.easeOut,
                 padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
                 decoration: BoxDecoration(
-                  color: i == value ? Vz.accent.withOpacity(0.14) : Colors.transparent,
+                  color: i == value ? Vz.accent.withValues(alpha: 0.14) : Colors.transparent,
                   borderRadius: BorderRadius.circular(Rad.xs),
                   border: Border.all(
                     color: i == value ? Vz.accent : Colors.transparent),
@@ -912,9 +911,9 @@ Future<T?> showVzDialog<T>({
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: c.withOpacity(0.12),
+              color: c.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: c.withOpacity(0.28), width: 1),
+              border: Border.all(color: c.withValues(alpha: 0.28), width: 1),
             ),
             child: Icon(icon, size: 18, color: c),
           ),
@@ -988,9 +987,9 @@ Future<String?> showVzInputDialog({
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(
-              color: Vz.accent.withOpacity(0.12),
+              color: Vz.accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: Vz.accent.withOpacity(0.28), width: 1),
+              border: Border.all(color: Vz.accent.withValues(alpha: 0.28), width: 1),
             ),
             child: Icon(icon, size: 18, color: Vz.accent),
           ),
@@ -1188,9 +1187,9 @@ class VzMediaCard extends StatelessWidget {
                       child: Container(
                         width: 42, height: 42,
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
+                          color: Colors.black.withValues(alpha: 0.45),
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withOpacity(0.24), width: 1),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.24), width: 1),
                         ),
                         child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
                       ),
@@ -1203,7 +1202,7 @@ class VzMediaCard extends StatelessWidget {
                   child: IgnorePointer(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Vz.accent.withOpacity(0.18),
+                        color: Vz.accent.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.vertical(top: Radius.circular(radius - 1)),
                       ),
                       child: const Icon(Icons.check_circle_rounded, color: Colors.white, size: 28),
