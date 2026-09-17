@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
 import 'package:player/glass.dart';
+import 'package:player/vz_presets.dart';
 
 void main() {
   group('NOVA Design System — Tokens', () {
@@ -13,9 +14,10 @@ void main() {
       expect(Vz.card.toARGB32(), equals(0xFF17171C));
       expect(Vz.cardHi.toARGB32(), equals(0xFF1F1F26));
       // اکسنت پیش‌فرض = اولین پالت (Cyan) در حالت تیره
-      expect(Vz.accent.toARGB32(), equals(0xFF22D3EE));
-      expect(Vz.accentHi.toARGB32(), equals(0xFF67E8F9));
-      expect(Vz.deep.toARGB32(), equals(0xFF0E7490));
+      expect(Vz.accentIndex, equals(-1)); // -1 = رنگ خودِ پرسِت
+      expect(Vz.accent.toARGB32(), equals(Vz.preset.accentDark.toARGB32()));
+      expect(Vz.accentHi.toARGB32(), equals(Vz.preset.accentDarkHi.toARGB32()));
+      expect(Vz.deep.toARGB32(), equals(Vz.preset.accentDarkDeep.toARGB32()));
       expect(Vz.magenta.toARGB32(), equals(0xFFFB7185));
       expect(Vz.green.toARGB32(), equals(0xFF4ADE80));
       expect(Vz.amber.toARGB32(), equals(0xFFFBBF24));
@@ -55,6 +57,34 @@ void main() {
       expect(Vz.auroraGrad.colors.last, Vz.deep);
     });
 
+    test('Presets are complete — palette, gradient, radius', () {
+      expect(kVzPresets.length, greaterThanOrEqualTo(6));
+      for (final p in kVzPresets) {
+        expect(p.id, isNotEmpty);
+        expect(p.name, isNotEmpty);
+        expect(p.bgGradientsDark.length, greaterThanOrEqualTo(2));
+        expect(p.bgGradientsLight.length, greaterThanOrEqualTo(2));
+        // هر پرسِت باید هر سه لایه‌ی رنگ را داشته باشد و از هم متفاوت باشند
+        expect(p.bgDark, isNot(equals(p.cardDark)));
+        expect(p.bgLight, isNot(equals(p.cardLight)));
+        expect(p.radiusScale, greaterThan(0));
+      }
+      // هر دو سبک دخترونه و پسرونه موجود باشد
+      expect(kVzPresets.any((p) => p.style == VzStyle.kawaii), isTrue);
+      expect(kVzPresets.any((p) => p.style == VzStyle.shonen), isTrue);
+    });
+
+    test('Light preset surfaces are actually light', () {
+      for (final p in kVzPresets) {
+        // bg روشن باید روشنایی بالا داشته باشد (باگ قبلی: تم روشن خاکستری بود)
+        expect(p.bgLight.computeLuminance(), greaterThan(0.75),
+            reason: 'بک‌گراند روشن پرسِت ');
+        expect(p.cardLight.computeLuminance(), greaterThan(0.85),
+            reason: 'کارت روشن پرسِت ');
+        // و متن تیره و خوانا باشد
+        expect(p.borderLight.computeLuminance(), greaterThan(0.5));
+      }
+    });
     test('Accent palette is complete and readable', () {
       expect(kVzAccents.length, greaterThanOrEqualTo(8));
       for (final a in kVzAccents) {

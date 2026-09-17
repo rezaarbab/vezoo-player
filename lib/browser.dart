@@ -13,6 +13,7 @@ import 'player.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
+import 'vz_icons.dart';
 
 // ── پالت NOVA — سازگاری با صفحات داخلی ──
 Color get kBg      => Vz.bg;
@@ -250,7 +251,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     return showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
       title:Text(title),
       content:Column(mainAxisSize:MainAxisSize.min,children:all.map((folder)=>ListTile(
-        leading:Icon(Icons.folder_rounded,color:kAmber),title:Text(p.basename(folder)),
+        leading:Icon(VzIcons.data('folder'),color:kAmber),title:Text(p.basename(folder)),
         onTap:()=>Navigator.pop(ctx,folder),
       )).toList()),
     ));
@@ -295,7 +296,7 @@ class BrowserScreenState extends State<BrowserScreen>{
         Row(mainAxisAlignment:MainAxisAlignment.center,children:List.generate(5,(i)=>GestureDetector(
           onTap:()=>ss(()=>rating=i+1),
           child:Padding(padding:const EdgeInsets.all(4),
-              child:Icon(i<rating?Icons.star_rounded:Icons.star_outline_rounded,color:kAmber,size:36)),
+              child:Icon(i<rating?VzIcons.data('star'):VzIcons.data('star-off'),color:kAmber,size:36)),
         ))),
       ]),
       actions:[
@@ -340,19 +341,19 @@ class BrowserScreenState extends State<BrowserScreen>{
         Expanded(child:Text(p.basename(f.path),style:const TextStyle(fontSize:13,fontWeight:FontWeight.w600))),
       ]),
       content:SingleChildScrollView(child:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.start,children:[
-        _iRow(Icons.folder_open_rounded,kTextSec,L.path,p.dirname(f.path)),
-        _iRow(Icons.video_file_rounded,kCyan,L.format,ext.toUpperCase()),
+        _iRow(VzIcons.data('folder-open'),kTextSec,L.path,p.dirname(f.path)),
+        _iRow(VzIcons.data('video'),kCyan,L.format,ext.toUpperCase()),
         _iRow(Icons.data_usage_outlined,kTextSec,L.sortSize,sizeStr(f)),
         if(fileSize>0)_iRow(Icons.straighten_rounded,kTextSec,L.precise,'${fileSize} bytes'),
         if(dur>0)_iRow(Icons.timer_outlined,kCyan,L.duration,fmt(Duration(seconds:dur))),
         _iRow(Icons.calendar_today_outlined,kTextSec,L.sortDate,modified),
-        _iRow(Icons.info_outline_rounded,kAccent,L.probableCodec,codecHint),
-        _iRow(Icons.visibility_outlined,Store.watched.contains(f.path)?kGreen:kTextSec,
+        _iRow(VzIcons.data('info'),kAccent,L.probableCodec,codecHint),
+        _iRow(VzIcons.data('visibility'),Store.watched.contains(f.path)?kGreen:kTextSec,
             L.status,Store.watched.contains(f.path)?L.watched:L.notWatched),
-        if(rating>0)_iRow(Icons.star_rounded,kAmber,L.rating,'${'★'*rating}${'☆'*(5-rating)}'),
+        if(rating>0)_iRow(VzIcons.data('star'),kAmber,L.rating,'${'★'*rating}${'☆'*(5-rating)}'),
         if(note.isNotEmpty)_iRow(Icons.notes_rounded,kTextSec,L.note,note),
         if(allSubs.isNotEmpty)...[
-          _iRow(Icons.subtitles_rounded,kGreen,L.subtitle,'${allSubs.length}'),
+          _iRow(VzIcons.data('subtitle'),kGreen,L.subtitle,'${allSubs.length}'),
           ...allSubs.map((s)=>Padding(
             padding:const EdgeInsets.only(right:24,top:2),
             child:Row(children:[
@@ -361,7 +362,7 @@ class BrowserScreenState extends State<BrowserScreen>{
               Expanded(child:Text(p.basename(s),style:TextStyle(fontSize:11,color:kTextSec))),
             ]),
           )),
-        ]else _iRow(Icons.subtitles_rounded,kTextDim,L.subtitle,L.notFound),
+        ]else _iRow(VzIcons.data('subtitle'),kTextDim,L.subtitle,L.notFound),
       ])),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
     ));
@@ -421,7 +422,7 @@ class BrowserScreenState extends State<BrowserScreen>{
 
   PreferredSizeWidget _normalBar(bool isSaved)=>AppBar(
     automaticallyImplyLeading:false,
-    leading:_path!=root?IconButton(icon:const Icon(Icons.arrow_back_ios_new_rounded,size:18),onPressed:_goUp):null,
+    leading:_path!=root?IconButton(icon:Icon(VzIcons.data('back'),size:18),onPressed:_goUp):null,
     title:_searching
         ?Container(
           padding:const EdgeInsets.symmetric(horizontal:14,vertical:6),
@@ -431,7 +432,7 @@ class BrowserScreenState extends State<BrowserScreen>{
             border:Border.all(color:kAccent.withValues(alpha: 0.25)),
           ),
           child:Row(children:[
-            Icon(Icons.search_rounded,size:16,color:kTextDim),
+            Icon(VzIcons.data('search'),size:16,color:kTextDim),
             const SizedBox(width:8),
             Expanded(child:TextField(controller:_searchCtrl,autofocus:true,
                 style:TextStyle(fontSize:14,color:Vz.text),
@@ -472,7 +473,7 @@ class BrowserScreenState extends State<BrowserScreen>{
           ),
         ),
       ],
-      IconButton(icon:Icon(_searching?Icons.close_rounded:Icons.search_rounded,size:20),
+      IconButton(icon:Icon(_searching?VzIcons.data('close'):VzIcons.data('search'),size:20),
           onPressed:(){setState((){_searching=!_searching;if(!_searching){_searchQuery='';_searchCtrl.clear();_searchResults=[];_globalSearch=false;}});}),
       // ── تعویض چیدمان: گرید / لیست / فشرده ──
       if(!_searching)
@@ -488,9 +489,9 @@ class BrowserScreenState extends State<BrowserScreen>{
               border:Border.all(color:Vz.border)),
             child:Icon(
               switch(_layout){
-                _LibLayout.grid=>Icons.grid_view_rounded,
-                _LibLayout.list=>Icons.view_agenda_rounded,
-                _LibLayout.compact=>Icons.view_headline_rounded,
+                _LibLayout.grid=>VzIcons.data('grid'),
+                _LibLayout.list=>VzIcons.data('list'),
+                _LibLayout.compact=>VzIcons.data('compact'),
               },
               size:18,color:Vz.accent),
           ),
@@ -498,20 +499,20 @@ class BrowserScreenState extends State<BrowserScreen>{
       // NOVA: Online/IPTV/Library/Settings از طریق NavDock — دکمه‌های تکراری حذف شد
       if(!_searching)...[
         if(_path!=root)IconButton(
-          icon:Icon(isSaved?Icons.push_pin_rounded:Icons.push_pin_outlined,color:isSaved?Vz.amber:Vz.textSec,size:20),
+          icon:Icon(isSaved?VzIcons.data('pin'):VzIcons.data('pin-off'),color:isSaved?Vz.amber:Vz.textSec,size:20),
           onPressed:()async{await Store.toggleSavedFolder(_path);setState((){});},
         ),
         PopupMenuButton<String>(
-          icon:const Icon(Icons.storage_rounded,size:20),
+          icon:Icon(VzIcons.data('storage'),size:20),
           tooltip:L.selectStorage,
           itemBuilder:(_){
             final items=<PopupMenuEntry<String>>[
-              _pmStr(Icons.phone_android_rounded,'/storage/emulated/0','📱 ${L.internalStorage}'),
-              _pmStr(Icons.download_rounded,'/storage/emulated/0/Download','⬇ ${L.downloads}'),
-              _pmStr(Icons.movie_rounded,'/storage/emulated/0/Movies','🎬 ${L.movies}'),
+              _pmStr(VzIcons.data('phone'),'/storage/emulated/0','📱 ${L.internalStorage}'),
+              _pmStr(VzIcons.data('download'),'/storage/emulated/0/Download','⬇ ${L.downloads}'),
+              _pmStr(VzIcons.data('movie'),'/storage/emulated/0/Movies','🎬 ${L.movies}'),
             ];
-            for(final d in _getStorageDevices()){items.add(_pmStr(Icons.sd_card_rounded,d.path,'💾 ${p.basename(d.path)}'));}
-            items..add(const PopupMenuDivider())..add(_pmStr(Icons.edit_rounded,'__custom__','📂 ${L.customPath}'));
+            for(final d in _getStorageDevices()){items.add(_pmStr(VzIcons.data('sd'),d.path,'💾 ${p.basename(d.path)}'));}
+            items..add(const PopupMenuDivider())..add(_pmStr(VzIcons.data('edit'),'__custom__','📂 ${L.customPath}'));
             return items;
           },
           onSelected:(v){
@@ -528,13 +529,13 @@ class BrowserScreenState extends State<BrowserScreen>{
           },
         ),
         PopupMenuButton<_SortBy>(
-          icon:const Icon(Icons.sort_rounded,size:20),
+          icon:Icon(VzIcons.data('sort'),size:20),
           onSelected:(v)=>setState((){if(_sortBy==v)_sortDesc=!_sortDesc;else{_sortBy=v;_sortDesc=false;}}),
           itemBuilder:(_)=>[
-            _pmSort(_SortBy.name,L.sortName,Icons.sort_rounded),
-            _pmSort(_SortBy.date,L.sortDate,Icons.access_time_rounded),
-            _pmSort(_SortBy.size,L.sortSize,Icons.data_usage_rounded),
-            _pmSort(_SortBy.type,L.sortType,Icons.video_file_rounded),
+            _pmSort(_SortBy.name,L.sortName,VzIcons.data('sort')),
+            _pmSort(_SortBy.date,L.sortDate,VzIcons.data('clock')),
+            _pmSort(_SortBy.size,L.sortSize,VzIcons.data('size')),
+            _pmSort(_SortBy.type,L.sortType,VzIcons.data('video')),
           ],
         ),
       ],
@@ -550,11 +551,11 @@ class BrowserScreenState extends State<BrowserScreen>{
   PreferredSizeWidget _selectBar()=>AppBar(
     automaticallyImplyLeading:false,
     backgroundColor:kAccent.withValues(alpha: 0.15),
-    leading:IconButton(icon:const Icon(Icons.close_rounded,size:20),onPressed:()=>setState((){_selectMode=false;_selected.clear();})),
+    leading:IconButton(icon:Icon(VzIcons.data('close'),size:20),onPressed:()=>setState((){_selectMode=false;_selected.clear();})),
     title:Text('${_selected.length} ${L.select}',style:const TextStyle(fontSize:15)),
     actions:[
       if(_selected.isNotEmpty)IconButton(
-        icon:Icon(Icons.play_circle_rounded,color:kAccent,size:26),
+        icon:Icon(VzIcons.data('play'),color:kAccent,size:26),
         tooltip:L.play,
         onPressed:(){
           final sorted=_filteredVideos.where((v)=>_selected.contains(v.path)).toList();
@@ -565,9 +566,9 @@ class BrowserScreenState extends State<BrowserScreen>{
             playlistIndex:0,
           )));
         }),
-      TextButton.icon(icon:const Icon(Icons.select_all_rounded,size:18),label:Text(L.allItems,style:TextStyle(fontSize:13)),
+      TextButton.icon(icon:Icon(VzIcons.data('check'),size:18),label:Text(L.allItems,style:TextStyle(fontSize:13)),
           onPressed:()=>setState(()=>_selected.addAll(_filteredVideos.map((v)=>v.path)))),
-      IconButton(icon:Icon(Icons.delete_outline_rounded,color:kRed,size:22),
+      IconButton(icon:Icon(VzIcons.data('trash'),color:kRed,size:22),
           onPressed:_selected.isEmpty?null:()=>_confirmDelete(_selected.map((s)=>File(s)).toList())),
     ],
   );
@@ -576,18 +577,18 @@ class BrowserScreenState extends State<BrowserScreen>{
     if(_checking)return Center(child:CircularProgressIndicator());
     if(!_granted)return Center(child:Padding(padding:const EdgeInsets.all(32),child:Column(mainAxisSize:MainAxisSize.min,children:[
       Container(padding:const EdgeInsets.all(20),decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(20),border:Border.all(color:kBorder)),
-          child:Icon(Icons.folder_off_rounded,size:48,color:kTextSec)),
+          child:Icon(VzIcons.data('folder-empty'),size:48,color:kTextSec)),
       const SizedBox(height:20),
       Text(L.permissionNeeded,textAlign:TextAlign.center,style:TextStyle(color:kTextSec)),
       const SizedBox(height:20),
-      FilledButton.icon(onPressed:_ensurePermission,icon:const Icon(Icons.lock_open_rounded),label:Text(L.grantPermission)),
+      FilledButton.icon(onPressed:_ensurePermission,icon:Icon(VzIcons.data('unlock')),label:Text(L.grantPermission)),
       const SizedBox(height:8),TextButton(onPressed:openAppSettings,child:Text(L.appSettings)),
     ])));
 
     return Column(children:[
       Container(width:double.infinity,padding:const EdgeInsets.symmetric(horizontal:16,vertical:7),color:kSurface.withValues(alpha: 0.85),
           child:Row(children:[
-            Icon(Icons.folder_open_rounded,size:12,color:kAccent.withValues(alpha: 0.85)),const SizedBox(width:6),
+            Icon(VzIcons.data('folder-open'),size:12,color:kAccent.withValues(alpha: 0.85)),const SizedBox(width:6),
             Expanded(child:Text(_path,style:TextStyle(fontSize:10,color:kTextDim),overflow:TextOverflow.ellipsis)),
             if(_searchRunning)SizedBox(width:12,height:12,child:CircularProgressIndicator(strokeWidth:1.5,color:kAccent)),
             if(_globalSearch&&!_searchRunning&&_searchResults.isNotEmpty)
@@ -608,22 +609,13 @@ class BrowserScreenState extends State<BrowserScreen>{
         decoration:BoxDecoration(
           color:kCard.withValues(alpha: 0.6),shape:BoxShape.circle,
           border:Border.all(color:kBorder.withValues(alpha: 0.8))),
-        child:Icon(Icons.grid_view_rounded,size:34,color:kTextDim)),
+        child:Icon(VzIcons.data('grid'),size:34,color:kTextDim)),
       const SizedBox(height:16),
       Text(L.noFilesFound,style:TextStyle(color:kTextSec,fontSize:14)),
     ]));
 
     // ── چیدمان انتخابی کاربر ──
     final cols = MediaQuery.of(context).size.width>600?3:2;
-    final header = _path!=root
-      ? Padding(
-        padding:const EdgeInsets.fromLTRB(4,10,4,4),
-        child:Row(children:[
-          Icon(Icons.folder_rounded,size:15,color:Vz.accent),
-          const SizedBox(width:6),
-          Expanded(child:Text(_path,style:Ty.caption.copyWith(fontSize:11),overflow:TextOverflow.ellipsis)),
-        ]))
-      : const SizedBox.shrink();
 
     // تایل‌ها
     Widget dirAt(int i)=>_DirTile(dir:fDirs[i],index:i,onTap:()=>_loadDir(fDirs[i].path));
@@ -643,51 +635,83 @@ class BrowserScreenState extends State<BrowserScreen>{
       color:Vz.accent,
       backgroundColor:Vz.card,
       child:_layout==_LibLayout.compact
-        // ── فشرده: یک لیست ساده و پرسرعت ──
+        // ── فشرده: یه لیست ساده و پرسرعت ──
         ? ListView(
             padding:const EdgeInsets.fromLTRB(Sp.lg,Sp.sm,Sp.lg,130),
             children:[
-              header,
-              for(var i=0;i<fDirs.length;i++)
-                Padding(padding:const EdgeInsets.only(bottom:4),child:dirAt(i)),
-              if(fDirs.isNotEmpty)const SizedBox(height:Sp.sm),
+              if(_path!=root)_pathHeader(),
+              // پوشه‌ها در بخش جدا
+              if(fDirs.isNotEmpty)...[
+                VzGroupHeader(
+                  icon:VzIcons.data('folder'), label:L.folders,
+                  count:fDirs.length, color:Vz.accent),
+                for(var i=0;i<fDirs.length;i++)
+                  Padding(padding:const EdgeInsets.only(bottom:4),child:dirAt(i)),
+                const SizedBox(height:Sp.md),
+              ],
+              if(fVids.isNotEmpty)VzGroupHeader(
+                icon:VzIcons.data('video'), label:L.files,
+                count:fVids.length, color:Vz.accent2),
               for(var i=0;i<fVids.length;i++)
                 Padding(padding:const EdgeInsets.only(bottom:2),child:vidAt(i)),
             ])
         : CustomScrollView(
           physics:const AlwaysScrollableScrollPhysics(),
           slivers:[
-            SliverPadding(padding:const EdgeInsets.only(top:4,left:16,right:16,bottom:4),
-              sliver:SliverToBoxAdapter(child:header)),
+            if(_path!=root)SliverPadding(
+              padding:const EdgeInsets.only(top:4,left:16,right:16,bottom:2),
+              sliver:SliverToBoxAdapter(child:_pathHeader())),
 
-            // ── پوشه‌ها: همیشه گرید افقی ──
-            if(fDirs.isNotEmpty)SliverPadding(
-              padding:const EdgeInsets.symmetric(horizontal:16),
-              sliver:SliverGrid(
-                gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-                  childAspectRatio:1.85),
-                delegate:SliverChildBuilderDelegate((ctx,i)=>dirAt(i),childCount:fDirs.length))),
+            // ── پوشه‌ها: بخش مستقل با هدر ──
+            if(fDirs.isNotEmpty)...[
+              SliverPadding(
+                padding:const EdgeInsets.fromLTRB(16,6,16,2),
+                sliver:SliverToBoxAdapter(child:VzGroupHeader(
+                  icon:VzIcons.data('folder'), label:L.folders,
+                  count:fDirs.length, color:Vz.accent))),
+              SliverPadding(
+                padding:const EdgeInsets.symmetric(horizontal:16),
+                sliver:SliverGrid(
+                  gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+                    childAspectRatio:1.85),
+                  delegate:SliverChildBuilderDelegate((ctx,i)=>dirAt(i),childCount:fDirs.length))),
+            ],
 
-            // ── ویدیوها ──
-            if(fVids.isNotEmpty)SliverPadding(
-              padding:const EdgeInsets.fromLTRB(16,10,16,0),
-              sliver: _layout==_LibLayout.list
-                ? SliverList(
-                    delegate:SliverChildBuilderDelegate(
-                      (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
-                      childCount:fVids.length))
-                : SliverGrid(
-                    gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-                      childAspectRatio:0.72),
-                    delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length))),
+            // ── ویدیوها: بخش مستقل ──
+            if(fVids.isNotEmpty)...[
+              SliverPadding(
+                padding:const EdgeInsets.fromLTRB(16,14,16,2),
+                sliver:SliverToBoxAdapter(child:VzGroupHeader(
+                  icon:VzIcons.data('video'), label:L.files,
+                  count:fVids.length, color:Vz.accent2))),
+              SliverPadding(
+                padding:const EdgeInsets.fromLTRB(16,4,16,0),
+                sliver: _layout==_LibLayout.list
+                  ? SliverList(
+                      delegate:SliverChildBuilderDelegate(
+                        (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
+                        childCount:fVids.length))
+                  : SliverGrid(
+                      gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+                        childAspectRatio:0.72),
+                      delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length))),
+            ],
 
             const SliverPadding(padding:EdgeInsets.only(bottom:130)),
           ],
         ),
     );
   }
+
+  Widget _pathHeader()=>Row(children:[
+    Icon(VzIcons.data('folder'),size:14,color:Vz.accent),
+    const SizedBox(width:6),
+    Expanded(child:Text(_path,
+      style:Ty.caption.copyWith(fontSize:10.5),
+      overflow:TextOverflow.ellipsis)),
+  ]);
 
   void _openPanel(int page){
     // NOVA: پانل ۸-تبی حذف شد — History/Bookmarks/... در Library و Settings از طریق NavDock
@@ -711,14 +735,14 @@ class BrowserScreenState extends State<BrowserScreen>{
   void _showLayoutSheet(BuildContext context){
     showVzSheet(context:context, builder:(ctx)=>SafeArea(top:false,child:Column(
       mainAxisSize:MainAxisSize.min, children:[
-        VzSheetHeader(title:L.layout, icon:Icons.dashboard_customize_rounded,
+        VzSheetHeader(title:L.layout, icon:VzIcons.data('layout'),
           onClose:()=>Navigator.pop(ctx)),
         for(final l in _LibLayout.values)
           VzSheetRow(
             icon: switch(l){
-              _LibLayout.grid=>Icons.grid_view_rounded,
-              _LibLayout.list=>Icons.view_agenda_rounded,
-              _LibLayout.compact=>Icons.view_headline_rounded,
+              _LibLayout.grid=>VzIcons.data('grid'),
+              _LibLayout.list=>VzIcons.data('list'),
+              _LibLayout.compact=>VzIcons.data('compact'),
             },
             title: switch(l){
               _LibLayout.grid=>L.gridView,
@@ -727,7 +751,7 @@ class BrowserScreenState extends State<BrowserScreen>{
             },
             accent: l==_layout?Vz.accent:null,
             trailing: l==_layout
-              ? Icon(Icons.check_rounded,size:19,color:Vz.accent)
+              ? Icon(VzIcons.data('check'),size:19,color:Vz.accent)
               : null,
             onTap:(){Navigator.pop(ctx);_setLayout(l);},
           ),
@@ -783,16 +807,59 @@ class _DirTileState extends State<_DirTile> with SingleTickerProviderStateMixin{
               color:Vz.accent.withValues(alpha:0.12),
               borderRadius:BorderRadius.circular(11),
               border:Border.all(color:Vz.accent.withValues(alpha:0.28))),
-            child:Icon(Icons.folder_rounded,color:Vz.accent,size:18)),
+            child:Icon(VzIcons.data('folder'),color:Vz.accent,size:18)),
           const SizedBox(width:Sp.md),
           Expanded(child:Text(p.basename(widget.dir.path),
             style:Ty.label.copyWith(fontSize:12.5),
             maxLines:1,overflow:TextOverflow.ellipsis)),
-          Icon(Icons.chevron_right_rounded,color:Vz.textDim,size:18),
+          Icon(VzIcons.data('chevron-right'),color:Vz.textDim,size:18),
         ]),
       ),
     );
   }
+}
+
+/// هدر گروه — تفکیک بصری «پوشه‌ها» از «فایل‌ها» با شمارش و آیکون رنگی.
+class VzGroupHeader extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int count;
+  final Color color;
+  const VzGroupHeader({
+    super.key, required this.icon, required this.label,
+    required this.count, required this.color,
+  });
+
+  @override Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: Sp.sm, top: Sp.xs),
+    child: Row(children: [
+      Container(
+        width: 26, height: 26,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.14),
+          borderRadius: Rad.r(Rad.xs*0.8),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Icon(icon, size: 14, color: color),
+      ),
+      const SizedBox(width: Sp.sm),
+      Text(label.toUpperCase(),
+        style: Ty.overline.copyWith(color: color, letterSpacing: 1.4)),
+      const SizedBox(width: Sp.sm),
+      Expanded(child: Container(height: 1, color: Vz.border)),
+      const SizedBox(width: Sp.sm),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+        decoration: BoxDecoration(
+          color: Vz.cardHi,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: Vz.border),
+        ),
+        child: Text('$count',
+          style: Ty.mono.copyWith(fontSize: 10, color: Vz.textSec)),
+      ),
+    ]),
+  );
 }
 
 // ── کارت ویدیو — گرید / لیست / فشرده ──
@@ -846,7 +913,7 @@ class _VideoTile extends StatelessWidget{
           child:Stack(fit:StackFit.expand,children:[
             if(selectMode)
               Container(color:Vz.cardHi,child:Icon(
-                selected?Icons.check_circle_rounded:Icons.circle_outlined,
+                selected?VzIcons.data('check-circle'):VzIcons.data('circle'),
                 color:selected?Vz.accent:Vz.textDim,size:30))
             else FutureBuilder<Uint8List?>(
               future:_loadThumb(file.path),
@@ -870,11 +937,11 @@ class _VideoTile extends StatelessWidget{
             // وضعیت تماشا + علاقه‌مندی — گوشه بالا
             if(!selectMode)Positioned(top:6,left:6,right:6,
               child:Row(children:[
-                if(_seen)_pill(Icons.check_rounded,Vz.accent),
-                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(Icons.bookmark_rounded,Vz.accent)],
-                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(Icons.favorite_rounded,Vz.magenta)],
+                if(_seen)_pill(VzIcons.data('check'),Vz.accent),
+                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(VzIcons.data('bookmark'),Vz.accent)],
+                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(VzIcons.data('favorite'),Vz.magenta)],
                 const Spacer(),
-                if(_hasSub)_pill(Icons.subtitles_rounded,Vz.green),
+                if(_hasSub)_pill(VzIcons.data('subtitle'),Vz.green),
               ])),
             if(_dur!=null&&_dur!>0&&!selectMode)Positioned(
               right:6,bottom:6,
@@ -887,14 +954,14 @@ class _VideoTile extends StatelessWidget{
             if(_rating>0&&!selectMode)Positioned(
               left:6,bottom:6,
               child:Row(children:List.generate(_rating,(i)=>
-                Icon(Icons.star_rounded,size:11,color:Vz.amber)))),
+                Icon(VzIcons.data('star'),size:11,color:Vz.amber)))),
             if(!selectMode)Center(child:Container(
               width:40,height:40,
               decoration:BoxDecoration(
                 color:Colors.black.withValues(alpha:0.38),
                 shape:BoxShape.circle,
                 border:Border.all(color:Colors.white.withValues(alpha:0.22))),
-              child:Icon(Icons.play_arrow_rounded,color:_seen?Vz.accent:Colors.white,size:25))),
+              child:Icon(VzIcons.data('play'),color:_seen?Vz.accent:Colors.white,size:25))),
           ]))),
         // ── متادیتا ──
         Padding(
@@ -931,11 +998,11 @@ class _VideoTile extends StatelessWidget{
           color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis),
         const SizedBox(height:3),
         Row(children:[
-          if(_hasSub)_mini(Icons.subtitles_rounded,Vz.green),
-          if(_bkm)_mini(Icons.bookmark_rounded,Vz.accent),
-          if(_fav)_mini(Icons.favorite_rounded,Vz.magenta),
+          if(_hasSub)_mini(VzIcons.data('subtitle'),Vz.green),
+          if(_bkm)_mini(VzIcons.data('bookmark'),Vz.accent),
+          if(_fav)_mini(VzIcons.data('favorite'),Vz.magenta),
           if(_rating>0)...List.generate(_rating,(i)=>
-            Icon(Icons.star_rounded,size:10,color:Vz.amber)),
+            Icon(VzIcons.data('star'),size:10,color:Vz.amber)),
           if(_hasSub||_bkm||_fav||_rating>0)const SizedBox(width:6),
           Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
           if(_dur!=null&&_dur!>0)...[
@@ -945,10 +1012,10 @@ class _VideoTile extends StatelessWidget{
         ]),
       ])),
       if(selectMode)
-        Icon(selected?Icons.check_circle_rounded:Icons.circle_outlined,
+        Icon(selected?VzIcons.data('check-circle'):VzIcons.data('circle'),
           size:22,color:selected?Vz.accent:Vz.textDim)
       else
-        Icon(Icons.play_circle_rounded,size:26,
+        Icon(VzIcons.data('play'),size:26,
           color:_seen?Vz.accent:Vz.textDim),
     ]));
 
@@ -960,16 +1027,16 @@ class _VideoTile extends StatelessWidget{
       borderRadius:BorderRadius.circular(Rad.xs)),
     child:Row(children:[
       if(selectMode)Padding(padding:const EdgeInsets.only(right:8),
-        child:Icon(selected?Icons.check_circle_rounded:Icons.circle_outlined,
+        child:Icon(selected?VzIcons.data('check-circle'):VzIcons.data('circle'),
           size:19,color:selected?Vz.accent:Vz.textDim)),
-      Icon(Icons.play_circle_rounded,size:17,
+      Icon(VzIcons.data('play'),size:17,
         color:_seen?Vz.accent:Vz.textDim),
       const SizedBox(width:10),
       Expanded(child:Text(_name,style:Ty.label.copyWith(fontSize:12,
         color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis)),
-      if(_hasSub)_mini(Icons.subtitles_rounded,Vz.green),
-      if(_bkm)_mini(Icons.bookmark_rounded,Vz.accent),
-      if(_fav)_mini(Icons.favorite_rounded,Vz.magenta),
+      if(_hasSub)_mini(VzIcons.data('subtitle'),Vz.green),
+      if(_bkm)_mini(VzIcons.data('bookmark'),Vz.accent),
+      if(_fav)_mini(VzIcons.data('favorite'),Vz.magenta),
       const SizedBox(width:6),
       Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
     ]));
@@ -982,7 +1049,7 @@ class _VideoTile extends StatelessWidget{
     borderRadius:BorderRadius.circular(9),
     child:SizedBox(width:w,height:h,child:Stack(fit:StackFit.expand,children:[
       if(selectMode)Container(color:Vz.cardHi,child:Icon(
-        selected?Icons.check_rounded:Icons.circle_outlined,size:20,
+        selected?VzIcons.data('check'):VzIcons.data('circle'),size:20,
         color:selected?Vz.accent:Vz.textDim))
       else FutureBuilder<Uint8List?>(
         future:_loadThumb(file.path),
@@ -1000,7 +1067,7 @@ class _VideoTile extends StatelessWidget{
         }),
       if(!selectMode&&_seen)Align(alignment:Alignment.bottomRight,
         child:Padding(padding:const EdgeInsets.all(2),
-          child:Icon(Icons.check_circle_rounded,size:12,color:Vz.accent))),
+          child:Icon(VzIcons.data('check-circle'),size:12,color:Vz.accent))),
     ])));
 
   Widget _pillBox(Widget child)=>child;
@@ -1071,18 +1138,18 @@ class _VideoMenuState extends State<VideoMenu>{
     const SizedBox(height:8),
     Padding(padding:const EdgeInsets.symmetric(horizontal:16),child:Row(children:[
       Container(width:40,height:40,decoration:BoxDecoration(color:kCard,borderRadius:BorderRadius.circular(10),border:Border.all(color:kBorder)),
-          child:Icon(Icons.video_file_rounded,color:kAccent,size:20)),
+          child:Icon(VzIcons.data('video'),color:kAccent,size:20)),
       const SizedBox(width:12),
       Expanded(child:Text(p.basename(widget.file.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:13),maxLines:2)),
     ])),
     const SizedBox(height:8),const Divider(height:1),
-    _mi(Icons.info_outline_rounded,kTextSec,L.fileInfo,widget.onInfo),
-    _mi2(Icons.bookmark_rounded,_bkm?kAmber:kTextSec,_bkm?L.removeBookmark:L.addBookmark,()async{await Store.toggleBookmark(widget.file.path);setState(()=>_bkm=!_bkm);widget.onDone();}),
-    _mi2(Icons.favorite_rounded,_fav?kPink:kTextSec,_fav?L.removeFavorite:L.favorites,()async{await Store.toggleFavorite(widget.file.path);setState(()=>_fav=!_fav);widget.onDone();}),
-    _mi(Icons.star_outline_rounded,kAmber,L.rating,widget.onRate),
+    _mi(VzIcons.data('info'),kTextSec,L.fileInfo,widget.onInfo),
+    _mi2(VzIcons.data('bookmark'),_bkm?kAmber:kTextSec,_bkm?L.removeBookmark:L.addBookmark,()async{await Store.toggleBookmark(widget.file.path);setState(()=>_bkm=!_bkm);widget.onDone();}),
+    _mi2(VzIcons.data('favorite'),_fav?kPink:kTextSec,_fav?L.removeFavorite:L.favorites,()async{await Store.toggleFavorite(widget.file.path);setState(()=>_fav=!_fav);widget.onDone();}),
+    _mi(VzIcons.data('star-off'),kAmber,L.rating,widget.onRate),
     _mi(Icons.notes_rounded,kTextSec,L.note,widget.onNote),
     const Divider(height:1),
-    _mi(Icons.queue_music_rounded,kCyan,L.addToPlaylist,()async{
+    _mi(VzIcons.data('queue'),kCyan,L.addToPlaylist,()async{
       final playlists=Store.playlists.keys.toList();
       if(playlists.isEmpty){
         showSnack(context, L.noPlaylist);
@@ -1091,7 +1158,7 @@ class _VideoMenuState extends State<VideoMenu>{
       final name=await showDialog<String>(context:context,builder:(ctx)=>AlertDialog(
         title:Text(L.playlist),
         content:Column(mainAxisSize:MainAxisSize.min,children:playlists.map((pl)=>ListTile(
-          dense:true,leading:Icon(Icons.queue_music_rounded,color:kCyan,size:18),
+          dense:true,leading:Icon(VzIcons.data('queue'),color:kCyan,size:18),
           title:Text(pl,style:const TextStyle(fontSize:13)),
           onTap:()=>Navigator.pop(ctx,pl))).toList()),
         actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.cancel))],
@@ -1101,11 +1168,11 @@ class _VideoMenuState extends State<VideoMenu>{
         showSnack(context, '${L.addedTo} "$name"');
       }
     }),
-    _mi(Icons.copy_rounded,kTextSec,L.copyTo,widget.onCopy),
-    _mi(Icons.drive_file_move_outline,kTextSec,L.moveTo,widget.onMove),
-    _mi(Icons.edit_rounded,kTextSec,L.rename_,widget.onRename),
-    _mi(Icons.select_all_rounded,kTextSec,L.selectGroup,widget.onSelect),
-    _mi(Icons.delete_outline_rounded,kRed,L.delete,widget.onDelete),
+    _mi(VzIcons.data('copy'),kTextSec,L.copyTo,widget.onCopy),
+    _mi(VzIcons.data('move'),kTextSec,L.moveTo,widget.onMove),
+    _mi(VzIcons.data('edit'),kTextSec,L.rename_,widget.onRename),
+    _mi(VzIcons.data('check'),kTextSec,L.selectGroup,widget.onSelect),
+    _mi(VzIcons.data('trash'),kRed,L.delete,widget.onDelete),
     const SizedBox(height:8),
   ])));
   Widget _mi(IconData icon,Color iconColor,String title,VoidCallback onTap)=>ListTile(dense:true,

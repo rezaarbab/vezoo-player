@@ -64,6 +64,16 @@ void main() async {
   storeAnimSave = (v) async {
     await (await SharedPreferences.getInstance()).setBool('app_animations', v);
   };
+  storePresetPrefs = () async =>
+      (await SharedPreferences.getInstance()).getString('app_preset');
+  storePresetSave = (v) async {
+    await (await SharedPreferences.getInstance()).setString('app_preset', v);
+  };
+  storeBgPrefs = () async =>
+      (await SharedPreferences.getInstance()).getString('app_bg_mode');
+  storeBgSave = (v) async {
+    await (await SharedPreferences.getInstance()).setString('app_bg_mode', v);
+  };
 
   runApp(const MyApp());
 }

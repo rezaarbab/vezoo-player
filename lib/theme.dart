@@ -12,13 +12,18 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'vz_presets.dart';
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  THEME MODE
 // ─────────────────────────────────────────────────────────────────────────────
 enum VzThemeMode { system, dark, light }
 
+/// انتخاب بک‌گراند: رنگ پرسِت، یا گرادیان پرسِت، یا خاموش (تخت).
+enum VzBgMode { gradient, solid, off }
+
 // ─────────────────────────────────────────────────────────────────────────────
-//  PALETTE — VOID (dark) / DAYLIGHT (light)
+//  PALETTE — از پرسِت فعال خوانده می‌شود (vz_presets.dart)
 // ─────────────────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 //  ACCENTS — انتخاب کاربر. هر اکسنت نسخه‌ی تیره و روشن دارد تا روی هر دو
@@ -75,66 +80,46 @@ const List<VzAccent> kVzAccents = [
     light: Color(0xFFB45309), lightHi: Color(0xFFD97706), lightDeep: Color(0xFF92400E)),
 ];
 
+/// رنگ‌های پایه‌ی پرسِت فعال. مقادیر در زمان build از [_preset] خوانده می‌شوند.
 class _P {
-  // VOID base — neutral near-black, no color cast
-  static const bg       = Color(0xFF0A0A0C);
-  static const bgDeep   = Color(0xFF050507);
-  static const surface  = Color(0xFF121216);
-  static const card     = Color(0xFF17171C);
-  static const cardHi   = Color(0xFF1F1F26);
-  static const border   = Color(0xFF26262E);
-  static const borderHi = Color(0xFF33333D);
+  static Color get bg       => Vz._preset.bgDark;
+  static Color get bgDeep   => Vz._preset.bgDeepDark;
+  static Color get surface  => Vz._preset.surfaceDark;
+  static Color get card     => Vz._preset.cardDark;
+  static Color get cardHi   => Vz._preset.cardHiDark;
+  static Color get border   => Vz._preset.borderDark;
+  static Color get borderHi => Vz._preset.borderHiDark;
 
-  // Single accent — amber. `magenta`/`deep` kept as secondary hues for
-  // favourites and warnings so old call sites still resolve.
-  static const accent   = Color(0xFFF59E0B);
-  static const accentHi = Color(0xFFFBBF24);
+  // رنگ‌های semantic — بین همه‌ی پرسِت‌ها ثابت می‌مانند
   static const magenta  = Color(0xFFFB7185);
-  static const deep     = Color(0xFFB45309);
-
-  // Semantic
   static const green    = Color(0xFF4ADE80);
   static const amber    = Color(0xFFFBBF24);
   static const red      = Color(0xFFF87171);
   static const mauve    = Color(0xFF71717A);
 
-  // Text
   static const text     = Color(0xFFF5F5F7);
   static const textSec  = Color(0xFFA1A1AA);
   static const textDim  = Color(0xFF6B6B76);
 
-  // Scrim on media thumbnails (identical in both modes)
   static const scrimTop = Color(0x000A0A0C);
   static const scrimMid = Color(0x800A0A0C);
   static const scrimBot = Color(0xE60A0A0C);
 
-  // Overlays
-  static const glassCard = Color(0xF217171C);
   static const glassDark = Color(0x66000000);
-  static const glassLine = Color(0x1FFFFFFF);
-  static const dockFill  = Color(0xF5121216);
   static const badgeBg   = Color(0xB3000000);
   static const sheen     = Color(0x0AFFFFFF);
-
-  static const hero1 = Color(0xFF1A1A20);
-  static const hero2 = Color(0xFF101014);
 }
 
 class _L {
-  // DAYLIGHT base — clean neutral paper
-  static const bg       = Color(0xFFF6F6F8);
-  static const bgDeep   = Color(0xFFEDEDF1);
-  static const surface  = Color(0xFFFFFFFF);
-  static const card     = Color(0xFFFFFFFF);
-  static const cardHi   = Color(0xFFF1F1F4);
-  static const border   = Color(0xFFE3E3E8);
-  static const borderHi = Color(0xFFCFCFD6);
+  static Color get bg       => Vz._preset.bgLight;
+  static Color get bgDeep   => Vz._preset.bgDeepLight;
+  static Color get surface  => Vz._preset.surfaceLight;
+  static Color get card     => Vz._preset.cardLight;
+  static Color get cardHi   => Vz._preset.cardHiLight;
+  static Color get border   => Vz._preset.borderLight;
+  static Color get borderHi => Vz._preset.borderHiLight;
 
-  static const accent   = Color(0xFFB45309);
-  static const accentHi = Color(0xFFD97706);
   static const magenta  = Color(0xFFE11D48);
-  static const deep     = Color(0xFF92400E);
-
   static const green    = Color(0xFF059669);
   static const amber    = Color(0xFFD97706);
   static const red      = Color(0xFFDC2626);
@@ -148,15 +133,9 @@ class _L {
   static const scrimMid = Color(0x800A0A0C);
   static const scrimBot = Color(0xE60A0A0C);
 
-  static const glassCard = Color(0xF7FFFFFF);
   static const glassDark = Color(0x33000000);
-  static const glassLine = Color(0x14000000);
-  static const dockFill  = Color(0xF7FFFFFF);
   static const badgeBg   = Color(0xB3000000);
   static const sheen     = Color(0x08000000);
-
-  static const hero1 = Color(0xFFE9E9EF);
-  static const hero2 = Color(0xFFF6F6F8);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -168,6 +147,8 @@ class Vz {
   static bool _dark = true;
   static int _accentIndex = 0;
   static bool _anim = true;
+  static VzPreset _preset = kVzPresets.first;
+  static VzBgMode _bgMode = VzBgMode.gradient;
 
   /// Whether the active palette is dark. Set by VzTheme before first frame.
   static bool get isDark => _dark;
@@ -178,8 +159,49 @@ class Vz {
   /// Index into [kVzAccents].
   static int get accentIndex => _accentIndex;
 
-  static VzAccent get _acc =>
-      kVzAccents[_accentIndex.clamp(0, kVzAccents.length - 1)];
+  /// پرسِت فعال — منبع همه‌ی رنگ‌های پایه و شکل‌ها.
+  static VzPreset get preset => _preset;
+
+  /// حالت بک‌گراند انتخاب‌شده.
+  static VzBgMode get bgMode => _bgMode;
+
+  /// رنگ‌های بک‌گراند گرادیانی برای مود فعال.
+  static List<Color> get bgGradientColors =>
+      _dark ? _preset.bgGradientsDark : _preset.bgGradientsLight;
+
+  /// گرادیان بک‌گراند — اگر حالت off باشد، یک گرادیان تک‌رنگ برمی‌گردد
+  /// تا هیچ‌جا null لازم نباشد.
+  static LinearGradient get bgGradient => _bgMode == VzBgMode.solid
+      ? LinearGradient(colors: [bg, bg], begin: Alignment.topCenter, end: Alignment.bottomCenter)
+      : LinearGradient(
+          colors: bgGradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+
+  /// آیا هاله‌های تزئینی پشت محتوا رسم شوند؟
+  static bool get bgDecor => _bgMode == VzBgMode.gradient;
+
+  /// مقیاس گردی گوشه‌ی پرسِت — همه‌ی radius ها را می‌چرخاند.
+  static double get radiusScale => _preset.radiusScale;
+
+  static final VzAccent _presetAccent = VzAccent(
+    'Preset',
+    dark: _preset.accentDark,
+    darkHi: _preset.accentDarkHi,
+    darkDeep: _preset.accentDarkDeep,
+    light: _preset.accentLight,
+    lightHi: _preset.accentLightHi,
+    lightDeep: _preset.accentLightDeep,
+  );
+
+  static VzAccent get _acc {
+    if (_accentIndex < 0) return _presetAccent; // -1 = رنگ خودِ پرسِت
+    return kVzAccents[_accentIndex.clamp(0, kVzAccents.length - 1)];
+  }
+
+  /// رنگ مکمل پرسِت (برای گرادیان‌های دوتایی).
+  static Color get accent2 => _preset.accent2;
 
   /// Text/icon color to draw on top of [accent] — picked by luminance so every
   /// accent stays readable.
@@ -189,9 +211,12 @@ class Vz {
   /// Internal: called by VzTheme / buildVezooTheme before building.
   static void _setDark(bool v) { _dark = v; }
   static void _setAccentIndex(int i) {
-    _accentIndex = i.clamp(0, kVzAccents.length - 1);
+    // -1 یعنی «رنگ خود پرسِت»
+    _accentIndex = i < 0 ? -1 : i.clamp(0, kVzAccents.length - 1);
   }
   static void _setAnimations(bool v) { _anim = v; }
+  static void _setPreset(VzPreset p) { _preset = p; }
+  static void _setBgMode(VzBgMode m) { _bgMode = m; }
 
   // ── base ──
   static Color get bg       => _dark ? _P.bg       : _L.bg;
@@ -220,10 +245,10 @@ class Vz {
   static Color get textDim  => _dark ? _P.textDim  : _L.textDim;
 
   // ── overlays ──
-  static Color get glassCard => _dark ? _P.glassCard : _L.glassCard;
+  static Color get glassCard => surface;
   static Color get glassDark => _dark ? _P.glassDark : _L.glassDark;
-  static Color get glassLine => _dark ? _P.glassLine : _L.glassLine;
-  static Color get dockFill  => _dark ? _P.dockFill  : _L.dockFill;
+  static Color get glassLine => _dark ? const Color(0x1FFFFFFF) : const Color(0x14000000);
+  static Color get dockFill  => surface;
   static Color get badgeBg   => _dark ? _P.badgeBg   : _L.badgeBg;
   static Color get sheen     => _dark ? _P.sheen     : _L.sheen;
 
@@ -297,9 +322,18 @@ abstract final class Sp {
 // ─────────────────────────────────────────────────────────────────────────────
 //  SHAPES - radius system
 // ─────────────────────────────────────────────────────────────────────────────
+//  SHAPES - radius system
+//  مقیاس گردی از پرسِت می‌آید: kawaii خیلی گرد، shonen تیزتر.
+// ─────────────────────────────────────────────────────────────────────────────
 abstract final class Rad {
   static const xs = 10.0, sm = 14.0, md = 18.0;
   static const lg = 24.0, xl = 28.0, full = 999.0;
+
+  /// مقدار مقیاس‌شده با پرسِت — برای استفاده در ویجت‌ها.
+  static double s(double base) => base * Vz.radiusScale;
+
+  /// BorderRadius آماده از یک پایه‌ی مقیاس‌شده.
+  static BorderRadius r(double base) => BorderRadius.circular(s(base));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -341,6 +375,8 @@ class VzThemeScope extends InheritedWidget {
     required this.mode,
     required this.accentIndex,
     required this.animations,
+    required this.presetId,
+    required this.bgMode,
     required super.child,
   });
 
@@ -350,11 +386,17 @@ class VzThemeScope extends InheritedWidget {
   /// Snapshot of the user's chosen mode (system/dark/light).
   final VzThemeMode mode;
 
-  /// Snapshot of the chosen accent (index into [kVzAccents]).
+  /// Snapshot of the chosen accent (index into [kVzAccents]); -1 = preset colour.
   final int accentIndex;
 
   /// Snapshot of the animation toggle.
   final bool animations;
+
+  /// Snapshot of the chosen preset id.
+  final String presetId;
+
+  /// Snapshot of the background mode.
+  final VzBgMode bgMode;
 
   static VzThemeScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<VzThemeScope>();
@@ -376,12 +418,20 @@ class VzThemeScope extends InheritedWidget {
   static bool animationsOf(BuildContext context) =>
       maybeOf(context)?.animations ?? Vz.animations;
 
+  static String presetIdOf(BuildContext context) =>
+      maybeOf(context)?.presetId ?? Vz.preset.id;
+
+  static VzBgMode bgModeOf(BuildContext context) =>
+      maybeOf(context)?.bgMode ?? Vz.bgMode;
+
   @override
   bool updateShouldNotify(VzThemeScope oldWidget) =>
       isDark != oldWidget.isDark ||
       mode != oldWidget.mode ||
       accentIndex != oldWidget.accentIndex ||
-      animations != oldWidget.animations;
+      animations != oldWidget.animations ||
+      presetId != oldWidget.presetId ||
+      bgMode != oldWidget.bgMode;
 }
 
 /// Root stateful theming widget. Place above MaterialApp.
@@ -396,12 +446,16 @@ class VzTheme extends StatefulWidget {
 /// Public state so Settings can read mode & call setMode().
 class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeMode _mode = VzThemeMode.system;
-  int _accent = 0;
+  int _accent = -1; // -1 = رنگ خودِ پرسِت
   bool _anim = true;
+  VzPreset _preset = kVzPresets.first;
+  VzBgMode _bg = VzBgMode.gradient;
 
   VzThemeMode get mode => _mode;
   int get accent => _accent;
   bool get animations => _anim;
+  VzPreset get preset => _preset;
+  VzBgMode get bgMode => _bg;
 
   @override
   void initState() {
@@ -429,8 +483,15 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       'light' => VzThemeMode.light,
       _       => VzThemeMode.system,
     };
-    _accent = (await storeAccentPrefs?.call() ?? 0).clamp(0, kVzAccents.length - 1);
+    final a = await storeAccentPrefs?.call();
+    _accent = (a == null || a < -1 || a >= kVzAccents.length) ? -1 : a;
     _anim = await storeAnimPrefs?.call() ?? true;
+    _preset = vPresetById(await storePresetPrefs?.call());
+    _bg = switch (await storeBgPrefs?.call()) {
+      'solid' => VzBgMode.solid,
+      'off'   => VzBgMode.off,
+      _       => VzBgMode.gradient,
+    };
     if (mounted) setState(() {});
   }
 
@@ -445,7 +506,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   }
 
   Future<void> setAccent(int i) async {
-    _accent = i.clamp(0, kVzAccents.length - 1);
+    _accent = (i < 0 || i >= kVzAccents.length) ? -1 : i;
     setState(() {});
     await storeAccentSave?.call(_accent);
   }
@@ -454,6 +515,25 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     _anim = v;
     setState(() {});
     await storeAnimSave?.call(v);
+  }
+
+  Future<void> setPreset(VzPreset p) async {
+    _preset = p;
+    _accent = -1; // پرسِت جدید یعنی رنگ پرسِت، تا ناسازگار نماند
+    setState(() {});
+    await storePresetSave?.call(p.id);
+    await storeAccentSave?.call(-1);
+  }
+
+  /// فقط رنگ بک‌گراند (بدون عوض کردن پرسِت).
+  Future<void> setBgMode(VzBgMode m) async {
+    _bg = m;
+    setState(() {});
+    await storeBgSave?.call(switch (m) {
+      VzBgMode.solid => 'solid',
+      VzBgMode.off   => 'off',
+      _              => 'gradient',
+    });
   }
 
   bool get _isDarkNow {
@@ -467,11 +547,15 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     Vz._setDark(dark);
     Vz._setAccentIndex(_accent);
     Vz._setAnimations(_anim);
+    Vz._setPreset(_preset);
+    Vz._setBgMode(_bg);
     return VzThemeScope(
       isDark: dark,
       mode: _mode,
       accentIndex: _accent,
       animations: _anim,
+      presetId: _preset.id,
+      bgMode: _bg,
       child: widget.child,
     );
   }
@@ -485,40 +569,125 @@ Future<int?> Function()? storeAccentPrefs;
 Future<void> Function(int)? storeAccentSave;
 Future<bool?> Function()? storeAnimPrefs;
 Future<void> Function(bool)? storeAnimSave;
+Future<String?> Function()? storePresetPrefs;
+Future<void> Function(String)? storePresetSave;
+Future<String?> Function()? storeBgPrefs;
+Future<void> Function(String)? storeBgSave;
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  AMBIENT BACKGROUND
+//  AMBIENT BACKGROUND — بک‌گراند گرادیانی رنگی و متحرک
 // ─────────────────────────────────────────────────────────────────────────────
-/// پس‌زمینه VOID: پایه‌ی تیره + یک هاله‌ی بسیار ملایم accent در بالا.
-/// عمداً ساده و بدون blur — روی دستگاه‌های ضعیف هم روان می‌ماند.
-class VzAmbientBg extends StatelessWidget {
+/// پس‌زمینه‌ی اپ: گرادیان پرسِت + دو هاله‌ی نرم که آرام حرکت می‌کنند.
+/// با کلید انیمیشن خاموش می‌شود و با حالت «تخت» فقط رنگ پایه می‌ماند.
+class VzAmbientBg extends StatefulWidget {
   final Widget child;
   const VzAmbientBg({super.key, required this.child});
+  @override State<VzAmbientBg> createState() => _VzAmbientBgState();
+}
+
+class _VzAmbientBgState extends State<VzAmbientBg> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sync();
+  }
+
+  void _sync() {
+    final want = Vz.animations && Vz.bgDecor;
+    if (want && _c == null) {
+      _c = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 18),
+      )..repeat(reverse: true);
+    } else if (!want && _c != null) {
+      _c!.dispose();
+      _c = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _c?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(color: Vz.bg),
-      child: Stack(children: [
+    // گرادیان پایه — در هر دو حالت تخت و گرادیانی امن است
+    final decoration = BoxDecoration(
+      gradient: Vz.bgMode == VzBgMode.off
+          ? LinearGradient(colors: [Vz.bg, Vz.bg])
+          : Vz.bgGradient,
+    );
+
+    if (!Vz.bgDecor) {
+      return DecoratedBox(
+        decoration: decoration,
+        child: widget.child,
+      );
+    }
+
+    final anim = _c;
+    final content = Stack(children: [
+      Positioned(
+        top: -220, right: -160,
+        child: _blob(Vz.accent.withValues(alpha: Vz.isDark ? 0.20 : 0.30)),
+      ),
+      Positioned(
+        bottom: -260, left: -200,
+        child: _blob(Vz.accent2.withValues(alpha: Vz.isDark ? 0.16 : 0.26)),
+      ),
+      if (anim != null)
         Positioned(
-          top: -240, right: -180,
-          child: IgnorePointer(
-            child: Container(
-              width: 520, height: 520,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(colors: [
-                  Vz.accent.withValues(alpha: Vz.isDark ? 0.07 : 0.05),
-                  Vz.accent.withValues(alpha: 0),
-                ]),
-              ),
-            ),
-          ),
+          top: 120, left: -120,
+          child: _movingBlob(anim, Vz.accent2.withValues(alpha: Vz.isDark ? 0.10 : 0.18)),
         ),
-        child,
-      ]),
+      widget.child,
+    ]);
+
+    return DecoratedBox(
+      decoration: decoration,
+      child: anim == null ? content : RepaintBoundary(child: content),
     );
   }
+
+  Widget _blob(Color color) => IgnorePointer(
+    child: Container(
+      width: 520, height: 520,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+      ),
+    ),
+  );
+
+  /// هاله‌ی سوم که آرام بالا/پایین می‌رود — با کلید انیمیشن هماهنگ است.
+  Widget _movingBlob(AnimationController c, Color color) => IgnorePointer(
+    child: AnimatedBuilder(
+      animation: c,
+      builder: (ctx, _) {
+        final t = Curves.easeInOut.transform(c.value);
+        return Transform.translate(
+          offset: Offset(60 * (t * 2 - 1), 90 * (t * 2 - 1)),
+          child: Container(
+            width: 420, height: 420,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(colors: [color, color.withValues(alpha: 0)]),
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }
 
 /// خط اسکن افقی — انیمیشن ریز در هدرهای فعال
@@ -574,13 +743,14 @@ ThemeData buildVezooTheme({bool dark = true}) {
     error: Vz.red,
     onError: Colors.white,
   );
-  final rSm = BorderRadius.circular(Rad.sm);
-  final rLg = BorderRadius.circular(Rad.lg);
+  final rSm = Rad.r(Rad.sm);
+  final rLg = Rad.r(Rad.lg);
   return ThemeData(
     useMaterial3: true,
     brightness: dark ? Brightness.dark : Brightness.light,
     colorScheme: scheme,
-    scaffoldBackgroundColor: Vz.bg,
+    // پس‌زمینه شفاف تا گرادیانِ VzAmbientBg از پشت دیده شود
+    scaffoldBackgroundColor: Vz.bgMode == VzBgMode.off ? Vz.bg : Colors.transparent,
     canvasColor: Vz.bg,
     splashColor: Vz.accent.withValues(alpha: 0.10),
     highlightColor: Vz.accent.withValues(alpha: 0.05),
@@ -602,7 +772,7 @@ ThemeData buildVezooTheme({bool dark = true}) {
       modalBackgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.xl)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.s(Rad.xl))),
       ),
     ),
     sliderTheme: SliderThemeData(

@@ -7,12 +7,143 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'theme.dart';
+import 'vz_icons.dart';
 
 export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg;
 
 /// Flat surface colours, read once per build.
 Color get _vzSurface => Vz.card;
 Color get _vzLine => Vz.border;
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MOTION PRIMITIVES — انیمیشن‌های مشترک کل اپ
+//  همه با کلید انیمیشن کاربر هماهنگ‌اند: اگر خاموش باشد، هیچ‌کدام ساخته نمی‌شوند.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// ورود پله‌ای — fade + scale. همان الگوی browser ولی برای همه‌جا.
+class VzEnter extends StatefulWidget {
+  final Widget child;
+  final int index;
+  final bool fromBottom;
+  const VzEnter({super.key, required this.child, this.index = 0, this.fromBottom = true});
+
+  @override State<VzEnter> createState() => _VzEnterState();
+}
+
+class _VzEnterState extends State<VzEnter> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 280));
+      Future.delayed(Duration(milliseconds: (widget.index.clamp(0, 16)) * 28), () {
+        if (mounted) _c?.forward();
+      });
+    }
+  }
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+  @override Widget build(BuildContext context) {
+    final a = _c;
+    if (a == null) return widget.child;
+    final ca = CurvedAnimation(parent: a, curve: Curves.easeOutCubic);
+    return FadeTransition(
+      opacity: ca,
+      child: SlideTransition(
+        position: Tween(
+          begin: widget.fromBottom ? const Offset(0, 0.10) : const Offset(0.08, 0),
+          end: Offset.zero).animate(ca),
+        child: widget.child));
+  }
+}
+
+/// نفس‌کشیدن آرام — برای کارت فعال، دکمه پخش، هدر.
+class VzBreathing extends StatefulWidget {
+  final Widget child;
+  final double amount;
+  final Duration period;
+  const VzBreathing({
+    super.key, required this.child,
+    this.amount = 0.025,
+    this.period = const Duration(seconds: 3),
+  });
+  @override State<VzBreathing> createState() => _VzBreathingState();
+}
+
+class _VzBreathingState extends State<VzBreathing> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: widget.period)
+        ..repeat(reverse: true);
+    }
+  }
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+  @override Widget build(BuildContext context) {
+    final c = _c;
+    if (c == null) return widget.child;
+    return AnimatedBuilder(
+      animation: c,
+      builder: (ctx, _) {
+        final t = Curves.easeInOut.transform(c.value);
+        return Transform.scale(
+          scale: 1 + (t - 0.5) * 2 * widget.amount,
+          child: widget.child,
+        );
+      });
+  }
+}
+
+/// پالس ملایم برای دکمه‌های در انتظار.
+class VzPulse extends StatefulWidget {
+  final Widget child;
+  const VzPulse({super.key, required this.child});
+  @override State<VzPulse> createState() => _VzPulseState();
+}
+
+class _VzPulseState extends State<VzPulse> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
+        ..repeat(reverse: true);
+    }
+  }
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+  @override Widget build(BuildContext context) {
+    final c = _c;
+    if (c == null) return widget.child;
+    return AnimatedBuilder(
+      animation: c,
+      builder: (ctx, _) => Opacity(
+        opacity: 0.72 + Curves.easeInOut.transform(c.value) * 0.28,
+        child: widget.child),
+    );
+  }
+}
+
+/// کارت با عمق و نفس‌کشیدن — قهرمان گرید کتابخانه.
+class VzLiveCard extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final bool breathing;
+  final bool active;
+  const VzLiveCard({
+    super.key, required this.child,
+    this.onTap, this.breathing = true, this.active = false,
+  });
+
+  @override Widget build(BuildContext context) {
+    final body = VzGlass(
+      onTap: onTap,
+      borderColor: active ? Vz.accent : null,
+      child: child,
+    );
+    if (!breathing || !Vz.animations) return body;
+    return VzBreathing(amount: active ? 0.012 : 0.006, child: body);
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SURFACES
@@ -470,7 +601,7 @@ class VzSkeletonCard extends StatelessWidget {
       width: width,
       decoration: BoxDecoration(
         color: Vz.card,
-        borderRadius: BorderRadius.circular(Rad.md),
+        borderRadius: Rad.r(Rad.md),
         border: Border.all(color: Vz.border, width: 1),
       ),
       child: AspectRatio(
@@ -684,7 +815,7 @@ class VzSegmented extends StatelessWidget {
       padding: const EdgeInsets.all(Sp.xs),
       decoration: BoxDecoration(
         color: Vz.card,
-        borderRadius: BorderRadius.circular(Rad.sm),
+        borderRadius: Rad.r(Rad.sm),
         border: Border.all(color: Vz.border),
       ),
       child: Row(children: [
@@ -693,7 +824,7 @@ class VzSegmented extends StatelessWidget {
           Expanded(child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(Rad.xs),
+              borderRadius: Rad.r(Rad.xs),
               onTap: () => onChanged(i),
               child: AnimatedContainer(
                 duration: Mo.fast,
@@ -701,7 +832,7 @@ class VzSegmented extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 6),
                 decoration: BoxDecoration(
                   color: i == value ? Vz.accent.withValues(alpha: 0.14) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(Rad.xs),
+                  borderRadius: Rad.r(Rad.xs),
                   border: Border.all(
                     color: i == value ? Vz.accent : Colors.transparent),
                 ),
@@ -816,11 +947,11 @@ class VzNavDock extends StatelessWidget {
   const VzNavDock({super.key, required this.current, required this.onSelect});
 
   static const _items = [
-    (VzNavDest.home,     Icons.movie_filter_rounded),
-    (VzNavDest.live,     Icons.live_tv_rounded),
-    (VzNavDest.discover, Icons.explore_rounded),
-    (VzNavDest.library,  Icons.video_library_outlined),
-    (VzNavDest.settings, Icons.settings_rounded),
+    (VzNavDest.home,     'home'),
+    (VzNavDest.live,     'live'),
+    (VzNavDest.discover, 'discover'),
+    (VzNavDest.library,  'library'),
+    (VzNavDest.settings, 'settings'),
   ];
 
   @override
@@ -831,37 +962,50 @@ class VzNavDock extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Sp.xs, vertical: Sp.xs),
         decoration: BoxDecoration(
           color: Vz.dockFill,
-          borderRadius: BorderRadius.circular(Rad.full),
+          borderRadius: Rad.r(Rad.full),
           border: Border.all(color: Vz.borderHi, width: 1),
           boxShadow: [Vz.shadow],
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-          for (final (dest, icon) in _items)
-            _dockItem(context, dest, icon),
+          for (final (dest, iconName) in _items)
+            _dockItem(context, dest, iconName),
         ]),
       ),
     );
   }
 
-  Widget _dockItem(BuildContext context, VzNavDest dest, IconData icon) {
+  Widget _dockItem(BuildContext context, VzNavDest dest, String iconName) {
     final active = current == dest;
-    return GestureDetector(
+    return Semantics(
+      selected: active,
+      button: true,
+      label: dest.label,
+      container: true,
+      excludeSemantics: true,
       onTap: () => onSelect(dest),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: Mo.normal,
-        curve: Mo.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? Vz.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(Rad.full),
-        ),
-        child: Icon(
-          icon,
-          size: 21,
-          color: active
-              ? (Vz.onAccent)
-              : Vz.textDim,
+      child: GestureDetector(
+        onTap: () => onSelect(dest),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: Mo.normal,
+          curve: Mo.easeOut,
+          // آیتم فعال پهن‌تر می‌شود (پیل کهربایی/اکسنت) — نشانه‌ی واضح‌تر
+          padding: EdgeInsets.symmetric(
+            horizontal: active ? 20 : 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: active ? Vz.accent : Colors.transparent,
+            borderRadius: Rad.r(Rad.full),
+            boxShadow: active
+              ? [BoxShadow(color: Vz.accent.withValues(alpha: 0.35),
+                  blurRadius: 14, offset: const Offset(0, 4))]
+              : null,
+          ),
+          child: active
+            ? VzBreathing(
+                amount: 0.06,
+                child: Icon(VzIcons.data(iconName),
+                  size: 21, color: Vz.onAccent))
+            : VzIcon(iconName, size: 21, color: Vz.textDim),
         ),
       ),
     );
@@ -903,7 +1047,7 @@ Future<T?> showVzDialog<T>({
       backgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rad.lg),
+        borderRadius: Rad.r(Rad.lg),
         side: BorderSide(color: Vz.border, width: 1),
       ),
       title: Row(children: [
@@ -936,12 +1080,12 @@ Future<T?> showVzDialog<T>({
             Expanded(child: DecoratedBox(
               decoration: BoxDecoration(
                 color: destructive ? Vz.red : Vz.accent,
-                borderRadius: BorderRadius.circular(Rad.sm),
+                borderRadius: Rad.r(Rad.sm),
               ),
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(Rad.sm),
+                  borderRadius: Rad.r(Rad.sm),
                   onTap: () { Navigator.pop(ctx); onConfirm?.call(); },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
@@ -979,7 +1123,7 @@ Future<String?> showVzInputDialog({
       backgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(Rad.lg),
+        borderRadius: Rad.r(Rad.lg),
         side: BorderSide(color: Vz.border, width: 1),
       ),
       title: Row(children: [
@@ -1016,12 +1160,12 @@ Future<String?> showVzInputDialog({
           Expanded(child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: Vz.accentGrad,
-              borderRadius: BorderRadius.circular(Rad.sm),
+              borderRadius: Rad.r(Rad.sm),
             ),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                borderRadius: BorderRadius.circular(Rad.sm),
+                borderRadius: Rad.r(Rad.sm),
                 onTap: () => Navigator.pop(ctx, ctrl.text.trim()),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1067,7 +1211,7 @@ class VzSearchField extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: Sp.md),
         decoration: BoxDecoration(
           color: Vz.card,
-          borderRadius: BorderRadius.circular(Rad.sm),
+          borderRadius: Rad.r(Rad.sm),
           border: Border.all(color: Vz.border, width: 1),
         ),
         child: Row(children: [

@@ -314,6 +314,7 @@ class L {
   static String get engineV2 => _t({'en':'V2 (Experimental, faster)','fa':'آزمایشی، سریع‌تر','ar':'V2 تجريبي، أسرع','ru':'V2 (Экспер., быстрее)','zh':'V2 (实验性，更快)','ja':'V2 (実験的、高速)','hi':'V2 (प्रयोगात्मक, तेज)','id':'V2 (Experimental, faster)'});
 
   // ── تنظیمات ──
+  static String get theme => _t({'en':'Theme','fa':'تم','ar':'المظهر','ru':'Тема','zh':'主题','ja':'テーマ','hi':'थीम','id':'Tema'});
   static String get appearance => _t({'en':'Appearance','fa':'ظاهر','ar':'المظهر','ru':'Внешний вид','zh':'外观','ja':'外観','hi':'उपस्थिति','id':'Appearance'});
   static String get themeDark => _t({'en':'Dark','fa':'تیره','ar':'داكن','ru':'Тёмная','zh':'深色','ja':'ダーク','hi':'डार्क','id':'Gelap'});
   static String get themeLight => _t({'en':'Light','fa':'روشن','ar':'فاتح','ru':'Светлая','zh':'浅色','ja':'ライト','hi':'लाइट','id':'Terang'});
