@@ -35,6 +35,7 @@ import 'settings.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
+import 'vz_icons.dart';
 import 'deepgram_service.dart';
 import 'vosk_service.dart';
 import 'android_stt_service.dart';
@@ -1964,6 +1965,15 @@ class _PlayerState extends State<PlayerScreen>{
   void _cycleFit(){setState(()=>_fit=_fit==BoxFit.contain?BoxFit.cover:_fit==BoxFit.cover?BoxFit.fill:BoxFit.contain);_showOverlay(_fit==BoxFit.contain?L.normal:_fit==BoxFit.cover?L.fill:L.stretch);}
   void _cycleRepeat(){setState(()=>_repeatMode=_repeatMode==_Repeat.none?_Repeat.all:_repeatMode==_Repeat.all?_Repeat.one:_Repeat.none);_showOverlay(_repeatMode==_Repeat.none?L.repeatOff:_repeatMode==_Repeat.all?L.repeatAll:L.repeatOne);}
   void _cycleRotation(){setState(()=>_rotationDeg=(_rotationDeg+90)%360);_showOverlay('${L.rotate}: ${_rotationDeg.toInt()}°');}
+/// چرخش سرعت پخش: 1 → 1.25 → 1.5 → 2 → 0.5 → 0.75 → 1
+void _cycleSpeed(){
+  const steps=[0.5,0.75,1.0,1.25,1.5,2.0];
+  final i=steps.indexWhere((s)=>(s-_vs.speed).abs()<0.001);
+  final next=steps[(i<0?2:(i+1))%steps.length];
+  setState(()=>_vs.speed=next);
+  player.setRate(next);
+  _showOverlay('${L.speed}: ${next}x');
+}
 
   @override
   Widget build(BuildContext context){
@@ -2418,6 +2428,14 @@ class _PlayerState extends State<PlayerScreen>{
     );
   }
 
+  /// ترتیب نوار بالا (منطقی، از راست به چپ در RTL):
+  ///   ۱) بازگشت           — ناوبری
+  ///   ۲) عنوان + بج‌ها     — شناسه‌ی محتوا
+  ///   ۳) علاقه‌مندی/بوکمارک — اکشن روی «این فایل»
+  ///   ۴) زیرنویس + داخلی   — اکشن روی «محتوای پخش»
+  ///   ۵) تایمر خواب        — اکشن زمان‌دار
+  ///   ۶) چرخش + PiP        — اکشن نمایشی
+  ///   ۷) منوی بیشتر        — بقیه
   Widget _buildControls(bool bkm,double navBottom){
     return Column(children:[
       // ── نوار بالا با SafeArea ──
@@ -2425,7 +2443,9 @@ class _PlayerState extends State<PlayerScreen>{
         decoration:const BoxDecoration(gradient:LinearGradient(
           begin:Alignment.topCenter,end:Alignment.bottomCenter,colors:[Colors.black54,Colors.transparent])),
         child:Row(children:[
-          IconButton(icon:const Icon(Icons.arrow_back_rounded),onPressed:()=>Navigator.pop(context)),
+          // ۱) بازگشت
+          IconButton(icon:Icon(VzIcons.data('back')),onPressed:()=>Navigator.pop(context)),
+          // ۲) عنوان + بج‌ها
           Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,mainAxisSize:MainAxisSize.min,children:[
               Text(p.basename(_curPath),maxLines:1,overflow:TextOverflow.ellipsis,
                   style:const TextStyle(fontSize:13,fontWeight:FontWeight.w500)),
@@ -2436,17 +2456,12 @@ class _PlayerState extends State<PlayerScreen>{
                   if(_fpsStr.isNotEmpty)...[SizedBox(width:4),_infoBadge(_fpsStr,Vz.accent)],
                 ]),
             ])),
-          if(_sleepAt!=null)GestureDetector(onTap:_showSleepDialog,child:Padding(
-              padding:const EdgeInsets.symmetric(horizontal:4),
-              child:Row(mainAxisSize:MainAxisSize.min,children:[
-                Icon(Icons.bedtime_rounded,size:16,color:Vz.amber),const SizedBox(width:2),
-                Text('${_sleepAt!.difference(DateTime.now()).inMinutes}${L.minutes}',style:TextStyle(color:Vz.amber,fontSize:12)),
-              ]))),
-          IconButton(icon:Icon(bkm?Icons.bookmark_rounded:Icons.bookmark_border_rounded,color:bkm?Vz.amber:Vz.oviText),
-              onPressed:()async{await Store.toggleBookmark(_curPath);setState((){});}),
+          // ۳) علاقه‌مندی + بوکمارک (اکشن روی فایل)
           IconButton(icon:Icon(Store.favorited.contains(_curPath)?Icons.favorite_rounded:Icons.favorite_border_rounded,
               color:Store.favorited.contains(_curPath)?Vz.magenta:Vz.oviText),
               onPressed:()async{await Store.toggleFavorite(_curPath);setState((){});}),
+          IconButton(icon:Icon(bkm?Icons.bookmark_rounded:Icons.bookmark_border_rounded,color:bkm?Vz.amber:Vz.oviText),
+              onPressed:()async{await Store.toggleBookmark(_curPath);setState((){});}),
           // badge تراک زیرنویس داخلی — اگه موجود باشه نشون میده
           if(_subtitleTracks.isNotEmpty||_embeddedSubEnabled)
             GestureDetector(
@@ -2611,21 +2626,56 @@ class _PlayerState extends State<PlayerScreen>{
                 case 'screenshot':_takeScreenshot();break;
                 case 'copy':_copySubText();break;
                 case 'info':_showVideoInfo();break;
+                case 'speed':_cycleSpeed();break;
               }
             },
             itemBuilder:(_)=>[
-              PopupMenuItem(value:'fit',child:Text('${L.ratio}: ${_fit==BoxFit.contain?L.fit:_fit==BoxFit.cover?L.fill:L.stretch}')),
-              PopupMenuItem(value:'rotate',child:Text('${L.rotate}: ${_rotationDeg.toInt()}°')),
-              PopupMenuItem(value:'repeat',child:Text('${L.repeat}: ${_repeatMode==_Repeat.none?"off":_repeatMode==_Repeat.all?"all":"one"}')),
-              PopupMenuItem(value:'night',child:Text(_vs.nightOpacity>0?L.disableNightMode:L.nightMode)),
-              PopupMenuItem(value:'mute',child:Text(_muted?L.unmute:L.mute)),
-              PopupMenuItem(value:'embsub',child:Text(L.embeddedSubtitle)),
-              PopupMenuItem(value:'audio',child:Text(L.audioTracks)),
-              PopupMenuItem(value:'sleep',child:Text(L.sleepTimer)),
-              PopupMenuItem(value:'screenshot',child:Text(L.screenshot)),
-              PopupMenuItem(value:'copy',child:Text(L.copySub)),
-              PopupMenuItem(value:'info',child:Text(L.videoInfo)),
-              PopupMenuItem(value:'lock',child:Text(L.lockScreen)),
+              // ── نمایش تصویر ──
+              PopupMenuItem(value:'fit',child:Row(children:[
+                Icon(VzIcons.data('fullscreen'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text('${L.ratio}: ${_fit==BoxFit.contain?L.fit:_fit==BoxFit.cover?L.fill:L.stretch}')])),
+              PopupMenuItem(value:'rotate',child:Row(children:[
+                Icon(VzIcons.data('rotate'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text('${L.rotate}: ${_rotationDeg.toInt()}°')])),
+              PopupMenuItem(value:'night',child:Row(children:[
+                Icon(VzIcons.data('brightness'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(_vs.nightOpacity>0?L.disableNightMode:L.nightMode)])),
+              const PopupMenuDivider(),
+              // ── پخش ──
+              PopupMenuItem(value:'repeat',child:Row(children:[
+                Icon(VzIcons.data('replay'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text('${L.repeat}: ${_repeatMode==_Repeat.none?"off":_repeatMode==_Repeat.all?"all":"one"}')])),
+              PopupMenuItem(value:'speed',child:Row(children:[
+                Icon(VzIcons.data('speed'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text('${L.speed}: ${_vs.speed}x')])),
+              PopupMenuItem(value:'mute',child:Row(children:[
+                Icon(VzIcons.data(_muted?'mute':'volume'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(_muted?L.unmute:L.mute)])),
+              PopupMenuItem(value:'audio',child:Row(children:[
+                Icon(VzIcons.data('audio'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.audioTracks)])),
+              const PopupMenuDivider(),
+              // ── زیرنویس و ابزار ──
+              PopupMenuItem(value:'embsub',child:Row(children:[
+                Icon(VzIcons.data('subtitle'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.embeddedSubtitle)])),
+              PopupMenuItem(value:'copy',child:Row(children:[
+                Icon(VzIcons.data('copy'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.copySub)])),
+              PopupMenuItem(value:'sleep',child:Row(children:[
+                Icon(VzIcons.data('sleep'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.sleepTimer)])),
+              PopupMenuItem(value:'screenshot',child:Row(children:[
+                Icon(VzIcons.data('screen'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.screenshot)])),
+              PopupMenuItem(value:'info',child:Row(children:[
+                Icon(VzIcons.data('info'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.videoInfo)])),
+              const PopupMenuDivider(),
+              // ── قفل صفحه ──
+              PopupMenuItem(value:'lock',child:Row(children:[
+                Icon(VzIcons.data('lock'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Text(L.lockScreen)])),
             ],
           ),
         ]),

@@ -689,16 +689,31 @@ class BrowserScreenState extends State<BrowserScreen>{
                   count:fVids.length, color:Vz.accent2))),
               SliverPadding(
                 padding:const EdgeInsets.fromLTRB(16,4,16,0),
-                sliver: _layout==_LibLayout.list
-                  ? SliverList(
-                      delegate:SliverChildBuilderDelegate(
-                        (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
-                        childCount:fVids.length))
-                  : SliverGrid(
-                      gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-                        childAspectRatio:0.72),
-                      delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length))),
+                sliver: switch(_layout){
+                  // لیست: یک ستون ردیفی
+                  _LibLayout.list => SliverList(
+                    delegate:SliverChildBuilderDelegate(
+                      (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
+                      childCount:fVids.length)),
+                  // پوستر: یک ستون عریض ۱۶:۱۰
+                  _LibLayout.poster => SliverGrid(
+                    gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:1,mainAxisSpacing:12,
+                      childAspectRatio:16/10),
+                    delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length)),
+                  // کاشی مربع: سه ستون
+                  _LibLayout.tiles => SliverGrid(
+                    gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:3,mainAxisSpacing:6,crossAxisSpacing:6,
+                      childAspectRatio:1),
+                    delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length)),
+                  // گرید پیش‌فرض
+                  _ => SliverGrid(
+                    gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+                      childAspectRatio:0.72),
+                    delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length)),
+                }),
             ],
 
             const SliverPadding(padding:EdgeInsets.only(bottom:130)),
@@ -721,12 +736,9 @@ class BrowserScreenState extends State<BrowserScreen>{
 
   // ── چیدمان: چرخش سریع با تپ، انتخاب دقیق با نگه‌داشتن ──
   void _cycleLayout(){
-    final next = switch(_layout){
-      _LibLayout.grid => _LibLayout.list,
-      _LibLayout.list => _LibLayout.compact,
-      _LibLayout.compact => _LibLayout.grid,
-    };
-    _setLayout(next);
+    final vals = _LibLayout.values;
+    final i = vals.indexOf(_layout);
+    _setLayout(vals[(i + 1) % vals.length]);
   }
 
   void _setLayout(_LibLayout l){
@@ -741,15 +753,14 @@ class BrowserScreenState extends State<BrowserScreen>{
           onClose:()=>Navigator.pop(ctx)),
         for(final l in _LibLayout.values)
           VzSheetRow(
-            icon: switch(l){
-              _LibLayout.grid=>VzIcons.data('grid'),
-              _LibLayout.list=>VzIcons.data('list'),
-              _LibLayout.compact=>VzIcons.data('compact'),
-            },
-            title: switch(l){
-              _LibLayout.grid=>L.gridView,
-              _LibLayout.list=>L.listView,
-              _LibLayout.compact=>L.compactView,
+            icon: l.icon,
+            title: l.label,
+            subtitle: switch(l){
+              _LibLayout.grid    => '${L.gridView} — 2/3 ${L.files}',
+              _LibLayout.list    => '${L.listView} — thumbnail + details',
+              _LibLayout.compact => L.compactView,
+              _LibLayout.poster  => 'Poster — wide cinematic cards',
+              _LibLayout.tiles   => 'Tiles — square gallery',
             },
             accent: l==_layout?Vz.accent:null,
             trailing: l==_layout
@@ -881,6 +892,8 @@ class _VideoTile extends StatelessWidget{
         _LibLayout.grid => _grid(context),
         _LibLayout.list => _row(context),
         _LibLayout.compact => _compactRow(context),
+        _LibLayout.poster => _poster(context),
+        _LibLayout.tiles => _tileSquare(context),
       });
     return GestureDetector(
       onTap:onTap,onLongPress:onLongPress,
@@ -901,18 +914,19 @@ class _VideoTile extends StatelessWidget{
   Color get _fill=>selected?Vz.accent.withValues(alpha:0.12):Vz.card;
 
   // ── گرید ──
+  // ── گرید (پیش‌فرض) ──
   Widget _grid(BuildContext context){
     final grad=_extGrad(_ext);
     return AnimatedContainer(
       duration:Mo.fast,curve:Mo.easeOut,
       decoration:BoxDecoration(
-        color:_fill,
-        borderRadius:BorderRadius.circular(Rad.md),
-        border:Border.all(color:_border,width:selected?1.6:1),
+        color:Vz.card,
+        borderRadius:Rad.r(Rad.md),
+        border:Border.all(color:selected?Vz.accent:Vz.border,width:selected?1.6:1),
         boxShadow:selected?[Vz.glowSoft]:null),
       child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
         Expanded(child:ClipRRect(
-          borderRadius:const BorderRadius.vertical(top:Radius.circular(Rad.md-1)),
+          borderRadius:BorderRadius.vertical(top:Radius.circular(Rad.s(Rad.md)-1)),
           child:Stack(fit:StackFit.expand,children:[
             if(selectMode)
               Container(color:Vz.cardHi,child:Icon(
@@ -924,9 +938,9 @@ class _VideoTile extends StatelessWidget{
                 if(snap.hasData&&snap.data!=null){
                   return Stack(fit:StackFit.expand,children:[
                     Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true),
-                    Container(decoration:BoxDecoration(
+                    Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(
                       gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
-                        colors:[Vz.glassDark,Colors.transparent]))),
+                        colors:[Vz.glassDark,Colors.transparent])))),
                   ]);
                 }
                 return Container(
@@ -935,16 +949,15 @@ class _VideoTile extends StatelessWidget{
                   child:snap.connectionState==ConnectionState.waiting
                     ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
                     :Text(_ext.length>3?_ext.substring(0,3).toUpperCase():_ext.toUpperCase(),
-                        style:TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Vz.text,letterSpacing:1.5)));
+                        style:TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Vz.oviText,letterSpacing:1.5)));
               }),
-            // وضعیت تماشا + علاقه‌مندی — گوشه بالا
             if(!selectMode)Positioned(top:6,left:6,right:6,
               child:Row(children:[
-                if(_seen)_pill(VzIcons.data('check'),Vz.accent,animName:'check'),
-                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(VzIcons.data('bookmark'),Vz.accent,animName:'bookmark')],
-                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(VzIcons.data('favorite'),Vz.magenta,animName:'favorite')],
+                if(_seen)_pill('check',Vz.accent),
+                if(_bkm)...[const SizedBox(width:4),_pill('bookmark',Vz.amber)],
+                if(_fav)...[const SizedBox(width:4),_pill('favorite',Vz.magenta)],
                 const Spacer(),
-                if(_hasSub)_pill(VzIcons.data('subtitle'),Vz.green),
+                if(_hasSub)_pill('subtitle',Vz.green),
               ])),
             if(_dur!=null&&_dur!>0&&!selectMode)Positioned(
               right:6,bottom:6,
@@ -957,36 +970,153 @@ class _VideoTile extends StatelessWidget{
             if(_rating>0&&!selectMode)Positioned(
               left:6,bottom:6,
               child:Row(children:List.generate(_rating,(i)=>
-                Icon(VzIcons.data('star'),size:11,color:Vz.amber)))),
+                const Icon(Icons.star_rounded,size:11,color:Color(0xFFFBBF24))))),
             if(!selectMode)Center(child:Container(
-              width:40,height:40,
+              width:38,height:38,
               decoration:BoxDecoration(
-                color:Colors.black.withValues(alpha:0.38),
+                color:Colors.black.withValues(alpha:0.40),
                 shape:BoxShape.circle,
                 border:Border.all(color:Colors.white.withValues(alpha:0.22))),
-              child:Icon(VzIcons.data('play'),color:_seen?Vz.accent:Colors.white,size:25))),
+              child:Icon(VzIcons.data('play'),color:_seen?Vz.accent:Colors.white,size:24))),
           ]))),
-        // ── متادیتا ──
         Padding(
           padding:const EdgeInsets.fromLTRB(9,8,9,9),
           child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
             Text(_name,style:Ty.label.copyWith(
-              fontSize:12,
-              color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis),
+              fontSize:12,color:_seen?Vz.accent:Vz.text),
+              maxLines:1,overflow:TextOverflow.ellipsis),
             if(showPath)Padding(padding:const EdgeInsets.only(top:2),
-              child:Text(p.dirname(file.path),style:Ty.caption.copyWith(fontSize:9),maxLines:1,overflow:TextOverflow.ellipsis)),
+              child:Text(p.dirname(file.path),style:Ty.caption.copyWith(fontSize:9),
+                maxLines:1,overflow:TextOverflow.ellipsis)),
             const SizedBox(height:4),
-            Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
+            Row(children:[
+              Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
+              const Spacer(),
+              if(_dur!=null&&_dur!>0)
+                Text(fmt(Duration(seconds:_dur!)),style:Ty.caption.copyWith(fontSize:10)),
+            ]),
           ])),
       ]));
   }
 
-  Widget _pill(IconData icon,Color c,{String? animName})=>Container(
+  // ── پوستر عریض — سینمایی، متن روی تصویر ──
+  Widget _poster(BuildContext context){
+    final grad=_extGrad(_ext);
+    return AnimatedContainer(
+      duration:Mo.fast,curve:Mo.easeOut,
+      decoration:BoxDecoration(
+        borderRadius:Rad.r(Rad.md),
+        border:Border.all(color:selected?Vz.accent:Vz.border,width:selected?2:1),
+        boxShadow:selected?[Vz.glowSoft]:null),
+      child:ClipRRect(
+        borderRadius:Rad.r(Rad.md),
+        child:Stack(fit:StackFit.expand,children:[
+          FutureBuilder<Uint8List?>(
+            future:_loadThumb(file.path),
+            builder:(ctx,snap){
+              if(snap.hasData&&snap.data!=null){
+                return Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true);
+              }
+              return Container(decoration:BoxDecoration(gradient:grad));
+            }),
+          Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(
+            gradient:LinearGradient(
+              begin:Alignment.bottomCenter,end:Alignment.topCenter,
+              colors:[Colors.black.withValues(alpha:0.82),
+                      Colors.black.withValues(alpha:0.15),
+                      Colors.transparent],
+              stops:const [0.0,0.5,1.0])))),
+          if(selectMode)Positioned(top:8,right:8,child:Icon(
+            selected?VzIcons.data('check-circle'):VzIcons.data('circle'),
+            color:selected?Vz.accent:Colors.white,size:26)),
+          if(!selectMode)Positioned(top:8,left:8,child:Row(children:[
+            if(_seen)_pill('check',Vz.accent),
+            if(_hasSub)...[const SizedBox(width:4),_pill('subtitle',Vz.green)],
+          ])),
+          if(!selectMode)Center(child:Container(
+            width:46,height:46,
+            decoration:BoxDecoration(
+              color:Colors.black.withValues(alpha:0.42),
+              shape:BoxShape.circle,
+              border:Border.all(color:Colors.white.withValues(alpha:0.26))),
+            child:Icon(VzIcons.data('play'),color:Colors.white,size:28))),
+          Positioned(left:10,right:10,bottom:9,child:Column(
+            crossAxisAlignment:CrossAxisAlignment.start,
+            mainAxisSize:MainAxisSize.min,children:[
+              Text(_name,maxLines:1,overflow:TextOverflow.ellipsis,
+                style:const TextStyle(fontSize:12.5,fontWeight:FontWeight.w700,
+                  color:Colors.white,height:1.25)),
+              const SizedBox(height:3),
+              Row(children:[
+                Text(sizeStr(file),
+                  style:TextStyle(fontSize:10,color:Colors.white.withValues(alpha:0.72))),
+                if(_dur!=null&&_dur!>0)...[
+                  Text(' • ',style:TextStyle(fontSize:10,color:Colors.white.withValues(alpha:0.5))),
+                  Text(fmt(Duration(seconds:_dur!)),
+                    style:TextStyle(fontSize:10,color:Colors.white.withValues(alpha:0.72))),
+                ],
+                const Spacer(),
+                if(_rating>0)Row(children:List.generate(_rating,(i)=>
+                  const Icon(Icons.star_rounded,size:10,color:Color(0xFFFBBF24)))),
+              ]),
+            ])),
+        ])));
+  }
+
+  // ── کاشی مربع — سبک گالری ──
+  Widget _tileSquare(BuildContext context){
+    final grad=_extGrad(_ext);
+    return AnimatedContainer(
+      duration:Mo.fast,curve:Mo.easeOut,
+      decoration:BoxDecoration(
+        borderRadius:Rad.r(Rad.sm),
+        border:Border.all(color:selected?Vz.accent:Vz.border,width:selected?2:1),
+        boxShadow:selected?[Vz.glowSoft]:null),
+      child:ClipRRect(
+        borderRadius:Rad.r(Rad.sm),
+        child:Stack(fit:StackFit.expand,children:[
+          FutureBuilder<Uint8List?>(
+            future:_loadThumb(file.path),
+            builder:(ctx,snap){
+              if(snap.hasData&&snap.data!=null){
+                return Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true);
+              }
+              return Container(decoration:BoxDecoration(gradient:grad),
+                alignment:Alignment.center,
+                child:Text(_ext.toUpperCase(),
+                  style:TextStyle(fontSize:10,fontWeight:FontWeight.w800,
+                    color:Vz.oviText,letterSpacing:1)));
+            }),
+          Positioned.fill(child:DecoratedBox(decoration:BoxDecoration(
+            gradient:LinearGradient(
+              begin:Alignment.bottomCenter,end:Alignment.topCenter,
+              colors:[Colors.black.withValues(alpha:0.70),Colors.transparent],
+              stops:const [0.0,0.55])))),
+          if(!selectMode)Positioned(top:4,left:4,child:Row(children:[
+            if(_seen)_pill('check',Vz.accent),
+            if(_bkm)...[const SizedBox(width:3),_pill('bookmark',Vz.amber)],
+          ])),
+          if(selectMode)Center(child:Icon(
+            selected?VzIcons.data('check-circle'):VzIcons.data('circle'),
+            color:selected?Vz.accent:Colors.white,size:26)),
+          Positioned(left:6,right:6,bottom:5,child:Text(_name,
+            maxLines:1,overflow:TextOverflow.ellipsis,
+            style:const TextStyle(fontSize:10.5,fontWeight:FontWeight.w600,
+              color:Colors.white))),
+          if(_dur!=null&&_dur!>0&&!selectMode)Positioned(
+            right:5,top:5,
+            child:Container(
+              padding:const EdgeInsets.symmetric(horizontal:4,vertical:1),
+              decoration:BoxDecoration(color:Vz.badgeBg,borderRadius:BorderRadius.circular(4)),
+              child:Text(fmt(Duration(seconds:_dur!)),
+                style:TextStyle(fontSize:9,color:Vz.oviText,fontWeight:FontWeight.w600)))),
+        ])));
+  }
+
+  Widget _pill(String iconName,Color c)=>Container(
     width:20,height:20,
     decoration:BoxDecoration(color:Vz.badgeBg,shape:BoxShape.circle),
-    child: animName!=null
-      ? Center(child:VzIcon(animName,size:12,color:c,animated:true))
-      : Icon(icon,size:12,color:c));
+    child:Center(child:VzIcon(iconName,size:12,color:c,animated:true)));
 
   // ── لیست ──
   Widget _row(BuildContext context)=>Container(
@@ -1125,7 +1255,35 @@ class _PressableState extends State<_Pressable>{
       child:widget.child));
 }
 
-enum _LibLayout { grid, list, compact }
+enum _LibLayout {
+  /// کارت پوستری — پیش‌فرض
+  grid,
+  /// ردیف افقی با تامبنیل
+  list,
+  /// فشرده و سریع
+  compact,
+  /// کارت بزرگ با پوستر عریض — سینمایی
+  poster,
+  /// کاشی مربع کوچک — مثل گالری عکس
+  tiles,
+}
+
+extension _LibLayoutX on _LibLayout {
+  String get label => switch (this) {
+    _LibLayout.grid    => L.gridView,
+    _LibLayout.list    => L.listView,
+    _LibLayout.compact => L.compactView,
+    _LibLayout.poster  => 'Poster',
+    _LibLayout.tiles   => 'Tiles',
+  };
+  IconData get icon => switch (this) {
+    _LibLayout.grid    => VzIcons.data('grid'),
+    _LibLayout.list    => VzIcons.data('list'),
+    _LibLayout.compact => VzIcons.data('compact'),
+    _LibLayout.poster  => VzIcons.data('video'),
+    _LibLayout.tiles   => VzIcons.data('layout'),
+  };
+}
 
 // ── منوی ویدیو ──
 class VideoMenu extends StatefulWidget{
