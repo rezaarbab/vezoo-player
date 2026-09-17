@@ -4,20 +4,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
 import 'package:player/glass.dart';
 import 'package:player/vz_presets.dart';
+import 'package:player/vz_icons.dart';
 
 void main() {
   group('NOVA Design System — Tokens', () {
     test('Color palette — VOID', () {
-      expect(Vz.bg.toARGB32(), equals(0xFF0A0A0C));
-      expect(Vz.bgDeep.toARGB32(), equals(0xFF050507));
-      expect(Vz.surface.toARGB32(), equals(0xFF121216));
-      expect(Vz.card.toARGB32(), equals(0xFF17171C));
-      expect(Vz.cardHi.toARGB32(), equals(0xFF1F1F26));
-      // اکسنت پیش‌فرض = اولین پالت (Cyan) در حالت تیره
-      expect(Vz.accentIndex, equals(-1)); // -1 = رنگ خودِ پرسِت
-      expect(Vz.accent.toARGB32(), equals(Vz.preset.accentDark.toARGB32()));
-      expect(Vz.accentHi.toARGB32(), equals(Vz.preset.accentDarkHi.toARGB32()));
-      expect(Vz.deep.toARGB32(), equals(Vz.preset.accentDarkDeep.toARGB32()));
+      // رنگ‌های پایه از پرسِت فعال خوانده می‌شوند (نه هاردکد).
+      final p = Vz.preset;
+      expect(Vz.bg.toARGB32(), equals(p.bgDark.toARGB32()));
+      expect(Vz.bgDeep.toARGB32(), equals(p.bgDeepDark.toARGB32()));
+      expect(Vz.surface.toARGB32(), equals(p.surfaceDark.toARGB32()));
+      expect(Vz.card.toARGB32(), equals(p.cardDark.toARGB32()));
+      expect(Vz.cardHi.toARGB32(), equals(p.cardHiDark.toARGB32()));
+      expect(Vz.border.toARGB32(), equals(p.borderDark.toARGB32()));
+      // پالت تیره نیست اگه با کارت یکسان باشه
+      expect(Vz.bg, isNot(equals(Vz.card)));
+      // اکسنت پیش‌فرض = رنگ خودِ پرسِت
+      expect(Vz.accentIndex, equals(-1));
+      expect(Vz.accent.toARGB32(), equals(p.accentDark.toARGB32()));
+      expect(Vz.accentHi.toARGB32(), equals(p.accentDarkHi.toARGB32()));
+      expect(Vz.deep.toARGB32(), equals(p.accentDarkDeep.toARGB32()));
+      // رنگ‌های semantic بین پرسِت‌ها ثابت‌اند
       expect(Vz.magenta.toARGB32(), equals(0xFFFB7185));
       expect(Vz.green.toARGB32(), equals(0xFF4ADE80));
       expect(Vz.amber.toARGB32(), equals(0xFFFBBF24));
@@ -105,13 +112,18 @@ void main() {
       expect(Vz.scrimGrad.stops, equals(const [0.0, 0.45, 1.0]));
     });
 
-    test('Theme — dark, Material 3, NOVA colors', () {
+    test('Theme — dark, Material 3, preset colors', () {
       final theme = buildVezooTheme();
       expect(theme.brightness, Brightness.dark);
       expect(theme.useMaterial3, isTrue);
       expect(theme.colorScheme.primary, Vz.accent);
       expect(theme.colorScheme.surface, Vz.surface);
-      expect(theme.scaffoldBackgroundColor, Vz.bg);
+      // در حالت گرادیانی، scaffold شفاف است تا بک‌گراند رنگی از پشت دیده شود.
+      if (Vz.bgMode == VzBgMode.off) {
+        expect(theme.scaffoldBackgroundColor, Vz.bg);
+      } else {
+        expect(theme.scaffoldBackgroundColor, Colors.transparent);
+      }
       expect(theme.bottomSheetTheme.backgroundColor, Vz.surface);
     });
   });
@@ -170,7 +182,7 @@ void main() {
       ));
       expect(find.text('Big Buck Bunny'), findsOneWidget);
       expect(find.text('12:34'), findsOneWidget);
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      expect(find.byIcon(VzIcons.data('play')), findsOneWidget);
     });
 
     testWidgets('VzNavDock renders 5 destinations and fires onSelect', (tester) async {
@@ -184,16 +196,30 @@ void main() {
           ),
         ),
       ));
-      // ۵ آیتم: home, live, discover, library, settings
-      expect(find.byIcon(Icons.movie_filter_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.live_tv_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.explore_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.video_library_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.settings_rounded), findsOneWidget);
+      // آیکون‌ها از لایه‌ی VzIcons می‌آیند (پک پیش‌فرض = Solar)، پس به‌جای
+      // IconData هاردکد، با Semantics هر مقصد را پیدا می‌کنیم.
+      for (final d in VzNavDest.values) {
+        expect(find.bySemanticsLabel(d.label), findsOneWidget,
+            reason: 'مقصد ${d.name} در داک نیست');
+      }
+      // ۵ مقصد
+      expect(find.byType(VzIcon), findsNWidgets(5));
 
-      await tester.tap(find.byIcon(Icons.live_tv_rounded));
+      await tester.tap(find.bySemanticsLabel(VzNavDest.live.label));
       await tester.pumpAndSettle();
       expect(selected, VzNavDest.live);
+    });
+
+    testWidgets('VzNavDock uses the swappable icon layer', (tester) async {
+      // پک پیش‌فرض باید Solar باشد، نه Material
+      expect(VzIcons.pack, isA<SolarIconPack>());
+      // هر نامی که در پک نباشد به متریال برمی‌گردد (بدون کرش)
+      expect(VzIcons.data('__does_not_exist__'), equals(Icons.circle_outlined));
+      // نام‌های ناوبری واقعاً resolve می‌شوند
+      for (final n in ['home', 'live', 'discover', 'library', 'settings']) {
+        expect(VzIcons.data(n), isNot(equals(Icons.circle_outlined)),
+            reason: 'آیکون $n resolve نشد');
+      }
     });
 
     testWidgets('VzSearchField renders hint text', (tester) async {
