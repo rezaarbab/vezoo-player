@@ -221,14 +221,40 @@ void main() {
     });
 
     testWidgets('VzNavDock uses the swappable icon layer', (tester) async {
-      // پک پیش‌فرض باید Solar باشد، نه Material
-      expect(VzIcons.pack, isA<SolarIconPack>());
-      // هر نامی که در پک نباشد به متریال برمی‌گردد (بدون کرش)
+      // پک پیش‌فرض BiliIconPack است (گلیف‌های موئه + fallback به Solar).
+      expect(VzIcons.pack, isA<BiliIconPack>());
+
+      // هر نامی که در هیچ پکی نباشد به متریال برمی‌گردد (بدون کرش)
       expect(VzIcons.data('__does_not_exist__'), equals(Icons.circle_outlined));
-      // نام‌های ناوبری واقعاً resolve می‌شوند
+
+      // نام‌های عملیاتی ناوبری از Solar می‌آیند و باید resolve شوند
       for (final n in ['home', 'live', 'discover', 'library', 'settings']) {
         expect(VzIcons.data(n), isNot(equals(Icons.circle_outlined)),
             reason: 'آیکون $n resolve نشد');
+      }
+    });
+
+    testWidgets('moe icon pack serves its named glyphs and falls back', (tester) async {
+      const pack = BiliIconPack();
+
+      // پنج گلیف شناسایی‌شده باید از فونت VanFont بیایند
+      for (final entry in BiliIconPack.known.entries) {
+        expect(pack.has(entry.key), isTrue);
+        final icon = pack.fallback(entry.key);
+        expect(icon.fontFamily, equals('VanFont'),
+            reason: '${entry.key} باید از VanFont باشد');
+        expect(icon.codePoint, equals(entry.value));
+      }
+
+      // نام ناشناخته باید به پک Solar برگردد، نه فونت موئه
+      final fallback = pack.fallback('settings');
+      expect(fallback.fontFamily, isNot(equals('VanFont')));
+
+      // همه‌ی کدپوینت‌ها معتبر و یکتا هستند
+      expect(BiliIconPack.allCodePoints.length, equals(62));
+      expect(BiliIconPack.allCodePoints.toSet().length, equals(62));
+      for (final cp in BiliIconPack.allCodePoints) {
+        expect(pack.has('van${cp.toRadixString(16).toUpperCase()}'), isTrue);
       }
     });
 
