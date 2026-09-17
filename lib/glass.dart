@@ -112,11 +112,11 @@ class VzGradButton extends StatelessWidget {
               padding: padding,
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                  color: Vz.onAccent,
                   fontWeight: FontWeight.w700, fontSize: 13.5),
                 child: IconTheme.merge(
                   data: IconThemeData(
-                    color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                    color: Vz.onAccent,
                     size: 18),
                   child: child,
                 ),
@@ -860,7 +860,7 @@ class VzNavDock extends StatelessWidget {
           icon,
           size: 21,
           color: active
-              ? (Vz.isDark ? const Color(0xFF1A1203) : Colors.white)
+              ? (Vz.onAccent)
               : Vz.textDim,
         ),
       ),
@@ -949,7 +949,7 @@ Future<T?> showVzDialog<T>({
                       style: TextStyle(
                         color: destructive
                             ? Colors.white
-                            : (Vz.isDark ? const Color(0xFF1A1203) : Colors.white),
+                            : (Vz.onAccent),
                         fontWeight: FontWeight.w700, fontSize: 13)),
                   ),
                 ),
@@ -1027,7 +1027,7 @@ Future<String?> showVzInputDialog({
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(confirmLabel ?? 'OK', textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                      color: Vz.onAccent,
                       fontWeight: FontWeight.w700, fontSize: 13)),
                 ),
               ),

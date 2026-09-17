@@ -467,5 +467,15 @@ class L {
   static String get toolsSection => _t({'en':'Tools','fa':'ابزارها','ar':'الأدوات','ru':'Инструменты','zh':'工具','ja':'ツール','hi':'उपकरण','id':'Alat'});
   static String get aboutSection => _t({'en':'About','fa':'درباره','ar':'حول','ru':'О приложении','zh':'关于','ja':'情報','hi':'परिचय','id':'Tentang'});
   static String get retryAction => _t({'en':'Retry','fa':'تلاش مجدد','ar':'إعادة المحاولة','ru':'Повторить','zh':'重试','ja':'再試行','hi':'पुनः प्रयास','id':'Coba lagi'});
-  static String get openFolder => _t({'en':'Open folder','fa':'بازکردن پوشه','ar':'فتح المجلد','ru':'Открыть папку','zh':'打开文件夹','ja':'フォルダを開く','hi':'फ़ोल्डर खोलें','id':'Buka folder'});
+  static String get openFolder => _t({'en':'Open folder','fa':'پوشه را باز کن','ar':'افتح المجلد','ru':'Открыть папку','zh':'打开文件夹','ja':'フォルダを開く','hi':'फ़ोल्डर खोलें','id':'Buka folder'});
+
+  // ── VOID: اکسنت، انیمیشن، چیدمان فایل‌ها ──
+  static String get accentColor => _t({'en':'Accent color','fa':'رنگ اکسنت','ar':'لون التمييز','ru':'Акцентный цвет','zh':'强调色','ja':'アクセントカラー','hi':'एक्सेंट रंग','id':'Warna aksen'});
+  static String get animations => _t({'en':'Animations','fa':'انیمیشن‌ها','ar':'الرسوم المتحركة','ru':'Анимации','zh':'动画','ja':'アニメーション','hi':'एनिमेशन','id':'Animasi'});
+  static String get animationsDesc => _t({'en':'Screen transitions, entrance and press effects','fa':'ترنزیشن صفحه‌ها، انیمیشن ورود و افکت لمس','ar':'انتقالات الشاشة وتأثيرات اللمس','ru':'Переходы, появление и нажатия','zh':'界面过渡、入场与按压效果','ja':'画面遷移・登場・押下エフェクト','hi':'स्क्रीन ट्रांज़िशन और प्रेस इफेक्ट','id':'Transisi layar, animasi masuk dan efek tekan'});
+  static String get layout => _t({'en':'Layout','fa':'چیدمان','ar':'التخطيط','ru':'Раскладка','zh':'布局','ja':'レイアウト','hi':'लेआउट','id':'Tata letak'});
+  static String get gridView => _t({'en':'Grid','fa':'شبکه‌ای','ar':'شبكة','ru':'Сетка','zh':'网格','ja':'グリッド','hi':'ग्रिड','id':'Grid'});
+  static String get listView => _t({'en':'List','fa':'لیست','ar':'قائمة','ru':'Список','zh':'列表','ja':'リスト','hi':'सूची','id':'Daftar'});
+  static String get compactView => _t({'en':'Compact','fa':'فشرده','ar':'مضغوط','ru':'Компактно','zh':'紧凑','ja':'コンパクト','hi':'कॉम्पैक्ट','id':'Ringkas'});
+  static String get foldersFirst => _t({'en':'Folders first','fa':'پوشه‌ها اول','ar':'المجلدات أولاً','ru':'Папки сначала','zh':'文件夹优先','ja':'フォルダを先頭に','hi':'फ़ोल्डर पहले','id':'Folder dulu'});
 }

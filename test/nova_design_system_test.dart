@@ -12,8 +12,10 @@ void main() {
       expect(Vz.surface.toARGB32(), equals(0xFF121216));
       expect(Vz.card.toARGB32(), equals(0xFF17171C));
       expect(Vz.cardHi.toARGB32(), equals(0xFF1F1F26));
-      expect(Vz.accent.toARGB32(), equals(0xFFF59E0B));
-      expect(Vz.accentHi.toARGB32(), equals(0xFFFBBF24));
+      // اکسنت پیش‌فرض = اولین پالت (Cyan) در حالت تیره
+      expect(Vz.accent.toARGB32(), equals(0xFF22D3EE));
+      expect(Vz.accentHi.toARGB32(), equals(0xFF67E8F9));
+      expect(Vz.deep.toARGB32(), equals(0xFF0E7490));
       expect(Vz.magenta.toARGB32(), equals(0xFFFB7185));
       expect(Vz.green.toARGB32(), equals(0xFF4ADE80));
       expect(Vz.amber.toARGB32(), equals(0xFFFBBF24));
@@ -47,12 +49,21 @@ void main() {
       expect(Rad.xl, 28.0); expect(Rad.full, 999.0);
     });
 
-    test('Accent gradient — amber ramp, 3 stops', () {
+    test('Accent gradient — follows selected accent, 3 stops', () {
       expect(Vz.auroraGrad.colors.length, 3);
-      expect(Vz.auroraGrad.colors.first, const Color(0xFFFBBF24));
-      expect(Vz.auroraGrad.colors.last, const Color(0xFFB45309));
+      expect(Vz.auroraGrad.colors.first, Vz.accentHi);
+      expect(Vz.auroraGrad.colors.last, Vz.deep);
     });
 
+    test('Accent palette is complete and readable', () {
+      expect(kVzAccents.length, greaterThanOrEqualTo(8));
+      for (final a in kVzAccents) {
+        expect(a.name, isNotEmpty);
+      }
+      // متنِ روی اکسنت یا تیره است یا سفید — نه چیزی بین‌راه
+      final on = Vz.onAccent;
+      expect(on == Colors.white || on == const Color(0xFF0C0C0F), isTrue);
+    });
     test('Scrim tokens + scrimGrad — media thumbnail overlay', () {
       // رگرسیون: scrim* باید در پالت runtime موجود باشد (قبلاً undefined بود)
       expect(Vz.scrimTop.toARGB32(), equals(0x000A0A0C));

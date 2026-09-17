@@ -54,6 +54,16 @@ void main() async {
     final p = await SharedPreferences.getInstance();
     await p.setString('app_theme', v);
   };
+  storeAccentPrefs = () async =>
+      (await SharedPreferences.getInstance()).getInt('app_accent');
+  storeAccentSave = (v) async {
+    await (await SharedPreferences.getInstance()).setInt('app_accent', v);
+  };
+  storeAnimPrefs = () async =>
+      (await SharedPreferences.getInstance()).getBool('app_animations');
+  storeAnimSave = (v) async {
+    await (await SharedPreferences.getInstance()).setBool('app_animations', v);
+  };
 
   runApp(const MyApp());
 }
@@ -90,10 +100,17 @@ class VzThemeScopeBuilder extends StatelessWidget {
       theme: buildVezooTheme(dark: dark),
       darkTheme: buildVezooTheme(dark: true),
       themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-      builder: (ctx, child) => Directionality(
-        textDirection: langDir(L.current),
-        child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
-      ),
+      builder: (ctx, child) {
+        final mq = MediaQuery.of(ctx);
+        return MediaQuery(
+          // کلید انیمیشن کاربر — ترنزیشن‌ها و انیمیشن‌های خود فریم‌ورک را هم خاموش می‌کند
+          data: mq.copyWith(disableAnimations: !Vz.animations),
+          child: Directionality(
+            textDirection: langDir(L.current),
+            child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
+          ),
+        );
+      },
       home: const _HomeWrapper(),
     );
   }

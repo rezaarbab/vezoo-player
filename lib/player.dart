@@ -2662,7 +2662,7 @@ class _PlayerState extends State<PlayerScreen>{
               ),
               child:Icon(
                 _playing?Icons.pause_rounded:Icons.play_arrow_rounded,
-                color:_playing?Colors.white:const Color(0xFF1A1203),
+                color:_playing?Colors.white:Vz.onAccent,
                 size:52),
             ),
           ),

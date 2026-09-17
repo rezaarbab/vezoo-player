@@ -20,6 +20,61 @@ enum VzThemeMode { system, dark, light }
 // ─────────────────────────────────────────────────────────────────────────────
 //  PALETTE — VOID (dark) / DAYLIGHT (light)
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+//  ACCENTS — انتخاب کاربر. هر اکسنت نسخه‌ی تیره و روشن دارد تا روی هر دو
+//  پالت خوانا بماند. رنگ‌های semantic (سبز/قرمز/…) مستقل می‌مانند.
+// ─────────────────────────────────────────────────────────────────────────────
+class VzAccent {
+  final String name;
+  final Color dark, darkHi, darkDeep;
+  final Color light, lightHi, lightDeep;
+  const VzAccent(
+    this.name, {
+    required this.dark,
+    required this.darkHi,
+    required this.darkDeep,
+    required this.light,
+    required this.lightHi,
+    required this.lightDeep,
+  });
+}
+
+const List<VzAccent> kVzAccents = [
+  VzAccent('Cyan',
+    dark: Color(0xFF22D3EE), darkHi: Color(0xFF67E8F9), darkDeep: Color(0xFF0E7490),
+    light: Color(0xFF0891B2), lightHi: Color(0xFF06B6D4), lightDeep: Color(0xFF155E75)),
+  VzAccent('Emerald',
+    dark: Color(0xFF34D399), darkHi: Color(0xFF6EE7B7), darkDeep: Color(0xFF047857),
+    light: Color(0xFF059669), lightHi: Color(0xFF10B981), lightDeep: Color(0xFF065F46)),
+  VzAccent('Sky',
+    dark: Color(0xFF60A5FA), darkHi: Color(0xFF93C5FD), darkDeep: Color(0xFF1D4ED8),
+    light: Color(0xFF2563EB), lightHi: Color(0xFF3B82F6), lightDeep: Color(0xFF1E40AF)),
+  VzAccent('Violet',
+    dark: Color(0xFFA78BFA), darkHi: Color(0xFFC4B5FD), darkDeep: Color(0xFF6D28D9),
+    light: Color(0xFF7C3AED), lightHi: Color(0xFF8B5CF6), lightDeep: Color(0xFF5B21B6)),
+  VzAccent('Rose',
+    dark: Color(0xFFFB7185), darkHi: Color(0xFFFDA4AF), darkDeep: Color(0xFFBE123C),
+    light: Color(0xFFE11D48), lightHi: Color(0xFFF43F5E), lightDeep: Color(0xFF9F1239)),
+  VzAccent('Orange',
+    dark: Color(0xFFFB923C), darkHi: Color(0xFFFDBA74), darkDeep: Color(0xFFC2410C),
+    light: Color(0xFFEA580C), lightHi: Color(0xFFF97316), lightDeep: Color(0xFF9A3412)),
+  VzAccent('Lime',
+    dark: Color(0xFFA3E635), darkHi: Color(0xFFBEF264), darkDeep: Color(0xFF4D7C0F),
+    light: Color(0xFF65A30D), lightHi: Color(0xFF84CC16), lightDeep: Color(0xFF3F6212)),
+  VzAccent('Fuchsia',
+    dark: Color(0xFFE879F9), darkHi: Color(0xFFF0ABFC), darkDeep: Color(0xFFA21CAF),
+    light: Color(0xFFC026D3), lightHi: Color(0xFFD946EF), lightDeep: Color(0xFF86198F)),
+  VzAccent('Teal',
+    dark: Color(0xFF2DD4BF), darkHi: Color(0xFF5EEAD4), darkDeep: Color(0xFF0F766E),
+    light: Color(0xFF0D9488), lightHi: Color(0xFF14B8A6), lightDeep: Color(0xFF115E59)),
+  VzAccent('Ice',
+    dark: Color(0xFFE2E8F0), darkHi: Color(0xFFF8FAFC), darkDeep: Color(0xFF94A3B8),
+    light: Color(0xFF1E293B), lightHi: Color(0xFF334155), lightDeep: Color(0xFF0F172A)),
+  VzAccent('Amber',
+    dark: Color(0xFFF59E0B), darkHi: Color(0xFFFBBF24), darkDeep: Color(0xFFB45309),
+    light: Color(0xFFB45309), lightHi: Color(0xFFD97706), lightDeep: Color(0xFF92400E)),
+];
+
 class _P {
   // VOID base — neutral near-black, no color cast
   static const bg       = Color(0xFF0A0A0C);
@@ -111,12 +166,32 @@ class Vz {
   Vz._();
 
   static bool _dark = true;
+  static int _accentIndex = 0;
+  static bool _anim = true;
 
   /// Whether the active palette is dark. Set by VzTheme before first frame.
   static bool get isDark => _dark;
 
+  /// Whether entrance/transition animations are enabled (user toggle).
+  static bool get animations => _anim;
+
+  /// Index into [kVzAccents].
+  static int get accentIndex => _accentIndex;
+
+  static VzAccent get _acc =>
+      kVzAccents[_accentIndex.clamp(0, kVzAccents.length - 1)];
+
+  /// Text/icon color to draw on top of [accent] — picked by luminance so every
+  /// accent stays readable.
+  static Color get onAccent =>
+      accent.computeLuminance() > 0.55 ? const Color(0xFF0C0C0F) : Colors.white;
+
   /// Internal: called by VzTheme / buildVezooTheme before building.
   static void _setDark(bool v) { _dark = v; }
+  static void _setAccentIndex(int i) {
+    _accentIndex = i.clamp(0, kVzAccents.length - 1);
+  }
+  static void _setAnimations(bool v) { _anim = v; }
 
   // ── base ──
   static Color get bg       => _dark ? _P.bg       : _L.bg;
@@ -128,10 +203,10 @@ class Vz {
   static Color get borderHi => _dark ? _P.borderHi : _L.borderHi;
 
   // ── accents ──
-  static Color get accent   => _dark ? _P.accent   : _L.accent;
-  static Color get accentHi => _dark ? _P.accentHi : _L.accentHi;
-  static Color get magenta  => _dark ? _P.magenta  : _L.magenta;
-  static Color get deep     => _dark ? _P.deep     : _L.deep;
+  static Color get accent   => _dark ? _acc.dark     : _acc.light;
+  static Color get accentHi => _dark ? _acc.darkHi   : _acc.lightHi;
+  static Color get deep     => _dark ? _acc.darkDeep : _acc.lightDeep;
+  static Color get magenta  => _dark ? _P.magenta    : _L.magenta;
 
   // ── semantic ──
   static Color get green    => _dark ? _P.green    : _L.green;
@@ -171,7 +246,7 @@ class Vz {
   // ── gradients ──
   /// Primary accent ramp — amber only. (legacy name kept)
   static LinearGradient get auroraGrad => LinearGradient(
-    colors: [accentHi, accent, _dark ? _P.deep : _L.deep],
+    colors: [accentHi, accent, deep],
     stops: const [0.0, 0.55, 1.0],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
@@ -244,15 +319,16 @@ abstract final class Ty {
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MOTION - durations & curves
+//  همه getter هستند تا کلید «انیمیشن» کاربر از هر جای اپ احترام گذاشته شود.
 // ─────────────────────────────────────────────────────────────────────────────
 abstract final class Mo {
-  static const press = Duration(milliseconds: 150);
-  static const fast = Duration(milliseconds: 180);
-  static const normal = Duration(milliseconds: 280);
-  static const sheet = Duration(milliseconds: 320);
-  static const easeOut = Curves.easeOut;
-  static const decel = Curves.decelerate;
-  static const emphasized = Curves.easeOutCubic;
+  static Duration get press => Vz.animations ? const Duration(milliseconds: 150) : Duration.zero;
+  static Duration get fast => Vz.animations ? const Duration(milliseconds: 180) : Duration.zero;
+  static Duration get normal => Vz.animations ? const Duration(milliseconds: 280) : Duration.zero;
+  static Duration get sheet => Vz.animations ? const Duration(milliseconds: 320) : Duration.zero;
+  static Curve get easeOut => Vz.animations ? Curves.easeOut : Curves.linear;
+  static Curve get decel => Vz.animations ? Curves.decelerate : Curves.linear;
+  static Curve get emphasized => Vz.animations ? Curves.easeOutCubic : Curves.linear;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -263,6 +339,8 @@ class VzThemeScope extends InheritedWidget {
     super.key,
     required this.isDark,
     required this.mode,
+    required this.accentIndex,
+    required this.animations,
     required super.child,
   });
 
@@ -271,6 +349,12 @@ class VzThemeScope extends InheritedWidget {
 
   /// Snapshot of the user's chosen mode (system/dark/light).
   final VzThemeMode mode;
+
+  /// Snapshot of the chosen accent (index into [kVzAccents]).
+  final int accentIndex;
+
+  /// Snapshot of the animation toggle.
+  final bool animations;
 
   static VzThemeScope? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<VzThemeScope>();
@@ -286,9 +370,18 @@ class VzThemeScope extends InheritedWidget {
   static VzThemeMode modeOf(BuildContext context) =>
       maybeOf(context)?.mode ?? VzThemeMode.system;
 
+  static int accentIndexOf(BuildContext context) =>
+      maybeOf(context)?.accentIndex ?? Vz.accentIndex;
+
+  static bool animationsOf(BuildContext context) =>
+      maybeOf(context)?.animations ?? Vz.animations;
+
   @override
   bool updateShouldNotify(VzThemeScope oldWidget) =>
-      isDark != oldWidget.isDark || mode != oldWidget.mode;
+      isDark != oldWidget.isDark ||
+      mode != oldWidget.mode ||
+      accentIndex != oldWidget.accentIndex ||
+      animations != oldWidget.animations;
 }
 
 /// Root stateful theming widget. Place above MaterialApp.
@@ -303,8 +396,12 @@ class VzTheme extends StatefulWidget {
 /// Public state so Settings can read mode & call setMode().
 class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeMode _mode = VzThemeMode.system;
+  int _accent = 0;
+  bool _anim = true;
 
   VzThemeMode get mode => _mode;
+  int get accent => _accent;
+  bool get animations => _anim;
 
   @override
   void initState() {
@@ -332,6 +429,8 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       'light' => VzThemeMode.light,
       _       => VzThemeMode.system,
     };
+    _accent = (await storeAccentPrefs?.call() ?? 0).clamp(0, kVzAccents.length - 1);
+    _anim = await storeAnimPrefs?.call() ?? true;
     if (mounted) setState(() {});
   }
 
@@ -345,6 +444,18 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     });
   }
 
+  Future<void> setAccent(int i) async {
+    _accent = i.clamp(0, kVzAccents.length - 1);
+    setState(() {});
+    await storeAccentSave?.call(_accent);
+  }
+
+  Future<void> setAnimations(bool v) async {
+    _anim = v;
+    setState(() {});
+    await storeAnimSave?.call(v);
+  }
+
   bool get _isDarkNow {
     if (_mode != VzThemeMode.system) return _mode == VzThemeMode.dark;
     return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
@@ -354,7 +465,15 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final dark = _isDarkNow;
     Vz._setDark(dark);
-    return VzThemeScope(isDark: dark, mode: _mode, child: widget.child);
+    Vz._setAccentIndex(_accent);
+    Vz._setAnimations(_anim);
+    return VzThemeScope(
+      isDark: dark,
+      mode: _mode,
+      accentIndex: _accent,
+      animations: _anim,
+      child: widget.child,
+    );
   }
 }
 
@@ -362,6 +481,10 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
 /// (main.dart wires these to SharedPreferences)
 Future<String?> Function()? storeThemePrefs;
 Future<void> Function(String)? storeThemeSave;
+Future<int?> Function()? storeAccentPrefs;
+Future<void> Function(int)? storeAccentSave;
+Future<bool?> Function()? storeAnimPrefs;
+Future<void> Function(bool)? storeAnimSave;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  AMBIENT BACKGROUND
@@ -443,9 +566,9 @@ ThemeData buildVezooTheme({bool dark = true}) {
   final scheme = ColorScheme(
     brightness: dark ? Brightness.dark : Brightness.light,
     primary: Vz.accent,
-    onPrimary: dark ? const Color(0xFF1A1203) : Colors.white,
+    onPrimary: Vz.onAccent,
     secondary: Vz.accentHi,
-    onSecondary: dark ? const Color(0xFF1A1203) : Colors.white,
+    onSecondary: Vz.onAccent,
     surface: Vz.surface,
     onSurface: Vz.text,
     error: Vz.red,
@@ -537,14 +660,14 @@ ThemeData buildVezooTheme({bool dark = true}) {
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: Vz.accent,
-      foregroundColor: dark ? const Color(0xFF1A1203) : Colors.white,
+      foregroundColor: Vz.onAccent,
       elevation: 0, focusElevation: 0, hoverElevation: 0,
       shape: RoundedRectangleBorder(borderRadius: rSm),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: Vz.accent,
-        foregroundColor: dark ? const Color(0xFF1A1203) : Colors.white,
+        foregroundColor: Vz.onAccent,
         textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
         shape: RoundedRectangleBorder(borderRadius: rSm),

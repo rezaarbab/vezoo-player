@@ -37,6 +37,24 @@ class _SettingsScreenState extends State<SettingsScreen>{
           // ── Appearance ──
           VzSectionHeader(title: L.appearance),
           const VzThemePicker(),
+          const SizedBox(height: Sp.sm),
+          const VzAccentPicker(),
+          const SizedBox(height: Sp.sm),
+          VzGlass(
+            padding: EdgeInsets.zero,
+            child: VzRow(
+              icon: Icons.animation_rounded,
+              title: L.animations,
+              subtitle: L.animationsDesc,
+              accent: Vz.accent,
+              trailing: Switch(
+                value: VzThemeScope.animationsOf(context),
+                onChanged: (v) => context
+                    .findAncestorStateOfType<VzThemeState>()
+                    ?.setAnimations(v),
+              ),
+            ),
+          ),
 
           // ── Tools ──
           VzSectionHeader(title: L.toolsSection),
@@ -107,7 +125,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(Icons.play_arrow_rounded,
-                  color: Vz.isDark ? const Color(0xFF1A1203) : Colors.white,
+                  color: Vz.onAccent,
                   size: 26),
               ),
               const SizedBox(width: Sp.md),
@@ -281,4 +299,111 @@ class VzThemePicker extends StatelessWidget {
       ),
     );
   }
+}
+
+/// انتخابگر رنگ اکسنت — یک ردیف اسکرول‌شونده از سواچ‌ها.
+/// انتخاب روی کل اپ (پلیر، داک، کارت‌ها، اسلایدرها) اثر می‌گذارد.
+class VzAccentPicker extends StatefulWidget {
+  const VzAccentPicker({super.key});
+  @override State<VzAccentPicker> createState() => _VzAccentPickerState();
+}
+
+class _VzAccentPickerState extends State<VzAccentPicker> {
+  final _ctrl = ScrollController();
+
+  @override
+  void dispose() { _ctrl.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    final current = VzThemeScope.accentIndexOf(context);
+    final vzt = context.findAncestorStateOfType<VzThemeState>();
+    final dark = Vz.isDark;
+
+    return VzGlass(
+      padding: const EdgeInsets.symmetric(vertical: Sp.md),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+          child: Row(children: [
+            Icon(Icons.palette_rounded, size: 18, color: Vz.accent),
+            const SizedBox(width: Sp.sm),
+            Expanded(child: Text(L.accentColor,
+              style: Ty.label.copyWith(fontSize: 13))),
+            _preview(dark),
+          ]),
+        ),
+        const SizedBox(height: Sp.md),
+        SizedBox(
+          height: 56,
+          child: ListView.separated(
+            controller: _ctrl,
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+            itemCount: kVzAccents.length,
+            separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
+            itemBuilder: (ctx, i) {
+              final a = kVzAccents[i];
+              final c = dark ? a.dark : a.light;
+              final hi = dark ? a.darkHi : a.lightHi;
+              final selected = i == current;
+              return Semantics(
+                selected: selected,
+                button: true,
+                label: a.name,
+                container: true,
+                excludeSemantics: true,
+                onTap: () => vzt?.setAccent(i),
+                child: Tooltip(
+                  message: a.name,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(Rad.full),
+                    onTap: () => vzt?.setAccent(i),
+                    child: AnimatedContainer(
+                      duration: Mo.fast,
+                      curve: Mo.easeOut,
+                      width: 48, height: 48,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [hi, c],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: selected ? Vz.text : Vz.border,
+                          width: selected ? 2.5 : 1),
+                      ),
+                      child: selected
+                        ? Icon(Icons.check_rounded, size: 22,
+                            color: c.computeLuminance() > 0.55
+                              ? const Color(0xFF0C0C0F) : Colors.white)
+                        : null,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ]),
+    );
+  }
+
+  /// پیش‌نمایش زنده‌ی پالت با رنگ انتخاب‌شده
+  Widget _preview(bool dark) => Row(mainAxisSize: MainAxisSize.min, children: [
+    _dot(Vz.bg, 14),
+    const SizedBox(width: 3),
+    _dot(Vz.card, 14),
+    const SizedBox(width: 3),
+    _dot(Vz.accent, 14),
+    const SizedBox(width: 3),
+    _dot(Vz.accentHi, 14),
+  ]);
+
+  Widget _dot(Color c, double s) => Container(
+    width: s, height: s,
+    decoration: BoxDecoration(
+      color: c, shape: BoxShape.circle,
+      border: Border.all(color: Vz.border, width: 1)),
+  );
 }

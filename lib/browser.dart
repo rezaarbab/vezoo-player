@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path/path.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'store.dart';
 import 'player.dart';
 import 'main.dart' show showSnack;
@@ -75,6 +76,7 @@ class BrowserScreenState extends State<BrowserScreen>{
   final Set<String> _selected={};
   _SortBy _sortBy=_SortBy.name;
   bool _sortDesc=false;
+  _LibLayout _layout=_LibLayout.grid;
   bool _searching=false;
   // جستجو: false=عادی، true=بازگشتی در کل حافظه
   bool _globalSearch=false;
@@ -86,7 +88,17 @@ class BrowserScreenState extends State<BrowserScreen>{
   @override void initState(){super.initState();_init();}
   @override void dispose(){_searchCtrl.dispose();super.dispose();}
 
-  Future<void> _init()async{await Store.load();await _ensurePermission();}
+  Future<void> _init()async{
+    await Store.load();
+    // چیدمان ذخیره‌شده کاربر
+    try{
+      final p0=await SharedPreferences.getInstance();
+      final raw=p0.getString('lib_layout');
+      final l=_LibLayout.values.where((e)=>e.name==raw).firstOrNull;
+      if(l!=null&&mounted)setState(()=>_layout=l);
+    }catch(_){}
+    await _ensurePermission();
+  }
 
   Future<void> _ensurePermission()async{
     setState(()=>_checking=true);
@@ -462,10 +474,31 @@ class BrowserScreenState extends State<BrowserScreen>{
       ],
       IconButton(icon:Icon(_searching?Icons.close_rounded:Icons.search_rounded,size:20),
           onPressed:(){setState((){_searching=!_searching;if(!_searching){_searchQuery='';_searchCtrl.clear();_searchResults=[];_globalSearch=false;}});}),
+      // ── تعویض چیدمان: گرید / لیست / فشرده ──
+      if(!_searching)
+        GestureDetector(
+          onTap:_cycleLayout,
+          onLongPress:()=>_showLayoutSheet(context),
+          child:Container(
+            margin:const EdgeInsets.symmetric(vertical:10,horizontal:2),
+            padding:const EdgeInsets.all(7),
+            decoration:BoxDecoration(
+              color:Vz.card,
+              borderRadius:BorderRadius.circular(Rad.xs),
+              border:Border.all(color:Vz.border)),
+            child:Icon(
+              switch(_layout){
+                _LibLayout.grid=>Icons.grid_view_rounded,
+                _LibLayout.list=>Icons.view_agenda_rounded,
+                _LibLayout.compact=>Icons.view_headline_rounded,
+              },
+              size:18,color:Vz.accent),
+          ),
+        ),
       // NOVA: Online/IPTV/Library/Settings از طریق NavDock — دکمه‌های تکراری حذف شد
       if(!_searching)...[
         if(_path!=root)IconButton(
-          icon:Icon(isSaved?Icons.push_pin_rounded:Icons.push_pin_outlined,color:isSaved?kAmber:kTextSec,size:20),
+          icon:Icon(isSaved?Icons.push_pin_rounded:Icons.push_pin_outlined,color:isSaved?Vz.amber:Vz.textSec,size:20),
           onPressed:()async{await Store.toggleSavedFolder(_path);setState((){});},
         ),
         PopupMenuButton<String>(
@@ -580,210 +613,447 @@ class BrowserScreenState extends State<BrowserScreen>{
       Text(L.noFilesFound,style:TextStyle(color:kTextSec,fontSize:14)),
     ]));
 
-    // ── Bento Grid layout ──
+    // ── چیدمان انتخابی کاربر ──
     final cols = MediaQuery.of(context).size.width>600?3:2;
     final header = _path!=root
       ? Padding(
         padding:const EdgeInsets.fromLTRB(4,10,4,4),
         child:Row(children:[
-          Icon(Icons.folder_rounded,size:15,color:kAccent),
+          Icon(Icons.folder_rounded,size:15,color:Vz.accent),
           const SizedBox(width:6),
-          Expanded(child:Text(_path,style:TextStyle(fontSize:11,color:kTextDim),overflow:TextOverflow.ellipsis)),
+          Expanded(child:Text(_path,style:Ty.caption.copyWith(fontSize:11),overflow:TextOverflow.ellipsis)),
         ]))
       : const SizedBox.shrink();
 
+    // تایل‌ها
+    Widget dirAt(int i)=>_DirTile(dir:fDirs[i],index:i,onTap:()=>_loadDir(fDirs[i].path));
+    Widget vidAt(int i){
+      final v=fVids[i];
+      return _VideoTile(
+        file:v,selectMode:_selectMode,selected:_selected.contains(v.path),
+        layout:_layout,index:i,
+        onTap:_selectMode?()=>setState(()=>_selected.contains(v.path)?_selected.remove(v.path):_selected.add(v.path)):()=>_openVideo(v,fVids,i),
+        onLongPress:_selectMode?null:()=>_showVideoMenu(v),
+        showPath:_globalSearch,
+      );
+    }
+
     return RefreshIndicator(
       onRefresh:()async{if(!_globalSearch){_loadDir(_path);}else if(_searchQuery.isNotEmpty){_runGlobalSearch(_searchQuery);}},
-      color:kAccent,
-      backgroundColor:kCard,
-      child:CustomScrollView(
-      physics:const AlwaysScrollableScrollPhysics(),
-      slivers:[
-        SliverPadding(padding:EdgeInsets.only(top:4,left:16,right:16,bottom:4),sliver:SliverToBoxAdapter(child:header)),
-        if(fDirs.isNotEmpty)SliverPadding(
-          padding:const EdgeInsets.symmetric(horizontal:16),
-          sliver:SliverGrid(
-            gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-              childAspectRatio:1.85),
-            delegate:SliverChildBuilderDelegate(
-              (ctx,i)=>_DirTile(dir:fDirs[i],onTap:()=>_loadDir(fDirs[i].path)),
-              childCount:fDirs.length))),
-        SliverPadding(
-          padding:const EdgeInsets.fromLTRB(16,10,16,0),
-          sliver:SliverGrid(
-            gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-              childAspectRatio:0.72),
-            delegate:SliverChildBuilderDelegate(
-              (ctx,i){
-                final v=fVids[i];
-                return _VideoTile(
-                  file:v,selectMode:_selectMode,selected:_selected.contains(v.path),
-                  onTap:_selectMode?()=>setState(()=>_selected.contains(v.path)?_selected.remove(v.path):_selected.add(v.path)):()=>_openVideo(v,fVids,i),
-                  onLongPress:_selectMode?null:()=>_showVideoMenu(v),
-                  showPath:_globalSearch,
-                  compact:true,
-                );
-              },
-              childCount:fVids.length))),
-        const SliverPadding(padding:EdgeInsets.only(bottom:130)),
-      ],
-    ),);
+      color:Vz.accent,
+      backgroundColor:Vz.card,
+      child:_layout==_LibLayout.compact
+        // ── فشرده: یک لیست ساده و پرسرعت ──
+        ? ListView(
+            padding:const EdgeInsets.fromLTRB(Sp.lg,Sp.sm,Sp.lg,130),
+            children:[
+              header,
+              for(var i=0;i<fDirs.length;i++)
+                Padding(padding:const EdgeInsets.only(bottom:4),child:dirAt(i)),
+              if(fDirs.isNotEmpty)const SizedBox(height:Sp.sm),
+              for(var i=0;i<fVids.length;i++)
+                Padding(padding:const EdgeInsets.only(bottom:2),child:vidAt(i)),
+            ])
+        : CustomScrollView(
+          physics:const AlwaysScrollableScrollPhysics(),
+          slivers:[
+            SliverPadding(padding:const EdgeInsets.only(top:4,left:16,right:16,bottom:4),
+              sliver:SliverToBoxAdapter(child:header)),
+
+            // ── پوشه‌ها: همیشه گرید افقی ──
+            if(fDirs.isNotEmpty)SliverPadding(
+              padding:const EdgeInsets.symmetric(horizontal:16),
+              sliver:SliverGrid(
+                gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+                  childAspectRatio:1.85),
+                delegate:SliverChildBuilderDelegate((ctx,i)=>dirAt(i),childCount:fDirs.length))),
+
+            // ── ویدیوها ──
+            if(fVids.isNotEmpty)SliverPadding(
+              padding:const EdgeInsets.fromLTRB(16,10,16,0),
+              sliver: _layout==_LibLayout.list
+                ? SliverList(
+                    delegate:SliverChildBuilderDelegate(
+                      (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
+                      childCount:fVids.length))
+                : SliverGrid(
+                    gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
+                      childAspectRatio:0.72),
+                    delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length))),
+
+            const SliverPadding(padding:EdgeInsets.only(bottom:130)),
+          ],
+        ),
+    );
   }
 
   void _openPanel(int page){
     // NOVA: پانل ۸-تبی حذف شد — History/Bookmarks/... در Library و Settings از طریق NavDock
   }
+
+  // ── چیدمان: چرخش سریع با تپ، انتخاب دقیق با نگه‌داشتن ──
+  void _cycleLayout(){
+    final next = switch(_layout){
+      _LibLayout.grid => _LibLayout.list,
+      _LibLayout.list => _LibLayout.compact,
+      _LibLayout.compact => _LibLayout.grid,
+    };
+    _setLayout(next);
+  }
+
+  void _setLayout(_LibLayout l){
+    setState(()=>_layout=l);
+    SharedPreferences.getInstance().then((p)=>p.setString('lib_layout',l.name));
+  }
+
+  void _showLayoutSheet(BuildContext context){
+    showVzSheet(context:context, builder:(ctx)=>SafeArea(top:false,child:Column(
+      mainAxisSize:MainAxisSize.min, children:[
+        VzSheetHeader(title:L.layout, icon:Icons.dashboard_customize_rounded,
+          onClose:()=>Navigator.pop(ctx)),
+        for(final l in _LibLayout.values)
+          VzSheetRow(
+            icon: switch(l){
+              _LibLayout.grid=>Icons.grid_view_rounded,
+              _LibLayout.list=>Icons.view_agenda_rounded,
+              _LibLayout.compact=>Icons.view_headline_rounded,
+            },
+            title: switch(l){
+              _LibLayout.grid=>L.gridView,
+              _LibLayout.list=>L.listView,
+              _LibLayout.compact=>L.compactView,
+            },
+            accent: l==_layout?Vz.accent:null,
+            trailing: l==_layout
+              ? Icon(Icons.check_rounded,size:19,color:Vz.accent)
+              : null,
+            onTap:(){Navigator.pop(ctx);_setLayout(l);},
+          ),
+        const SizedBox(height:Sp.sm),
+      ])));
+  }
 }
 
 // ── تایل پوشه — Bento افقی ──
-class _DirTile extends StatelessWidget{
+class _DirTile extends StatefulWidget{
   final Directory dir;final VoidCallback onTap;
-  const _DirTile({required this.dir,required this.onTap});
-  @override Widget build(BuildContext context)=>GestureDetector(
-    onTap:onTap,
-    child:Container(
-      decoration:BoxDecoration(
-        color:kCard.withValues(alpha: 0.72),
-        borderRadius:BorderRadius.circular(18),
-        border:Border.all(color:kBorder.withValues(alpha: 0.7))),
-      padding:const EdgeInsets.symmetric(horizontal:12,vertical:10),
-      child:Row(children:[
-        Container(width:34,height:34,decoration:BoxDecoration(
-          gradient:LinearGradient(colors:[const Color(0xFF8B7BB8),Vz.textDim],begin:Alignment.topLeft,end:Alignment.bottomRight),
-          borderRadius:BorderRadius.circular(10)),
-          child:Icon(Icons.folder_rounded,color:Vz.text,size:17)),
-        const SizedBox(width:10),
-        Expanded(child:Text(p.basename(dir.path),style:TextStyle(fontWeight:FontWeight.w600,fontSize:12.5,color:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis)),
-        Icon(Icons.chevron_left_rounded,color:kTextDim,size:18),
-      ]),
-    ),
-  );
+  final int index;
+  const _DirTile({required this.dir,required this.onTap,this.index=0});
+  @override State<_DirTile> createState()=>_DirTileState();
 }
-
-// ── تایل ویدیو — کارت عمودی Bento با پوستر بزرگ ──
-class _VideoTile extends StatelessWidget{
-  final File file;
-  final bool selectMode,selected,showPath,compact;
-  final VoidCallback onTap;
-  final VoidCallback? onLongPress;
-  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false,this.compact=false});
-
+class _DirTileState extends State<_DirTile> with SingleTickerProviderStateMixin{
+  AnimationController? _c;
+  @override void initState(){
+    super.initState();
+    if(Vz.animations){
+      _c = AnimationController(vsync:this,duration:const Duration(milliseconds:280));
+      // ورود پله‌ای — هر آیتم کمی بعد از قبلی
+      Future.delayed(Duration(milliseconds:(widget.index.clamp(0,14))*32),(){
+        if(mounted)_c?.forward();
+      });
+    }
+  }
+  @override void dispose(){_c?.dispose();super.dispose();}
   @override Widget build(BuildContext context){
-    final name=p.basename(file.path);
-    final ext=p.extension(file.path).toLowerCase().replaceAll('.','');
-    final seen=Store.watched.contains(file.path);
-    final bkm=Store.bookmarked.contains(file.path);
-    final fav=Store.favorited.contains(file.path);
-    final hasSub=matchSubtitle(file.path)!=null;
-    final rating=Store.ratings[file.path]??0;
-    final grad=_extGrad(ext);
-    final dur=Store.getCachedDur(file.path);
+    final body = _tile();
+    if(_c==null) return body;
+    final a = CurvedAnimation(parent:_c!,curve:Curves.easeOutCubic);
+    return FadeTransition(
+      opacity:a,
+      child:SlideTransition(
+        position:Tween(begin:const Offset(0,0.10),end:Offset.zero).animate(a),
+        child:body));
+  }
 
-    return GestureDetector(
-      onTap:onTap,onLongPress:onLongPress,
-      child:AnimatedContainer(
-        duration:const Duration(milliseconds:180),
-        curve:Curves.easeOut,
+  Widget _tile(){
+    return _Pressable(
+      onTap:widget.onTap,
+      child:Container(
         decoration:BoxDecoration(
-          color:selected?kAccent.withValues(alpha: 0.14):kCard.withValues(alpha: 0.72),
-          borderRadius:BorderRadius.circular(20),
-          border:Border.all(color:selected?kAccent.withValues(alpha: 0.7):kBorder.withValues(alpha: 0.75)),
-          boxShadow:selected?[BoxShadow(color:kAccent.withValues(alpha: 0.2),blurRadius:20,offset:const Offset(0,6))]:null,
-        ),
-        child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-          // ── پوستر ──
-          Expanded(
-            child:ClipRRect(
-              borderRadius:const BorderRadius.vertical(top:Radius.circular(19)),
-              child:Stack(fit:StackFit.expand,children:[
-                if(selectMode)
-                  Container(color:kBorder,child:Icon(
-                    selected?Icons.check_rounded:Icons.circle_outlined,
-                    color:selected?kAccent:Vz.textDim,size:30))
-                else FutureBuilder<Uint8List?>(
-                  future:_loadThumb(file.path),
-                  builder:(ctx,snap){
-                    if(snap.hasData&&snap.data!=null){
-                      return Stack(fit:StackFit.expand,children:[
-                        Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true),
-                        // گرادیانت پایین برای خوانایی
-                        Container(decoration:BoxDecoration(
-                          gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
-                            colors:[Vz.glassDark,Colors.transparent]))),
-                        if(seen)Align(alignment:Alignment.topLeft,child:Padding(
-                          padding:const EdgeInsets.all(7),
-                          child:Icon(Icons.check_circle_rounded,color:kAccent,size:19))),
-                      ]);
-                    }
-                    return Container(
-                      decoration:BoxDecoration(gradient:grad),
-                      alignment:Alignment.center,
-                      child:snap.connectionState==ConnectionState.waiting
-                          ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
-                          :Text(ext.length>3?ext.substring(0,3).toUpperCase():ext.toUpperCase(),
-                              style:TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Vz.text,letterSpacing:1.5)),
-                    );
-                  },
-                ),
-                // مدت زمان — مونو بج
-                if(dur!=null&&dur>0&&!selectMode)Align(
-                  alignment:Alignment.bottomRight,
-                  child:Padding(padding:const EdgeInsets.all(7),child:Container(
-                    padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-                    decoration:BoxDecoration(color:Colors.black.withValues(alpha: 0.65),borderRadius:BorderRadius.circular(6)),
-                    child:Text(fmt(Duration(seconds:dur)),
-                      style:TextStyle(fontSize:10,color:Vz.text,fontWeight:FontWeight.w600,fontFeatures:[FontFeature.tabularFigures()]))))),
-                // انتخاب‌چک باکس
-                if(selectMode)Align(
-                  alignment:Alignment.topLeft,
-                  child:Padding(padding:const EdgeInsets.all(7),child:AnimatedContainer(
-                    duration:const Duration(milliseconds:150),width:24,height:24,
-                    decoration:BoxDecoration(
-                      gradient:selected?LinearGradient(colors:[Vz.accentHi,Color(0xFF6D28D9)]):null,
-                      color:selected?null:Colors.black.withValues(alpha: 0.45),
-                      shape:BoxShape.circle,
-                      border:selected?null:Border.all(color:Vz.textDim,width:1.4)),
-                    child:selected?Icon(Icons.check_rounded,color:Vz.bg,size:17):null))),
-                // دکمه پخش شیشه‌ای وسط
-                if(!selectMode)Center(child:Container(
-                  width:44,height:44,
-                  decoration:BoxDecoration(
-                    color:Colors.black.withValues(alpha: 0.35),
-                    shape:BoxShape.circle,
-                    border:Border.all(color:Colors.white.withValues(alpha: 0.25)),
-                  ),
-                  child:Icon(Icons.play_arrow_rounded,
-                    color:seen?kAccent:Colors.white,size:28),
-                )),
-              ]),
-            ),
-          ),
-          // ── اطلاعات ──
-          Padding(
-            padding:const EdgeInsets.fromLTRB(10,9,10,10),
-            child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-              Text(name,style:TextStyle(fontSize:12.5,fontWeight:FontWeight.w600,
-                  color:seen?kGreen:Vz.text,height:1.3),maxLines:1,overflow:TextOverflow.ellipsis),
-              if(showPath)Padding(padding:const EdgeInsets.only(top:2),
-                child:Text(p.dirname(file.path),style:TextStyle(fontSize:9.5,color:kTextDim),maxLines:1,overflow:TextOverflow.ellipsis)),
-              const SizedBox(height:6),
-              Row(children:[
-                if(hasSub)_badge('SUB',kGreen),
-                if(bkm)...[const SizedBox(width:4),_badge('★',kAmber)],
-                if(fav)...[const SizedBox(width:4),_badge('◆',kPink)],
-                if(rating>0)...[const SizedBox(width:4),Text('${'★'*rating}',style:TextStyle(fontSize:9.5,color:kAmber))],
-                const Spacer(),
-                Text(sizeStr(file),style:TextStyle(fontSize:10,color:kTextDim)),
-              ]),
-            ]),
-          ),
+          color:Vz.card,
+          borderRadius:BorderRadius.circular(Rad.md),
+          border:Border.all(color:Vz.border)),
+        padding:const EdgeInsets.symmetric(horizontal:Sp.md,vertical:Sp.sm),
+        child:Row(children:[
+          Container(
+            width:36,height:36,
+            decoration:BoxDecoration(
+              color:Vz.accent.withValues(alpha:0.12),
+              borderRadius:BorderRadius.circular(11),
+              border:Border.all(color:Vz.accent.withValues(alpha:0.28))),
+            child:Icon(Icons.folder_rounded,color:Vz.accent,size:18)),
+          const SizedBox(width:Sp.md),
+          Expanded(child:Text(p.basename(widget.dir.path),
+            style:Ty.label.copyWith(fontSize:12.5),
+            maxLines:1,overflow:TextOverflow.ellipsis)),
+          Icon(Icons.chevron_right_rounded,color:Vz.textDim,size:18),
         ]),
       ),
     );
   }
 }
+
+// ── کارت ویدیو — گرید / لیست / فشرده ──
+class _VideoTile extends StatelessWidget{
+  final File file;
+  final bool selectMode,selected,showPath,compact;
+  final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+  final _LibLayout layout;
+  final int index;
+  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false,this.compact=false,this.layout=_LibLayout.grid,this.index=0});
+
+  @override Widget build(BuildContext context){
+    final anim = _EnterAnim(index:index, child:
+      switch(layout){
+        _LibLayout.grid => _grid(context),
+        _LibLayout.list => _row(context),
+        _LibLayout.compact => _compactRow(context),
+      });
+    return GestureDetector(
+      onTap:onTap,onLongPress:onLongPress,
+      child:anim);
+  }
+
+  // ── داده‌های مشترک ──
+  String get _name=>p.basename(file.path);
+  String get _ext=>p.extension(file.path).toLowerCase().replaceAll('.','');
+  bool get _seen=>Store.watched.contains(file.path);
+  bool get _bkm=>Store.bookmarked.contains(file.path);
+  bool get _fav=>Store.favorited.contains(file.path);
+  bool get _hasSub=>matchSubtitle(file.path)!=null;
+  int get _rating=>Store.ratings[file.path]??0;
+  int? get _dur=>Store.getCachedDur(file.path);
+
+  Color get _border=>selected?Vz.accent:Vz.border;
+  Color get _fill=>selected?Vz.accent.withValues(alpha:0.12):Vz.card;
+
+  // ── گرید ──
+  Widget _grid(BuildContext context){
+    final grad=_extGrad(_ext);
+    return AnimatedContainer(
+      duration:Mo.fast,curve:Mo.easeOut,
+      decoration:BoxDecoration(
+        color:_fill,
+        borderRadius:BorderRadius.circular(Rad.md),
+        border:Border.all(color:_border,width:selected?1.6:1),
+        boxShadow:selected?[Vz.glowSoft]:null),
+      child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Expanded(child:ClipRRect(
+          borderRadius:const BorderRadius.vertical(top:Radius.circular(Rad.md-1)),
+          child:Stack(fit:StackFit.expand,children:[
+            if(selectMode)
+              Container(color:Vz.cardHi,child:Icon(
+                selected?Icons.check_circle_rounded:Icons.circle_outlined,
+                color:selected?Vz.accent:Vz.textDim,size:30))
+            else FutureBuilder<Uint8List?>(
+              future:_loadThumb(file.path),
+              builder:(ctx,snap){
+                if(snap.hasData&&snap.data!=null){
+                  return Stack(fit:StackFit.expand,children:[
+                    Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true),
+                    Container(decoration:BoxDecoration(
+                      gradient:LinearGradient(begin:Alignment.bottomCenter,end:Alignment.center,
+                        colors:[Vz.glassDark,Colors.transparent]))),
+                  ]);
+                }
+                return Container(
+                  decoration:BoxDecoration(gradient:grad),
+                  alignment:Alignment.center,
+                  child:snap.connectionState==ConnectionState.waiting
+                    ?const SizedBox(width:18,height:18,child:CircularProgressIndicator(strokeWidth:1.5,color:Colors.white30))
+                    :Text(_ext.length>3?_ext.substring(0,3).toUpperCase():_ext.toUpperCase(),
+                        style:TextStyle(fontSize:13,fontWeight:FontWeight.w800,color:Vz.text,letterSpacing:1.5)));
+              }),
+            // وضعیت تماشا + علاقه‌مندی — گوشه بالا
+            if(!selectMode)Positioned(top:6,left:6,right:6,
+              child:Row(children:[
+                if(_seen)_pill(Icons.check_rounded,Vz.accent),
+                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(Icons.bookmark_rounded,Vz.accent)],
+                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(Icons.favorite_rounded,Vz.magenta)],
+                const Spacer(),
+                if(_hasSub)_pill(Icons.subtitles_rounded,Vz.green),
+              ])),
+            if(_dur!=null&&_dur!>0&&!selectMode)Positioned(
+              right:6,bottom:6,
+              child:Container(
+                padding:const EdgeInsets.symmetric(horizontal:5,vertical:2),
+                decoration:BoxDecoration(color:Vz.badgeBg,borderRadius:BorderRadius.circular(5)),
+                child:Text(fmt(Duration(seconds:_dur!)),
+                  style:TextStyle(fontSize:10,color:Vz.oviText,fontWeight:FontWeight.w600,
+                    fontFeatures:const [FontFeature.tabularFigures()])))),
+            if(_rating>0&&!selectMode)Positioned(
+              left:6,bottom:6,
+              child:Row(children:List.generate(_rating,(i)=>
+                Icon(Icons.star_rounded,size:11,color:Vz.amber)))),
+            if(!selectMode)Center(child:Container(
+              width:40,height:40,
+              decoration:BoxDecoration(
+                color:Colors.black.withValues(alpha:0.38),
+                shape:BoxShape.circle,
+                border:Border.all(color:Colors.white.withValues(alpha:0.22))),
+              child:Icon(Icons.play_arrow_rounded,color:_seen?Vz.accent:Colors.white,size:25))),
+          ]))),
+        // ── متادیتا ──
+        Padding(
+          padding:const EdgeInsets.fromLTRB(9,8,9,9),
+          child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+            Text(_name,style:Ty.label.copyWith(
+              fontSize:12,
+              color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis),
+            if(showPath)Padding(padding:const EdgeInsets.only(top:2),
+              child:Text(p.dirname(file.path),style:Ty.caption.copyWith(fontSize:9),maxLines:1,overflow:TextOverflow.ellipsis)),
+            const SizedBox(height:4),
+            Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
+          ])),
+      ]));
+  }
+
+  Widget _pill(IconData icon,Color c)=>Container(
+    width:20,height:20,
+    decoration:BoxDecoration(color:Vz.badgeBg,shape:BoxShape.circle),
+    child:Icon(icon,size:12,color:c));
+
+  // ── لیست ──
+  Widget _row(BuildContext context)=>Container(
+    padding:const EdgeInsets.all(Sp.sm),
+    decoration:BoxDecoration(
+      color:_fill,
+      borderRadius:BorderRadius.circular(Rad.md),
+      border:Border.all(color:_border,width:selected?1.6:1)),
+    child:Row(children:[
+      _thumb(58,36),
+      const SizedBox(width:Sp.md),
+      Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+        Text(_name,style:Ty.label.copyWith(fontSize:12.5,
+          color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis),
+        const SizedBox(height:3),
+        Row(children:[
+          if(_hasSub)_mini(Icons.subtitles_rounded,Vz.green),
+          if(_bkm)_mini(Icons.bookmark_rounded,Vz.accent),
+          if(_fav)_mini(Icons.favorite_rounded,Vz.magenta),
+          if(_rating>0)...List.generate(_rating,(i)=>
+            Icon(Icons.star_rounded,size:10,color:Vz.amber)),
+          if(_hasSub||_bkm||_fav||_rating>0)const SizedBox(width:6),
+          Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
+          if(_dur!=null&&_dur!>0)...[
+            Text(' • ',style:Ty.caption.copyWith(fontSize:10)),
+            Text(fmt(Duration(seconds:_dur!)),style:Ty.caption.copyWith(fontSize:10)),
+          ],
+        ]),
+      ])),
+      if(selectMode)
+        Icon(selected?Icons.check_circle_rounded:Icons.circle_outlined,
+          size:22,color:selected?Vz.accent:Vz.textDim)
+      else
+        Icon(Icons.play_circle_rounded,size:26,
+          color:_seen?Vz.accent:Vz.textDim),
+    ]));
+
+  // ── فشرده ──
+  Widget _compactRow(BuildContext context)=>Container(
+    padding:EdgeInsets.only(left:selectMode?4:12,right:12,top:2,bottom:2),
+    decoration:BoxDecoration(
+      color:selected?Vz.accent.withValues(alpha:0.10):Colors.transparent,
+      borderRadius:BorderRadius.circular(Rad.xs)),
+    child:Row(children:[
+      if(selectMode)Padding(padding:const EdgeInsets.only(right:8),
+        child:Icon(selected?Icons.check_circle_rounded:Icons.circle_outlined,
+          size:19,color:selected?Vz.accent:Vz.textDim)),
+      Icon(Icons.play_circle_rounded,size:17,
+        color:_seen?Vz.accent:Vz.textDim),
+      const SizedBox(width:10),
+      Expanded(child:Text(_name,style:Ty.label.copyWith(fontSize:12,
+        color:_seen?Vz.accent:Vz.text),maxLines:1,overflow:TextOverflow.ellipsis)),
+      if(_hasSub)_mini(Icons.subtitles_rounded,Vz.green),
+      if(_bkm)_mini(Icons.bookmark_rounded,Vz.accent),
+      if(_fav)_mini(Icons.favorite_rounded,Vz.magenta),
+      const SizedBox(width:6),
+      Text(sizeStr(file),style:Ty.caption.copyWith(fontSize:10)),
+    ]));
+
+  Widget _mini(IconData i,Color c)=>Padding(
+    padding:const EdgeInsets.only(right:3),
+    child:Icon(i,size:12,color:c));
+
+  Widget _thumb(double w,double h)=>ClipRRect(
+    borderRadius:BorderRadius.circular(9),
+    child:SizedBox(width:w,height:h,child:Stack(fit:StackFit.expand,children:[
+      if(selectMode)Container(color:Vz.cardHi,child:Icon(
+        selected?Icons.check_rounded:Icons.circle_outlined,size:20,
+        color:selected?Vz.accent:Vz.textDim))
+      else FutureBuilder<Uint8List?>(
+        future:_loadThumb(file.path),
+        builder:(ctx,snap){
+          if(snap.hasData&&snap.data!=null){
+            return Image.memory(snap.data!,fit:BoxFit.cover,gaplessPlayback:true);
+          }
+          return Container(
+            decoration:BoxDecoration(gradient:_extGrad(_ext)),
+            alignment:Alignment.center,
+            child:snap.connectionState==ConnectionState.waiting
+              ?const SizedBox(width:14,height:14,child:CircularProgressIndicator(strokeWidth:1.4,color:Colors.white30))
+              :Text(_ext.toUpperCase(),style:TextStyle(fontSize:9,
+                  fontWeight:FontWeight.w800,color:Vz.text,letterSpacing:0.8)));
+        }),
+      if(!selectMode&&_seen)Align(alignment:Alignment.bottomRight,
+        child:Padding(padding:const EdgeInsets.all(2),
+          child:Icon(Icons.check_circle_rounded,size:12,color:Vz.accent))),
+    ])));
+
+  Widget _pillBox(Widget child)=>child;
+}
+
+/// ورود پله‌ای کارت‌ها — با کلید انیمیشن کاربر خاموش می‌شود.
+class _EnterAnim extends StatefulWidget{
+  final Widget child; final int index;
+  const _EnterAnim({required this.child,required this.index});
+  @override State<_EnterAnim> createState()=>_EnterAnimState();
+}
+class _EnterAnimState extends State<_EnterAnim> with SingleTickerProviderStateMixin{
+  AnimationController? _c;
+  @override void initState(){
+    super.initState();
+    if(Vz.animations){
+      _c=AnimationController(vsync:this,duration:const Duration(milliseconds:260));
+      Future.delayed(Duration(milliseconds:(widget.index.clamp(0,14))*30),(){
+        if(mounted)_c?.forward();
+      });
+    }
+  }
+  @override void dispose(){_c?.dispose();super.dispose();}
+  @override Widget build(BuildContext context){
+    if(_c==null)return widget.child;
+    final a=CurvedAnimation(parent:_c!,curve:Curves.easeOutCubic);
+    return FadeTransition(opacity:a,
+      child:ScaleTransition(scale:Tween(begin:0.96,end:1.0).animate(a),
+        child:widget.child));
+  }
+}
+
+/// فشردن نرم — با کلید انیمیشن کاربر هماهنگ است.
+class _Pressable extends StatefulWidget{
+  final Widget child; final VoidCallback? onTap; final VoidCallback? onLongPress;
+  const _Pressable({required this.child,this.onTap,this.onLongPress});
+  @override State<_Pressable> createState()=>_PressableState();
+}
+class _PressableState extends State<_Pressable>{
+  bool _down=false;
+  @override Widget build(BuildContext context)=>GestureDetector(
+    onTap:widget.onTap,
+    onLongPress:widget.onLongPress,
+    onTapDown:widget.onTap==null?null:(_)=>setState(()=>_down=true),
+    onTapUp:(_)=>setState(()=>_down=false),
+    onTapCancel:()=>setState(()=>_down=false),
+    child:AnimatedScale(
+      scale:_down?0.97:1.0,
+      duration:Mo.press,curve:Mo.easeOut,
+      child:widget.child));
+}
+
+enum _LibLayout { grid, list, compact }
 
 // ── منوی ویدیو ──
 class VideoMenu extends StatefulWidget{
