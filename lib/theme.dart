@@ -280,8 +280,13 @@ class Vz {
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
   /// Flat cinematic wash for headers/hero areas.
+  /// از گرادیان بک‌گراند پرسِت مشتق می‌شود تا با هر تم هماهنگ بماند.
   static LinearGradient get heroGrad => LinearGradient(
-    colors: [_dark ? _P.hero1 : _L.hero1, _dark ? _P.hero2 : _L.hero2, bg],
+    colors: [
+      bgGradientColors.first,
+      bgGradientColors.length > 1 ? bgGradientColors[1] : bg,
+      bg,
+    ],
     stops: const [0.0, 0.55, 1.0],
     begin: Alignment.topLeft, end: Alignment.bottomRight,
   );
@@ -771,7 +776,7 @@ ThemeData buildVezooTheme({bool dark = true}) {
       backgroundColor: Vz.surface,
       modalBackgroundColor: Vz.surface,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.s(Rad.xl))),
       ),
     ),

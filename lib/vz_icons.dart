@@ -15,7 +15,7 @@
 //     @override
 //     Widget? build(String name, {double? size, Color? color}) =>
 //       SvgPicture.asset('assets/icons/anime/$name.svg', width: size, height: size,
-//         colorFilter: ColorFilter.mode(color ?? Vz.text, BlendMode.srcIn));
+//         colorFilter: ColorFilter.mode(color ?? const Color(0xFFF5F5F7), BlendMode.srcIn));
 //   }
 //   VzIcons.pack = const AnimeIconPack();
 //
@@ -217,7 +217,7 @@ class VzIcon extends StatelessWidget {
     }
 
     // ۲) نسخه‌ی متحرک، اگر خواسته شده و موجود باشد
-    if (animated && Vz.animations) {
+    if (animated && VzIcons.animationsEnabled()) {
       final asset = kVzAnimatedIcons[name];
       if (asset != null) {
         return VzAnimatedIcon(asset: asset, size: s, loop: loop);
@@ -256,7 +256,7 @@ class _VzAnimatedIconState extends State<VzAnimatedIcon>
   @override
   void initState() {
     super.initState();
-    if (Vz.animations) {
+    if (VzIcons.animationsEnabled()) {
       _c = AnimationController(vsync: this);
     }
   }
@@ -300,6 +300,11 @@ class VzIcons {
   /// پک فعال. با ست کردن این، کل اپ آیکون‌های جدید را می‌گیرد.
   static VzIconPack get pack => _pack;
   static set pack(VzIconPack p) => _pack = p;
+
+  /// وضعیت کلید انیمیشن — در main.dart وصل می‌شود.
+  /// این callback به‌جای import مستقیم theme.dart است تا چرخه‌ی import
+  /// بین دو فایل ایجاد نشود (theme.dart به vz_presets وابسته است).
+  static bool Function() animationsEnabled = () => true;
 
   /// خواندن یک آیکون به‌صورت IconData.
   static IconData data(String name) => _pack.fallback(name);

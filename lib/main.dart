@@ -7,6 +7,7 @@ import 'store.dart';
 import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
+import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 /// نمایش snackbar که همیشه بالای navbar میاد
@@ -41,6 +42,8 @@ void showSnack(BuildContext ctx, String msg, {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  // لایه‌ی آیکون نباید به theme وابسته باشد — کلید انیمیشن را اینجا وصل می‌کنیم
+  VzIcons.animationsEnabled = () => Vz.animations;
   await L.load(); // بارگذاری زبان ذخیره‌شده
   await Store.load();
   await ApiService.init();
