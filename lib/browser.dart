@@ -673,8 +673,10 @@ class BrowserScreenState extends State<BrowserScreen>{
                 padding:const EdgeInsets.symmetric(horizontal:16),
                 sliver:SliverGrid(
                   gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:cols,mainAxisSpacing:10,crossAxisSpacing:10,
-                    childAspectRatio:1.85),
+                    crossAxisCount: cols == 2 ? 2 : 3,
+                    mainAxisSpacing:8, crossAxisSpacing:8,
+                    // کارت پوشه کوتاه‌تر از قبل (قبلاً 1.85 = بلند و درشت)
+                    mainAxisExtent: 46),
                   delegate:SliverChildBuilderDelegate((ctx,i)=>dirAt(i),childCount:fDirs.length))),
             ],
 
@@ -797,22 +799,23 @@ class _DirTileState extends State<_DirTile> with SingleTickerProviderStateMixin{
       child:Container(
         decoration:BoxDecoration(
           color:Vz.card,
-          borderRadius:BorderRadius.circular(Rad.md),
+          borderRadius:Rad.r(Rad.sm),
           border:Border.all(color:Vz.border)),
-        padding:const EdgeInsets.symmetric(horizontal:Sp.md,vertical:Sp.sm),
+        padding:const EdgeInsets.symmetric(horizontal:10),
         child:Row(children:[
+          // چیپ پوشه — کوچک‌تر از قبل (36 → 28)
           Container(
-            width:36,height:36,
+            width:28,height:28,
             decoration:BoxDecoration(
               color:Vz.accent.withValues(alpha:0.12),
-              borderRadius:BorderRadius.circular(11),
+              borderRadius:BorderRadius.circular(Rad.s(7)),
               border:Border.all(color:Vz.accent.withValues(alpha:0.28))),
-            child:Icon(VzIcons.data('folder'),color:Vz.accent,size:18)),
-          const SizedBox(width:Sp.md),
+            child:Icon(VzIcons.data('folder'),color:Vz.accent,size:15)),
+          const SizedBox(width:8),
           Expanded(child:Text(p.basename(widget.dir.path),
-            style:Ty.label.copyWith(fontSize:12.5),
+            style:Ty.label.copyWith(fontSize:11.5),
             maxLines:1,overflow:TextOverflow.ellipsis)),
-          Icon(VzIcons.data('chevron-right'),color:Vz.textDim,size:18),
+          Icon(VzIcons.data('chevron-right'),color:Vz.textDim,size:15),
         ]),
       ),
     );

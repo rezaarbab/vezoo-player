@@ -375,6 +375,7 @@ class _PresetCardState extends State<_PresetCard>{
                   color: text))),
               Icon(
                 switch (p.style) {
+                  VzStyle.anime  => Icons.auto_awesome_rounded,
                   VzStyle.kawaii => Icons.favorite_rounded,
                   VzStyle.shonen => Icons.bolt_rounded,
                   VzStyle.mono   => Icons.circle_outlined,
@@ -390,65 +391,96 @@ class _PresetCardState extends State<_PresetCard>{
   }
 }
 
-/// انتخاب حالت بک‌گراند — گرادیان / تخت / خاموش
+/// انتخاب حالت بک‌گراند — شش چیدمان گرادیان، هر کدام با پیش‌نمایش زنده.
 class VzBackgroundPicker extends StatelessWidget {
   const VzBackgroundPicker({super.key});
 
+  static const _styles = [
+    (VzBgStyle.diagonal, 'Diagonal', Icons.gradient_rounded),
+    (VzBgStyle.sunrise,  'Sunrise',  Icons.wb_twilight_rounded),
+    (VzBgStyle.horizon,  'Horizon',  Icons.horizontal_rule_rounded),
+    (VzBgStyle.vignette, 'Vignette', Icons.vignette_rounded),
+    (VzBgStyle.mesh,     'Mesh',     Icons.blur_on_rounded),
+    (VzBgStyle.flat,     'Flat',     Icons.crop_square_rounded),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final mode = VzThemeScope.bgModeOf(context);
+    final style = VzThemeScope.bgStyleOf(context);
     final vzt = context.findAncestorStateOfType<VzThemeState>();
-    final colors = Vz.bgGradientColors;
+    final stops = Vz.bgGradientColors;
 
     return VzGlass(
       padding: const EdgeInsets.all(Sp.sm),
       child: Column(children: [
-        // پیش‌نمایش تمام‌عرض گرادیان
-        Container(
-          height: 54,
+        // پیش‌نمایش بزرگ
+        AnimatedContainer(
+          duration: Mo.normal,
+          height: 72,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: colors,
-              begin: Alignment.topLeft, end: Alignment.bottomRight),
+            gradient: vzBgGradient(
+              style: style, stops: stops, fallback: Vz.bg),
             borderRadius: Rad.r(Rad.sm),
             border: Border.all(color: Vz.border),
           ),
-          child: Center(child: Icon(VzIcons.data('background'),
-            color: Vz.accent, size: 22)),
+          child: Center(
+            child: VzBreathing(
+              amount: 0.05,
+              child: Icon(VzIcons.data('background'),
+                color: Vz.accent, size: 26),
+            ),
+          ),
         ),
-        const SizedBox(height: Sp.sm),
-        Row(children: [
-          for (final (m, label) in [
-            (VzBgMode.gradient, 'Gradient'),
-            (VzBgMode.solid, 'Flat'),
-            (VzBgMode.off, 'Off'),
-          ]) ...[
-            Expanded(child: _btn(context, vzt, mode, m, label)),
-            if (m != VzBgMode.off) const SizedBox(width: Sp.sm),
+        const SizedBox(height: Sp.md),
+        // شش سبک در دو ردیف
+        Wrap(
+          spacing: Sp.sm, runSpacing: Sp.sm,
+          children: [
+            for (final (s, label, icon) in _styles)
+              SizedBox(
+                width: (MediaQuery.of(context).size.width - Sp.lg * 2 - Sp.md * 2 - Sp.sm * 2) / 3,
+                child: _styleBtn(context, vzt, style, s, label, icon, stops),
+              ),
           ],
-        ]),
+        ),
       ]),
     );
   }
 
-  Widget _btn(BuildContext context, VzThemeState? vzt, VzBgMode mode,
-      VzBgMode target, String label) {
-    final selected = mode == target;
+  Widget _styleBtn(BuildContext context, VzThemeState? vzt, VzBgStyle current,
+      VzBgStyle target, String label, IconData icon, List<Color> stops) {
+    final selected = current == target;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: Rad.r(Rad.xs),
-        onTap: () => vzt?.setBgMode(target),
+        onTap: () => vzt?.setBgStyle(target),
         child: AnimatedContainer(
           duration: Mo.fast, curve: Mo.easeOut,
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          padding: const EdgeInsets.all(Sp.sm),
           decoration: BoxDecoration(
-            color: selected ? Vz.accent.withValues(alpha: 0.14) : Vz.cardHi,
             borderRadius: Rad.r(Rad.xs),
-            border: Border.all(color: selected ? Vz.accent : Vz.border),
+            border: Border.all(
+              color: selected ? Vz.accent : Vz.border,
+              width: selected ? 1.8 : 1),
           ),
-          child: Text(label, textAlign: TextAlign.center, style: TextStyle(
-            fontSize: 11.5, fontWeight: FontWeight.w700,
-            color: selected ? Vz.accent : Vz.textSec)),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            // مینی‌پیش‌نمایش گرادیان
+            Container(
+              height: 22,
+              decoration: BoxDecoration(
+                gradient: vzBgGradient(
+                  style: target, stops: stops, fallback: Vz.bg),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: Vz.border.withValues(alpha: 0.5)),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.w700,
+                color: selected ? Vz.accent : Vz.textSec)),
+          ]),
         ),
       ),
     );

@@ -17,6 +17,8 @@ enum VzStyle {
   kawaii,
   /// تیزتر، تیره، انرژی‌دار — مثل اپ‌های پسرونه/گیمینگ
   shonen,
+  /// انیمه/موئه — سبک Bilibili / Gainax: آبی-صورتی، خطوط نازک، گردی بالا
+  anime,
   /// خنثی و مینیمال
   mono,
 }
@@ -85,6 +87,74 @@ class VzPreset {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const List<VzPreset> kVzPresets = [
+  // ══════════════════ ۰) BILIBILI — آبی/صورتی، سبک موئه ══════════════════
+  // رنگ برند Bilibili (#00AEEC) + صورتی لایک (#FB7299).
+  // گردترین پرسِت و مرجع سبک «انیمه» در این اپ.
+  VzPreset(
+    id: 'bilibili',
+    name: 'Bilibili',
+    tagline: 'Sky blue · pink · moe',
+    style: VzStyle.anime,
+    bgDark: Color(0xFF10141C),
+    bgDeepDark: Color(0xFF0A0D13),
+    surfaceDark: Color(0xFF171D28),
+    cardDark: Color(0xFF1D2531),
+    cardHiDark: Color(0xFF26303F),
+    borderDark: Color(0xFF2E3A4D),
+    borderHiDark: Color(0xFF42536B),
+    // روشن: آبی خیلی کم‌رنگ با ته‌مایه صورتی، نه سفید مرده
+    bgLight: Color(0xFFF2F8FE),
+    bgDeepLight: Color(0xFFE6F2FC),
+    surfaceLight: Color(0xFFFFFFFF),
+    cardLight: Color(0xFFFFFFFF),
+    cardHiLight: Color(0xFFE9F4FD),
+    borderLight: Color(0xFFD3E6F7),
+    borderHiLight: Color(0xFFA8CDEC),
+    accentDark: Color(0xFF00AEEC),
+    accentDarkHi: Color(0xFF5CD0FF),
+    accentDarkDeep: Color(0xFF00759E),
+    accentLight: Color(0xFF0091C7),
+    accentLightHi: Color(0xFF00AEEC),
+    accentLightDeep: Color(0xFF00688A),
+    accent2: Color(0xFFFB7299),
+    bgGradientsDark: [Color(0xFF0E2233), Color(0xFF10141C), Color(0xFF2A1526)],
+    bgGradientsLight: [Color(0xFFD9EEFF), Color(0xFFF2F8FE), Color(0xFFFFE4EE)],
+    radiusScale: 1.8,
+  ),
+
+  // ══════════════════ ۰.۵) GAINAX — انیمه کامل، نئون/پاپ ══════════════════
+  // انیمه‌ی ۹۰ها: نارنجی-قرمز روی سرمه‌ای، کنتراست بالا، گردی زیاد.
+  VzPreset(
+    id: 'gainax',
+    name: 'Gainax',
+    tagline: 'Anime pop · bold · retro',
+    style: VzStyle.anime,
+    bgDark: Color(0xFF0D0A18),
+    bgDeepDark: Color(0xFF070510),
+    surfaceDark: Color(0xFF151024),
+    cardDark: Color(0xFF1D1730),
+    cardHiDark: Color(0xFF272040),
+    borderDark: Color(0xFF332A52),
+    borderHiDark: Color(0xFF4A3F73),
+    bgLight: Color(0xFFFDF6F3),
+    bgDeepLight: Color(0xFFFCEAE2),
+    surfaceLight: Color(0xFFFFFFFF),
+    cardLight: Color(0xFFFFFFFF),
+    cardHiLight: Color(0xFFFDECE4),
+    borderLight: Color(0xFFF3D6C8),
+    borderHiLight: Color(0xFFE7B39A),
+    accentDark: Color(0xFFFF6B35),
+    accentDarkHi: Color(0xFFFF9A6B),
+    accentDarkDeep: Color(0xFFB33A12),
+    accentLight: Color(0xFFE8481C),
+    accentLightHi: Color(0xFFFF6B35),
+    accentLightDeep: Color(0xFFA82F0F),
+    accent2: Color(0xFFFFD23F),
+    bgGradientsDark: [Color(0xFF231535), Color(0xFF0D0A18), Color(0xFF33131F)],
+    bgGradientsLight: [Color(0xFFFFE0D0), Color(0xFFFDF6F3), Color(0xFFFFF3D6)],
+    radiusScale: 1.6,
+  ),
+
   // ══════════════════ ۱) SAKURA — دخترونه، صورتی/آبرنگی ══════════════════
   VzPreset(
     id: 'sakura',
@@ -281,3 +351,65 @@ const List<VzPreset> kVzPresets = [
 
 VzPreset vPresetById(String? id) =>
     kVzPresets.firstWhere((p) => p.id == id, orElse: () => kVzPresets.first);
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  BACKGROUND FLAVOURS — چیدمان گرادیان بک‌گراند
+//  همان رنگ‌های پرسِت، ولی با چیدمان/شدت متفاوت. کاربر مستقل از پرسِت
+//  می‌تواند این را عوض کند.
+// ─────────────────────────────────────────────────────────────────────────────
+enum VzBgStyle {
+  /// دو گوشه، مورب — پیش‌فرض
+  diagonal,
+  /// شعاعی از بالا — مثل نور خورشید
+  sunrise,
+  /// سه‌رنگ افقی — پهن و آرام
+  horizon,
+  /// تیره در مرکز، رنگ در لبه‌ها — مثل ویگنت رنگی
+  vignette,
+  /// سه هاله‌ی متقاطع — پرجنب‌وجوش
+  mesh,
+  /// تخت، تک‌رنگ
+  flat,
+}
+
+/// چیدمان گرادیان را می‌سازد. [stops] رنگ‌های پرسِت است (۲ یا ۳ رنگ).
+LinearGradient vzBgGradient({
+  required VzBgStyle style,
+  required List<Color> stops,
+  required Color fallback,
+}) {
+  final c = stops.isEmpty ? [fallback, fallback] : stops;
+  final a = c[0];
+  final b = c.length > 1 ? c[1] : fallback;
+  final d = c.length > 2 ? c[2] : b;
+
+  switch (style) {
+    case VzBgStyle.diagonal:
+      return LinearGradient(
+        colors: c, begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case VzBgStyle.sunrise:
+      return LinearGradient(
+        colors: [a, b, d],
+        stops: const [0.0, 0.45, 1.0],
+        begin: Alignment.topCenter, end: Alignment.bottomCenter);
+    case VzBgStyle.horizon:
+      return LinearGradient(
+        colors: [a, b, d],
+        stops: const [0.0, 0.5, 1.0],
+        begin: Alignment.centerLeft, end: Alignment.centerRight);
+    case VzBgStyle.vignette:
+      return LinearGradient(
+        colors: [d, b, d],
+        stops: const [0.0, 0.5, 1.0],
+        begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case VzBgStyle.mesh:
+      return LinearGradient(
+        colors: [a, d, b, a],
+        stops: const [0.0, 0.35, 0.7, 1.0],
+        begin: Alignment.topLeft, end: Alignment.bottomRight);
+    case VzBgStyle.flat:
+      return LinearGradient(
+        colors: [fallback, fallback],
+        begin: Alignment.topCenter, end: Alignment.bottomCenter);
+  }
+}

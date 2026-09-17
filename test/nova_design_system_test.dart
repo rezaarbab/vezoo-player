@@ -71,7 +71,7 @@ void main() {
     });
 
     test('Presets are complete — palette, gradient, radius', () {
-      expect(kVzPresets.length, greaterThanOrEqualTo(6));
+      expect(kVzPresets.length, greaterThanOrEqualTo(8));
       for (final p in kVzPresets) {
         expect(p.id, isNotEmpty);
         expect(p.name, isNotEmpty);
@@ -82,9 +82,12 @@ void main() {
         expect(p.bgLight, isNot(equals(p.cardLight)));
         expect(p.radiusScale, greaterThan(0));
       }
-      // هر دو سبک دخترونه و پسرونه موجود باشد
+      // هر سه سبک موجود باشد — از جمله سبک انیمه (Bilibili/Gainax)
       expect(kVzPresets.any((p) => p.style == VzStyle.kawaii), isTrue);
       expect(kVzPresets.any((p) => p.style == VzStyle.shonen), isTrue);
+      expect(kVzPresets.any((p) => p.style == VzStyle.anime), isTrue);
+      // Bilibili اولین پرسِت گالری است (سمت چپ)
+      expect(kVzPresets.first.id, equals('bilibili'));
     });
 
     test('Light preset surfaces are actually light', () {
@@ -124,8 +127,9 @@ void main() {
       expect(theme.useMaterial3, isTrue);
       expect(theme.colorScheme.primary, Vz.accent);
       expect(theme.colorScheme.surface, Vz.surface);
-      // در حالت گرادیانی، scaffold شفاف است تا بک‌گراند رنگی از پشت دیده شود.
-      if (Vz.bgMode == VzBgMode.off) {
+      // در حالت flat، scaffold رنگ پایه می‌گیرد؛ وگرنه شفاف است تا
+      // بک‌گراند گرادیانی از پشت دیده شود.
+      if (Vz.bgStyle == VzBgStyle.flat) {
         expect(theme.scaffoldBackgroundColor, Vz.bg);
       } else {
         expect(theme.scaffoldBackgroundColor, Colors.transparent);
