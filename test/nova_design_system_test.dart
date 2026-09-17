@@ -86,8 +86,8 @@ void main() {
       expect(kVzPresets.any((p) => p.style == VzStyle.kawaii), isTrue);
       expect(kVzPresets.any((p) => p.style == VzStyle.shonen), isTrue);
       expect(kVzPresets.any((p) => p.style == VzStyle.anime), isTrue);
-      // پرسِت موئه (آبی/صورتی) اولین پرسِت گالری است (سمت چپ)
-      expect(kVzPresets.first.id, equals('sky'));
+      // پرسِت انیمه اولین پرسِت گالری است (سمت چپ) و پیش‌فرض اپ
+      expect(kVzPresets.first.id, equals('anime'));
     });
 
     test('Light preset surfaces are actually light', () {
