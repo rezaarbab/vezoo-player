@@ -91,9 +91,44 @@ class VzPreset {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const List<VzPreset> kVzPresets = [
-  // ══════════════════ ۰) BILIBILI — آبی/صورتی، سبک موئه ══════════════════
-  // رنگ برند Bilibili (#00AEEC) + صورتی لایک (#FB7299).
-  // گردترین پرسِت و مرجع سبک «انیمه» در این اپ.
+  // ══════════════════ ۰) ANIME — تم کامل انیمه/موئه ══════════════════
+  // پرانرژی‌ترین پرسِت: آبی-صورتی-زرد، گردی حداکثری، پس‌زمینه‌ی پاپ.
+  VzPreset(
+    id: 'anime',
+    name: 'Anime',
+    tagline: 'Moe · sakura · neon pop',
+    style: VzStyle.anime,
+    bgDark: Color(0xFF120D1A),
+    bgDeepDark: Color(0xFF0A0711),
+    surfaceDark: Color(0xFF1B1426),
+    cardDark: Color(0xFF241A32),
+    cardHiDark: Color(0xFF302440),
+    borderDark: Color(0xFF3D2E52),
+    borderHiDark: Color(0xFF574272),
+    bgLight: Color(0xFFFFF5FA),
+    bgDeepLight: Color(0xFFFFE9F4),
+    surfaceLight: Color(0xFFFFFFFF),
+    cardLight: Color(0xFFFFFFFF),
+    cardHiLight: Color(0xFFFFECF6),
+    borderLight: Color(0xFFF5D4E8),
+    borderHiLight: Color(0xFFE7B0D2),
+    accentDark: Color(0xFF7DD3FC),
+    accentDarkHi: Color(0xFFBAE6FD),
+    accentDarkDeep: Color(0xFF0284C7),
+    accentLight: Color(0xFF0EA5E9),
+    accentLightHi: Color(0xFF38BDF8),
+    accentLightDeep: Color(0xFF0369A1),
+    accent2: Color(0xFFFB7185),
+    bgGradientsDark: [
+      Color(0xFF1B2A4A), Color(0xFF2A1533), Color(0xFF3A1A2E),
+    ],
+    bgGradientsLight: [
+      Color(0xFFD9ECFF), Color(0xFFFFE0F0), Color(0xFFFFF0D9),
+    ],
+    radiusScale: 2.0,
+  ),
+
+  // ══════════════════ ۰.۵) BILIBILI-like — آبی/صورتی موئه ══════════════════
   VzPreset(
     id: 'sky',
     name: 'Sky',

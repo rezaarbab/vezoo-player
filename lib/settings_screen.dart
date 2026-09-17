@@ -13,6 +13,7 @@ import 'api_service.dart';
 import 'theme.dart';
 import 'vz_presets.dart';
 import 'vz_icons.dart';
+import 'vz_color_wheel.dart';
 import 'vz_icon_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -524,7 +525,9 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
             Icon(VzIcons.data('palette'), size: 18, color: Vz.accent),
             const SizedBox(width: Sp.sm),
             Expanded(child: Text(
-              current < 0 ? L.accentColor : kVzAccents[current].name,
+              Vz.hasCustomAccent
+                ? 'Custom'
+                : (current < 0 ? L.accentColor : kVzAccents[current].name),
               style: Ty.label.copyWith(fontSize: 13))),
             _dot(Vz.bg), const SizedBox(width: 3),
             _dot(Vz.card), const SizedBox(width: 3),
@@ -538,12 +541,12 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: Sp.md),
-            itemCount: kVzAccents.length + 1,
+            itemCount: kVzAccents.length + 2,
             separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
             itemBuilder: (ctx, i) {
               // i == 0 → رنگ خودِ پرسِت
               if (i == 0) {
-                final selected = current < 0;
+                final selected = current < 0 && !Vz.hasCustomAccent;
                 return _swatch(
                   c: Vz.preset.accentDark,
                   hi: dark ? Vz.preset.accentDarkHi : Vz.preset.accentLightHi,
@@ -552,10 +555,25 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
                   onTap: () => vzt?.setAccent(-1),
                 );
               }
+              // آخرین آیتم → چرخ رنگ دلخواه
+              if (i == kVzAccents.length + 1) {
+                final custom = VzThemeScope.customAccentOf(context);
+                return _CustomSwatch(
+                  color: custom,
+                  selected: custom != null,
+                  onTap: () async {
+                    final picked = await showVzColorPicker(
+                      context, initial: custom ?? Vz.accent);
+                    if (picked != null) {
+                      await vzt?.setCustomAccent(picked);
+                    }
+                  },
+                );
+              }
               final a = kVzAccents[i - 1];
               final c = dark ? a.dark : a.light;
               final hi = dark ? a.darkHi : a.lightHi;
-              final selected = (i - 1) == current;
+              final selected = (i - 1) == current && !Vz.hasCustomAccent;
               return _swatch(
                 c: c, hi: hi, selected: selected, label: a.name,
                 onTap: () => vzt?.setAccent(i - 1),
@@ -605,6 +623,54 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
       color: c, shape: BoxShape.circle,
       border: Border.all(color: Vz.border, width: 1)),
   );
+}
+
+/// سواچ «رنگ دلخواه» — چرخ رنگ کوچک. با تپ، انتخابگر کامل باز می‌شود.
+class _CustomSwatch extends StatelessWidget {
+  final Color? color;
+  final bool selected;
+  final VoidCallback onTap;
+  const _CustomSwatch({required this.color, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      selected: selected, button: true, label: 'Custom color',
+      container: true, excludeSemantics: true, onTap: onTap,
+      child: Tooltip(
+        message: 'Custom color',
+        child: InkWell(
+          borderRadius: BorderRadius.circular(999),
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: Mo.fast, curve: Mo.easeOut,
+            width: 46, height: 46,
+            decoration: BoxDecoration(
+              // چرخ رنگ مینیاتوری وقتی رنگی انتخاب نشده
+              color: color,
+              gradient: color == null
+                ? const SweepGradient(colors: [
+                    Color(0xFFFF0000), Color(0xFFFFFF00), Color(0xFF00FF00),
+                    Color(0xFF00FFFF), Color(0xFF0000FF), Color(0xFFFF00FF),
+                    Color(0xFFFF0000)])
+                : null,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: selected ? Vz.text : Vz.border,
+                width: selected ? 2.5 : 1),
+            ),
+            child: Center(child: Icon(
+              selected ? VzIcons.data('check') : VzIcons.data('palette'),
+              size: 20,
+              color: selected
+                ? Vz.onColorOf(color ?? Vz.accent)
+                : Colors.white,
+            )),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _LangPicker extends StatefulWidget {

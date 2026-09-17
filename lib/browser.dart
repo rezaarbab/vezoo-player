@@ -13,6 +13,7 @@ import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
 import 'vz_icons.dart';
+import 'vz_motion.dart';
 
 // ── پالت NOVA — سازگاری با صفحات داخلی ──
 Color get kBg      => Vz.bg;
@@ -1189,31 +1190,13 @@ class _VideoTile extends StatelessWidget{
 
   }
 
-/// ورود پله‌ای کارت‌ها — با کلید انیمیشن کاربر خاموش می‌شود.
-class _EnterAnim extends StatefulWidget{
+/// ورود پله‌ای کارت‌ها — مشترک با بقیه‌ی اپ (vz_motion.dart).
+/// با کلید انیمیشن کاربر خاموش می‌شود.
+class _EnterAnim extends StatelessWidget{
   final Widget child; final int index;
   const _EnterAnim({required this.child,required this.index});
-  @override State<_EnterAnim> createState()=>_EnterAnimState();
-}
-class _EnterAnimState extends State<_EnterAnim> with SingleTickerProviderStateMixin{
-  AnimationController? _c;
-  @override void initState(){
-    super.initState();
-    if(Vz.animations){
-      _c=AnimationController(vsync:this,duration:const Duration(milliseconds:260));
-      Future.delayed(Duration(milliseconds:(widget.index.clamp(0,14))*30),(){
-        if(mounted)_c?.forward();
-      });
-    }
-  }
-  @override void dispose(){_c?.dispose();super.dispose();}
-  @override Widget build(BuildContext context){
-    if(_c==null)return widget.child;
-    final a=CurvedAnimation(parent:_c!,curve:Curves.easeOutCubic);
-    return FadeTransition(opacity:a,
-      child:ScaleTransition(scale:Tween(begin:0.96,end:1.0).animate(a),
-        child:widget.child));
-  }
+  @override Widget build(BuildContext context) =>
+      VzPopIn(index: index, from: 0.94, child: child);
 }
 
 /// فشردن نرم — با کلید انیمیشن کاربر هماهنگ است.

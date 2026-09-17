@@ -13,6 +13,7 @@ import 'glass.dart';
 import 'l10n.dart';
 import 'browser.dart' show VzGroupHeader, LibLayout, LibLayoutX, browserThumbFuture;
 import 'vz_icons.dart';
+import 'vz_motion.dart';
 import 'main.dart' show showSnack;
 import 'signals.dart';
 

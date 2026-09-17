@@ -194,12 +194,67 @@ class Vz {
   );
 
   static VzAccent get _acc {
-    if (_accentIndex < 0) return _presetAccent; // -1 = رنگ خودِ پرسِت
+    // ۱) رنگ دلخواه کاربر بالاترین اولویت را دارد
+    if (_customAccent != null) return accentFromColor(_customAccent!);
+    // ۲) رنگ خودِ پرسِت
+    if (_accentIndex < 0) return _presetAccent;
+    // ۳) یکی از پالت‌های آماده
     return kVzAccents[_accentIndex.clamp(0, kVzAccents.length - 1)];
   }
 
   /// رنگ مکمل پرسِت (برای گرادیان‌های دوتایی).
-  static Color get accent2 => _preset.accent2;
+  static Color get accent2 => _customAccent == null
+      ? _preset.accent2
+      : _rotateHue(_customAccent!, 40);
+
+  // ── رنگ سفارشی کاربر ──────────────────────────────────────────────────────
+  static Color? _customAccent;
+
+  /// آیا کاربر رنگ دلخواه انتخاب کرده؟
+  static bool get hasCustomAccent => _customAccent != null;
+
+  /// رنگ دلخواه فعلی (یا null).
+  static Color? get customAccent => _customAccent;
+
+  /// از یک رنگ دلخواه، کل خانواده‌ی اکسنت را می‌سازد:
+  /// نسخه‌ی تیره، روشن، hi (روشن‌تر) و deep (تیره‌تر) — با حفظ hue.
+  static VzAccent accentFromColor(Color base) {
+    final hsl = HSLColor.fromColor(base);
+    // تیره: کمی روشن‌تر و اشباع‌تر تا روی پس‌زمینه‌ی تیره بخواند
+    final dark = hsl
+        .withLightness((hsl.lightness + 0.10).clamp(0.30, 0.72))
+        .withSaturation((hsl.saturation + 0.08).clamp(0.0, 1.0))
+        .toColor();
+    final darkHi = hsl
+        .withLightness((hsl.lightness + 0.26).clamp(0.45, 0.92))
+        .withSaturation((hsl.saturation + 0.06).clamp(0.0, 1.0))
+        .toColor();
+    final darkDeep = hsl
+        .withLightness((hsl.lightness - 0.18).clamp(0.12, 0.55))
+        .toColor();
+    // روشن: کمی تیره‌تر تا روی پس‌زمینه‌ی روشن بخواند
+    final light = hsl
+        .withLightness((hsl.lightness - 0.08).clamp(0.22, 0.62))
+        .withSaturation((hsl.saturation + 0.04).clamp(0.0, 1.0))
+        .toColor();
+    final lightHi = hsl
+        .withLightness((hsl.lightness + 0.10).clamp(0.35, 0.75))
+        .toColor();
+    final lightDeep = hsl
+        .withLightness((hsl.lightness - 0.22).clamp(0.12, 0.48))
+        .toColor();
+    return VzAccent(
+      'Custom',
+      dark: dark, darkHi: darkHi, darkDeep: darkDeep,
+      light: light, lightHi: lightHi, lightDeep: lightDeep,
+    );
+  }
+
+  /// می‌چرخاندن hue یک رنگ — برای ساختن رنگ مکمل.
+  static Color _rotateHue(Color c, double degrees) {
+    final hsl = HSLColor.fromColor(c);
+    return hsl.withHue((hsl.hue + degrees) % 360).toColor();
+  }
 
   /// رنگ متن/آیکونی که روی [accent] خوانا است.
   ///
@@ -247,6 +302,7 @@ class Vz {
     // -1 یعنی «رنگ خود پرسِت»
     _accentIndex = i < 0 ? -1 : i.clamp(0, kVzAccents.length - 1);
   }
+  static void _setCustomAccent(Color? c) { _customAccent = c; }
   static void _setAnimations(bool v) { _anim = v; }
   static void _setPreset(VzPreset p) { _preset = p; }
   static void _setBgStyle(VzBgStyle s) { _bgStyle = s; }
@@ -263,8 +319,7 @@ class Vz {
   // ── accents ──
   static Color get accent   => _dark ? _acc.dark     : _acc.light;
   static Color get accentHi => _dark ? _acc.darkHi   : _acc.lightHi;
-  static Color get deep     => _dark ? _acc.darkDeep : _acc.lightDeep;
-  static Color get magenta  => _dark ? _P.magenta    : _L.magenta;
+  static Color get deep     => _dark ? _acc.darkDeep : _acc.lightDeep;  static Color get magenta  => _dark ? _P.magenta    : _L.magenta;
 
   // ── semantic ──
   static Color get green    => _dark ? _P.green    : _L.green;
@@ -412,6 +467,7 @@ class VzThemeScope extends InheritedWidget {
     required this.isDark,
     required this.mode,
     required this.accentIndex,
+    required this.customAccent,
     required this.animations,
     required this.presetId,
     required this.bgStyle,
@@ -426,6 +482,9 @@ class VzThemeScope extends InheritedWidget {
 
   /// Snapshot of the chosen accent (index into [kVzAccents]); -1 = preset colour.
   final int accentIndex;
+
+  /// رنگ دلخواه کاربر (null = استفاده از پرسِت/پالت).
+  final Color? customAccent;
 
   /// Snapshot of the animation toggle.
   final bool animations;
@@ -453,6 +512,9 @@ class VzThemeScope extends InheritedWidget {
   static int accentIndexOf(BuildContext context) =>
       maybeOf(context)?.accentIndex ?? Vz.accentIndex;
 
+  static Color? customAccentOf(BuildContext context) =>
+      maybeOf(context)?.customAccent ?? Vz.customAccent;
+
   static bool animationsOf(BuildContext context) =>
       maybeOf(context)?.animations ?? Vz.animations;
 
@@ -467,6 +529,7 @@ class VzThemeScope extends InheritedWidget {
       isDark != oldWidget.isDark ||
       mode != oldWidget.mode ||
       accentIndex != oldWidget.accentIndex ||
+      customAccent != oldWidget.customAccent ||
       animations != oldWidget.animations ||
       presetId != oldWidget.presetId ||
       bgStyle != oldWidget.bgStyle;
@@ -485,12 +548,14 @@ class VzTheme extends StatefulWidget {
 class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeMode _mode = VzThemeMode.system;
   int _accent = -1; // -1 = رنگ خودِ پرسِت
+  Color? _custom;   // رنگ دلخواه کاربر (بالاترین اولویت)
   bool _anim = true;
   VzPreset _preset = kVzPresets.first;
   VzBgStyle _bg = VzBgStyle.diagonal;
 
   VzThemeMode get mode => _mode;
   int get accent => _accent;
+  Color? get customAccent => _custom;
   bool get animations => _anim;
   VzPreset get preset => _preset;
   VzBgStyle get bgStyle => _bg;
@@ -523,6 +588,8 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     };
     final a = await storeAccentPrefs?.call();
     _accent = (a == null || a < -1 || a >= kVzAccents.length) ? -1 : a;
+    final ca = await storeCustomAccentPrefs?.call();
+    _custom = (ca == null || ca < 0) ? null : Color(ca);
     _anim = await storeAnimPrefs?.call() ?? true;
     _preset = vPresetById(await storePresetPrefs?.call());
     _bg = switch (await storeBgPrefs?.call()) {
@@ -548,8 +615,27 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
 
   Future<void> setAccent(int i) async {
     _accent = (i < 0 || i >= kVzAccents.length) ? -1 : i;
+    _custom = null; // انتخاب پالت = پایان رنگ دلخواه
     setState(() {});
     await storeAccentSave?.call(_accent);
+    await storeCustomAccentSave?.call(null);
+  }
+
+  /// انتخاب یک رنگ دلخواه — از هر جای طیف.
+  Future<void> setCustomAccent(Color c) async {
+    _custom = c;
+    _accent = -1;
+    setState(() {});
+    await storeCustomAccentSave?.call(c.value);
+    await storeAccentSave?.call(-1);
+  }
+
+  /// پاک کردن رنگ دلخواه و برگشت به رنگ پرسِت.
+  Future<void> clearCustomAccent() async {
+    _custom = null;
+    _accent = -1;
+    setState(() {});
+    await storeCustomAccentSave?.call(null);
   }
 
   Future<void> setAnimations(bool v) async {
@@ -561,9 +647,11 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Future<void> setPreset(VzPreset p) async {
     _preset = p;
     _accent = -1; // پرسِت جدید یعنی رنگ پرسِت، تا ناسازگار نماند
+    _custom = null;
     setState(() {});
     await storePresetSave?.call(p.id);
     await storeAccentSave?.call(-1);
+    await storeCustomAccentSave?.call(null);
   }
 
   /// فقط رنگ بک‌گراند (بدون عوض کردن پرسِت).
@@ -583,6 +671,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     final dark = _isDarkNow;
     Vz._setDark(dark);
     Vz._setAccentIndex(_accent);
+    Vz._setCustomAccent(_custom);
     Vz._setAnimations(_anim);
     Vz._setPreset(_preset);
     Vz._setBgStyle(_bg);
@@ -590,6 +679,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       isDark: dark,
       mode: _mode,
       accentIndex: _accent,
+      customAccent: _custom,
       animations: _anim,
       presetId: _preset.id,
       bgStyle: _bg,
@@ -604,6 +694,9 @@ Future<String?> Function()? storeThemePrefs;
 Future<void> Function(String)? storeThemeSave;
 Future<int?> Function()? storeAccentPrefs;
 Future<void> Function(int)? storeAccentSave;
+/// رنگ دلخواه کاربر (ARGB) — null یعنی پاک.
+Future<int?> Function()? storeCustomAccentPrefs;
+Future<void> Function(int?)? storeCustomAccentSave;
 Future<bool?> Function()? storeAnimPrefs;
 Future<void> Function(bool)? storeAnimSave;
 Future<String?> Function()? storePresetPrefs;

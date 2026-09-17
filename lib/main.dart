@@ -7,6 +7,7 @@ import 'store.dart';
 import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
+import 'vz_motion.dart';
 import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -61,6 +62,16 @@ void main() async {
       (await SharedPreferences.getInstance()).getInt('app_accent');
   storeAccentSave = (v) async {
     await (await SharedPreferences.getInstance()).setInt('app_accent', v);
+  };
+  storeCustomAccentPrefs = () async =>
+      (await SharedPreferences.getInstance()).getInt('app_accent_custom');
+  storeCustomAccentSave = (v) async {
+    final p = await SharedPreferences.getInstance();
+    if (v == null) {
+      await p.remove('app_accent_custom');
+    } else {
+      await p.setInt('app_accent_custom', v);
+    }
   };
   storeAnimPrefs = () async =>
       (await SharedPreferences.getInstance()).getBool('app_animations');
@@ -135,9 +146,16 @@ class _HomeWrapper extends StatefulWidget {
   @override State<_HomeWrapper> createState()=>_HomeWrapperState();
 }
 class _HomeWrapperState extends State<_HomeWrapper>{
+  /// اسپلش کوتاه با انیمیشن — تا آماده شدن تنظیمات و چک‌های استارتاپ.
+  bool _splash = true;
+
   @override void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_)=>_startup());
+    // اسپلش: ۱.۴ ثانیه (اگر انیمیشن خاموش باشد، کوتاه‌تر)
+    Future.delayed(Duration(milliseconds: Vz.animations ? 1400 : 250), (){
+      if (mounted) setState(()=>_splash = false);
+    });
   }
 
   Future<void> _startup()async{
@@ -205,5 +223,12 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     ));
   }
 
-  @override Widget build(BuildContext ctx)=>const VzShell();
+  @override Widget build(BuildContext ctx) => AnimatedSwitcher(
+    duration: Mo.sheet,
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeInCubic,
+    child: _splash
+      ? const VzSplash(key: ValueKey('splash'))
+      : const VzShell(key: ValueKey('shell')),
+  );
 }

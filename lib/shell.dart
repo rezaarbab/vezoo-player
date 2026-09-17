@@ -9,6 +9,7 @@ import 'library_screen.dart';
 import 'settings_screen.dart';
 import 'signals.dart';
 import 'glass.dart';
+import 'vz_motion.dart';
 
 /// پوسته اصلی — IndexedStack با ۵ مقصد (Discover به‌صورت مودال باز می‌شود)
 class VzShell extends StatefulWidget {
@@ -76,14 +77,17 @@ class _VzShellState extends State<VzShell>{
       extendBody: true,
       // IndexedStack: state هر تب حفظ می‌شود و هیچ صفحه‌ای با opacity صفر
       // در هر فریم composite نمی‌شود.
-      body: IndexedStack(
+      body: VzTabSwitcher(
         index: _index,
-        children: [
-          KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
-          const IptvScreen(),
-          const LibraryScreen(),
-          const SettingsScreen(),
-        ],
+        child: IndexedStack(
+          index: _index,
+          children: [
+            KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
+            const IptvScreen(),
+            const LibraryScreen(),
+            const SettingsScreen(),
+          ],
+        ),
       ),
       bottomNavigationBar: VzNavDock(
         current: _dest,

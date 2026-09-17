@@ -36,6 +36,7 @@ import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
 import 'vz_icons.dart';
+import 'vz_motion.dart';
 import 'deepgram_service.dart';
 import 'vosk_service.dart';
 import 'android_stt_service.dart';
@@ -2689,27 +2690,37 @@ void _cycleSpeed(){
           const SizedBox(width:24),
           GestureDetector(
             onTap:(){_playing?player.pause():player.play();_startHideTimer();},
-            child:AnimatedContainer(
-              duration:const Duration(milliseconds:180),
-              width:84,height:84,
-              decoration:BoxDecoration(
-                // paused → solid accent (actionable), playing → quiet glass
-                color:_playing
-                    ? Colors.white.withValues(alpha: 0.10)
-                    : Vz.accent,
-                shape:BoxShape.circle,
-                border:Border.all(
+            child: VzHeroGlow(
+              radius: 42,
+              color: _playing ? Colors.white : Vz.accent,
+              child: AnimatedContainer(
+                duration:Mo.fast,curve:Mo.easeOut,
+                width:84,height:84,
+                decoration:BoxDecoration(
+                  // paused → solid accent (actionable), playing → quiet glass
                   color:_playing
-                      ? Colors.white.withValues(alpha: 0.22)
-                      : Vz.accentHi,
-                  width:1),
-                boxShadow:[BoxShadow(
-                  color:_playing
-                      ? Colors.black.withValues(alpha: 0.30)
-                      : Vz.accent.withValues(alpha: 0.28),
-                  blurRadius:24,offset:const Offset(0,8),
-                )],
+                      ? Colors.white.withValues(alpha: 0.10)
+                      : Vz.accent,
+                  shape:BoxShape.circle,
+                  border:Border.all(
+                    color:_playing
+                        ? Colors.white.withValues(alpha: 0.22)
+                        : Vz.accentHi,
+                    width:1),
+                ),
+                child:AnimatedSwitcher(
+                  duration: Mo.press,
+                  transitionBuilder:(c,a)=>ScaleTransition(
+                    scale: Tween(begin:0.7,end:1.0).animate(a), child:c),
+                  child: Icon(
+                    _playing?Icons.pause_rounded:Icons.play_arrow_rounded,
+                    key: ValueKey(_playing),
+                    color:_playing?Colors.white:Vz.onAccent,
+                    size:52),
+                ),
               ),
+            ),
+          ),
               child:Icon(
                 _playing?Icons.pause_rounded:Icons.play_arrow_rounded,
                 color:_playing?Colors.white:Vz.onAccent,
