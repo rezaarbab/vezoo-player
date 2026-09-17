@@ -4,7 +4,6 @@
 // (گرید / لیست / فشرده) که بین همه‌ی تب‌ها مشترک است، هدر با شمارنده،
 // و همه‌ی آیکون‌ها از لایه‌ی VzIcons.
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
 import 'dart:io';
@@ -12,7 +11,7 @@ import 'store.dart';
 import 'player.dart';
 import 'glass.dart';
 import 'l10n.dart';
-import 'browser.dart' show VzGroupHeader, LibLayout, LibLayoutX;
+import 'browser.dart' show VzGroupHeader, LibLayout, LibLayoutX, browserThumbFuture;
 import 'vz_icons.dart';
 import 'main.dart' show showSnack;
 import 'signals.dart';
@@ -420,8 +419,6 @@ class _LibraryScreenState extends State<LibraryScreen>{
     title: L.nothingYet,
     hint: switch(_tab){ 4 => L.pinFolderHint, _ => null });
 
-  static Widget _empty(IconData icon, String title) =>
-      VzEmpty(icon: icon, title: title);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -491,8 +488,8 @@ class _ContinueCard extends StatelessWidget {
                 value: progress.clamp(0.0, 1.0),
                 minHeight: 3,
                 backgroundColor: Vz.border,
-                color: Vz.accent),
-            ))),
+                color: Vz.accent)),
+            )),
         // عنوان
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),

@@ -1,7 +1,6 @@
 // lib/browser.dart — Home: مرورگر فایل media-first (NOVA)
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
@@ -42,13 +41,6 @@ LinearGradient _extGrad(String ext){
     default:    return LinearGradient(colors:[Vz.cardHi,Vz.surface]);
   }
 }
-
-Widget _badge(String text,Color color)=>Container(
-  padding:const EdgeInsets.symmetric(horizontal:6,vertical:2),
-  decoration:BoxDecoration(color:color.withValues(alpha: 0.12),borderRadius:BorderRadius.circular(5),
-      border:Border.all(color:color.withValues(alpha: 0.35),width:0.7)),
-  child:Text(text,style:TextStyle(fontSize:10,color:color,fontWeight:FontWeight.w600,height:1.2)),
-);
 
 // ── کش thumbnail با MethodChannel → MediaMetadataRetriever ──
 final Map<String,Uint8List?> _thumbCache={};
@@ -416,11 +408,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     );
   }
 
-  Widget _buildFABs()=>const SizedBox.shrink();
-
-  Widget _fabBtn(IconData icon,String tip,Color color,VoidCallback fn)=>const SizedBox.shrink();
-
-  PreferredSizeWidget _normalBar(bool isSaved)=>AppBar(
+      PreferredSizeWidget _normalBar(bool isSaved)=>AppBar(
     automaticallyImplyLeading:false,
     leading:_path!=root?IconButton(icon:Icon(VzIcons.data('back'),size:18),onPressed:_goUp):null,
     title:_searching
@@ -1199,8 +1187,7 @@ class _VideoTile extends StatelessWidget{
           child:Icon(VzIcons.data('check-circle'),size:12,color:Vz.accent))),
     ])));
 
-  Widget _pillBox(Widget child)=>child;
-}
+  }
 
 /// ورود پله‌ای کارت‌ها — با کلید انیمیشن کاربر خاموش می‌شود.
 class _EnterAnim extends StatefulWidget{

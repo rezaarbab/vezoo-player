@@ -13,7 +13,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'glass.dart';
-import 'l10n.dart';
 import 'vz_icons.dart';
 
 class VzIconGalleryScreen extends StatelessWidget {
@@ -97,6 +96,7 @@ class VzIconGalleryScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Expanded(child: Center(child: Icon(
+                  // ignore: non_const_argument_for_const_parameter
                   IconData(cp, fontFamily: 'VanFont'),
                   size: 34,
                   color: named ? Vz.accent : Vz.text))),

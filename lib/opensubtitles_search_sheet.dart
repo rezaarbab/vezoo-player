@@ -176,7 +176,7 @@ class _State extends State<OpenSubtitlesSheet> {
           else if (_phase == _Phase.titles) ..._buildTitles()
           else if (_phase == _Phase.episode) ..._buildEpisodePicker()
           else ..._buildSubs(),
-        ]))),
+        ])])),
       ),
     ),
   );
