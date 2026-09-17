@@ -937,9 +937,9 @@ class _VideoTile extends StatelessWidget{
             // وضعیت تماشا + علاقه‌مندی — گوشه بالا
             if(!selectMode)Positioned(top:6,left:6,right:6,
               child:Row(children:[
-                if(_seen)_pill(VzIcons.data('check'),Vz.accent),
-                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(VzIcons.data('bookmark'),Vz.accent)],
-                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(VzIcons.data('favorite'),Vz.magenta)],
+                if(_seen)_pill(VzIcons.data('check'),Vz.accent,animName:'check'),
+                if(_bkm)...[if(_seen)const SizedBox(width:4),_pill(VzIcons.data('bookmark'),Vz.accent,animName:'bookmark')],
+                if(_fav)...[if(_seen||_bkm)const SizedBox(width:4),_pill(VzIcons.data('favorite'),Vz.magenta,animName:'favorite')],
                 const Spacer(),
                 if(_hasSub)_pill(VzIcons.data('subtitle'),Vz.green),
               ])),
@@ -978,10 +978,12 @@ class _VideoTile extends StatelessWidget{
       ]));
   }
 
-  Widget _pill(IconData icon,Color c)=>Container(
+  Widget _pill(IconData icon,Color c,{String? animName})=>Container(
     width:20,height:20,
     decoration:BoxDecoration(color:Vz.badgeBg,shape:BoxShape.circle),
-    child:Icon(icon,size:12,color:c));
+    child: animName!=null
+      ? Center(child:VzIcon(animName,size:12,color:c,animated:true))
+      : Icon(icon,size:12,color:c));
 
   // ── لیست ──
   Widget _row(BuildContext context)=>Container(

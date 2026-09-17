@@ -1003,8 +1003,8 @@ class VzNavDock extends StatelessWidget {
           child: active
             ? VzBreathing(
                 amount: 0.06,
-                child: Icon(VzIcons.data(iconName),
-                  size: 21, color: Vz.onAccent))
+                child: VzIcon(iconName,
+                  size: 21, color: Vz.onAccent, animated: true))
             : VzIcon(iconName, size: 21, color: Vz.textDim),
         ),
       ),

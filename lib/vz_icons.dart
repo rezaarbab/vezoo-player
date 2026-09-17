@@ -1,66 +1,199 @@
-// lib/vz_icons.dart — لایه‌ی آیکون قابل‌تعویض
+// lib/vz_icons.dart — لایه‌ی آیکون قابل‌تعویض با پک‌های آماده
 //
-// همه‌ی آیکون‌های اپ از اینجا رد می‌شوند، نه مستقیم از Icons.
-// با این کار می‌توان کل ست آیکون را عوض کرد (مثلاً پک انیمه/چیبی) بدون
-// دست زدن به هیچ ویجتی.
+// سه پک داخلی:
+//   • [SolarIconPack]  — ۷۰۰۰+ آیکون گرد Solar (پیش‌فرض، سبک و نرم)
+//   • [AnimatedIconPack] — آیکون‌های متحرک Lottie برای تعامل‌های حسّی
+//   • [MaterialIconPack] — fallback متریال
 //
-// ── چطور یک پک انیمه وصل کنم؟ ─────────────────────────────────────────────
+// هر آیکون می‌تواند نسخه‌ی «متحرک» داشته باشد. برای آن، نام را در
+// [kVzAnimatedIcons] ثبت کن (کلیدهای نام → دارایی Lottie). اگر نامی نبود،
+// نسخه‌ی استاتیک استفاده می‌شود.
 //
-//  ۱) فایل‌های SVG/PNG پک را در assets/icons/<pack>/ بریز و در pubspec
-//     ثبت کن:
-//       flutter:
-//         assets:
-//           - assets/icons/anime/
+// ── پک سفارشی (مثلاً انیمه) ────────────────────────────────────────────────
+//   class AnimeIconPack extends VzIconPack {
+//     const AnimeIconPack();
+//     @override
+//     Widget? build(String name, {double? size, Color? color}) =>
+//       SvgPicture.asset('assets/icons/anime/$name.svg', width: size, height: size,
+//         colorFilter: ColorFilter.mode(color ?? Vz.text, BlendMode.srcIn));
+//   }
+//   VzIcons.pack = const AnimeIconPack();
 //
-//  ۲) یک زیرکلاس از [VzIconPack] بساز و هر نام را به دارایی‌اش map کن:
-//
-//       class AnimeIconPack extends VzIconPack {
-//         const AnimeIconPack();
-//         @override
-//         Widget build(String name, {double? size, Color? color}) =>
-//           SvgPicture.asset('assets/icons/anime/$name.svg',
-//             width: size, height: size,
-//             colorFilter: ColorFilter.mode(
-//               color ?? Vz.text, BlendMode.srcIn));
-//         // یا برای PNG: Image.asset('assets/icons/anime/$name.png', ...)
-//       }
-//
-//  ۳) هنگام بوت اپ پک را فعال کن:
-//       VzIcons.pack = const AnimeIconPack();
-//
-// نکته: اگر نامی در پک نبود، [VzIconPack.fallback] به آیکون متریال برمی‌گردد،
-// پس هیچ صفحه‌ای خالی نمی‌ماند.
+// اگر نامی در پک نبود، [VzIconPack.fallback] به Solar/متریال برمی‌گردد، پس
+// هیچ صفحه‌ای خالی نمی‌ماند.
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
+import 'package:solar_icons/solar_icons.dart';
 
 /// قرارداد یک پک آیکون.
 abstract class VzIconPack {
   const VzIconPack();
 
   /// آیکون را می‌سازد. اگر [name] پشتیبانی نشود باید null برگرداند تا
-  /// fallback متریال استفاده شود.
+  /// fallback استفاده شود.
   Widget? build(String name, {double? size, Color? color});
 
-  /// آیکون پیش‌فرضِ متریال برای هر نام — پایه‌ی رندر پیش‌فرض.
-  IconData fallback(String name) =>
-      kVzIconMap[name] ?? Icons.circle_outlined;
-
-  /// آیا پک این نام را دارد؟
-  bool supports(String name) => true;
+  /// IconData جایگزین برای این نام.
+  IconData fallback(String name) => kVzIconMap[name] ?? Icons.circle_outlined;
 }
 
-/// پک پیش‌فرض — آیکون‌های متریال (rounded برای حس نرم‌تر).
-class MaterialIconPack extends VzIconPack {
-  const MaterialIconPack();
+/// پک پیش‌فرض — آیکون‌های گرد Solar (نرم‌تر از متریال، بدون گرافیک اضافه).
+class SolarIconPack extends VzIconPack {
+  const SolarIconPack();
+
+  /// Solar نسخه‌ی «خطی» و «پر» دارد؛ اینجا از نسخه‌ی Linear استفاده می‌کنیم
+  /// چون با ظاهر تخت VOID هم‌خوان است.
+  static const _map = <String, IconData>{
+    // ── ناوبری ──
+    'home': SolarIconsOutline.widget,
+    'live': SolarIconsOutline.tv,
+    'discover': SolarIconsOutline.compass,
+    'library': SolarIconsOutline.videoLibrary,
+    'settings': SolarIconsOutline.settings,
+    'search': SolarIconsOutline.minimalisticMagnifier,
+    'close': SolarIconsOutline.closeCircle,
+    'back': SolarIconsOutline.arrowLeft,
+    'forward': SolarIconsOutline.arrowRight,
+    'up': SolarIconsOutline.arrowUp,
+    'chevron-right': SolarIconsOutline.altArrowRight,
+    'chevron-left': SolarIconsOutline.altArrowLeft,
+
+    // ── پخش ──
+    'play': SolarIconsOutline.play,
+    'pause': SolarIconsOutline.pause,
+    'stop': SolarIconsOutline.stop,
+    'next': SolarIconsOutline.skipNext,
+    'prev': SolarIconsOutline.skipPrevious,
+    'replay': SolarIconsOutline.refresh,
+    'fast-forward': SolarIconsOutline.rewindForward,
+    'rewind': SolarIconsOutline.rewindBack,
+    'pip': SolarIconsOutline.pip,
+    'fullscreen': SolarIconsOutline.maximize,
+    'rotate': SolarIconsOutline.refresh,
+    'volume': SolarIconsOutline.volumeLoud,
+    'mute': SolarIconsOutline.volumeCross,
+    'brightness': SolarIconsOutline.sun,
+    'speed': SolarIconsOutline.speedometerMiddle,
+    'lock': SolarIconsOutline.lock,
+    'unlock': SolarIconsOutline.lockUnlocked,
+    'sleep': SolarIconsOutline.moon,
+
+    // ── محتوا ──
+    'folder': SolarIconsOutline.folder,
+    'folder-open': SolarIconsOutline.folderOpen,
+    'folder-empty': SolarIconsOutline.folderError,
+    'video': SolarIconsOutline.videoFrame,
+    'movie': SolarIconsOutline.clapperboard,
+    'music': SolarIconsOutline.musicNote,
+    'subtitle': SolarIconsOutline.subtitles,
+    'audio': SolarIconsOutline.headphonesRound,
+    'grid': SolarIconsOutline.widget,
+    'list': SolarIconsOutline.listCheck,
+    'compact': SolarIconsOutline.hamburgerMenu,
+    'layout': SolarIconsOutline.widget,
+    'sort': SolarIconsOutline.sortFromTopToBottom,
+    'storage': SolarIconsOutline.server,
+    'sd': SolarIconsOutline.sdCard,
+    'download': SolarIconsOutline.download,
+    'upload': SolarIconsOutline.upload,
+    'link': SolarIconsOutline.link,
+    'clock': SolarIconsOutline.clockCircle,
+    'size': SolarIconsOutline.ruler,
+
+    // ── وضعیت ──
+    'bookmark': SolarIconsOutline.bookmark,
+    'bookmark-off': SolarIconsOutline.bookmark,
+    'favorite': SolarIconsOutline.heart,
+    'favorite-off': SolarIconsOutline.heart,
+    'star': SolarIconsOutline.star,
+    'star-off': SolarIconsOutline.star,
+    'check': SolarIconsOutline.checkCircle,
+    'check-circle': SolarIconsOutline.checkCircle,
+    'circle': SolarIconsOutline.recordMinimalistic,
+    'history': SolarIconsOutline.clockCircle,
+    'queue': SolarIconsOutline.playlist,
+    'pin': SolarIconsOutline.pin,
+    'pin-off': SolarIconsOutline.pin,
+    'trash': SolarIconsOutline.trashBinMinimalistic,
+    'edit': SolarIconsOutline.pen,
+    'rename': SolarIconsOutline.pen,
+    'copy': SolarIconsOutline.copy,
+    'move': SolarIconsOutline.moveToFolder,
+    'share': SolarIconsOutline.share,
+    'more': SolarIconsOutline.menuDots,
+    'info': SolarIconsOutline.infoCircle,
+    'refresh': SolarIconsOutline.refresh,
+    'add': SolarIconsOutline.addCircle,
+    'cancel': SolarIconsOutline.closeCircle,
+
+    // ── تم و ظاهر ──
+    'palette': SolarIconsOutline.palette,
+    'theme': SolarIconsOutline.paintRoller,
+    'background': SolarIconsOutline.gallery,
+    'dark': SolarIconsOutline.moon,
+    'light': SolarIconsOutline.sun,
+    'auto': SolarIconsOutline.sun2,
+    'animation': SolarIconsOutline.playCircle,
+    'sparkle': SolarIconsOutline.stars,
+
+    // ── AI و زیرنویس ──
+    'ai': SolarIconsOutline.stars,
+    'voice': SolarIconsOutline.microphone2,
+    'translate': SolarIconsOutline.translation,
+    'mic': SolarIconsOutline.microphone,
+    'wave': SolarIconsOutline.soundwave,
+    'record': SolarIconsOutline.recordCircle,
+    'cloud': SolarIconsOutline.cloudDownload,
+    'terminal': SolarIconsOutline.code,
+    'tune': SolarIconsOutline.tuning,
+
+    // ── عمومی ──
+    'user': SolarIconsOutline.userCircle,
+    'bug': SolarIconsOutline.bug,
+    'telegram': SolarIconsOutline.plain,
+    'update': SolarIconsOutline.refreshCircle,
+    'warning': SolarIconsOutline.dangerTriangle,
+    'error': SolarIconsOutline.dangerCircle,
+    'wifi-off': SolarIconsOutline.wifiRouter,
+    'visibility': SolarIconsOutline.eye,
+    'eye-off': SolarIconsOutline.eyeClosed,
+    'logout': SolarIconsOutline.logout,
+    'backup': SolarIconsOutline.database,
+    'restore': SolarIconsOutline.restart,
+    'shield': SolarIconsOutline.shieldCheck,
+    'flash': SolarIconsOutline.bolt,
+    'chat': SolarIconsOutline.chatRound,
+    'tv': SolarIconsOutline.tv,
+    'phone': SolarIconsOutline.smartphone,
+    'battery': SolarIconsOutline.batteryCharge,
+    'screen': SolarIconsOutline.monitor,
+    'language': SolarIconsOutline.global,
+  };
+
   @override
-  Widget? build(String name, {double? size, Color? color}) => null; // fallback
+  IconData fallback(String name) =>
+      _map[name] ?? kVzIconMap[name] ?? Icons.circle_outlined;
+
+  @override
+  Widget? build(String name, {double? size, Color? color}) => null;
 }
+
 
 /// ویجت آیکون اپ. همه‌جا از این استفاده کن، نه Icon مستقیم.
+///
+/// [animated] = true → اگر نسخه‌ی Lottie برای این نام ثبت شده باشد، آن را
+/// پخش می‌کند؛ وگرنه استاتیک.
 class VzIcon extends StatelessWidget {
   final String name;
   final double? size;
   final Color? color;
   final String? semanticLabel;
+
+  /// استفاده از نسخه‌ی متحرک (اگر موجود باشد).
+  final bool animated;
+
+  /// پخش حلقه‌ای انیمیشن — برای حالت‌های پایدار مثل «در حال ضبط».
+  final bool loop;
 
   const VzIcon(
     this.name, {
@@ -68,6 +201,8 @@ class VzIcon extends StatelessWidget {
     this.size,
     this.color,
     this.semanticLabel,
+    this.animated = false,
+    this.loop = false,
   });
 
   @override
@@ -75,10 +210,21 @@ class VzIcon extends StatelessWidget {
     final c = color ?? IconTheme.of(context).color;
     final s = size ?? IconTheme.of(context).size ?? 24;
 
+    // ۱) پک فعال کاربر (مثلاً انیمه)
     final custom = VzIcons.pack.build(name, size: s, color: c);
     if (custom != null) {
-      return custom;
+      return SizedBox(width: s, height: s, child: custom);
     }
+
+    // ۲) نسخه‌ی متحرک، اگر خواسته شده و موجود باشد
+    if (animated && Vz.animations) {
+      final asset = kVzAnimatedIcons[name];
+      if (asset != null) {
+        return VzAnimatedIcon(asset: asset, size: s, loop: loop);
+      }
+    }
+
+    // ۳) استاتیک
     return Icon(
       VzIcons.pack.fallback(name),
       size: s,
@@ -88,32 +234,85 @@ class VzIcon extends StatelessWidget {
   }
 }
 
+/// آیکون متحرک Lottie — یک‌بار پخش می‌شود، یا حلقه‌ای.
+/// با کلید انیمیشن کاربر خاموش می‌شود و به یک آیکون ساده برمی‌گردد.
+class VzAnimatedIcon extends StatefulWidget {
+  final String asset;
+  final double size;
+  final bool loop;
+  final Color? color;
+  const VzAnimatedIcon({
+    super.key, required this.asset, this.size = 24,
+    this.loop = false, this.color,
+  });
+
+  @override State<VzAnimatedIcon> createState() => _VzAnimatedIconState();
+}
+
+class _VzAnimatedIconState extends State<VzAnimatedIcon>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+
+  @override
+  void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this);
+    }
+  }
+
+  @override
+  void dispose() { _c?.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = _c;
+    if (c == null) {
+      return SizedBox(width: widget.size, height: widget.size);
+    }
+    return SizedBox(
+      width: widget.size,
+      height: widget.size,
+      child: Lottie.asset(
+        widget.asset,
+        controller: c,
+        fit: BoxFit.contain,
+        onLoaded: (comp) {
+          c.duration = comp.duration;
+          if (widget.loop) {
+            c.repeat();
+          } else {
+            c.forward();
+          }
+        },
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
 /// رجیستری آیکون‌ها.
 class VzIcons {
   VzIcons._();
 
-  static VzIconPack _pack = const MaterialIconPack();
+  static VzIconPack _pack = const SolarIconPack();
 
   /// پک فعال. با ست کردن این، کل اپ آیکون‌های جدید را می‌گیرد.
   static VzIconPack get pack => _pack;
   static set pack(VzIconPack p) => _pack = p;
 
-  /// خواندن یک آیکون به‌صورت IconData (برای جاهایی که IconData لازم است،
-  /// مثل TabBar یا مدل‌های داده).
+  /// خواندن یک آیکون به‌صورت IconData.
   static IconData data(String name) => _pack.fallback(name);
 
   /// سازنده‌ی سریع ویجت.
-  static Widget widget(String name, {double? size, Color? color}) =>
-      VzIcon(name, size: size, color: color);
+  static Widget widget(String name, {double? size, Color? color, bool animated = false}) =>
+      VzIcon(name, size: size, color: color, animated: animated);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  نقشه‌ی نام → آیکون متریال
-//  نام‌ها تصویری‌اند تا پک انیمه بتواند با همین کلیدها فایل بدهد
-//  (مثلاً "folder-cute.svg", "play-cute.svg" …)
+//  نقشه‌ی نام → آیکون متریال (fallback نهایی)
 // ─────────────────────────────────────────────────────────────────────────────
 const Map<String, IconData> kVzIconMap = {
-  // ── ناوبری ──
   'home': Icons.movie_filter_rounded,
   'live': Icons.live_tv_rounded,
   'discover': Icons.explore_rounded,
@@ -126,8 +325,6 @@ const Map<String, IconData> kVzIconMap = {
   'up': Icons.arrow_upward_rounded,
   'chevron-right': Icons.chevron_right_rounded,
   'chevron-left': Icons.chevron_left_rounded,
-
-  // ── پخش ──
   'play': Icons.play_arrow_rounded,
   'pause': Icons.pause_rounded,
   'stop': Icons.stop_rounded,
@@ -146,8 +343,6 @@ const Map<String, IconData> kVzIconMap = {
   'lock': Icons.lock_rounded,
   'unlock': Icons.lock_open_rounded,
   'sleep': Icons.bedtime_rounded,
-
-  // ── محتوا ──
   'folder': Icons.folder_rounded,
   'folder-open': Icons.folder_open_rounded,
   'folder-empty': Icons.folder_off_rounded,
@@ -170,8 +365,6 @@ const Map<String, IconData> kVzIconMap = {
   'link': Icons.link_rounded,
   'clock': Icons.access_time_rounded,
   'size': Icons.data_usage_rounded,
-
-  // ── وضعیت ──
   'bookmark': Icons.bookmark_rounded,
   'bookmark-off': Icons.bookmark_border_rounded,
   'favorite': Icons.favorite_rounded,
@@ -196,8 +389,6 @@ const Map<String, IconData> kVzIconMap = {
   'refresh': Icons.refresh_rounded,
   'add': Icons.add_rounded,
   'cancel': Icons.cancel_rounded,
-
-  // ── تم و ظاهر ──
   'palette': Icons.palette_rounded,
   'theme': Icons.brush_rounded,
   'background': Icons.gradient_rounded,
@@ -206,8 +397,6 @@ const Map<String, IconData> kVzIconMap = {
   'auto': Icons.brightness_auto_rounded,
   'animation': Icons.animation_rounded,
   'sparkle': Icons.auto_awesome_rounded,
-
-  // ── AI و زیرنویس ──
   'ai': Icons.auto_awesome_rounded,
   'voice': Icons.record_voice_over_rounded,
   'translate': Icons.translate_rounded,
@@ -217,8 +406,6 @@ const Map<String, IconData> kVzIconMap = {
   'cloud': Icons.cloud_download_rounded,
   'terminal': Icons.terminal_rounded,
   'tune': Icons.tune_rounded,
-
-  // ── عمومی ──
   'user': Icons.person_rounded,
   'bug': Icons.bug_report_rounded,
   'telegram': Icons.telegram,
@@ -239,4 +426,26 @@ const Map<String, IconData> kVzIconMap = {
   'battery': Icons.battery_full_rounded,
   'screen': Icons.screenshot_monitor_rounded,
   'language': Icons.language_rounded,
+};
+
+/// نام‌هایی که نسخه‌ی متحرک Lottie دارند.
+///
+/// ── چطور اضافه کنم؟ ──
+///  ۱) فایل `.json` را از lottiefiles.com در `assets/lottie/` بگذار.
+///  ۲) در pubspec ثبت کن:
+///       flutter:
+///         assets:
+///           - assets/lottie/
+///  ۳) اینجا نگاشت کن:  'play': 'assets/lottie/play.json',
+///
+/// تا وقتی این نقشه خالی است، همه‌چیز استاتیک (و سریع) می‌ماند.
+const Map<String, String> kVzAnimatedIcons = {
+  // 'play':        'assets/lottie/play.json',
+  // 'pause':       'assets/lottie/pause.json',
+  // 'favorite':    'assets/lottie/heart.json',
+  // 'bookmark':    'assets/lottie/bookmark.json',
+  // 'star':        'assets/lottie/star.json',
+  // 'check':       'assets/lottie/check.json',
+  // 'download':    'assets/lottie/download.json',
+  // 'record':      'assets/lottie/recording.json',
 };

@@ -82,7 +82,9 @@ jobs:
             sed -i '/alphacephei/d' android/settings.gradle.kts || true
             echo "=== cleaned settings.gradle.kts ==="
           fi
-          git checkout HEAD -- pubspec.yaml lib/main.dart lib/store.dart lib/browser.dart lib/api_service.dart lib/vez_service.dart android_files/icon.png android_files/cpp/vezoo.h android_files/cpp/vezoo.c android_files/cpp/vezoo_jni.c android_files/cpp/CMakeLists.txt lib/ai_models_screen.dart android_files/cpp/whisper_v2 android_files/WhisperV2Bridge.kt lib/srt_editor_screen.dart lib/ai_batch_queue_screen.dart lib/ai_history_screen.dart lib/opensubtitles_service.dart lib/opensubtitles_search_sheet.dart lib/live_sub_sheet.dart android_files/LiveSubService.kt android_files/DeepgramService.kt android_files/MediaProjectionService.kt android_files/AndroidBuiltinSttService.kt android_files/YtDlpService.kt lib/l10n.dart lib/lyrics_service.dart lib/lyrics_sheet.dart
+          # NOTE: pubspec.yaml عمداً در این لیست نیست — وگرنه dependency های
+          # UI (solar_icons/lottie) روی CI پاک می‌شدند و analyze شکست می‌خورد.
+          git checkout HEAD -- lib/main.dart lib/store.dart lib/browser.dart lib/api_service.dart lib/vez_service.dart android_files/icon.png android_files/cpp/vezoo.h android_files/cpp/vezoo.c android_files/cpp/vezoo_jni.c android_files/cpp/CMakeLists.txt lib/ai_models_screen.dart android_files/cpp/whisper_v2 android_files/WhisperV2Bridge.kt lib/srt_editor_screen.dart lib/ai_batch_queue_screen.dart lib/ai_history_screen.dart lib/opensubtitles_service.dart lib/opensubtitles_search_sheet.dart lib/live_sub_sheet.dart android_files/LiveSubService.kt android_files/DeepgramService.kt android_files/MediaProjectionService.kt android_files/AndroidBuiltinSttService.kt android_files/YtDlpService.kt lib/l10n.dart lib/lyrics_service.dart lib/lyrics_sheet.dart
           MAKT=$(find android -name "MainActivity.kt" | head -1)
           echo "=== Found MainActivity at: $MAKT ==="
           if [ -n "$MAKT" ]; then
