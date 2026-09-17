@@ -411,8 +411,10 @@ class Store {
     try { return VideoSettings.fromMap(json.decode(s) as Map<String,dynamic>); }
     catch(_){ return null; }
   }
-  static Future<void> savePos(String path, Duration pos) async =>
-      (await SharedPreferences.getInstance()).setInt('pos:$path',pos.inSeconds);
+  static Future<void> savePos(String path, Duration pos) async {
+    _posCache[path] = pos.inSeconds;
+    (await SharedPreferences.getInstance()).setInt('pos:$path',pos.inSeconds);
+  }
   static Future<Duration> getPos(String path) async {
     final p=await SharedPreferences.getInstance();
     return Duration(seconds:p.getInt('pos:$path')??0);
@@ -423,6 +425,24 @@ class Store {
   }
   // دسترسی مستقیم به cache (برای tile‌ها بدون await)
   static int? getCachedDur(String path) => _durCache[path];
+
+  /// پیشرفت تماشا (۰ تا ۱) از کش — بدون await.
+  /// اگر مدت یا موقعیت معلوم نباشد ۰ برمی‌گردد.
+  static double getProgress(String path) {
+    final d = _durCache[path] ?? 0;
+    final pos = _posCache[path] ?? 0;
+    if (d <= 0 || pos <= 0) return 0;
+    return (pos / d).clamp(0.0, 1.0);
+  }
+
+  /// کش موقعیت پخش (ثانیه) — برای نوار پیشرفت کارت‌ها.
+  static final Map<String,int> _posCache = {};
+
+  /// بارگذاری موقعیت ذخیره‌شده در کش (برای صفحه‌ی تاریخچه).
+  static Future<void> warmPos(String path) async {
+    final p = await SharedPreferences.getInstance();
+    _posCache[path] = p.getInt('pos:$path') ?? 0;
+  }
 
   static Future<int> getDur(String path) async {
     if (_durCache.containsKey(path)) return _durCache[path]!;

@@ -13,6 +13,7 @@ import 'api_service.dart';
 import 'theme.dart';
 import 'vz_presets.dart';
 import 'vz_icons.dart';
+import 'vz_icon_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -103,6 +104,20 @@ class _SettingsScreenState extends State<SettingsScreen>{
                   MaterialPageRoute(builder: (_)=>const VoskModelsScreen())),
               ),
             ]),
+          ),
+
+          // ── آیکون‌ها ──
+          VzSectionHeader(title: L.iconPack),
+          VzGlass(
+            padding: EdgeInsets.zero,
+            child: VzRow(
+              icon: VzIcons.data('sparkle'),
+              title: 'VanFont — ${BiliIconPack.allCodePoints.length} glyphs',
+              subtitle: '${BiliIconPack.known.length} named · tap to label the rest',
+              accent: Vz.accent,
+              onTap: ()=>Navigator.push(context,
+                MaterialPageRoute(builder: (_)=>const VzIconGalleryScreen())),
+            ),
           ),
 
           // ── Language ──

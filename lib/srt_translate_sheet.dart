@@ -7,6 +7,7 @@ import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'theme.dart';
 import 'glass.dart';
+import 'vz_icons.dart';
 
 /// شیت ترجمه زیرنویس — آنلاین (Cloudflare) یا آفلاین (ML Kit)
 class SrtTranslateSheet extends StatefulWidget {
@@ -83,19 +84,13 @@ class _State extends State<SrtTranslateSheet> {
       child: SingleChildScrollView(
         padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 14),
-          Row(children: [
-            Icon(Icons.translate, color: Vz.accent, size: 20),
-            const SizedBox(width: 8),
-            Text(L.translateSub, style: TextStyle(color: Vz.text, fontSize: 17, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.close)),
-          ]),
-          const SizedBox(height: 4),
-          Text(L.cloudflareAiNote,
-            style: TextStyle(color: Vz.textDim, fontSize: 11)),
-          const SizedBox(height: 16),
+          VzSheetHeader(
+            icon: VzIcons.data('translate'),
+            title: L.translateSub,
+            subtitle: L.cloudflareAiNote,
+            onClose: () => Navigator.pop(ctx),
+          ),
+          const SizedBox(height: Sp.md),
 
           // ── انتخاب زبان مقصد ──
           Container(

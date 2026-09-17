@@ -77,7 +77,7 @@ class BrowserScreenState extends State<BrowserScreen>{
   final Set<String> _selected={};
   _SortBy _sortBy=_SortBy.name;
   bool _sortDesc=false;
-  _LibLayout _layout=_LibLayout.grid;
+  LibLayout _layout=LibLayout.grid;
   bool _searching=false;
   // جستجو: false=عادی، true=بازگشتی در کل حافظه
   bool _globalSearch=false;
@@ -95,7 +95,7 @@ class BrowserScreenState extends State<BrowserScreen>{
     try{
       final p0=await SharedPreferences.getInstance();
       final raw=p0.getString('lib_layout');
-      final l=_LibLayout.values.where((e)=>e.name==raw).firstOrNull;
+      final l=LibLayout.values.where((e)=>e.name==raw).firstOrNull;
       if(l!=null&&mounted)setState(()=>_layout=l);
     }catch(_){}
     await _ensurePermission();
@@ -487,13 +487,7 @@ class BrowserScreenState extends State<BrowserScreen>{
               color:Vz.card,
               borderRadius:BorderRadius.circular(Rad.xs),
               border:Border.all(color:Vz.border)),
-            child:Icon(
-              switch(_layout){
-                _LibLayout.grid=>VzIcons.data('grid'),
-                _LibLayout.list=>VzIcons.data('list'),
-                _LibLayout.compact=>VzIcons.data('compact'),
-              },
-              size:18,color:Vz.accent),
+            child:Icon(_layout.icon, size:18, color:Vz.accent),
           ),
         ),
       // NOVA: Online/IPTV/Library/Settings از طریق NavDock — دکمه‌های تکراری حذف شد
@@ -634,7 +628,7 @@ class BrowserScreenState extends State<BrowserScreen>{
       onRefresh:()async{if(!_globalSearch){_loadDir(_path);}else if(_searchQuery.isNotEmpty){_runGlobalSearch(_searchQuery);}},
       color:Vz.accent,
       backgroundColor:Vz.card,
-      child:_layout==_LibLayout.compact
+      child:_layout==LibLayout.compact
         // ── فشرده: یه لیست ساده و پرسرعت ──
         ? ListView(
             padding:const EdgeInsets.fromLTRB(Sp.lg,Sp.sm,Sp.lg,130),
@@ -691,18 +685,18 @@ class BrowserScreenState extends State<BrowserScreen>{
                 padding:const EdgeInsets.fromLTRB(16,4,16,0),
                 sliver: switch(_layout){
                   // لیست: یک ستون ردیفی
-                  _LibLayout.list => SliverList(
+                  LibLayout.list => SliverList(
                     delegate:SliverChildBuilderDelegate(
                       (ctx,i)=>Padding(padding:const EdgeInsets.only(bottom:Sp.sm),child:vidAt(i)),
                       childCount:fVids.length)),
                   // پوستر: یک ستون عریض ۱۶:۱۰
-                  _LibLayout.poster => SliverGrid(
+                  LibLayout.poster => SliverGrid(
                     gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount:1,mainAxisSpacing:12,
                       childAspectRatio:16/10),
                     delegate:SliverChildBuilderDelegate((ctx,i)=>vidAt(i),childCount:fVids.length)),
                   // کاشی مربع: سه ستون
-                  _LibLayout.tiles => SliverGrid(
+                  LibLayout.tiles => SliverGrid(
                     gridDelegate:SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount:3,mainAxisSpacing:6,crossAxisSpacing:6,
                       childAspectRatio:1),
@@ -736,12 +730,12 @@ class BrowserScreenState extends State<BrowserScreen>{
 
   // ── چیدمان: چرخش سریع با تپ، انتخاب دقیق با نگه‌داشتن ──
   void _cycleLayout(){
-    final vals = _LibLayout.values;
+    final vals = LibLayout.values;
     final i = vals.indexOf(_layout);
     _setLayout(vals[(i + 1) % vals.length]);
   }
 
-  void _setLayout(_LibLayout l){
+  void _setLayout(LibLayout l){
     setState(()=>_layout=l);
     SharedPreferences.getInstance().then((p)=>p.setString('lib_layout',l.name));
   }
@@ -751,16 +745,16 @@ class BrowserScreenState extends State<BrowserScreen>{
       mainAxisSize:MainAxisSize.min, children:[
         VzSheetHeader(title:L.layout, icon:VzIcons.data('layout'),
           onClose:()=>Navigator.pop(ctx)),
-        for(final l in _LibLayout.values)
+        for(final l in LibLayout.values)
           VzSheetRow(
             icon: l.icon,
             title: l.label,
             subtitle: switch(l){
-              _LibLayout.grid    => '${L.gridView} — 2/3 ${L.files}',
-              _LibLayout.list    => '${L.listView} — thumbnail + details',
-              _LibLayout.compact => L.compactView,
-              _LibLayout.poster  => 'Poster — wide cinematic cards',
-              _LibLayout.tiles   => 'Tiles — square gallery',
+              LibLayout.grid    => '${L.gridView} — 2/3 ${L.files}',
+              LibLayout.list    => '${L.listView} — thumbnail + details',
+              LibLayout.compact => L.compactView,
+              LibLayout.poster  => 'Poster — wide cinematic cards',
+              LibLayout.tiles   => 'Tiles — square gallery',
             },
             accent: l==_layout?Vz.accent:null,
             trailing: l==_layout
@@ -882,18 +876,18 @@ class _VideoTile extends StatelessWidget{
   final bool selectMode,selected,showPath,compact;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
-  final _LibLayout layout;
+  final LibLayout layout;
   final int index;
-  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false,this.compact=false,this.layout=_LibLayout.grid,this.index=0});
+  const _VideoTile({required this.file,required this.selectMode,required this.selected,required this.onTap,this.onLongPress,this.showPath=false,this.compact=false,this.layout=LibLayout.grid,this.index=0});
 
   @override Widget build(BuildContext context){
     final anim = _EnterAnim(index:index, child:
       switch(layout){
-        _LibLayout.grid => _grid(context),
-        _LibLayout.list => _row(context),
-        _LibLayout.compact => _compactRow(context),
-        _LibLayout.poster => _poster(context),
-        _LibLayout.tiles => _tileSquare(context),
+        LibLayout.grid => _grid(context),
+        LibLayout.list => _row(context),
+        LibLayout.compact => _compactRow(context),
+        LibLayout.poster => _poster(context),
+        LibLayout.tiles => _tileSquare(context),
       });
     return GestureDetector(
       onTap:onTap,onLongPress:onLongPress,
@@ -1255,7 +1249,7 @@ class _PressableState extends State<_Pressable>{
       child:widget.child));
 }
 
-enum _LibLayout {
+enum LibLayout {
   /// کارت پوستری — پیش‌فرض
   grid,
   /// ردیف افقی با تامبنیل
@@ -1268,22 +1262,32 @@ enum _LibLayout {
   tiles,
 }
 
-extension _LibLayoutX on _LibLayout {
+extension LibLayoutX on LibLayout {
   String get label => switch (this) {
-    _LibLayout.grid    => L.gridView,
-    _LibLayout.list    => L.listView,
-    _LibLayout.compact => L.compactView,
-    _LibLayout.poster  => 'Poster',
-    _LibLayout.tiles   => 'Tiles',
+    LibLayout.grid    => L.gridView,
+    LibLayout.list    => L.listView,
+    LibLayout.compact => L.compactView,
+    LibLayout.poster  => 'Poster',
+    LibLayout.tiles   => 'Tiles',
+  };
+  String get description => switch (this) {
+    LibLayout.grid    => '${L.gridView} — poster cards, 2–3 columns',
+    LibLayout.list    => '${L.listView} — thumbnail + details',
+    LibLayout.compact => '${L.compactView} — dense and fast',
+    LibLayout.poster  => 'Poster — wide cinematic cards',
+    LibLayout.tiles   => 'Tiles — square gallery',
   };
   IconData get icon => switch (this) {
-    _LibLayout.grid    => VzIcons.data('grid'),
-    _LibLayout.list    => VzIcons.data('list'),
-    _LibLayout.compact => VzIcons.data('compact'),
-    _LibLayout.poster  => VzIcons.data('video'),
-    _LibLayout.tiles   => VzIcons.data('layout'),
+    LibLayout.grid    => VzIcons.data('grid'),
+    LibLayout.list    => VzIcons.data('list'),
+    LibLayout.compact => VzIcons.data('compact'),
+    LibLayout.poster  => VzIcons.data('video'),
+    LibLayout.tiles   => VzIcons.data('layout'),
   };
 }
+
+/// تامبنیل مشترک بین صفحه‌ی فایل‌ها و کتابخانه.
+Future<Uint8List?> browserThumbFuture(String path) => _loadThumb(path);
 
 // ── منوی ویدیو ──
 class VideoMenu extends StatefulWidget{

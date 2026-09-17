@@ -5,6 +5,7 @@ import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'theme.dart';
 import 'glass.dart';
+import 'vz_icons.dart';
 
 /// شیت جستجو و دانلود زیرنویس آنلاین از OpenSubtitles
 class OpenSubtitlesSheet extends StatefulWidget {
@@ -117,21 +118,19 @@ class _State extends State<OpenSubtitlesSheet> {
     child: ConstrainedBox(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.85),
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
+        padding: EdgeInsets.only(top: 0, bottom: MediaQuery.of(ctx).viewInsets.bottom + 16),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
-          const SizedBox(height: 14),
-          Row(children: [
-            Icon(Icons.cloud_download_outlined, color: Vz.accent, size: 20),
-            const SizedBox(width: 8),
-            Text(L.onlineSubtitleLabel, style: TextStyle(color: Vz.text, fontSize: 17, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            if (_phase != _Phase.titles) TextButton(
+          VzSheetHeader(
+            icon: VzIcons.data('cloud'),
+            title: L.onlineSubtitleLabel,
+            trailing: _phase != _Phase.titles ? TextButton(
               onPressed: () => setState(() => _phase = _selectedFeature?.type == 'tvshow' && _phase == _Phase.subs ? _Phase.episode : _Phase.titles),
-              child: Text(L.back, style: TextStyle(fontSize: 12))),
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(L.close)),
-          ]),
-          const SizedBox(height: 10),
+              child: Text(L.back, style: TextStyle(fontSize: 12))) : null,
+            onClose: () => Navigator.pop(ctx),
+          ),
+          const SizedBox(height: Sp.sm),
+        Padding(padding: const EdgeInsets.symmetric(horizontal: Sp.lg),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
 
           // ── جستجوی دستی (همیشه در دسترس) ──
           Row(children: [
@@ -177,7 +176,7 @@ class _State extends State<OpenSubtitlesSheet> {
           else if (_phase == _Phase.titles) ..._buildTitles()
           else if (_phase == _Phase.episode) ..._buildEpisodePicker()
           else ..._buildSubs(),
-        ]),
+        ]))),
       ),
     ),
   );

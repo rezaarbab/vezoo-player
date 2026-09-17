@@ -76,9 +76,15 @@ class BiliIconPack extends VzIconPack {
   static bool has(String name) =>
       known.containsKey(name) || name.startsWith('van');
 
+  /// ساخت IconData از یک کدپوینت فونت.
+  ///
+  /// سازنده‌ی IconData کانستراکتور const دارد، پس analyzer وقتی کدپوینت
+  /// runtime باشد هشدار می‌دهد. این تنها راه ساخت آیکون از یک فونت سفارشی
+  /// با کدپوینت پویا است، پس هشدار را آگاهانه نادیده می‌گیریم.
   static IconData _icon(String name) {
     final cp = known[name] ?? _parseHex(name);
-    return IconData(cp, fontFamily: _family, fontPackage: null);
+    // ignore: non_const_argument_for_const_parameter
+    return IconData(cp, fontFamily: _family);
   }
 
   static int _parseHex(String name) {

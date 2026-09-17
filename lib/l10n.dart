@@ -479,4 +479,5 @@ class L {
   static String get listView => _t({'en':'List','fa':'لیست','ar':'قائمة','ru':'Список','zh':'列表','ja':'リスト','hi':'सूची','id':'Daftar'});
   static String get compactView => _t({'en':'Compact','fa':'فشرده','ar':'مضغوط','ru':'Компактно','zh':'紧凑','ja':'コンパクト','hi':'कॉम्पैक्ट','id':'Ringkas'});
   static String get foldersFirst => _t({'en':'Folders first','fa':'پوشه‌ها اول','ar':'المجلدات أولاً','ru':'Папки сначала','zh':'文件夹优先','ja':'フォルダを先頭に','hi':'फ़ोल्डर पहले','id':'Folder dulu'});
+  static String get iconPack => _t({'en':'Icon pack','fa':'پک آیکون','ar':'حزمة الأيقونات','ru':'Набор иконок','zh':'图标包','ja':'アイコンパック','hi':'आइकन पैक','id':'Paket ikon'});
 }

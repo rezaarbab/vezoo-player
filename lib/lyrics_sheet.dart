@@ -4,6 +4,7 @@ import 'lyrics_service.dart';
 import 'main.dart' show showSnack;
 import 'l10n.dart';
 import 'glass.dart';
+import 'vz_icons.dart';
 
 String _lrcT(Duration d) =>
   '${d.inHours.toString().padLeft(2,'0')}:'
@@ -100,15 +101,10 @@ class _State extends State<LyricsSheet> {
     child: ConstrainedBox(
       constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.9),
       child: Column(children: [
-        const VzSheetHandle(),
-        Padding(padding: const EdgeInsets.symmetric(horizontal:16),
-          child: Row(children: [
-            Icon(Icons.music_note, color: Vz.accent, size: 20),
-            const SizedBox(width: 8),
-            Text(L.musicSubLabel, style: TextStyle(color:Vz.text, fontSize:16, fontWeight:FontWeight.bold)),
-            const Spacer(),
-            IconButton(icon:Icon(Icons.close,color:Vz.textDim), onPressed:()=>Navigator.pop(ctx)),
-          ]),
+        VzSheetHeader(
+          icon: VzIcons.data('music'),
+          title: L.musicSubLabel,
+          onClose: () => Navigator.pop(ctx),
         ),
         Padding(padding: const EdgeInsets.fromLTRB(16,8,16,8),
           child: Row(children: [
