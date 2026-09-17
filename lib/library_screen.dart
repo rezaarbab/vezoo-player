@@ -280,7 +280,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
               onTap: ()=>_openVideoByPath(paths[i]),
               onLongPress: onLongPress==null?null:()=>onLongPress(paths[i]),
               onRemove: onRemove==null?null:()=>onRemove(paths[i]),
-            ));
+            )));
 
       case LibLayout.tiles:
         return GridView.builder(
@@ -489,7 +489,7 @@ class _ContinueCard extends StatelessWidget {
                 minHeight: 3,
                 backgroundColor: Vz.border,
                 color: Vz.accent)),
-            )),
+            ),
         // عنوان
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),

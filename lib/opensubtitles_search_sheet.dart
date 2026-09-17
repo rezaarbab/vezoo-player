@@ -129,54 +129,60 @@ class _State extends State<OpenSubtitlesSheet> {
             onClose: () => Navigator.pop(ctx),
           ),
           const SizedBox(height: Sp.sm),
-        Padding(padding: const EdgeInsets.symmetric(horizontal: Sp.lg),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Sp.lg),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              // ── جستجوی دستی (همیشه در دسترس) ──
+              Row(children: [
+                Expanded(child: TextField(
+                  controller: _searchCtrl,
+                  style: TextStyle(color: Vz.text, fontSize: 13),
+                  decoration: InputDecoration(
+                    hintText: L.movieOrShow,
+                    hintStyle: TextStyle(color: Vz.textDim, fontSize: 13),
+                    filled: true, fillColor: Vz.card,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  ),
+                  onSubmitted: (_) => _doTitleSearch(),
+                )),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: _doTitleSearch,
+                  style: FilledButton.styleFrom(backgroundColor: Vz.accent, minimumSize: const Size(0, 44)),
+                  child: const Icon(Icons.search, size: 18),
+                ),
+              ]),
+              const SizedBox(height: 10),
 
-          // ── جستجوی دستی (همیشه در دسترس) ──
-          Row(children: [
-            Expanded(child: TextField(
-              controller: _searchCtrl,
-              style: TextStyle(color: Vz.text, fontSize: 13),
-              decoration: InputDecoration(
-                hintText: L.movieOrShow,
-                hintStyle: TextStyle(color: Vz.textDim, fontSize: 13),
-                filled: true, fillColor: Vz.card,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              // ── انتخاب Sub1 / Sub2 / هر دو ──
+              Row(children: [
+                _subChip('Sub 1', 0),
+                const SizedBox(width: 6),
+                _subChip('Sub 2', 1),
+                const SizedBox(width: 6),
+                _subChip(L.both, 2),
+              ]),
+              const SizedBox(height: 12),
+
+              if (_error != null) Container(
+                padding: const EdgeInsets.all(10),
+                margin: const EdgeInsets.only(bottom: 10),
+                decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
+                child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
               ),
-              onSubmitted: (_) => _doTitleSearch(),
-            )),
-            const SizedBox(width: 8),
-            FilledButton(
-              onPressed: _doTitleSearch,
-              style: FilledButton.styleFrom(backgroundColor: Vz.accent, minimumSize: const Size(0, 44)),
-              child: const Icon(Icons.search, size: 18),
-            ),
-          ]),
-          const SizedBox(height: 10),
 
-          // ── انتخاب Sub1 / Sub2 / هر دو ──
-          Row(children: [
-            _subChip('Sub 1', 0),
-            const SizedBox(width: 6),
-            _subChip('Sub 2', 1),
-            const SizedBox(width: 6),
-            _subChip(L.both, 2),
-          ]),
-          const SizedBox(height: 12),
-
-          if (_error != null) Container(
-            padding: const EdgeInsets.all(10),
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
-            child: Text(_error!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+              if (_loading)
+                Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: Vz.accent))
+              else if (_phase == _Phase.titles)
+                ..._buildTitles()
+              else if (_phase == _Phase.episode)
+                ..._buildEpisodePicker()
+              else
+                ..._buildSubs(),
+            ]),
           ),
-
-          if (_loading) Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator(color: Vz.accent))
-          else if (_phase == _Phase.titles) ..._buildTitles()
-          else if (_phase == _Phase.episode) ..._buildEpisodePicker()
-          else ..._buildSubs(),
-        ])])),
+        ]),
       ),
     ),
   );
