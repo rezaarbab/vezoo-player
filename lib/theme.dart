@@ -626,7 +626,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     _custom = c;
     _accent = -1;
     setState(() {});
-    await storeCustomAccentSave?.call(c.value);
+    await storeCustomAccentSave?.call(c.toARGB32());
     await storeAccentSave?.call(-1);
   }
 

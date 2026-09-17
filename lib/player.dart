@@ -2721,12 +2721,6 @@ void _cycleSpeed(){
               ),
             ),
           ),
-              child:Icon(
-                _playing?Icons.pause_rounded:Icons.play_arrow_rounded,
-                color:_playing?Colors.white:Vz.onAccent,
-                size:52),
-            ),
-          ),
           const SizedBox(width:24),
           if (!widget.isLive) IconButton(iconSize:44,icon:Icon(Icons.skip_next_rounded,color:_hasNext?Vz.oviText:Vz.oviTextDim),onPressed:_hasNext?()=>_switchVideo(_idx+1):null),
           // دکمه کانال بعدی (فقط IPTV)

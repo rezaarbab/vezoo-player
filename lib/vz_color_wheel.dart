@@ -8,7 +8,6 @@
 //   • چند رنگ سریع برای دسترسی آسان
 //
 // خروجی: یک `Color` که به VzThemeState.setCustomAccent داده می‌شود.
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'glass.dart';
@@ -61,7 +60,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
   Color get _color => _hsv.toColor();
 
   String get _hex =>
-      '#${_color.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
+      '#${_color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 
   void _done() => Navigator.pop(context, _color);
 
@@ -100,7 +99,9 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                   fontFamily: 'monospace', fontSize: 18)),
                 const SizedBox(height: 4),
                 Row(children: [
-                  Text('R${_color.red} G${_color.green} B${_color.blue}',
+                  Text('R${(_color.r * 255).round()} '
+                       'G${(_color.g * 255).round()} '
+                       'B${(_color.b * 255).round()}',
                     style: Ty.caption.copyWith(fontSize: 11)),
                   const SizedBox(width: Sp.sm),
                   GestureDetector(
@@ -191,7 +192,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                 separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
                 itemBuilder: (ctx, i) {
                   final c = _quick[i];
-                  final sel = (c.value & 0xFFFFFF) == (_color.value & 0xFFFFFF);
+                  final sel = (c.toARGB32() & 0xFFFFFF) == (_color.toARGB32() & 0xFFFFFF);
                   return GestureDetector(
                     onTap: () => setState(() => _hsv = HSVColor.fromColor(c)),
                     child: Container(
@@ -334,22 +335,37 @@ class _LabeledSlider extends StatelessWidget {
         Text('${(value * 100).round()}%',
           style: Ty.mono.copyWith(fontSize: 11, color: Vz.textSec)),
       ]),
-      SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          trackHeight: 8,
-          overlayShape: SliderComponentShape.noOverlay,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 9),
-          activeTrackColor: Colors.transparent,
-          inactiveTrackColor: Colors.transparent,
-          thumbColor: Colors.white,
-        ),
-        child: Slider(
-          value: value.clamp(0.0, 1.0),
-          onChanged: onChanged,
-          activeColor: Colors.transparent,
-          inactiveColor: Colors.transparent,
-        ),
-      ),
+      LayoutBuilder(builder: (ctx, box) {
+        final w = box.maxWidth;
+        void set(Offset p) =>
+            onChanged((p.dx / w).clamp(0.0, 1.0));
+        return GestureDetector(
+          onPanDown: (d) => set(d.localPosition),
+          onPanUpdate: (d) => set(d.localPosition),
+          behavior: HitTestBehavior.opaque,
+          child: SizedBox(
+            height: 28,
+            child: Stack(children: [
+              Positioned.fill(top: 9, bottom: 9, child: ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+              )),
+              Positioned(
+                left: (value.clamp(0.0, 1.0) * w) - 8,
+                top: 4,
+                child: IgnorePointer(child: Container(
+                  width: 16, height: 16,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: const [BoxShadow(color: Colors.black38, blurRadius: 4)],
+                  ),
+                )),
+              ),
+            ]),
+          ),
+        );
+      }),
     ],
   );
 }

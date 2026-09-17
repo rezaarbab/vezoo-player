@@ -548,8 +548,8 @@ class _MediaCard extends StatelessWidget {
     return GestureDetector(
       onTap: _exists ? onTap : null,
       onLongPress: onLongPress,
-      child: VzEnter(
-        index: 0,
+      child: VzPopIn(
+        from: 0.96,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(radius),
           child: Stack(fit: StackFit.expand, children: [
