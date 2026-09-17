@@ -239,7 +239,7 @@ void main() {
 
       // پنج گلیف شناسایی‌شده باید از فونت VanFont بیایند
       for (final entry in BiliIconPack.known.entries) {
-        expect(pack.has(entry.key), isTrue);
+        expect(BiliIconPack.has(entry.key), isTrue);
         final icon = pack.fallback(entry.key);
         expect(icon.fontFamily, equals('VanFont'),
             reason: '${entry.key} باید از VanFont باشد');
@@ -254,7 +254,7 @@ void main() {
       expect(BiliIconPack.allCodePoints.length, equals(62));
       expect(BiliIconPack.allCodePoints.toSet().length, equals(62));
       for (final cp in BiliIconPack.allCodePoints) {
-        expect(pack.has('van${cp.toRadixString(16).toUpperCase()}'), isTrue);
+        expect(BiliIconPack.has('van${cp.toRadixString(16).toUpperCase()}'), isTrue);
       }
     });
 
