@@ -182,6 +182,9 @@ class InkCard extends StatelessWidget {
     return Semantics(
       label: semanticLabel,
       button: onTap != null,
+      container: semanticLabel != null,
+      excludeSemantics: semanticLabel != null,
+      onTap: semanticLabel != null ? onTap : null,
       child: Padding(padding: margin, child: tappable),
     );
   }
@@ -665,6 +668,9 @@ class InkTabBar extends StatelessWidget {
       selected: active,
       button: true,
       label: item.label,
+      container: true,
+      excludeSemantics: true,
+      onTap: () => onSelect(item.id),
       child: Tooltip(
         message: item.label,
         child: Material(

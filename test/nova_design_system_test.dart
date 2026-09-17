@@ -173,7 +173,7 @@ void main() {
           title: 'Tools', actionLabel: 'Manage',
         )),
       ));
-      expect(find.text('Tools'), findsOneWidget);
+      expect(find.text('TOOLS'), findsOneWidget);
       expect(find.text('Manage'), findsOneWidget);
     });
 

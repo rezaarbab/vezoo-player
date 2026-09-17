@@ -59,9 +59,7 @@ void main() {
       for (final file in dir.listSync().whereType<File>()) {
         if (!file.path.endsWith('.dart')) continue;
         final source = file.readAsStringSync();
-        if (source.contains('theme.dart') ||
-            source.contains('glass.dart') ||
-            RegExp(r'\bVz[A-Z]\w*|\bVz\b').hasMatch(source)) {
+        if (_usesLegacyUi(source)) {
           offenders.add(file.path);
         }
       }
