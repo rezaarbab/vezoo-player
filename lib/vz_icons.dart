@@ -37,6 +37,73 @@ abstract class VzIconPack {
   IconData fallback(String name) => kVzIconMap[name] ?? Icons.circle_outlined;
 }
 
+/// پک آیکون موئه VanFont — فونت آیکونی که از وب Bilibili استخراج شده.
+///
+/// این فونت ۶۲ گلیف دارد. ۵ تای آن با اطمینان شناسایی شده‌اند (از فایل‌های
+/// SVG اصلی که اسمشان coin/like/share/star/logo بود) و بقیه با نام
+/// `van<hex>` در دسترس‌اند تا بتوان بعداً نام‌گذاری کرد.
+///
+/// چون این فونت فقط چند آیکون دارد، برای نام‌های ناشناخته به [SolarIconPack]
+/// برمی‌گردد — یعنی آیکون‌های عملیاتی (پوشه، تنظیمات، …) از Solar می‌آیند و
+/// آیکون‌های احساسی (لایک، سکه، اشتراک) موئه می‌شوند.
+class BiliIconPack extends VzIconPack {
+  const BiliIconPack();
+
+  static const _family = 'VanFont';
+
+  /// گلیف‌هایی که با اطمینان شناسایی شده‌اند.
+  static const Map<String, int> known = {
+    'like':     0xE6E0, // قلب/لایک — از pic/like.svg
+    'star':     0xE6E1, // ستاره — از pic/star.svg
+    'coin':     0xE6E4, // سکه — از pic/coin.svg
+    'share':    0xE70F, // اشتراک — از pic/share.svg
+    'logo':     0xE725, // لوگو — از pic/logo.svg
+  };
+
+  /// همه‌ی ۶۲ کدپوینت فونت.
+  static const List<int> allCodePoints = [
+    0xE604, 0xE616, 0xE62B, 0xE62F, 0xE634, 0xE635, 0xE638, 0xE639,
+    0xE63A, 0xE63C, 0xE63D, 0xE63E, 0xE646, 0xE658, 0xE664, 0xE665,
+    0xE666, 0xE670, 0xE672, 0xE673, 0xE67D, 0xE6CB, 0xE6CC, 0xE6CD,
+    0xE6CE, 0xE6CF, 0xE6D0, 0xE6D1, 0xE6E0, 0xE6E1, 0xE6E2, 0xE6E3,
+    0xE6E4, 0xE6E5, 0xE6E6, 0xE6E7, 0xE6E8, 0xE6E9, 0xE6EA, 0xE6EB,
+    0xE6EC, 0xE6ED, 0xE6EE, 0xE6EF, 0xE6F0, 0xE6F1, 0xE6F2, 0xE6F7,
+    0xE706, 0xE707, 0xE70F, 0xE71C, 0xE71D, 0xE71E, 0xE71F, 0xE720,
+    0xE721, 0xE723, 0xE724, 0xE725, 0xE744, 0xEEE3,
+  ];
+
+  /// نام‌هایی که این پک پشتیبانی می‌کند.
+  static bool has(String name) =>
+      known.containsKey(name) || name.startsWith('van');
+
+  static IconData _icon(String name) {
+    final cp = known[name] ?? _parseHex(name);
+    return IconData(cp, fontFamily: _family, fontPackage: null);
+  }
+
+  static int _parseHex(String name) {
+    if (name.startsWith('van')) {
+      final hex = name.substring(3);
+      final v = int.tryParse(hex, radix: 16);
+      if (v != null && allCodePoints.contains(v)) return v;
+    }
+    return 0xE725; // لوگو به‌عنوان fallback امن
+  }
+
+  @override
+  IconData fallback(String name) {
+    if (has(name)) return _icon(name);
+    // آیکون‌های عملیاتی از پک پیش‌فرض (Solar) می‌آیند
+    return const SolarIconPack().fallback(name);
+  }
+
+  @override
+  Widget? build(String name, {double? size, Color? color}) {
+    if (!has(name)) return null; // به Solar برمی‌گردد
+    return Icon(_icon(name), size: size, color: color);
+  }
+}
+
 /// پک پیش‌فرض — آیکون‌های گرد Solar (نرم‌تر از متریال، بدون گرافیک اضافه).
 class SolarIconPack extends VzIconPack {
   const SolarIconPack();
@@ -295,7 +362,9 @@ class _VzAnimatedIconState extends State<VzAnimatedIcon>
 class VzIcons {
   VzIcons._();
 
-  static VzIconPack _pack = const SolarIconPack();
+  /// پک پیش‌فرض: BiliIconPack آیکون‌های موئه‌ی شناسایی‌شده را می‌دهد و بقیه
+  /// را از Solar می‌گیرد — پس هیچ صفحه‌ای بی‌آیکون نمی‌ماند.
+  static VzIconPack _pack = const BiliIconPack();
 
   /// پک فعال. با ست کردن این، کل اپ آیکون‌های جدید را می‌گیرد.
   static VzIconPack get pack => _pack;

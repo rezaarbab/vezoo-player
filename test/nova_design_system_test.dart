@@ -86,8 +86,8 @@ void main() {
       expect(kVzPresets.any((p) => p.style == VzStyle.kawaii), isTrue);
       expect(kVzPresets.any((p) => p.style == VzStyle.shonen), isTrue);
       expect(kVzPresets.any((p) => p.style == VzStyle.anime), isTrue);
-      // Bilibili اولین پرسِت گالری است (سمت چپ)
-      expect(kVzPresets.first.id, equals('bilibili'));
+      // پرسِت موئه (آبی/صورتی) اولین پرسِت گالری است (سمت چپ)
+      expect(kVzPresets.first.id, equals('sky'));
     });
 
     test('Light preset surfaces are actually light', () {

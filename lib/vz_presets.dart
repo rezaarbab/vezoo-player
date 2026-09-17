@@ -80,6 +80,10 @@ class VzPreset {
     this.radiusScale = 1.0,
     this.fontScale,
   });
+
+  /// اکسنت روشن است؟ (روی پس‌زمینه‌ی تیره متن تیره می‌خواهد)
+  bool get accentDarkIsLight => accentDark.computeLuminance() > 0.35;
+  bool get accentLightIsLight => accentLight.computeLuminance() > 0.35;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -91,8 +95,8 @@ const List<VzPreset> kVzPresets = [
   // رنگ برند Bilibili (#00AEEC) + صورتی لایک (#FB7299).
   // گردترین پرسِت و مرجع سبک «انیمه» در این اپ.
   VzPreset(
-    id: 'bilibili',
-    name: 'Bilibili',
+    id: 'sky',
+    name: 'Sky',
     tagline: 'Sky blue · pink · moe',
     style: VzStyle.anime,
     bgDark: Color(0xFF10141C),
@@ -125,9 +129,9 @@ const List<VzPreset> kVzPresets = [
   // ══════════════════ ۰.۵) GAINAX — انیمه کامل، نئون/پاپ ══════════════════
   // انیمه‌ی ۹۰ها: نارنجی-قرمز روی سرمه‌ای، کنتراست بالا، گردی زیاد.
   VzPreset(
-    id: 'gainax',
-    name: 'Gainax',
-    tagline: 'Anime pop · bold · retro',
+    id: 'sunset',
+    name: 'Sunset',
+    tagline: 'Anime pop · warm · retro',
     style: VzStyle.anime,
     bgDark: Color(0xFF0D0A18),
     bgDeepDark: Color(0xFF070510),
@@ -287,7 +291,7 @@ const List<VzPreset> kVzPresets = [
   // ══════════════════ ۵) SHONEN — پسرونه، نارنجی/قرمز انرژی‌دار ══════════════════
   VzPreset(
     id: 'shonen',
-    name: 'Shonen',
+    name: 'Blaze',
     tagline: 'Blazing orange · bold · loud',
     style: VzStyle.shonen,
     bgDark: Color(0xFF16100C),
@@ -318,9 +322,9 @@ const List<VzPreset> kVzPresets = [
 
   // ══════════════════ ۶) NEON EDGE — پسرونه، سایبر/سبز ══════════════════
   VzPreset(
-    id: 'neon',
-    name: 'Neon Edge',
-    tagline: 'Cyber lime · glitch · fast',
+    id: 'cyber',
+    name: 'Cyber',
+    tagline: 'Neon lime · glitch · fast',
     style: VzStyle.shonen,
     bgDark: Color(0xFF08100C),
     bgDeepDark: Color(0xFF040906),

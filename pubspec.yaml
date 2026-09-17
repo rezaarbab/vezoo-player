@@ -60,3 +60,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # فونت آیکون موئه (استخراج‌شده از وب Bilibili) — ۶۲ گلیف.
+  # پک پیش‌فرض آیکون اپ از این استفاده می‌کند. جزئیات در lib/vz_icons.dart.
+  fonts:
+    - family: VanFont
+      fonts:
+        - asset: assets/icons/bili/vanfont.ttf

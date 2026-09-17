@@ -844,7 +844,9 @@ class VzSegmented extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
-                    color: i == value ? Vz.accent : Vz.textSec),
+                    color: i == value
+                        ? Vz.accentOnSurface(Vz.card)
+                        : Vz.textSec),
                 ),
               ),
             ),
@@ -1091,9 +1093,7 @@ Future<T?> showVzDialog<T>({
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(confirmLabel, textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: destructive
-                            ? Colors.white
-                            : (Vz.onAccent),
+                        color: Vz.onColorOf(destructive ? Vz.red : Vz.accent),
                         fontWeight: FontWeight.w700, fontSize: 13)),
                   ),
                 ),

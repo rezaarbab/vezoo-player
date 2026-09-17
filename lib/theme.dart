@@ -201,10 +201,40 @@ class Vz {
   /// رنگ مکمل پرسِت (برای گرادیان‌های دوتایی).
   static Color get accent2 => _preset.accent2;
 
-  /// Text/icon color to draw on top of [accent] — picked by luminance so every
-  /// accent stays readable.
-  static Color get onAccent =>
-      accent.computeLuminance() > 0.55 ? const Color(0xFF0C0C0F) : Colors.white;
+  /// رنگ متن/آیکونی که روی [accent] خوانا است.
+  ///
+  /// جای حدس با آستانه‌ی ثابت، نسبت کنتراست WCAG را حساب می‌کنیم و
+  /// گزینه‌ی خواناتر را برمی‌گزینیم. این باعث می‌شود روی اکسنت‌های روشن
+  /// (آبی آسمانی، نارنجی، لیمویی) متن تیره و روی اکسنت‌های تیره متن سفید
+  /// انتخاب شود — به‌جای سفیدِ همیشه که روی رنگ روشن محو می‌شد.
+  static Color get onAccent => onColorOf(accent);
+
+  /// بهترین رنگ متن (تیره یا سفید) برای یک پس‌زمینه‌ی دلخواه.
+  static Color onColorOf(Color background) {
+    const dark = Color(0xFF0C0C0F);
+    return _contrastRatio(background, dark) >=
+            _contrastRatio(background, Colors.white)
+        ? dark
+        : Colors.white;
+  }
+
+  /// نسبت کنتراست WCAG بین دو رنگ (۱ تا ۲۱).
+  static double _contrastRatio(Color a, Color b) {
+    final la = a.computeLuminance();
+    final lb = b.computeLuminance();
+    final hi = la > lb ? la : lb;
+    final lo = la > lb ? lb : la;
+    return (hi + 0.05) / (lo + 0.05);
+  }
+
+  /// رنگ مناسب برای متن روی سطح اکسنت کمرنگ (مثل پیل ۱۲٪ آلفا).
+  /// روی پس‌زمینه‌ی نیمه‌شفاف، اکسنتِ خالص خودش خیلی وقت‌ها بهترین گزینه است؛
+  /// فقط اگر خیلی کم‌کنتراست بود به متن معمولی برمی‌گردیم.
+  static Color accentOnSurface(Color surface) {
+    final c = _contrastRatio(accent, surface);
+    if (c >= 3.0) return accent;
+    return text;
+  }
 
   /// Internal: called by VzTheme / buildVezooTheme before building.
   static void _setDark(bool v) { _dark = v; }
