@@ -14,6 +14,7 @@ import 'l10n.dart';
 import 'glass.dart';
 import 'vz_icons.dart';
 import 'vz_motion.dart';
+import 'vz_detail_screen.dart';
 
 // ── پالت NOVA — سازگاری با صفحات داخلی ──
 Color get kBg      => Vz.bg;
@@ -183,9 +184,8 @@ class BrowserScreenState extends State<BrowserScreen>{
   Future<void> _openVideo(File video,[List<File>?playlist,int?idx])async{
     final pl=playlist??_filteredVideos;
     final i=idx??pl.indexOf(video);
-    await Navigator.push(context,MaterialPageRoute(
-      builder:(_)=>PlayerScreen(subtitlePath:matchSubtitle(video.path),playlist:pl,playlistIndex:i<0?0:i),
-    ));
+    // صفحه‌ی جزئیات سبک Tako — choice قسمت‌ها و اطلاعات، سپس پلیر
+    await VzDetailScreen.open(context, file: video, playlist: pl, index: i<0?0:i);
     await Store.load();
     if(mounted)setState((){});
   }

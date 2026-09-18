@@ -47,8 +47,8 @@ void main() {
     });
 
     test('Built-in themes are complete and unique', () {
-      // دو تم Namida + یک تم انیمه
-      expect(kVzThemes.length, equals(3));
+      // پنج تم: Tako و MHT (از طرح‌های واقعی) + Namida و Anime
+      expect(kVzThemes.length, equals(5));
       final ids = kVzThemes.map((t) => t.id).toSet();
       expect(ids.length, equals(kVzThemes.length));
       for (final t in kVzThemes) {
@@ -58,8 +58,8 @@ void main() {
         final p = vzBuildPalette(t.seed, dark: true);
         expect(p.accent, isNot(p.bg));
       }
-      expect(kVzThemes.first.id, equals('shade'));
-      expect(kVzThemes[1].id, equals('day'));
+      expect(kVzThemes.first.id, equals('tako'));
+      expect(kVzThemes[1].id, equals('mht'));
       expect(kVzThemes.last.id, equals('anime'));
     });
 

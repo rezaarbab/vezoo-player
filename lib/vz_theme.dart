@@ -95,7 +95,15 @@ Color vzOnColor(Color background) {
 
 /// از یک seed، پالت کامل تیره می‌سازد.
 /// از HSL استفاده می‌کنیم تا همه‌ی رنگ‌ها هم‌خانواده بمانند.
-VzPalette vzBuildPalette(Color seed, {required bool dark}) {
+///
+/// [bgTint] رنگ پایه‌ی پس‌زمینه را دستی تعیین می‌کند (مثل سرمه‌ای Tako).
+/// [accentLock] رنگ اکسنت را دقیقاً همان مقدار می‌گذارد (بدون مشتق‌گیری).
+VzPalette vzBuildPalette(
+  Color seed, {
+  required bool dark,
+  Color? bgTint,
+  Color? accentLock,
+}) {
   final hsl = HSLColor.fromColor(seed);
   final h = hsl.hue;
 
@@ -104,19 +112,30 @@ VzPalette vzBuildPalette(Color seed, {required bool dark}) {
       HSLColor.fromAHSL(1, h, s.clamp(0.0, 1.0), l.clamp(0.0, 1.0)).toColor();
 
   if (dark) {
-    final bg        = surf(0.05, 0.16);
-    final bgDeep    = surf(0.03, 0.18);
-    final surface   = surf(0.09, 0.15);
-    final surfaceHi = surf(0.12, 0.14);
-    final card      = surf(0.14, 0.13);
-    final cardHi    = surf(0.19, 0.12);
-    final border    = surf(0.25, 0.12);
-    final borderHi  = surf(0.34, 0.14);
+    // پس‌زمینه: اگر تم رنگ پایه داده، از آن مشتق بگیر (hue آن را نگه دار)
+    final base = bgTint ?? seed;
+    final bh = HSLColor.fromColor(base).hue;
+    Color surfB(double l, double s) =>
+        HSLColor.fromAHSL(1, bh, s.clamp(0.0, 1.0), l.clamp(0.0, 1.0)).toColor();
 
-    // اکسنت: روشن و اشباع برای دیده شدن روی تیره
-    final accent    = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.20).clamp(0.35, 0.95), 0.64).toColor();
-    final accentHi  = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.15).clamp(0.30, 0.90), 0.76).toColor();
-    final accentDeep= HSLColor.fromAHSL(1, h, (hsl.saturation + 0.10).clamp(0.30, 0.90), 0.40).toColor();
+    final bg        = surfB(0.055, 0.22);
+    final bgDeep    = surfB(0.035, 0.24);
+    final surface   = surfB(0.10, 0.20);
+    final surfaceHi = surfB(0.13, 0.18);
+    final card      = surfB(0.145, 0.16);
+    final cardHi    = surfB(0.19, 0.14);
+    final border    = surfB(0.25, 0.13);
+    final borderHi  = surfB(0.34, 0.15);
+
+    // اکسنت: اگر قفل شده، همان؛ وگرنه روشن و اشباع برای دیده شدن روی تیره
+    final accent    = accentLock ??
+        HSLColor.fromAHSL(1, h, (hsl.saturation + 0.20).clamp(0.35, 0.95), 0.64).toColor();
+    final accentHi  = accentLock != null
+        ? Color.lerp(accentLock, Colors.white, 0.28)!
+        : HSLColor.fromAHSL(1, h, (hsl.saturation + 0.15).clamp(0.30, 0.90), 0.76).toColor();
+    final accentDeep= accentLock != null
+        ? Color.lerp(accentLock, Colors.black, 0.35)!
+        : HSLColor.fromAHSL(1, h, (hsl.saturation + 0.10).clamp(0.30, 0.90), 0.40).toColor();
     final accentSoft= accent.withValues(alpha: 0.16);
 
     return VzPalette(
@@ -128,7 +147,7 @@ VzPalette vzBuildPalette(Color seed, {required bool dark}) {
       text: const Color(0xFFF2F2F5),
       textSec: const Color(0xFFA6A6B0),
       textDim: const Color(0xFF6E6E7A),
-      green: const Color(0xFF5BD69A),
+      green: accentLock ?? const Color(0xFF5BD69A),
       amber: const Color(0xFFF5C144),
       red:   const Color(0xFFF0736F),
       pink:  const Color(0xFFF07AAE),

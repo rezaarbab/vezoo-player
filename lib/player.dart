@@ -2686,8 +2686,22 @@ void _cycleSpeed(){
       Expanded(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[
         _abRow(),const SizedBox(height:8),
         Row(mainAxisAlignment:MainAxisAlignment.center,children:[
-          if (!widget.isLive) IconButton(iconSize:44,icon:Icon(Icons.skip_previous_rounded,color:_hasPrev?Vz.oviText:Vz.oviTextDim),onPressed:_hasPrev?()=>_switchVideo(_idx-1):null),
-          const SizedBox(width:24),
+          // ۱۰ ثانیه عقب (سبک Tako/YouTube)
+          IconButton(
+            iconSize:34,
+            tooltip:L.tenSecBack,
+            icon:Icon(Icons.replay_10_rounded, color:Vz.oviText),
+            onPressed:(){
+              if(_locked)return;
+              var t=_position-const Duration(seconds:10);
+              if(t<Duration.zero)t=Duration.zero;
+              player.seek(t);
+              _showOverlay(L.tenSecBack);
+              _startHideTimer();
+            }),
+          const SizedBox(width:8),
+          if (!widget.isLive) IconButton(iconSize:30,icon:Icon(Icons.skip_previous_rounded,color:_hasPrev?Vz.oviText:Vz.oviTextDim),onPressed:_hasPrev?()=>_switchVideo(_idx-1):null),
+          const SizedBox(width:12),
           GestureDetector(
             onTap:(){_playing?player.pause():player.play();_startHideTimer();},
             child: VzHeroGlow(
@@ -2721,8 +2735,20 @@ void _cycleSpeed(){
               ),
             ),
           ),
-          const SizedBox(width:24),
-          if (!widget.isLive) IconButton(iconSize:44,icon:Icon(Icons.skip_next_rounded,color:_hasNext?Vz.oviText:Vz.oviTextDim),onPressed:_hasNext?()=>_switchVideo(_idx+1):null),
+          const SizedBox(width:12),
+          if (!widget.isLive) IconButton(iconSize:30,icon:Icon(Icons.skip_next_rounded,color:_hasNext?Vz.oviText:Vz.oviTextDim),onPressed:_hasNext?()=>_switchVideo(_idx+1):null),
+          const SizedBox(width:8),
+          // ۱۰ ثانیه جلو
+          IconButton(
+            iconSize:34,
+            tooltip:L.tenSecForward,
+            icon:Icon(Icons.forward_10_rounded, color:Vz.oviText),
+            onPressed:(){
+              if(_locked)return;
+              player.seek(_position+const Duration(seconds:10));
+              _showOverlay(L.tenSecForward);
+              _startHideTimer();
+            }),
           // دکمه کانال بعدی (فقط IPTV)
           if (widget.isLive && widget.channelList != null && widget.channelList!.length > 1) ...[
             const SizedBox(width: 8),
@@ -2758,11 +2784,12 @@ void _cycleSpeed(){
           Expanded(child:SliderTheme(
             data:SliderTheme.of(context).copyWith(
               activeTrackColor:Vz.accent,
-              inactiveTrackColor:Colors.white.withValues(alpha: 0.15),
-              thumbColor:Vz.accentHi,
-              thumbShape:const RoundSliderThumbShape(enabledThumbRadius:6,elevation:3),
+              inactiveTrackColor:Colors.white.withValues(alpha: 0.18),
+              thumbColor:Vz.accent,
+              thumbShape:const RoundSliderThumbShape(enabledThumbRadius:7,elevation:2),
               overlayShape:SliderComponentShape.noOverlay,
-              trackHeight:3.0,
+              trackHeight:4.0,
+              trackShape: const RoundedRectSliderTrackShape(),
             ),
             child:Slider(
               min:0,

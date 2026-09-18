@@ -50,7 +50,7 @@ class Vz {
 
   // ── seed مؤثر: دستی > داینامیک > تم ──
   static Color get seed =>
-      _customSeed ?? _dynamicSeed ?? _theme.seed;
+      _customSeed ?? _dynamicSeed ?? _theme.effectiveSeed;
 
   /// تم فعال.
   static VzThemeDef get theme => _theme;
@@ -66,11 +66,20 @@ class Vz {
 
   static Color? get customSeed => _customSeed;
 
+  /// رنگ پایه‌ی پس‌زمینه — فقط وقتی کاربر رنگ دستی/داینامیک نداده.
+  static Color? get _bgTint =>
+      (_customSeed == null && _dynamicSeed == null) ? _theme.bgTint : null;
+
+  /// رنگ اکسنت قفل‌شده — فقط وقتی کاربر رنگ دستی/داینامیک نداده.
+  static Color? get _accentLock =>
+      (_customSeed == null && _dynamicSeed == null) ? _theme.accentLock : null;
+
   // ── پالت فعال ──
   static VzPalette get pal {
-    final key = Object.hash(seed, _dark);
+    final key = Object.hash(seed, _dark, _bgTint, _accentLock);
     if (_palette == null || _paletteKey != key) {
-      _palette = vzBuildPalette(seed, dark: _dark);
+      _palette = vzBuildPalette(seed, dark: _dark,
+        bgTint: _bgTint, accentLock: _accentLock);
       _paletteKey = key;
     }
     return _palette!;

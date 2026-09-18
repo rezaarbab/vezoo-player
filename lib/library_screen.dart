@@ -14,6 +14,8 @@ import 'l10n.dart';
 import 'browser.dart' show VzGroupHeader, LibLayout, LibLayoutX, browserThumbFuture;
 import 'vz_icons.dart';
 import 'vz_motion.dart';
+import 'vz_detail_screen.dart';
+import 'vz_tako.dart';
 import 'main.dart' show showSnack;
 import 'signals.dart';
 
@@ -169,8 +171,8 @@ class _LibraryScreenState extends State<LibraryScreen>{
     if(!isUrl){
       final f = File(path);
       if(!f.existsSync()){ showSnack(context, L.fileNotFound); return; }
-      Navigator.push(context, MaterialPageRoute(builder: (_)=>
-        PlayerScreen(playlist:[f], playlistIndex:0, subtitlePath: matchSubtitle(path))));
+      // صفحه‌ی جزئیات سبک Tako — از آنجا پلیر راه می‌افتد
+      VzDetailScreen.open(context, file: f, playlist: [f], index: 0);
       return;
     }
     Navigator.push(context, MaterialPageRoute(builder: (_)=>
