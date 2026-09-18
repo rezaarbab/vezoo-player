@@ -15,8 +15,6 @@ Path vzParseSvgPath(String d) {
 
   double curX = 0, curY = 0;   // نقطه‌ی جاری
   double startX = 0, startY = 0; // ابتدای زیرمسیر
-  double lastCtrlX = 0, lastCtrlY = 0;
-  String? lastCmd;
   String? cmd = tl.nextCommand();
 
   while (cmd != null) {
@@ -72,7 +70,6 @@ Path vzParseSvgPath(String d) {
           x += curX;  y += curY;
         }
         path.cubicTo(x1, y1, x2, y2, x, y);
-        lastCtrlX = x2; lastCtrlY = y2;
         curX = x; curY = y;
         break;
 
@@ -82,7 +79,6 @@ Path vzParseSvgPath(String d) {
         curX = startX; curY = startY;
         break;
     }
-    lastCmd = cmd;
     cmd = tl.nextCommand();
   }
   return path;

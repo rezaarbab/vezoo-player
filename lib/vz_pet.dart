@@ -20,6 +20,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart' show Ticker;
 
 import 'vz_kawaii.dart';
 import 'glass.dart';
@@ -103,7 +104,11 @@ class VzPetConfig {
 /// ```
 class VzPetLayer extends StatefulWidget {
   final VzPetConfig config;
-  const VzPetLayer({super.key, this.config = const VzPetConfig()});
+
+  /// چهره‌ی انتخابی کاربر (اگر null، بر اساس حالت حرکت تعیین می‌شود).
+  final VzKawaiiMood? mood;
+
+  const VzPetLayer({super.key, this.config = const VzPetConfig(), this.mood});
 
   @override State<VzPetLayer> createState() => _VzPetLayerState();
 }
@@ -129,11 +134,6 @@ class _VzPetLayerState extends State<VzPetLayer> with SingleTickerProviderStateM
   Duration _last = Duration.zero;
 
   // ── ماشین حالت ──
-  PetMotion _wanderTarget() {
-    final dirs = PetMotion.values.where((m) => m.isMoving).toList();
-    return dirs[math.Random().nextInt(dirs.length)];
-  }
-
   void _retarget() {
     if (_bounds == Size.zero) return;
     final r = math.Random();
@@ -255,6 +255,7 @@ class _VzPetLayerState extends State<VzPetLayer> with SingleTickerProviderStateM
                 motion: _motion,
                 step: _step,
                 size: c.size,
+                moodOverride: widget.mood,
               ),
             ),
           ),
@@ -269,15 +270,23 @@ class _PetBody extends StatelessWidget {
   final PetMotion motion;
   final bool step;
   final double size;
-  const _PetBody({required this.motion, required this.step, required this.size});
+  final VzKawaiiMood? moodOverride;
+  const _PetBody({
+    required this.motion, required this.step, required this.size,
+    this.moodOverride,
+  });
 
-  VzKawaiiMood get _mood => switch (motion) {
-    PetMotion.sleep   => VzKawaiiMood.blissful,
-    PetMotion.awake   => VzKawaiiMood.shocked,
-    PetMotion.wait    => VzKawaiiMood.happy,
-    PetMotion.stop    => VzKawaiiMood.blissful,
-    _                 => VzKawaiiMood.excited,
-  };
+  VzKawaiiMood get _mood {
+    // اگر کاربر چهره‌ی خاصی انتخاب کرده، همان را نشان بده (مگر در خواب)
+    if (moodOverride != null && motion != PetMotion.sleep) return moodOverride!;
+    return switch (motion) {
+      PetMotion.sleep   => VzKawaiiMood.blissful,
+      PetMotion.awake   => VzKawaiiMood.shocked,
+      PetMotion.wait    => VzKawaiiMood.happy,
+      PetMotion.stop    => VzKawaiiMood.blissful,
+      _                 => VzKawaiiMood.excited,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {

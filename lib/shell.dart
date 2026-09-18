@@ -12,6 +12,7 @@ import 'signals.dart';
 import 'glass.dart';
 import 'vz_motion.dart';
 import 'vz_pet.dart';
+import 'vz_kawaii.dart';
 
 /// پوسته اصلی — IndexedStack با ۵ مقصد (Discover به‌صورت مودال باز می‌شود)
 class VzShell extends StatefulWidget {
@@ -111,18 +112,26 @@ class _PetHost extends StatefulWidget {
 
 class _PetHostState extends State<_PetHost> {
   bool _on = false;
+  VzKawaiiMood? _mood;
 
   @override
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((p) {
-      if (mounted) setState(() => _on = p.getBool('pet_enabled') ?? false);
+      final raw = p.getString('pet_mood');
+      if (mounted) {
+        setState(() {
+          _on = p.getBool('pet_enabled') ?? false;
+          _mood = raw == null ? null : VzKawaiiMood.values
+            .firstWhere((m) => m.name == raw, orElse: () => VzKawaiiMood.blissful);
+        });
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_on || !Vz.animations) return const SizedBox.shrink();
-    return const VzPetLayer();
+    return VzPetLayer(mood: _mood);
   }
 }

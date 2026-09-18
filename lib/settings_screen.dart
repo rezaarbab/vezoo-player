@@ -29,7 +29,14 @@ class _SettingsScreenState extends State<SettingsScreen>{
   @override void initState(){
     super.initState();
     SharedPreferences.getInstance().then((p){
-      if (mounted) setState(()=>_petOn = p.getBool('pet_enabled') ?? false);
+      if (mounted) {
+        setState((){
+          _petOn = p.getBool('pet_enabled') ?? false;
+          final m = p.getString('pet_mood');
+          _petMood = VzKawaiiMood.values.firstWhere(
+            (x) => x.name == m, orElse: () => VzKawaiiMood.blissful);
+        });
+      }
     });
   }
 
@@ -105,23 +112,37 @@ class _SettingsScreenState extends State<SettingsScreen>{
                 ),
               ),
               const Divider(height: 1, indent: 56),
-              // پیش‌نمایش شخصیت — برای انتخاب چهره
+              // پیش‌نمایش شخصیت — برای انتخاب چهره‌ی پت
               Padding(
                 padding: const EdgeInsets.all(Sp.md),
                 child: Row(children: [
                   for (final m in VzKawaiiMood.values) ...[
                     Expanded(child: GestureDetector(
-                      onTap: () => setState(() => _petMood = m),
-                      child: Column(children: [
-                        VzKawaii(
-                          kind: VzKawaiiKind.cat,
-                          mood: m,
-                          color: Vz.accent,
-                          size: 52),
-                        const SizedBox(height: 4),
-                        Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
-                          maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ]),
+                      onTap: () async {
+                        setState(() => _petMood = m);
+                        final p = await SharedPreferences.getInstance();
+                        await p.setString('pet_mood', m.name);
+                      },
+                      child: AnimatedContainer(
+                        duration: Mo.fast, curve: Mo.easeOut,
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        decoration: BoxDecoration(
+                          color: _petMood == m ? Vz.accentSoft : Colors.transparent,
+                          borderRadius: Rad.r(Rad.xs),
+                          border: Border.all(
+                            color: _petMood == m ? Vz.accent : Colors.transparent),
+                        ),
+                        child: Column(children: [
+                          VzKawaii(
+                            kind: VzKawaiiKind.cat,
+                            mood: m,
+                            color: _petMood == m ? Vz.accent : Vz.textSec,
+                            size: 50),
+                          const SizedBox(height: 4),
+                          Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ]),
+                      ),
                     )),
                   ],
                 ]),
