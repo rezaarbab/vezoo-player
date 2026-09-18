@@ -107,10 +107,6 @@ VzPalette vzBuildPalette(
   final hsl = HSLColor.fromColor(seed);
   final h = hsl.hue;
 
-  // رنگ‌های سطح: hue کم‌اشباع و روشنایی کنترل‌شده
-  Color surf(double l, double s) =>
-      HSLColor.fromAHSL(1, h, s.clamp(0.0, 1.0), l.clamp(0.0, 1.0)).toColor();
-
   if (dark) {
     // پس‌زمینه: اگر تم رنگ پایه داده، از آن مشتق بگیر (hue آن را نگه دار)
     final base = bgTint ?? seed;

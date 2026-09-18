@@ -14,6 +14,7 @@ import 'package:path/path.dart' as p;
 import 'browser.dart' show browserThumbFuture;
 import 'player.dart';
 import 'store.dart';
+import 'glass.dart';
 import 'theme.dart';
 import 'vz_icons.dart';
 import 'vz_motion.dart';

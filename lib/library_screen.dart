@@ -15,7 +15,6 @@ import 'browser.dart' show VzGroupHeader, LibLayout, LibLayoutX, browserThumbFut
 import 'vz_icons.dart';
 import 'vz_motion.dart';
 import 'vz_detail_screen.dart';
-import 'vz_tako.dart';
 import 'main.dart' show showSnack;
 import 'signals.dart';
 
