@@ -47,7 +47,8 @@ void main() {
     });
 
     test('Built-in themes are complete and unique', () {
-      expect(kVzThemes.length, greaterThanOrEqualTo(6));
+      // دو تم پایه، مثل Namida
+      expect(kVzThemes.length, equals(2));
       final ids = kVzThemes.map((t) => t.id).toSet();
       expect(ids.length, equals(kVzThemes.length));
       for (final t in kVzThemes) {
@@ -57,7 +58,8 @@ void main() {
         final p = vzBuildPalette(t.seed, dark: true);
         expect(p.accent, isNot(p.bg));
       }
-      expect(kVzThemes.first.id, equals('moe'));
+      expect(kVzThemes.first.id, equals('shade'));
+      expect(kVzThemes.last.id, equals('day'));
     });
 
     test('Background styles all build a gradient', () {

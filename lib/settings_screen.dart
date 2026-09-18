@@ -3,6 +3,7 @@
 // موتور تم به سبک Namida: کاربر یک **تم آماده** برمی‌گزیند یا یک **رنگ دانه**
 // دلخواه می‌دهد؛ کل پالت (سطح، متن، اکسنت) از همان ساخته می‌شود.
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart' show ToolsTabBody;
 import 'ai_models_screen.dart';
 import 'vosk_models_screen.dart';
@@ -13,6 +14,7 @@ import 'theme.dart';
 import 'vz_icons.dart';
 import 'vz_icon_gallery.dart';
 import 'vz_color_wheel.dart';
+import 'vz_kawaii.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -21,6 +23,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen>{
+  bool _petOn = false;
+  VzKawaiiMood _petMood = VzKawaiiMood.blissful;
+
+  @override void initState(){
+    super.initState();
+    SharedPreferences.getInstance().then((p){
+      if (mounted) setState(()=>_petOn = p.getBool('pet_enabled') ?? false);
+    });
+  }
+
   @override
   Widget build(BuildContext context){
     final t = Vz.theme;
@@ -71,6 +83,50 @@ class _SettingsScreenState extends State<SettingsScreen>{
                     .findAncestorStateOfType<VzThemeState>()?.setAnimations(v),
               ),
             ),
+          ),
+
+          // ── پت انیمه ──
+          VzSectionHeader(title: L.animePet),
+          VzGlass(
+            padding: EdgeInsets.zero,
+            child: Column(children: [
+              VzRow(
+                icon: VzIcons.data('mascot'),
+                title: L.animePet,
+                subtitle: L.animePetDesc,
+                accent: Vz.accent,
+                trailing: Switch(
+                  value: _petOn,
+                  onChanged: (v) async {
+                    setState(() => _petOn = v);
+                    final p = await SharedPreferences.getInstance();
+                    await p.setBool('pet_enabled', v);
+                  },
+                ),
+              ),
+              const Divider(height: 1, indent: 56),
+              // پیش‌نمایش شخصیت — برای انتخاب چهره
+              Padding(
+                padding: const EdgeInsets.all(Sp.md),
+                child: Row(children: [
+                  for (final m in VzKawaiiMood.values) ...[
+                    Expanded(child: GestureDetector(
+                      onTap: () => setState(() => _petMood = m),
+                      child: Column(children: [
+                        VzKawaii(
+                          kind: VzKawaiiKind.cat,
+                          mood: m,
+                          color: Vz.accent,
+                          size: 52),
+                        const SizedBox(height: 4),
+                        Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ]),
+                    )),
+                  ],
+                ]),
+              ),
+            ]),
           ),
 
           // ── پک آیکون ──
@@ -368,7 +424,7 @@ class _ThemeCardState extends State<_ThemeCard>{
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800,
                   color: p.text))),
-              Icon(vzVibeIcon(d.id), size: 11, color: p.accent),
+              Icon(VzIcons.data('sparkle'), size: 11, color: p.accent),
             ]),
             Text(d.tagline, maxLines: 1, overflow: TextOverflow.ellipsis,
               style: TextStyle(fontSize: 8.5, color: p.textDim, height: 1.2)),

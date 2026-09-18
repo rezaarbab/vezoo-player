@@ -1,6 +1,7 @@
 // lib/shell.dart — پوسته اصلی اپ با NavDock
 // Home (browser) • Live (IPTV) • Discover (online) • Library • Settings
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'browser.dart' show BrowserScreen, BrowserScreenState;
 import 'iptv_screen.dart' show IptvScreen;
@@ -10,6 +11,7 @@ import 'settings_screen.dart';
 import 'signals.dart';
 import 'glass.dart';
 import 'vz_motion.dart';
+import 'vz_pet.dart';
 
 /// پوسته اصلی — IndexedStack با ۵ مقصد (Discover به‌صورت مودال باز می‌شود)
 class VzShell extends StatefulWidget {
@@ -75,24 +77,52 @@ class _VzShellState extends State<VzShell>{
   Widget build(BuildContext context){
     return Scaffold(
       extendBody: true,
-      // IndexedStack: state هر تب حفظ می‌شود و هیچ صفحه‌ای با opacity صفر
-      // در هر فریم composite نمی‌شود.
-      body: VzTabSwitcher(
-        index: _index,
-        child: IndexedStack(
+      body: Stack(children: [
+        // IndexedStack: state هر تب حفظ می‌شود و هیچ صفحه‌ای با opacity صفر
+        // در هر فریم composite نمی‌شود.
+        VzTabSwitcher(
           index: _index,
-          children: [
-            KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
-            const IptvScreen(),
-            const LibraryScreen(),
-            const SettingsScreen(),
-          ],
+          child: IndexedStack(
+            index: _index,
+            children: [
+              KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
+              const IptvScreen(),
+              const LibraryScreen(),
+              const SettingsScreen(),
+            ],
+          ),
         ),
-      ),
+        // پت انیمه — انگشت را دنبال می‌کند (اگر در تنظیمات روشن باشد)
+        const _PetHost(),
+      ]),
       bottomNavigationBar: VzNavDock(
         current: _dest,
         onSelect: _onSelect,
       ),
     );
+  }
+}
+
+/// میزبان پت — روشن/خاموش را از SharedPreferences می‌خواند.
+class _PetHost extends StatefulWidget {
+  const _PetHost();
+  @override State<_PetHost> createState() => _PetHostState();
+}
+
+class _PetHostState extends State<_PetHost> {
+  bool _on = false;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences.getInstance().then((p) {
+      if (mounted) setState(() => _on = p.getBool('pet_enabled') ?? false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_on || !Vz.animations) return const SizedBox.shrink();
+    return const VzPetLayer();
   }
 }
