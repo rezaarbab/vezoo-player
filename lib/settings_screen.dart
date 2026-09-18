@@ -1,8 +1,7 @@
-// lib/settings_screen.dart — تنظیمات: پرسِت تم، بک‌گراند، انیمیشن، اکسنت، ابزارها
+// lib/settings_screen.dart — تنظیمات: تم، پس‌زمینه، رنگ دانه، انیمیشن، ابزارها
 //
-// VOID Theme Engine: کاربر یک «تم آماده» انتخاب می‌کند — هر تم پالت، گردی
-// گوشه، بک‌گراند گرادیانی و اکسنت خودش را دارد. علاوه بر آن می‌تواند
-// بک‌گراند را جدا عوض کند یا رنگ اکسنت را دستی تغییر دهد.
+// موتور تم به سبک Namida: کاربر یک **تم آماده** برمی‌گزیند یا یک **رنگ دانه**
+// دلخواه می‌دهد؛ کل پالت (سطح، متن، اکسنت) از همان ساخته می‌شود.
 import 'package:flutter/material.dart';
 import 'settings.dart' show ToolsTabBody;
 import 'ai_models_screen.dart';
@@ -11,10 +10,9 @@ import 'glass.dart';
 import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
-import 'vz_presets.dart';
 import 'vz_icons.dart';
-import 'vz_color_wheel.dart';
 import 'vz_icon_gallery.dart';
+import 'vz_color_wheel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -25,7 +23,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen>{
   @override
   Widget build(BuildContext context){
-    final preset = Vz.preset;
+    final t = Vz.theme;
     return SafeArea(
       bottom: false,
       child: ListView(
@@ -37,28 +35,28 @@ class _SettingsScreenState extends State<SettingsScreen>{
               crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(L.settings, style: Ty.title),
                 const SizedBox(height: 2),
-                Text('${preset.name} • v${ApiService.appVersion}',
+                Text('${t.name} • v${ApiService.appVersion}',
                   style: Ty.overline.copyWith(color: Vz.accent)),
               ])),
-            _AnimatedOrb(preset: preset),
+            const _ThemeOrb(),
           ]),
           const SizedBox(height: Sp.sm),
 
-          // ── تم‌های آماده ──
+          // ── تم‌ها ──
           VzSectionHeader(title: L.theme),
-          const VzPresetGallery(),
+          const VzThemeGallery(),
 
-          // ── بک‌گراند ──
-          VzSectionHeader(title: L.background),
-          const VzBackgroundPicker(),
-
-          // ── رنگ اکسنت ──
+          // ── رنگ دانه ──
           VzSectionHeader(title: L.accentColor),
-          const VzAccentPicker(),
+          const VzSeedPicker(),
 
-          // ── حالت روشن/تیره + انیمیشن ──
+          // ── پس‌زمینه ──
+          VzSectionHeader(title: L.background),
+          const VzBgPicker(),
+
+          // ── حالت + انیمیشن ──
           VzSectionHeader(title: L.appearance),
-          const VzThemePicker(),
+          const VzModePicker(),
           const SizedBox(height: Sp.sm),
           VzGlass(
             padding: EdgeInsets.zero,
@@ -70,20 +68,33 @@ class _SettingsScreenState extends State<SettingsScreen>{
               trailing: Switch(
                 value: VzThemeScope.animationsOf(context),
                 onChanged: (v) => context
-                    .findAncestorStateOfType<VzThemeState>()
-                    ?.setAnimations(v),
+                    .findAncestorStateOfType<VzThemeState>()?.setAnimations(v),
               ),
             ),
           ),
 
-          // ── Tools ──
+          // ── پک آیکون ──
+          VzSectionHeader(title: L.iconPack),
+          VzGlass(
+            padding: EdgeInsets.zero,
+            child: VzRow(
+              icon: VzIcons.data('sparkle'),
+              title: 'VanFont — ${BiliIconPack.allCodePoints.length} glyphs',
+              subtitle: '${BiliIconPack.known.length} named · tap to label the rest',
+              accent: Vz.accent,
+              onTap: ()=>Navigator.push(context,
+                MaterialPageRoute(builder: (_)=>const VzIconGalleryScreen())),
+            ),
+          ),
+
+          // ── ابزارها ──
           VzSectionHeader(title: L.toolsSection),
           const VzGlass(
             padding: EdgeInsets.all(Sp.md),
             child: ToolsTabBody(),
           ),
 
-          // ── AI Models ──
+          // ── مدل‌های AI ──
           VzSectionHeader(title: L.aiModelsLabel),
           VzGlass(
             padding: EdgeInsets.zero,
@@ -107,28 +118,14 @@ class _SettingsScreenState extends State<SettingsScreen>{
             ]),
           ),
 
-          // ── آیکون‌ها ──
-          VzSectionHeader(title: L.iconPack),
-          VzGlass(
-            padding: EdgeInsets.zero,
-            child: VzRow(
-              icon: VzIcons.data('sparkle'),
-              title: 'VanFont — ${BiliIconPack.allCodePoints.length} glyphs',
-              subtitle: '${BiliIconPack.known.length} named · tap to label the rest',
-              accent: Vz.accent,
-              onTap: ()=>Navigator.push(context,
-                MaterialPageRoute(builder: (_)=>const VzIconGalleryScreen())),
-            ),
-          ),
-
-          // ── Language ──
+          // ── زبان ──
           VzSectionHeader(title: L.language),
           const VzGlass(
             padding: EdgeInsets.all(Sp.md),
             child: _LangPicker(),
           ),
 
-          // ── About ──
+          // ── درباره ──
           VzSectionHeader(title: L.aboutSection),
           _aboutCard(),
         ],
@@ -155,9 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
               Container(
                 width: 44, height: 44,
                 decoration: BoxDecoration(
-                  gradient: Vz.accentGrad,
-                  borderRadius: Rad.r(Rad.xs),
-                ),
+                  gradient: Vz.accentGrad, borderRadius: Rad.r(Rad.xs)),
                 child: Icon(VzIcons.data('play'), color: Vz.onAccent, size: 26),
               ),
               const SizedBox(width: Sp.md),
@@ -177,63 +172,59 @@ class _SettingsScreenState extends State<SettingsScreen>{
           ),
           if (hasUpdate) ...[
             const Divider(height: 1),
-            VzRow(
-              icon: VzIcons.data('update'),
-              title: L.updateAvailable,
+            VzRow(icon: VzIcons.data('update'), title: L.updateAvailable,
               accent: Vz.accent,
               onTap: ()async{
                 final url = cfg['download_url'] ?? '';
-                if(url.isNotEmpty) await launchUrl(
-                  Uri.parse(url), mode: LaunchMode.externalApplication);
+                if(url.isNotEmpty) await launchUrl(Uri.parse(url),
+                  mode: LaunchMode.externalApplication);
               }),
           ],
           if (channel.isNotEmpty) ...[
             const Divider(height: 1),
-            VzRow(
-              icon: VzIcons.data('telegram'),
-              title: L.telegramChannel,
-              onTap: ()=>launchUrl(
-                Uri.parse(channel), mode: LaunchMode.externalApplication)),
+            VzRow(icon: VzIcons.data('telegram'), title: L.telegramChannel,
+              onTap: ()=>launchUrl(Uri.parse(channel),
+                mode: LaunchMode.externalApplication)),
           ],
           if (admin.isNotEmpty) ...[
             const Divider(height: 1),
-            VzRow(
-              icon: VzIcons.data('bug'),
+            VzRow(icon: VzIcons.data('bug'),
               title: cfg['report_text'] ?? L.reportBug,
-              onTap: ()=>launchUrl(
-                Uri.parse(admin), mode: LaunchMode.externalApplication)),
+              onTap: ()=>launchUrl(Uri.parse(admin),
+                mode: LaunchMode.externalApplication)),
           ],
         ]),
       );
     });
 }
 
-/// کره‌ی متحرک هدر — رنگ و گردی‌اش از پرسِت می‌آید.
-class _AnimatedOrb extends StatefulWidget {
-  final VzPreset preset;
-  const _AnimatedOrb({required this.preset});
-  @override State<_AnimatedOrb> createState()=>_AnimatedOrbState();
+/// کره‌ی هدر — رنگ و گردی‌اش از تم فعال.
+class _ThemeOrb extends StatefulWidget {
+  const _ThemeOrb();
+  @override State<_ThemeOrb> createState()=>_ThemeOrbState();
 }
-class _AnimatedOrbState extends State<_AnimatedOrb> with SingleTickerProviderStateMixin{
+
+class _ThemeOrbState extends State<_ThemeOrb> with SingleTickerProviderStateMixin{
   AnimationController? _c;
   @override void initState(){
     super.initState();
     if(Vz.animations){
-      _c=AnimationController(vsync:this,duration:const Duration(seconds:6))..repeat(reverse:true);
+      _c=AnimationController(vsync:this,duration:const Duration(seconds:6))
+        ..repeat(reverse:true);
     }
   }
-  @override void didUpdateWidget(_AnimatedOrb old){
-    super.didUpdateWidget(old);
-    if(Vz.animations&&_c==null){
-      _c=AnimationController(vsync:this,duration:const Duration(seconds:6))..repeat(reverse:true);
-      setState((){});
-    } else if(!Vz.animations&&_c!=null){
-      _c!.dispose();_c=null;
+  @override void didChangeDependencies(){
+    super.didChangeDependencies();
+    if(Vz.animations && _c==null){
+      _c=AnimationController(vsync:this,duration:const Duration(seconds:6))
+        ..repeat(reverse:true);
+    } else if(!Vz.animations && _c!=null){
+      _c!.dispose(); _c=null;
     }
   }
   @override void dispose(){_c?.dispose();super.dispose();}
   @override Widget build(BuildContext context){
-    final size = 44.0 * (0.9 + widget.preset.radiusScale*0.12);
+    final size = 44.0 * (0.9 + Vz.radiusScale*0.10);
     final child = Container(
       width:size,height:size,
       decoration:BoxDecoration(
@@ -242,40 +233,39 @@ class _AnimatedOrbState extends State<_AnimatedOrb> with SingleTickerProviderSta
         boxShadow:[Vz.glowSoft],
       ),
     );
-    if(_c==null) return child;
-    return AnimatedBuilder(animation:_c!,builder:(ctx,_){
-      final t=Curves.easeInOut.transform(_c!.value);
-      return Transform.rotate(
-        angle:(t-0.5)*0.18,
+    final c=_c;
+    if(c==null) return child;
+    return AnimatedBuilder(animation:c,builder:(ctx,_){
+      final t=Curves.easeInOut.transform(c.value);
+      return Transform.rotate(angle:(t-0.5)*0.18,
         child:Transform.scale(scale:0.96+t*0.08,child:child));
     });
   }
 }
 
-/// گالری تم‌های آماده — هر کارت یک پیش‌نمایش زنده از پالت پرسِت است.
-class VzPresetGallery extends StatelessWidget {
-  const VzPresetGallery({super.key});
+/// گالری تم‌های آماده — پیش‌نمایش زنده از پالت هر تم.
+class VzThemeGallery extends StatelessWidget {
+  const VzThemeGallery({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final currentId = VzThemeScope.presetIdOf(context);
+    final currentId = VzThemeScope.themeIdOf(context);
     final vzt = context.findAncestorStateOfType<VzThemeState>();
     final dark = Vz.isDark;
 
     return SizedBox(
-      height: 168,
+      height: 172,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 2),
-        itemCount: kVzPresets.length,
+        itemCount: kVzThemes.length,
         separatorBuilder: (_, __) => const SizedBox(width: Sp.md),
         itemBuilder: (ctx, i) {
-          final p = kVzPresets[i];
-          return _PresetCard(
-            preset: p,
-            dark: dark,
-            selected: p.id == currentId,
-            onTap: () => vzt?.setPreset(p),
+          final t = kVzThemes[i];
+          return _ThemeCard(
+            def: t, dark: dark,
+            selected: t.id == currentId,
+            onTap: () => vzt?.setTheme(t),
           );
         },
       ),
@@ -283,26 +273,23 @@ class VzPresetGallery extends StatelessWidget {
   }
 }
 
-class _PresetCard extends StatefulWidget {
-  final VzPreset preset;
+class _ThemeCard extends StatefulWidget {
+  final VzThemeDef def;
   final bool dark, selected;
   final VoidCallback onTap;
-  const _PresetCard({required this.preset, required this.dark,
+  const _ThemeCard({required this.def, required this.dark,
     required this.selected, required this.onTap});
-  @override State<_PresetCard> createState()=>_PresetCardState();
+  @override State<_ThemeCard> createState()=>_ThemeCardState();
 }
-class _PresetCardState extends State<_PresetCard>{
+
+class _ThemeCardState extends State<_ThemeCard>{
   bool _down=false;
   @override Widget build(BuildContext context){
-    final p = widget.preset;
-    final dark = widget.dark;
-    final bgGrad = dark ? p.bgGradientsDark : p.bgGradientsLight;
-    final card = dark ? p.cardDark : p.cardLight;
-    final border = dark ? p.borderDark : p.borderLight;
-    final text = dark ? const Color(0xFFF5F5F7) : const Color(0xFF101014);
-    final textDim = dark ? const Color(0xFFA1A1AA) : const Color(0xFF8E8E99);
-    final accent = dark ? p.accentDark : p.accentLight;
-    final accent2 = p.accent2;
+    final d = widget.def;
+    // پالت واقعی همین تم را می‌سازیم تا پیش‌نمایش دقیق باشد
+    final p = vzBuildPalette(d.seed, dark: widget.dark);
+    final grad = vzBackground(p, d.bg);
+    final radius = Rad.s(d.radiusScale * 6);
 
     return GestureDetector(
       onTapDown: (_)=>setState(()=>_down=true),
@@ -310,21 +297,19 @@ class _PresetCardState extends State<_PresetCard>{
       onTapCancel: ()=>setState(()=>_down=false),
       onTap: widget.onTap,
       child: AnimatedScale(
-        scale: _down?0.96:1.0,
-        duration: Mo.press, curve: Mo.easeOut,
+        scale: _down?0.96:1.0, duration: Mo.press, curve: Mo.easeOut,
         child: AnimatedContainer(
           duration: Mo.fast, curve: Mo.easeOut,
-          width: 138,
+          width: 142,
           padding: const EdgeInsets.all(Sp.sm),
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: bgGrad,
-              begin: Alignment.topLeft, end: Alignment.bottomRight),
+            gradient: grad,
             borderRadius: BorderRadius.circular(Rad.s(Rad.md)),
             border: Border.all(
-              color: widget.selected ? accent : border,
+              color: widget.selected ? p.accent : p.border,
               width: widget.selected ? 2 : 1),
             boxShadow: widget.selected
-              ? [BoxShadow(color: accent.withValues(alpha: 0.28),
+              ? [BoxShadow(color: p.accent.withValues(alpha: 0.30),
                   blurRadius: 18, offset: const Offset(0, 6))]
               : null,
           ),
@@ -333,73 +318,60 @@ class _PresetCardState extends State<_PresetCard>{
             Expanded(child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: card.withValues(alpha: 0.92),
-                borderRadius: BorderRadius.circular(Rad.s(p.radiusScale*6)),
-                border: Border.all(color: border),
+                color: p.card.withValues(alpha: 0.94),
+                borderRadius: BorderRadius.circular(radius),
+                border: Border.all(color: p.border),
               ),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                // نوار بالا
                 Row(children: [
                   Container(width: 16, height: 16,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [accent, accent2]),
-                      borderRadius: BorderRadius.circular(Rad.s(p.radiusScale*3))),
-                  ),
+                      gradient: LinearGradient(colors: [p.accent, p.accentHi]),
+                      borderRadius: BorderRadius.circular(Rad.s(d.radiusScale*3)))),
                   const Spacer(),
                   Container(width: 20, height: 4,
-                    decoration: BoxDecoration(color: border,
+                    decoration: BoxDecoration(color: p.border,
                       borderRadius: BorderRadius.circular(2))),
                 ]),
                 const SizedBox(height: 6),
-                Container(width: 44, height: 5,
-                  decoration: BoxDecoration(color: text.withValues(alpha: 0.75),
+                Container(width: 46, height: 5,
+                  decoration: BoxDecoration(color: p.text.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(2))),
                 const SizedBox(height: 4),
                 Container(width: 30, height: 4,
-                  decoration: BoxDecoration(color: textDim.withValues(alpha: 0.6),
+                  decoration: BoxDecoration(color: p.textDim.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(2))),
                 const Spacer(),
-                // دو کارت کوچک با گردی پرسِت
                 Row(children: [
                   for (var k = 0; k < 2; k++) ...[
                     if (k > 0) const SizedBox(width: 4),
                     Expanded(child: Container(
                       height: 22,
                       decoration: BoxDecoration(
-                        color: k == 0
-                          ? accent.withValues(alpha: 0.20)
-                          : border.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(Rad.s(p.radiusScale*4)),
+                        color: k == 0 ? p.accentSoft : p.border.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(Rad.s(d.radiusScale*4)),
                         border: Border.all(
-                          color: k == 0 ? accent.withValues(alpha: 0.6) : Colors.transparent),
+                          color: k == 0 ? p.accent.withValues(alpha: 0.6) : Colors.transparent),
                       ),
                     )),
                   ],
                 ]),
                 const SizedBox(height: 5),
-                Container(height: 4,
-                  decoration: BoxDecoration(
-                    color: border.withValues(alpha: 0.7),
-                    borderRadius: BorderRadius.circular(2))),
+                Container(height: 4, decoration: BoxDecoration(
+                  color: p.border.withValues(alpha: 0.7),
+                  borderRadius: BorderRadius.circular(2))),
               ]),
             )),
             const SizedBox(height: 6),
             Row(children: [
-              Expanded(child: Text(p.name, maxLines: 1,
+              Expanded(child: Text(d.name, maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800,
-                  color: text))),
-              Icon(
-                switch (p.style) {
-                  VzStyle.anime  => Icons.auto_awesome_rounded,
-                  VzStyle.kawaii => Icons.favorite_rounded,
-                  VzStyle.shonen => Icons.bolt_rounded,
-                  VzStyle.mono   => Icons.circle_outlined,
-                },
-                size: 11, color: accent),
+                  color: p.text))),
+              Icon(vzVibeIcon(d.id), size: 11, color: p.accent),
             ]),
-            Text(p.tagline, maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 8.5, color: textDim, height: 1.2)),
+            Text(d.tagline, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 8.5, color: p.textDim, height: 1.2)),
           ]),
         ),
       ),
@@ -407,114 +379,15 @@ class _PresetCardState extends State<_PresetCard>{
   }
 }
 
-/// انتخاب حالت بک‌گراند — شش چیدمان گرادیان، هر کدام با پیش‌نمایش زنده.
-class VzBackgroundPicker extends StatelessWidget {
-  const VzBackgroundPicker({super.key});
-
-  static const _styles = [
-    (VzBgStyle.diagonal, 'Diagonal', Icons.gradient_rounded),
-    (VzBgStyle.sunrise,  'Sunrise',  Icons.wb_twilight_rounded),
-    (VzBgStyle.horizon,  'Horizon',  Icons.horizontal_rule_rounded),
-    (VzBgStyle.vignette, 'Vignette', Icons.vignette_rounded),
-    (VzBgStyle.mesh,     'Mesh',     Icons.blur_on_rounded),
-    (VzBgStyle.flat,     'Flat',     Icons.crop_square_rounded),
-  ];
+/// انتخاب رنگ دانه — چند رنگ آماده + چرخ رنگ کامل.
+class VzSeedPicker extends StatelessWidget {
+  const VzSeedPicker({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final style = VzThemeScope.bgStyleOf(context);
     final vzt = context.findAncestorStateOfType<VzThemeState>();
-    final stops = Vz.bgGradientColors;
-
-    return VzGlass(
-      padding: const EdgeInsets.all(Sp.sm),
-      child: Column(children: [
-        // پیش‌نمایش بزرگ
-        AnimatedContainer(
-          duration: Mo.normal,
-          height: 72,
-          decoration: BoxDecoration(
-            gradient: vzBgGradient(
-              style: style, stops: stops, fallback: Vz.bg),
-            borderRadius: Rad.r(Rad.sm),
-            border: Border.all(color: Vz.border),
-          ),
-          child: Center(
-            child: VzBreathing(
-              amount: 0.05,
-              child: Icon(VzIcons.data('background'),
-                color: Vz.accent, size: 26),
-            ),
-          ),
-        ),
-        const SizedBox(height: Sp.md),
-        // شش سبک در دو ردیف
-        Wrap(
-          spacing: Sp.sm, runSpacing: Sp.sm,
-          children: [
-            for (final (s, label, icon) in _styles)
-              SizedBox(
-                width: (MediaQuery.of(context).size.width - Sp.lg * 2 - Sp.md * 2 - Sp.sm * 2) / 3,
-                child: _styleBtn(context, vzt, style, s, label, icon, stops),
-              ),
-          ],
-        ),
-      ]),
-    );
-  }
-
-  Widget _styleBtn(BuildContext context, VzThemeState? vzt, VzBgStyle current,
-      VzBgStyle target, String label, IconData icon, List<Color> stops) {
-    final selected = current == target;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: Rad.r(Rad.xs),
-        onTap: () => vzt?.setBgStyle(target),
-        child: AnimatedContainer(
-          duration: Mo.fast, curve: Mo.easeOut,
-          padding: const EdgeInsets.all(Sp.sm),
-          decoration: BoxDecoration(
-            borderRadius: Rad.r(Rad.xs),
-            border: Border.all(
-              color: selected ? Vz.accent : Vz.border,
-              width: selected ? 1.8 : 1),
-          ),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            // مینی‌پیش‌نمایش گرادیان
-            Container(
-              height: 22,
-              decoration: BoxDecoration(
-                gradient: vzBgGradient(
-                  style: target, stops: stops, fallback: Vz.bg),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Vz.border.withValues(alpha: 0.5)),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10, fontWeight: FontWeight.w700,
-                color: selected ? Vz.accent : Vz.textSec)),
-          ]),
-        ),
-      ),
-    );
-  }
-}
-
-/// انتخابگر رنگ اکسنت — «خودِ پرسِت» + پالت‌های آماده.
-class VzAccentPicker extends StatefulWidget {
-  const VzAccentPicker({super.key});
-  @override State<VzAccentPicker> createState() => _VzAccentPickerState();
-}
-
-class _VzAccentPickerState extends State<VzAccentPicker> {
-  @override
-  Widget build(BuildContext context) {
-    final current = VzThemeScope.accentIndexOf(context);
-    final vzt = context.findAncestorStateOfType<VzThemeState>();
-    final dark = Vz.isDark;
+    final custom = VzThemeScope.customSeedOf(context);
+    final dynamic_ = VzThemeScope.dynamicSeedOf(context);
 
     return VzGlass(
       padding: const EdgeInsets.symmetric(vertical: Sp.md),
@@ -525,10 +398,15 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
             Icon(VzIcons.data('palette'), size: 18, color: Vz.accent),
             const SizedBox(width: Sp.sm),
             Expanded(child: Text(
-              Vz.hasCustomAccent
+              custom != null
                 ? 'Custom'
-                : (current < 0 ? L.accentColor : kVzAccents[current].name),
+                : (dynamic_ != null ? 'From artwork' : 'Theme color'),
               style: Ty.label.copyWith(fontSize: 13))),
+            if (custom != null)
+              GestureDetector(
+                onTap: ()=>vzt?.clearCustomSeed(),
+                child: Icon(VzIcons.data('refresh'), size: 16, color: Vz.textDim)),
+            const SizedBox(width: Sp.sm),
             _dot(Vz.bg), const SizedBox(width: 3),
             _dot(Vz.card), const SizedBox(width: 3),
             _dot(Vz.accent), const SizedBox(width: 3),
@@ -537,46 +415,42 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
         ),
         const SizedBox(height: Sp.md),
         SizedBox(
-          height: 52,
+          height: 50,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: Sp.md),
-            itemCount: kVzAccents.length + 2,
+            itemCount: kVzSeeds.length + 1,
             separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
             itemBuilder: (ctx, i) {
-              // i == 0 → رنگ خودِ پرسِت
-              if (i == 0) {
-                final selected = current < 0 && !Vz.hasCustomAccent;
-                return _swatch(
-                  c: Vz.preset.accentDark,
-                  hi: dark ? Vz.preset.accentDarkHi : Vz.preset.accentLightHi,
-                  selected: selected,
-                  label: 'Preset',
-                  onTap: () => vzt?.setAccent(-1),
-                );
-              }
-              // آخرین آیتم → چرخ رنگ دلخواه
-              if (i == kVzAccents.length + 1) {
-                final custom = VzThemeScope.customAccentOf(context);
-                return _CustomSwatch(
+              // آخرین آیتم: چرخ رنگ دلخواه
+              if (i == kVzSeeds.length) {
+                return _CustomSeedSwatch(
                   color: custom,
                   selected: custom != null,
                   onTap: () async {
                     final picked = await showVzColorPicker(
                       context, initial: custom ?? Vz.accent);
-                    if (picked != null) {
-                      await vzt?.setCustomAccent(picked);
-                    }
+                    if (picked != null) await vzt?.setCustomSeed(picked);
                   },
                 );
               }
-              final a = kVzAccents[i - 1];
-              final c = dark ? a.dark : a.light;
-              final hi = dark ? a.darkHi : a.lightHi;
-              final selected = (i - 1) == current && !Vz.hasCustomAccent;
-              return _swatch(
-                c: c, hi: hi, selected: selected, label: a.name,
-                onTap: () => vzt?.setAccent(i - 1),
+              final s = kVzSeeds[i];
+              final selected = custom != null && custom.toARGB32() == s.toARGB32();
+              return GestureDetector(
+                onTap: ()=>vzt?.setCustomSeed(s),
+                child: AnimatedContainer(
+                  duration: Mo.fast, curve: Mo.easeOut,
+                  width: 46, height: 46,
+                  decoration: BoxDecoration(
+                    color: s, shape: BoxShape.circle,
+                    border: Border.all(
+                      color: selected ? Vz.text : Vz.border,
+                      width: selected ? 2.5 : 1)),
+                  child: selected
+                    ? Icon(VzIcons.data('check'),
+                        size: 20, color: vzOnColor(s))
+                    : null,
+                ),
               );
             },
           ),
@@ -585,88 +459,118 @@ class _VzAccentPickerState extends State<VzAccentPicker> {
     );
   }
 
-  Widget _swatch({
-    required Color c, required Color hi, required bool selected,
-    required String label, required VoidCallback onTap,
-  }) => Semantics(
-    selected: selected, button: true, label: label,
+  Widget _dot(Color c) => Container(
+    width: 14, height: 14,
+    decoration: BoxDecoration(
+      color: c, shape: BoxShape.circle,
+      border: Border.all(color: Vz.border, width: 1)));
+}
+
+/// سواچ چرخ رنگ برای رنگ دلخواه.
+class _CustomSeedSwatch extends StatelessWidget {
+  final Color? color;
+  final bool selected;
+  final VoidCallback onTap;
+  const _CustomSeedSwatch({required this.color, required this.selected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected, button: true, label: 'Custom color',
     container: true, excludeSemantics: true, onTap: onTap,
     child: Tooltip(
-      message: label,
+      message: 'Custom color',
       child: InkWell(
-        borderRadius: BorderRadius.circular(Rad.full),
+        borderRadius: BorderRadius.circular(999),
         onTap: onTap,
         child: AnimatedContainer(
           duration: Mo.fast, curve: Mo.easeOut,
           width: 46, height: 46,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [hi, c],
-              begin: Alignment.topLeft, end: Alignment.bottomRight),
+            color: color,
+            gradient: color == null
+              ? const SweepGradient(colors: [
+                  Color(0xFFFF0000), Color(0xFFFFFF00), Color(0xFF00FF00),
+                  Color(0xFF00FFFF), Color(0xFF0000FF), Color(0xFFFF00FF),
+                  Color(0xFFFF0000)])
+              : null,
             shape: BoxShape.circle,
             border: Border.all(
               color: selected ? Vz.text : Vz.border,
-              width: selected ? 2.5 : 1),
-          ),
-          child: selected
-            ? Icon(VzIcons.data('check'), size: 21,
-                color: c.computeLuminance() > 0.55
-                  ? const Color(0xFF0C0C0F) : Colors.white)
-            : null,
+              width: selected ? 2.5 : 1)),
+          child: Center(child: Icon(
+            selected ? VzIcons.data('check') : VzIcons.data('palette'),
+            size: 20,
+            color: selected ? vzOnColor(color ?? Vz.accent) : Colors.white)),
         ),
       ),
     ),
   );
-
-  Widget _dot(Color c) => Container(
-    width: 14, height: 14,
-    decoration: BoxDecoration(
-      color: c, shape: BoxShape.circle,
-      border: Border.all(color: Vz.border, width: 1)),
-  );
 }
 
-/// سواچ «رنگ دلخواه» — چرخ رنگ کوچک. با تپ، انتخابگر کامل باز می‌شود.
-class _CustomSwatch extends StatelessWidget {
-  final Color? color;
-  final bool selected;
-  final VoidCallback onTap;
-  const _CustomSwatch({required this.color, required this.selected, required this.onTap});
+/// انتخاب سبک پس‌زمینه.
+class VzBgPicker extends StatelessWidget {
+  const VzBgPicker({super.key});
+
+  static const _styles = [
+    (VzBgStyle.flat,  'Flat',  Icons.crop_square_rounded),
+    (VzBgStyle.soft,  'Soft',  Icons.gradient_rounded),
+    (VzBgStyle.glow,  'Glow',  Icons.blur_on_rounded),
+    (VzBgStyle.vivid, 'Vivid', Icons.local_fire_department_rounded),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      selected: selected, button: true, label: 'Custom color',
-      container: true, excludeSemantics: true, onTap: onTap,
-      child: Tooltip(
-        message: 'Custom color',
-        child: InkWell(
-          borderRadius: BorderRadius.circular(999),
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: Mo.fast, curve: Mo.easeOut,
-            width: 46, height: 46,
-            decoration: BoxDecoration(
-              // چرخ رنگ مینیاتوری وقتی رنگی انتخاب نشده
-              color: color,
-              gradient: color == null
-                ? const SweepGradient(colors: [
-                    Color(0xFFFF0000), Color(0xFFFFFF00), Color(0xFF00FF00),
-                    Color(0xFF00FFFF), Color(0xFF0000FF), Color(0xFFFF00FF),
-                    Color(0xFFFF0000)])
-                : null,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: selected ? Vz.text : Vz.border,
-                width: selected ? 2.5 : 1),
-            ),
-            child: Center(child: Icon(
-              selected ? VzIcons.data('check') : VzIcons.data('palette'),
-              size: 20,
-              color: selected
-                ? Vz.onColorOf(color ?? Vz.accent)
-                : Colors.white,
-            )),
-          ),
+    final style = VzThemeScope.bgStyleOf(context);
+    final vzt = context.findAncestorStateOfType<VzThemeState>();
+
+    return VzGlass(
+      padding: const EdgeInsets.all(Sp.sm),
+      child: Column(children: [
+        // پیش‌نمایش بزرگ
+        AnimatedContainer(
+          duration: Mo.normal,
+          height: 66,
+          decoration: BoxDecoration(
+            gradient: Vz.bgGradient,
+            borderRadius: Rad.r(Rad.sm),
+            border: Border.all(color: Vz.border)),
+          child: Center(child: VzBreathing(
+            amount: 0.05,
+            child: Icon(VzIcons.data('background'), color: Vz.accent, size: 24))),
+        ),
+        const SizedBox(height: Sp.md),
+        Row(children: [
+          for (var i = 0; i < _styles.length; i++) ...[
+            if (i > 0) const SizedBox(width: Sp.sm),
+            Expanded(child: _btn(vzt, style, _styles[i].$1, _styles[i].$2, _styles[i].$3)),
+          ],
+        ]),
+      ]),
+    );
+  }
+
+  Widget _btn(VzThemeState? vzt, VzBgStyle current, VzBgStyle target,
+      String label, IconData icon) {
+    final selected = current == target;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: Rad.r(Rad.xs),
+        onTap: () => vzt?.setBgStyle(target),
+        child: AnimatedContainer(
+          duration: Mo.fast, curve: Mo.easeOut,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: selected ? Vz.accentSoft : Vz.cardHi,
+            borderRadius: Rad.r(Rad.xs),
+            border: Border.all(color: selected ? Vz.accent : Vz.border)),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon, size: 17, color: selected ? Vz.accent : Vz.textDim),
+            const SizedBox(height: 4),
+            Text(label, style: TextStyle(
+              fontSize: 10.5, fontWeight: FontWeight.w700,
+              color: selected ? Vz.accent : Vz.textSec)),
+          ]),
         ),
       ),
     );
@@ -691,9 +595,9 @@ class _LangPickerState extends State<_LangPicker>{
   }
 }
 
-/// انتخاب حالت روشن/تیره/سیستم
-class VzThemePicker extends StatelessWidget {
-  const VzThemePicker({super.key});
+/// انتخاب حالت روشن/تیره/سیستم.
+class VzModePicker extends StatelessWidget {
+  const VzModePicker({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -727,10 +631,9 @@ class VzThemePicker extends StatelessWidget {
           duration: Mo.fast, curve: Mo.easeOut,
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: selected ? Vz.accent.withValues(alpha: 0.12) : Colors.transparent,
+            color: selected ? Vz.accentSoft : Colors.transparent,
             borderRadius: Rad.r(Rad.xs),
-            border: Border.all(color: selected ? Vz.accent : Vz.border),
-          ),
+            border: Border.all(color: selected ? Vz.accent : Vz.border)),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 20, color: selected ? Vz.accent : Vz.textDim),
             const SizedBox(height: 6),
@@ -745,7 +648,7 @@ class VzThemePicker extends StatelessWidget {
   }
 }
 
-/// ردیف استاندارد VOID — آیکون + عنوان + زیرعنوان + کنترل
+/// ردیف استاندارد — آیکون + عنوان + زیرعنوان + کنترل.
 class VzRow extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -754,13 +657,8 @@ class VzRow extends StatelessWidget {
   final Color? accent;
   final VoidCallback? onTap;
   const VzRow({
-    super.key,
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.accent,
-    this.onTap,
+    super.key, required this.icon, required this.title,
+    this.subtitle, this.trailing, this.accent, this.onTap,
   });
 
   @override

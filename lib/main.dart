@@ -58,19 +58,21 @@ void main() async {
     final p = await SharedPreferences.getInstance();
     await p.setString('app_theme', v);
   };
-  storeAccentPrefs = () async =>
-      (await SharedPreferences.getInstance()).getInt('app_accent');
-  storeAccentSave = (v) async {
-    await (await SharedPreferences.getInstance()).setInt('app_accent', v);
+  // تم انتخاب‌شده (VzThemeDef id)
+  storeThemeIdPrefs = () async =>
+      (await SharedPreferences.getInstance()).getString('app_theme_id');
+  storeThemeIdSave = (v) async {
+    await (await SharedPreferences.getInstance()).setString('app_theme_id', v);
   };
-  storeCustomAccentPrefs = () async =>
-      (await SharedPreferences.getInstance()).getInt('app_accent_custom');
-  storeCustomAccentSave = (v) async {
+  // رنگ دانه‌ی دلخواه کاربر
+  storeCustomSeedPrefs = () async =>
+      (await SharedPreferences.getInstance()).getInt('app_seed_custom');
+  storeCustomSeedSave = (v) async {
     final p = await SharedPreferences.getInstance();
     if (v == null) {
-      await p.remove('app_accent_custom');
+      await p.remove('app_seed_custom');
     } else {
-      await p.setInt('app_accent_custom', v);
+      await p.setInt('app_seed_custom', v);
     }
   };
   storeAnimPrefs = () async =>
@@ -78,15 +80,10 @@ void main() async {
   storeAnimSave = (v) async {
     await (await SharedPreferences.getInstance()).setBool('app_animations', v);
   };
-  storePresetPrefs = () async =>
-      (await SharedPreferences.getInstance()).getString('app_preset');
-  storePresetSave = (v) async {
-    await (await SharedPreferences.getInstance()).setString('app_preset', v);
-  };
   storeBgPrefs = () async =>
-      (await SharedPreferences.getInstance()).getString('app_bg_mode');
+      (await SharedPreferences.getInstance()).getString('app_bg_style');
   storeBgSave = (v) async {
-    await (await SharedPreferences.getInstance()).setString('app_bg_mode', v);
+    await (await SharedPreferences.getInstance()).setString('app_bg_style', v);
   };
 
   runApp(const MyApp());

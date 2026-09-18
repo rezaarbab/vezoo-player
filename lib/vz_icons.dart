@@ -445,8 +445,7 @@ class VzIcons {
 
   /// وضعیت کلید انیمیشن — در main.dart وصل می‌شود.
   /// این callback به‌جای import مستقیم theme.dart است تا چرخه‌ی import
-  /// بین دو فایل ایجاد نشود (theme.dart به vz_presets وابسته است).
-  static bool Function() animationsEnabled = () => true;
+    static bool Function() animationsEnabled = () => true;
 
   /// خواندن یک آیکون به‌صورت IconData.
   static IconData data(String name) => _pack.fallback(name);

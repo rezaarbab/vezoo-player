@@ -1,48 +1,83 @@
-// test/nova_design_system_test.dart — تست Design System NOVA
+// test/nova_design_system_test.dart - Vezoo theme engine + components
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
 import 'package:player/glass.dart';
-import 'package:player/vz_presets.dart';
 import 'package:player/vz_icons.dart';
 
 void main() {
-  // تست‌های ویجت با انیمیشن‌های بی‌نهایت (نفس‌کشیدن داک) هرگز settle نمی‌شوند،
-  // مگر انیمیشن‌ها خاموش باشند — که دقیقاً همان حالتی است که کاربر هم
-  // می‌تواند از تنظیمات انتخاب کند. قبل از هر تست خاموش، بعد آزاد می‌کنیم.
+  // تست‌های ویجت با انیمیشن‌های بی‌نهایت هرگز settle نمی‌شوند، مگر انیمیشن
+  // خاموش باشد — که کاربر هم می‌تواند از تنظیمات انتخاب کند.
   setUp(() => Vz.previewAnimations(false));
   tearDown(() => Vz.previewAnimations(true));
 
-  group('NOVA Design System — Tokens', () {
-    test('Color palette — VOID', () {
-      // رنگ‌های پایه از پرسِت فعال خوانده می‌شوند (نه هاردکد).
-      final p = Vz.preset;
-      expect(Vz.bg.toARGB32(), equals(p.bgDark.toARGB32()));
-      expect(Vz.bgDeep.toARGB32(), equals(p.bgDeepDark.toARGB32()));
-      expect(Vz.surface.toARGB32(), equals(p.surfaceDark.toARGB32()));
-      expect(Vz.card.toARGB32(), equals(p.cardDark.toARGB32()));
-      expect(Vz.cardHi.toARGB32(), equals(p.cardHiDark.toARGB32()));
-      expect(Vz.border.toARGB32(), equals(p.borderDark.toARGB32()));
-      // پالت تیره نیست اگه با کارت یکسان باشه
-      expect(Vz.bg, isNot(equals(Vz.card)));
-      // اکسنت پیش‌فرض = رنگ خودِ پرسِت
-      expect(Vz.accentIndex, equals(-1));
-      expect(Vz.accent.toARGB32(), equals(p.accentDark.toARGB32()));
-      expect(Vz.accentHi.toARGB32(), equals(p.accentDarkHi.toARGB32()));
-      expect(Vz.deep.toARGB32(), equals(p.accentDarkDeep.toARGB32()));
-      // رنگ‌های semantic بین پرسِت‌ها ثابت‌اند
-      expect(Vz.magenta.toARGB32(), equals(0xFFFB7185));
-      expect(Vz.green.toARGB32(), equals(0xFF4ADE80));
-      expect(Vz.amber.toARGB32(), equals(0xFFFBBF24));
-      expect(Vz.red.toARGB32(), equals(0xFFF87171));
-      expect(Vz.text.toARGB32(), equals(0xFFF5F5F7));
+  group('Vezoo theme engine (Namida-like)', () {
+    test('Palette is derived from one seed and stays harmonic', () {
+      const seed = Color(0xFF00AEEC);
+      final dark = vzBuildPalette(seed, dark: true);
+      final light = vzBuildPalette(seed, dark: false);
+
+      expect(dark.seed, seed);
+      expect(light.seed, seed);
+
+      // سطح‌ها پله‌پله از هم جدا هستند (M3-like layering)
+      expect(dark.bg, isNot(dark.surface));
+      expect(dark.surface, isNot(dark.card));
+      expect(dark.card, isNot(dark.cardHi));
+      expect(dark.border, isNot(dark.borderHi));
+
+      // حالت روشن واقعاً روشن است
+      expect(light.bg.computeLuminance(), greaterThan(0.85));
+      expect(light.card.computeLuminance(), greaterThan(0.90));
+      expect(light.border.computeLuminance(), greaterThan(0.60));
+
+      // اکسنت روی پس‌زمینه‌ی خودش خوانا است
+      expect(vzContrast(dark.accent, dark.bg), greaterThan(3.0));
+      expect(vzContrast(light.accent, light.bg), greaterThan(3.0));
     });
 
-    test('Typography scale — sizes & weights', () {
+    test('Every seed produces a readable onAccent', () {
+      for (final s in kVzSeeds) {
+        for (final dark in [true, false]) {
+          final p = vzBuildPalette(s, dark: dark);
+          expect(vzContrast(p.onAccent, p.accent), greaterThan(3.0),
+              reason: 'seed \ dark=\');
+        }
+      }
+    });
+
+    test('Built-in themes are complete and unique', () {
+      expect(kVzThemes.length, greaterThanOrEqualTo(6));
+      final ids = kVzThemes.map((t) => t.id).toSet();
+      expect(ids.length, equals(kVzThemes.length));
+      for (final t in kVzThemes) {
+        expect(t.name, isNotEmpty);
+        expect(t.tagline, isNotEmpty);
+        expect(t.radiusScale, greaterThan(0));
+        final p = vzBuildPalette(t.seed, dark: true);
+        expect(p.accent, isNot(p.bg));
+      }
+      expect(kVzThemes.first.id, equals('moe'));
+    });
+
+    test('Background styles all build a gradient', () {
+      final p = vzBuildPalette(kVzSeeds.first, dark: true);
+      for (final s in VzBgStyle.values) {
+        final g = vzBackground(p, s);
+        expect(g.colors.length, greaterThanOrEqualTo(2));
+      }
+      final flat = vzBackground(p, VzBgStyle.flat);
+      expect(flat.colors.first, equals(flat.colors.last));
+    });
+
+    test('vzOnColor picks the readable foreground', () {
+      expect(vzOnColor(Colors.white), equals(const Color(0xFF0C0C0F)));
+      expect(vzOnColor(Colors.black), equals(Colors.white));
+    });
+
+    test('Typography scale', () {
       expect(Ty.display.fontSize, 28);
-      expect(Ty.display.fontWeight, FontWeight.w800);
       expect(Ty.title.fontSize, 20);
-      expect(Ty.title.fontWeight, FontWeight.w700);
       expect(Ty.heading.fontSize, 16);
       expect(Ty.body.fontSize, 14);
       expect(Ty.label.fontSize, 12);
@@ -51,94 +86,33 @@ void main() {
       expect(Ty.mono.fontFeatures, isNotNull);
     });
 
-    test('Spacing — ۴pt scale', () {
-      expect(Sp.xs, 4.0); expect(Sp.sm, 8.0);
-      expect(Sp.md, 12.0); expect(Sp.lg, 16.0);
-      expect(Sp.xl, 20.0); expect(Sp.xxl, 24.0);
-      expect(Sp.xxxl, 32.0); expect(Sp.giant, 56.0);
-    });
-
-    test('Shape radius system', () {
+    test('Spacing and radius scales', () {
+      expect(Sp.xs, 4.0); expect(Sp.sm, 8.0); expect(Sp.md, 12.0);
+      expect(Sp.lg, 16.0); expect(Sp.xl, 20.0); expect(Sp.xxl, 24.0);
       expect(Rad.xs, 10.0); expect(Rad.sm, 14.0);
-      expect(Rad.md, 18.0); expect(Rad.lg, 24.0);
-      expect(Rad.xl, 28.0); expect(Rad.full, 999.0);
+      expect(Rad.md, 18.0); expect(Rad.lg, 24.0); expect(Rad.full, 999.0);
+      expect(Rad.s(10), greaterThan(0));
     });
 
-    test('Accent gradient — follows selected accent, 3 stops', () {
-      expect(Vz.auroraGrad.colors.length, 3);
-      expect(Vz.auroraGrad.colors.first, Vz.accentHi);
-      expect(Vz.auroraGrad.colors.last, Vz.deep);
-    });
-
-    test('Presets are complete — palette, gradient, radius', () {
-      expect(kVzPresets.length, greaterThanOrEqualTo(8));
-      for (final p in kVzPresets) {
-        expect(p.id, isNotEmpty);
-        expect(p.name, isNotEmpty);
-        expect(p.bgGradientsDark.length, greaterThanOrEqualTo(2));
-        expect(p.bgGradientsLight.length, greaterThanOrEqualTo(2));
-        // هر پرسِت باید هر سه لایه‌ی رنگ را داشته باشد و از هم متفاوت باشند
-        expect(p.bgDark, isNot(equals(p.cardDark)));
-        expect(p.bgLight, isNot(equals(p.cardLight)));
-        expect(p.radiusScale, greaterThan(0));
-      }
-      // هر سه سبک موجود باشد — از جمله سبک انیمه (Bilibili/Gainax)
-      expect(kVzPresets.any((p) => p.style == VzStyle.kawaii), isTrue);
-      expect(kVzPresets.any((p) => p.style == VzStyle.shonen), isTrue);
-      expect(kVzPresets.any((p) => p.style == VzStyle.anime), isTrue);
-      // پرسِت انیمه اولین پرسِت گالری است (سمت چپ) و پیش‌فرض اپ
-      expect(kVzPresets.first.id, equals('anime'));
-    });
-
-    test('Light preset surfaces are actually light', () {
-      for (final p in kVzPresets) {
-        // bg روشن باید روشنایی بالا داشته باشد (باگ قبلی: تم روشن خاکستری بود)
-        expect(p.bgLight.computeLuminance(), greaterThan(0.75),
-            reason: 'بک‌گراند روشن پرسِت ');
-        expect(p.cardLight.computeLuminance(), greaterThan(0.85),
-            reason: 'کارت روشن پرسِت ');
-        // و متن تیره و خوانا باشد
-        expect(p.borderLight.computeLuminance(), greaterThan(0.5));
-      }
-    });
-    test('Accent palette is complete and readable', () {
-      expect(kVzAccents.length, greaterThanOrEqualTo(8));
-      for (final a in kVzAccents) {
-        expect(a.name, isNotEmpty);
-      }
-      // متنِ روی اکسنت یا تیره است یا سفید — نه چیزی بین‌راه
-      final on = Vz.onAccent;
-      expect(on == Colors.white || on == const Color(0xFF0C0C0F), isTrue);
-    });
-    test('Scrim tokens + scrimGrad — media thumbnail overlay', () {
-      // رگرسیون: scrim* باید در پالت runtime موجود باشد (قبلاً undefined بود)
-      expect(Vz.scrimTop.toARGB32(), equals(0x000A0A0C));
-      expect(Vz.scrimMid.toARGB32(), equals(0x800A0A0C));
-      expect(Vz.scrimBot.toARGB32(), equals(0xE60A0A0C));
+    test('Scrim tokens + scrimGrad', () {
+      expect(Vz.scrimTop.toARGB32(), equals(0x00000000));
+      expect(Vz.scrimMid.toARGB32(), equals(0x80000000));
+      expect(Vz.scrimBot.toARGB32(), equals(0xE6000000));
       expect(Vz.scrimGrad.colors, hasLength(3));
-      expect(Vz.scrimGrad.colors.first, equals(Vz.scrimBot));
-      expect(Vz.scrimGrad.colors.last, equals(Vz.scrimTop));
       expect(Vz.scrimGrad.stops, equals(const [0.0, 0.45, 1.0]));
     });
 
-    test('Theme — dark, Material 3, preset colors', () {
+    test('Theme data is Material 3 and uses the active palette', () {
       final theme = buildVezooTheme();
       expect(theme.brightness, Brightness.dark);
       expect(theme.useMaterial3, isTrue);
       expect(theme.colorScheme.primary, Vz.accent);
       expect(theme.colorScheme.surface, Vz.surface);
-      // در حالت flat، scaffold رنگ پایه می‌گیرد؛ وگرنه شفاف است تا
-      // بک‌گراند گرادیانی از پشت دیده شود.
-      if (Vz.bgStyle == VzBgStyle.flat) {
-        expect(theme.scaffoldBackgroundColor, Vz.bg);
-      } else {
-        expect(theme.scaffoldBackgroundColor, Colors.transparent);
-      }
       expect(theme.bottomSheetTheme.backgroundColor, Vz.surface);
     });
   });
 
-  group('NOVA Components — widget tests', () {
+  group('Vezoo components', () {
     testWidgets('VzEmpty renders icon, title, hint and CTA', (tester) async {
       var tapped = false;
       await tester.pumpWidget(MaterialApp(
