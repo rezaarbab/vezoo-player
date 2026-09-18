@@ -601,7 +601,10 @@ ThemeData buildVezooTheme({bool dark = true}) {
     useMaterial3: true,
     brightness: dark ? Brightness.dark : Brightness.light,
     colorScheme: scheme,
-    scaffoldBackgroundColor: Vz.bgStyle == VzBgStyle.flat ? Vz.bg : Colors.transparent,
+    // نکته: همیشه رنگ پایه بده، نه transparent. بعضی صفحه‌ها (route های
+    // push شده) پشتشان VzAmbientBg ندارند و با transparent سفید می‌شدند.
+    // گرادیان روی همین رنگ کشیده می‌شود، پس ظاهر عوض نمی‌شود.
+    scaffoldBackgroundColor: Vz.bg,
     canvasColor: Vz.bg,
     splashColor: Vz.accent.withValues(alpha: 0.10),
     highlightColor: Vz.accent.withValues(alpha: 0.05),

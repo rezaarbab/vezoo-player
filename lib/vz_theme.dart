@@ -135,19 +135,23 @@ VzPalette vzBuildPalette(Color seed, {required bool dark}) {
     );
   }
 
-  // ── روشن: سطوح بالای روشنایی تا واقعاً روشن باشد ──
-  final bg        = HSLColor.fromAHSL(1, h, 0.30, 0.985).toColor();
-  final bgDeep    = HSLColor.fromAHSL(1, h, 0.34, 0.955).toColor();
+  // ── روشن: پس‌زمینه کاغذی، کارت سفید، خطوط واقعاً دیده‌شدنی ──
+  // نکته: قبلاً surface و card هر دو سفید خالص بودند و مرزها نامرئی؛
+  // نتیجه «تم سفید اشغال» بود. الان پله‌ها مشخص‌اند:
+  //   bg (کاغذی) < card (سفید) و خط border واضح.
+  final bg        = HSLColor.fromAHSL(1, h, 0.24, 0.955).toColor();
+  final bgDeep    = HSLColor.fromAHSL(1, h, 0.28, 0.915).toColor();
   final surface   = Colors.white;
-  final surfaceHi = HSLColor.fromAHSL(1, h, 0.30, 0.975).toColor();
+  final surfaceHi = HSLColor.fromAHSL(1, h, 0.26, 0.975).toColor();
   final card      = Colors.white;
-  final cardHi    = HSLColor.fromAHSL(1, h, 0.34, 0.955).toColor();
-  final border    = HSLColor.fromAHSL(1, h, 0.28, 0.905).toColor();
-  final borderHi  = HSLColor.fromAHSL(1, h, 0.30, 0.820).toColor();
+  final cardHi    = HSLColor.fromAHSL(1, h, 0.30, 0.925).toColor();
+  final border    = HSLColor.fromAHSL(1, h, 0.26, 0.840).toColor();
+  final borderHi  = HSLColor.fromAHSL(1, h, 0.28, 0.700).toColor();
 
-  final accent    = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.12).clamp(0.40, 0.90), 0.42).toColor();
-  final accentHi  = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.10).clamp(0.35, 0.88), 0.54).toColor();
-  final accentDeep= HSLColor.fromAHSL(1, h, (hsl.saturation + 0.08).clamp(0.35, 0.88), 0.30).toColor();
+  // اکسنت روشن باید کنتراست کافی روی سفید داشته باشد (نه پاستلی)
+  final accent    = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.10).clamp(0.45, 0.92), 0.36).toColor();
+  final accentHi  = HSLColor.fromAHSL(1, h, (hsl.saturation + 0.08).clamp(0.40, 0.90), 0.46).toColor();
+  final accentDeep= HSLColor.fromAHSL(1, h, (hsl.saturation + 0.06).clamp(0.40, 0.90), 0.26).toColor();
   final accentSoft= accent.withValues(alpha: 0.12);
 
   return VzPalette(
@@ -156,13 +160,14 @@ VzPalette vzBuildPalette(Color seed, {required bool dark}) {
     card: card, cardHi: cardHi, border: border, borderHi: borderHi,
     accent: accent, accentHi: accentHi, accentDeep: accentDeep,
     onAccent: vzOnColor(accent), accentSoft: accentSoft,
-    text: const Color(0xFF14141A),
-    textSec: const Color(0xFF56565F),
-    textDim: const Color(0xFF8E8E99),
-    green: const Color(0xFF12805C),
-    amber: const Color(0xFF9A6600),
-    red:   const Color(0xFFB3261E),
-    pink:  const Color(0xFFB3467A),
+    // متن‌ها با کنتراست بالا روی کاغذ روشن
+    text: const Color(0xFF101018),
+    textSec: const Color(0xFF4A4A57),
+    textDim: const Color(0xFF7A7A88),
+    green: const Color(0xFF0F6E4F),
+    amber: const Color(0xFF855400),
+    red:   const Color(0xFFA31813),
+    pink:  const Color(0xFFA33368),
   );
 }
 

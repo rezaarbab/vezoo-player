@@ -11,7 +11,8 @@
 //   VzHeroGlow    — درخشش نبض‌دار برای عناصر قهرمان
 //   VzSplash      — اسپلش متحرک با لوگو
 import 'package:flutter/material.dart';
-import 'glass.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
+import 'theme.dart';
 import 'vz_icons.dart';
 
 /// ورود نرم: fade + اسلاید از پایین.
@@ -287,4 +288,166 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
       ),
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VzPress — افکت کلیک فنری (scale + haptic)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// هر ویجتی را قابل‌کلیک می‌کند با افکت فشار فنری + لرزش اختیاری.
+/// با کلید انیمیشن کاربر هماهنگ است.
+class VzPress extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  /// scale هنگام فشار (پیش‌فرض ۰.۹۶)
+  final double scale;
+  /// لرزش هنگام کلیک
+  final bool haptic;
+  const VzPress({
+    super.key, required this.child, this.onTap, this.onLongPress,
+    this.scale = 0.96, this.haptic = true,
+  });
+  @override State<VzPress> createState() => _VzPressState();
+}
+
+class _VzPressState extends State<VzPress> {
+  bool _down = false;
+  @override Widget build(BuildContext context) => GestureDetector(
+    onTapDown: widget.onTap == null ? null : (_) => setState(() => _down = true),
+    onTapCancel: () => setState(() => _down = false),
+    onTapUp: (_) => setState(() => _down = false),
+    onTap: widget.onTap == null ? null : () {
+      if (widget.haptic && Vz.animations) HapticFeedback.selectionClick();
+      widget.onTap!();
+    },
+    onLongPress: widget.onLongPress,
+    child: AnimatedScale(
+      scale: _down ? widget.scale : 1.0,
+      duration: Mo.press, curve: Mo.easeOut,
+      child: widget.child,
+    ),
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VzSlideIn — ورود از کنار (برای لیست‌ها و شیت‌ها)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class VzSlideIn extends StatefulWidget {
+  final Widget child;
+  final int index;
+  final Offset from;
+  final Duration duration;
+  const VzSlideIn({
+    super.key, required this.child, this.index = 0,
+    this.from = const Offset(-0.10, 0),
+    this.duration = const Duration(milliseconds: 300),
+  });
+  @override State<VzSlideIn> createState() => _VzSlideInState();
+}
+
+class _VzSlideInState extends State<VzSlideIn> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: widget.duration);
+      Future.delayed(Duration(milliseconds: (widget.index.clamp(0, 20)) * 28), () {
+        if (mounted) _c?.forward();
+      });
+    }
+  }
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+  @override Widget build(BuildContext context) {
+    final c = _c;
+    if (c == null) return widget.child;
+    final a = CurvedAnimation(parent: c, curve: Curves.easeOutCubic);
+    return FadeTransition(
+      opacity: a,
+      child: SlideTransition(
+        position: Tween(begin: widget.from, end: Offset.zero).animate(a),
+        child: widget.child));
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VzRipple — موج رنگی هنگام کلیک (سبک Material)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class VzRipple extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final Color? color;
+  final BorderRadius? radius;
+  const VzRipple({
+    super.key, required this.child, this.onTap,
+    this.color, this.radius,
+  });
+  @override State<VzRipple> createState() => _VzRippleState();
+}
+
+class _VzRippleState extends State<VzRipple> with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  Offset _origin = Offset.zero;
+
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 450));
+    }
+  }
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+
+  @override Widget build(BuildContext context) {
+    final c = _c;
+    if (c == null || widget.onTap == null) {
+      return GestureDetector(onTap: widget.onTap, child: widget.child);
+    }
+    return GestureDetector(
+      onTapDown: (d) { _origin = d.localPosition; c.forward(from: 0); },
+      onTap: widget.onTap,
+      child: ClipRRect(
+        borderRadius: widget.radius ?? BorderRadius.zero,
+        child: Stack(children: [
+          widget.child,
+          Positioned.fill(child: IgnorePointer(
+            child: AnimatedBuilder(animation: c, builder: (ctx, _) {
+              final t = Curves.easeOut.transform(c.value);
+              return CustomPaint(
+                painter: _RipplePainter(
+                  origin: _origin, progress: t,
+                  color: widget.color ?? Vz.accent));
+            }),
+          )),
+        ]),
+      ),
+    );
+  }
+}
+
+class _RipplePainter extends CustomPainter {
+  final Offset origin;
+  final double progress;
+  final Color color;
+  _RipplePainter({required this.origin, required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0 || progress >= 1) return;
+    // شعاع تا دورترین گوشه
+    final maxR = <double>[
+      (origin - Offset.zero).distance,
+      (origin - Offset(size.width, 0)).distance,
+      (origin - Offset(0, size.height)).distance,
+      (origin - Offset(size.width, size.height)).distance,
+    ].reduce((a, b) => a > b ? a : b);
+    final r = maxR * Curves.easeOut.transform(progress);
+    canvas.drawCircle(origin, r,
+      Paint()..color = color.withValues(alpha: (1 - progress) * 0.22));
+  }
+
+  @override
+  bool shouldRepaint(covariant _RipplePainter old) =>
+      old.progress != progress || old.origin != origin;
 }

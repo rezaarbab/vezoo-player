@@ -89,7 +89,7 @@ class VzPetConfig {
     this.maxVelocity = 100,
     this.proximityDistance = 10,
     this.deaccelerationDistance = 60,
-    this.size = 64,
+    this.size = 96,
     this.followPointer = true,
     this.wander = true,
     this.wanderInterval = const Duration(seconds: 6),
@@ -108,7 +108,15 @@ class VzPetLayer extends StatefulWidget {
   /// چهره‌ی انتخابی کاربر (اگر null، بر اساس حالت حرکت تعیین می‌شود).
   final VzKawaiiMood? mood;
 
-  const VzPetLayer({super.key, this.config = const VzPetConfig(), this.mood});
+  /// نوع شخصیت (گربه / روح / سیاره / قارچ).
+  final VzKawaiiKind kind;
+
+  const VzPetLayer({
+    super.key,
+    this.config = const VzPetConfig(),
+    this.mood,
+    this.kind = VzKawaiiKind.cat,
+  });
 
   @override State<VzPetLayer> createState() => _VzPetLayerState();
 }
@@ -256,6 +264,7 @@ class _VzPetLayerState extends State<VzPetLayer> with SingleTickerProviderStateM
                 step: _step,
                 size: c.size,
                 moodOverride: widget.mood,
+                kind: widget.kind,
               ),
             ),
           ),
@@ -271,9 +280,10 @@ class _PetBody extends StatelessWidget {
   final bool step;
   final double size;
   final VzKawaiiMood? moodOverride;
+  final VzKawaiiKind kind;
   const _PetBody({
     required this.motion, required this.step, required this.size,
-    this.moodOverride,
+    this.moodOverride, this.kind = VzKawaiiKind.cat,
   });
 
   VzKawaiiMood get _mood {
@@ -302,7 +312,7 @@ class _PetBody extends StatelessWidget {
       child: Transform.flip(
         flipX: facingLeft,
         child: VzKawaii(
-          kind: VzKawaiiKind.cat,
+          kind: kind,
           mood: _mood,
           color: Vz.accent,
           size: size,

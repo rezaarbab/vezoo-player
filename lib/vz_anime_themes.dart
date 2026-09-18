@@ -39,7 +39,7 @@ class VzThemeDef {
   });
 }
 
-/// دو تم پایه — Namida هم همین تعداد دارد.
+/// سه تم — دو تای Namida به‌علاوه‌ی یک تم اختصاصی انیمه.
 const List<VzThemeDef> kVzThemes = [
   VzThemeDef(
     id: 'shade', name: 'Shade',
@@ -52,6 +52,12 @@ const List<VzThemeDef> kVzThemes = [
     tagline: 'Light · warm · clean',
     seed: Color(0xFF2563EB),
     bg: VzBgStyle.flat, radiusScale: 1.4,
+  ),
+  VzThemeDef(
+    id: 'anime', name: 'Anime',
+    tagline: 'Moe · sakura · neon · max round',
+    seed: Color(0xFFFB7299),
+    bg: VzBgStyle.vivid, radiusScale: 2.0,
   ),
 ];
 

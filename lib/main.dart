@@ -100,21 +100,36 @@ class MyApp extends StatelessWidget {
   }
 }
 
-/// جهت جلوگیری از flash اولیه، تم از روی VzThemeScope خونده میشه.
+/// MaterialApp را از روی scope می‌سازد.
+///
+/// مهم: باید به **همه‌ی** فیلدهای تم وابسته باشد نه فقط روشن/تیره — وگرنه
+/// عوض کردن تم (Shade → Anime هر دو تیره) یا رنگ دانه هیچ rebuildی
+/// نمی‌دهد و کاربر مجبور می‌شود اپ را ببندد و باز کند.
 class VzThemeScopeBuilder extends StatelessWidget {
   const VzThemeScopeBuilder({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // اسنپ‌شات تاریک/روشن از scope — با تغییر تم کل زیرمجموعه rebuild میشه
-    final dark = VzThemeScope.of(context) || Vz.isDark;
+    // وابستگی به همه‌ی ابعاد تم
+    final scope = VzThemeScope.maybeOf(context);
+    final dark = scope?.isDark ?? Vz.isDark;
+    final themeId = scope?.themeId ?? Vz.theme.id;
+    final seed = scope?.customSeed ?? scope?.dynamicSeed ?? Vz.seed;
+    final bgStyle = scope?.bgStyle ?? Vz.bgStyle;
+
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       systemNavigationBarColor: Colors.transparent,
       statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
       systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
     ));
+
+    // کلید یکتا: با هر تغییر تم/seed/حالت، MaterialApp از نو ساخته می‌شود
+    // تا پالت و theme data هرگز کهنه نمانند.
+    final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle');
+
     return MaterialApp(
+      key: themeKey,
       scaffoldMessengerKey: rootScaffoldKey,
       title: 'Vezoo',
       debugShowCheckedModeBanner: false,
@@ -124,7 +139,7 @@ class VzThemeScopeBuilder extends StatelessWidget {
       builder: (ctx, child) {
         final mq = MediaQuery.of(ctx);
         return MediaQuery(
-          // کلید انیمیشن کاربر — ترنزیشن‌ها و انیمیشن‌های خود فریم‌ورک را هم خاموش می‌کند
+          // کلید انیمیشن کاربر — ترنزیشن‌های خود فریم‌ورک را هم خاموش می‌کند
           data: mq.copyWith(disableAnimations: !Vz.animations),
           child: Directionality(
             textDirection: langDir(L.current),

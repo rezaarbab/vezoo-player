@@ -25,6 +25,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen>{
   bool _petOn = false;
   VzKawaiiMood _petMood = VzKawaiiMood.blissful;
+  VzKawaiiKind _petKind = VzKawaiiKind.cat;
 
   @override void initState(){
     super.initState();
@@ -35,6 +36,9 @@ class _SettingsScreenState extends State<SettingsScreen>{
           final m = p.getString('pet_mood');
           _petMood = VzKawaiiMood.values.firstWhere(
             (x) => x.name == m, orElse: () => VzKawaiiMood.blissful);
+          final k = p.getString('pet_kind');
+          _petKind = VzKawaiiKind.values.firstWhere(
+            (x) => x.name == k, orElse: () => VzKawaiiKind.cat);
         });
       }
     });
@@ -112,40 +116,86 @@ class _SettingsScreenState extends State<SettingsScreen>{
                 ),
               ),
               const Divider(height: 1, indent: 56),
-              // پیش‌نمایش شخصیت — برای انتخاب چهره‌ی پت
+              // ── انتخاب نوع شخصیت ──
               Padding(
-                padding: const EdgeInsets.all(Sp.md),
+                padding: const EdgeInsets.fromLTRB(Sp.md, Sp.md, Sp.md, 0),
                 child: Row(children: [
-                  for (final m in VzKawaiiMood.values) ...[
+                  for (final k in VzKawaiiKind.values) ...[
                     Expanded(child: GestureDetector(
                       onTap: () async {
-                        setState(() => _petMood = m);
+                        setState(() => _petKind = k);
                         final p = await SharedPreferences.getInstance();
-                        await p.setString('pet_mood', m.name);
+                        await p.setString('pet_kind', k.name);
                       },
                       child: AnimatedContainer(
                         duration: Mo.fast, curve: Mo.easeOut,
-                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
                         decoration: BoxDecoration(
-                          color: _petMood == m ? Vz.accentSoft : Colors.transparent,
-                          borderRadius: Rad.r(Rad.xs),
+                          color: _petKind == k ? Vz.accentSoft : Vz.cardHi,
+                          borderRadius: Rad.r(Rad.sm),
                           border: Border.all(
-                            color: _petMood == m ? Vz.accent : Colors.transparent),
+                            color: _petKind == k ? Vz.accent : Vz.border),
                         ),
                         child: Column(children: [
                           VzKawaii(
-                            kind: VzKawaiiKind.cat,
-                            mood: m,
-                            color: _petMood == m ? Vz.accent : Vz.textSec,
-                            size: 50),
+                            kind: k,
+                            mood: _petMood,
+                            color: _petKind == k ? Vz.accent : Vz.textSec,
+                            size: 64),
                           const SizedBox(height: 4),
-                          Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
+                          Text(k.name, style: Ty.caption.copyWith(fontSize: 9.5),
                             maxLines: 1, overflow: TextOverflow.ellipsis),
                         ]),
                       ),
                     )),
                   ],
                 ]),
+              ),
+              const SizedBox(height: Sp.sm),
+              // ── انتخاب چهره ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(Sp.md, 0, Sp.md, Sp.md),
+                child: SizedBox(
+                  height: 84,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: VzKawaiiMood.values.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
+                    itemBuilder: (ctx, i) {
+                      final m = VzKawaiiMood.values[i];
+                      final sel = _petMood == m;
+                      return GestureDetector(
+                        onTap: () async {
+                          setState(() => _petMood = m);
+                          final p = await SharedPreferences.getInstance();
+                          await p.setString('pet_mood', m.name);
+                        },
+                        child: AnimatedContainer(
+                          duration: Mo.fast, curve: Mo.easeOut,
+                          width: 68,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          decoration: BoxDecoration(
+                            color: sel ? Vz.accentSoft : Vz.cardHi,
+                            borderRadius: Rad.r(Rad.sm),
+                            border: Border.all(
+                              color: sel ? Vz.accent : Vz.border),
+                          ),
+                          child: Column(children: [
+                            VzKawaii(
+                              kind: _petKind,
+                              mood: m,
+                              color: sel ? Vz.accent : Vz.textSec,
+                              size: 44),
+                            const SizedBox(height: 3),
+                            Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
+                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                          ]),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ]),
           ),

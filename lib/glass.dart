@@ -8,6 +8,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'vz_icons.dart';
+import 'vz_motion.dart';
 
 export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg;
 
@@ -197,13 +198,18 @@ class VzGlass extends StatelessWidget {
     }
     return Padding(
       padding: margin ?? EdgeInsets.zero,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          borderRadius: BorderRadius.circular(radius),
-          child: body,
+      child: VzPress(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        scale: 0.975,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            borderRadius: BorderRadius.circular(radius),
+            child: body,
+          ),
         ),
       ),
     );

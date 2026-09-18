@@ -113,17 +113,21 @@ class _PetHost extends StatefulWidget {
 class _PetHostState extends State<_PetHost> {
   bool _on = false;
   VzKawaiiMood? _mood;
+  VzKawaiiKind _kind = VzKawaiiKind.cat;
 
   @override
   void initState() {
     super.initState();
     SharedPreferences.getInstance().then((p) {
-      final raw = p.getString('pet_mood');
+      final rawMood = p.getString('pet_mood');
+      final rawKind = p.getString('pet_kind');
       if (mounted) {
         setState(() {
           _on = p.getBool('pet_enabled') ?? false;
-          _mood = raw == null ? null : VzKawaiiMood.values
-            .firstWhere((m) => m.name == raw, orElse: () => VzKawaiiMood.blissful);
+          _mood = rawMood == null ? null : VzKawaiiMood.values
+            .firstWhere((m) => m.name == rawMood, orElse: () => VzKawaiiMood.blissful);
+          _kind = VzKawaiiKind.values
+            .firstWhere((k) => k.name == rawKind, orElse: () => VzKawaiiKind.cat);
         });
       }
     });
@@ -132,6 +136,6 @@ class _PetHostState extends State<_PetHost> {
   @override
   Widget build(BuildContext context) {
     if (!_on || !Vz.animations) return const SizedBox.shrink();
-    return VzPetLayer(mood: _mood);
+    return VzPetLayer(mood: _mood, kind: _kind);
   }
 }
