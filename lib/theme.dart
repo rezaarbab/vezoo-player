@@ -18,7 +18,7 @@ import 'vz_anime_themes.dart';
 export 'vz_theme.dart'
     show VzPalette, VzBgStyle, vzBuildPalette, vzBackground, vzOnColor,
          vzContrast, kVzSeeds;
-export 'vz_anime_themes.dart' show VzThemeDef, kVzThemes, vzThemeById;
+export 'vz_anime_themes.dart' show VzThemeDef, kVzThemes, vzThemeById, vzVibeIcon;
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  THEME MODE

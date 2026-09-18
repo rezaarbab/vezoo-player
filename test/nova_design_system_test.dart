@@ -41,7 +41,7 @@ void main() {
         for (final dark in [true, false]) {
           final p = vzBuildPalette(s, dark: dark);
           expect(vzContrast(p.onAccent, p.accent), greaterThan(3.0),
-              reason: 'seed \ dark=\');
+              reason: 'seed ${s.toARGB32().toRadixString(16)} dark=$dark');
         }
       }
     });

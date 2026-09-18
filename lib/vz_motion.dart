@@ -267,7 +267,7 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
             const SizedBox(height: Sp.xs),
             VzFadeSlide(
               index: 6,
-              child: Text(Vz.preset.name.toUpperCase(),
+              child: Text(Vz.theme.name.toUpperCase(),
                 style: Ty.overline.copyWith(color: Vz.accent, letterSpacing: 4)),
             ),
             const SizedBox(height: Sp.xxl),
