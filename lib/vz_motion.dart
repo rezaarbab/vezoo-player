@@ -450,6 +450,7 @@ class _VzTappableState extends State<VzTappable>
 
   void _downAt(Offset p) {
     _origin = p;
+    if (!Vz.animations || !Vz.clickEnabled) return;
     if (_c != null) _c!.forward(from: 0);
     if (_style == VzClickStyle.spring ||
         _style == VzClickStyle.lift ||
@@ -472,12 +473,13 @@ class _VzTappableState extends State<VzTappable>
     final style = _style;
     final accent = widget.color ?? Vz.accent;
     final radius = widget.radius ?? BorderRadius.zero;
-    final on = Vz.animations;
+    // افکت بصری فقط وقتی انیمیشن‌ها روشن‌اند و کلید افکت لمسی فعال است.
+    final on = Vz.animations && Vz.clickEnabled && style != VzClickStyle.none;
 
     // ── بدنه‌ی پایه + موج (برای ripple) ──
     Widget core = widget.child;
 
-    if (style == VzClickStyle.ripple && _c != null) {
+    if (on && style == VzClickStyle.ripple && _c != null) {
       core = ClipRRect(
         borderRadius: radius,
         child: Stack(children: [

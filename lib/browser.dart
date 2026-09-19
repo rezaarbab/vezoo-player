@@ -181,16 +181,30 @@ class BrowserScreenState extends State<BrowserScreen>{
     }
   }
 
-  Future<void> _openVideo(File video,[List<File>?playlist,int?idx])async{
-    final pl=playlist??_filteredVideos;
-    final i=idx??pl.indexOf(video);
-    // صفحه‌ی جزئیات سبک Tako — choice قسمت‌ها و اطلاعات، سپس پلیر
-    await VzDetailScreen.open(context, file: video, playlist: pl, index: i<0?0:i);
-    await Store.load();
-    if(mounted)setState((){});
-  }
+Future<void> _openVideo(File video,[List<File>?playlist,int?idx])async{
+  final pl=(playlist??_filteredVideos);
+  final list=pl.isEmpty?[video]:pl;
+  final start=(idx??list.indexOf(video));
+  final index=start<0?0:(start>=list.length?list.length-1:start);
+  // بر خلاف قبل، تک‌ضربه روی ویدیو مستقیم پخش می‌کند. صفحه‌ی اطلاعات/قسمت‌ها
+  // از منوی نگه‌داشتن (long-press) در دسترس است.
+  await Navigator.push(context,MaterialPageRoute(builder:(_)=>PlayerScreen(
+    playlist:list,
+    playlistIndex:index,
+  )));
+  await Store.load();
+  if(mounted)setState((){});
+}
 
-  Future<void> _openVideoByPath(String path)async{
+Future<void> _openVideoDetail(File video,[List<File>?playlist,int?idx])async{
+  final pl=playlist??_filteredVideos;
+  final i=idx??pl.indexOf(video);
+  await VzDetailScreen.open(context, file: video, playlist: pl, index: i<0?0:i);
+  await Store.load();
+  if(mounted)setState((){});
+}
+
+Future<void> _openVideoByPath(String path)async{
     final f=File(path);
     if(!f.existsSync()){showSnack(context, L.fileNotFound);return;}
     await _openVideo(f,[f],0);
@@ -209,6 +223,7 @@ class BrowserScreenState extends State<BrowserScreen>{
       builder:(ctx)=>VideoMenu(
         file:f,
         onDone:()async{Navigator.pop(ctx);await Store.load();_loadDir(_path);},
+        onEpisodes:(){Navigator.pop(ctx);_openVideoDetail(f);},
         onInfo:(){Navigator.pop(ctx);_showFileInfo(f);},
         onDelete:(){Navigator.pop(ctx);_confirmDelete([f]);},
         onRename:(){Navigator.pop(ctx);_renameFile(f);},
@@ -1263,7 +1278,9 @@ Future<Uint8List?> browserThumbFuture(String path) => _loadThumb(path);
 class VideoMenu extends StatefulWidget{
   final File file;
   final VoidCallback onDone,onInfo,onDelete,onRename,onSelect,onCopy,onMove,onRate,onNote;
-  const VideoMenu({super.key,required this.file,required this.onDone,required this.onInfo,required this.onDelete,required this.onRename,required this.onSelect,required this.onCopy,required this.onMove,required this.onRate,required this.onNote});
+  /// اختیاری: باز کردن صفحه‌ی اطلاعات/قسمت‌ها (سبک Tako)
+  final VoidCallback? onEpisodes;
+  const VideoMenu({super.key,required this.file,required this.onDone,required this.onInfo,required this.onDelete,required this.onRename,required this.onSelect,required this.onCopy,required this.onMove,required this.onRate,required this.onNote,this.onEpisodes});
   @override State<VideoMenu> createState()=>_VideoMenuState();
 }
 class _VideoMenuState extends State<VideoMenu>{
@@ -1280,6 +1297,8 @@ class _VideoMenuState extends State<VideoMenu>{
       Expanded(child:Text(p.basename(widget.file.path),style:const TextStyle(fontWeight:FontWeight.w600,fontSize:13),maxLines:2)),
     ])),
     const SizedBox(height:8),const Divider(height:1),
+    if(widget.onEpisodes!=null)
+      _mi(VzIcons.data('video'),kAccent,'Episodes / Info',widget.onEpisodes!),
     _mi(VzIcons.data('info'),kTextSec,L.fileInfo,widget.onInfo),
     _mi2(VzIcons.data('bookmark'),_bkm?kAmber:kTextSec,_bkm?L.removeBookmark:L.addBookmark,()async{await Store.toggleBookmark(widget.file.path);setState(()=>_bkm=!_bkm);widget.onDone();}),
     _mi2(VzIcons.data('favorite'),_fav?kPink:kTextSec,_fav?L.removeFavorite:L.favorites,()async{await Store.toggleFavorite(widget.file.path);setState(()=>_fav=!_fav);widget.onDone();}),

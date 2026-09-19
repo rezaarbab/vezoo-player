@@ -76,29 +76,43 @@ class _SettingsScreenState extends State<SettingsScreen>{
             ),
           ),
           const SizedBox(height: Sp.sm),
-          // ── سبک انیمیشن کلیک ──
+          // ── انیمیشن لمس (کلیک) ──
           VzGlass(
-            padding: EdgeInsets.all(Sp.md),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                Icon(VzIcons.data('gesture'), size: 18, color: Vz.accent),
-                const SizedBox(width: 8),
-                Text('انیمیشن کلیک',
-                  style: Ty.body.copyWith(fontWeight: FontWeight.w600)),
-              ]),
-              const SizedBox(height: 4),
-              Text('افکت لمسی کارت‌ها و دکمه‌ها',
-                style: Ty.caption.copyWith(color: Vz.textSec)),
-              const SizedBox(height: Sp.sm),
-              Wrap(spacing: 8, runSpacing: 8, children: [
-                for (final s in VzClickStyle.values)
-                  _ClickStyleChip(
-                    style: s,
-                    selected: VzThemeScope.clickStyleOf(context) == s,
-                    onTap: () => context
-                        .findAncestorStateOfType<VzThemeState>()?.setClickStyle(s),
-                  ),
-              ]),
+            padding: EdgeInsets.zero,
+            child: Column(children: [
+              VzRow(
+                icon: VzIcons.data('gesture'),
+                title: L.touchFx,
+                subtitle: L.touchFxDesc,
+                accent: Vz.accent,
+                trailing: Switch(
+                  value: VzThemeScope.clickEnabledOf(context),
+                  onChanged: (v) => context
+                      .findAncestorStateOfType<VzThemeState>()?.setClickEnabled(v),
+                ),
+              ),
+              if (VzThemeScope.clickEnabledOf(context)) ...[
+                const Divider(height: 1, indent: 56),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(Sp.md, Sp.sm, Sp.md, Sp.md),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(L.touchFxStyle,
+                      style: Ty.caption.copyWith(color: Vz.textSec)),
+                    const SizedBox(height: Sp.sm),
+                    Wrap(spacing: 8, runSpacing: 8, children: [
+                      for (final s in VzClickStyle.values)
+                        _ClickStyleChip(
+                          style: s,
+                          selected: VzThemeScope.clickStyleOf(context) == s,
+                          onTap: () => context
+                              .findAncestorStateOfType<VzThemeState>()?.setClickStyle(s),
+                        ),
+                    ]),
+                    const SizedBox(height: Sp.sm),
+                    _ClickPreview(),
+                  ]),
+                ),
+              ],
             ]),
           ),
 
@@ -709,8 +723,33 @@ class VzRow extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  _ClickStyleChip — انتخاب سبک انیمیشن کلیک
+//  _ClickPreview — کارت نمونه برای دیدن افکت لمس
 // ─────────────────────────────────────────────────────────────────────────────
+class _ClickPreview extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return VzTappable(
+      radius: Rad.r(Rad.sm),
+      color: Vz.accent,
+      onTap: () => showSnack(context, L.touchFxTry, color: Vz.accent, seconds: 1),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: Sp.md, vertical: 14),
+        decoration: BoxDecoration(
+          color: Vz.cardHi,
+          borderRadius: Rad.r(Rad.sm),
+          border: Border.all(color: Vz.border),
+        ),
+        child: Row(children: [
+          Icon(VzIcons.data('gesture'), size: 18, color: Vz.accent),
+          const SizedBox(width: Sp.sm),
+          Text(L.touchFxTry, style: Ty.label.copyWith(color: Vz.textSec)),
+        ]),
+      ),
+    );
+  }
+}
+
 class _ClickStyleChip extends StatelessWidget {
   final VzClickStyle style;
   final bool selected;

@@ -12,6 +12,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
+import 'package:player/vz_motion.dart';
 
 double _lum(Color c) {
   double f(double v) =>
@@ -152,6 +153,55 @@ void main() {
       await tester.pumpAndSettle();
       expect(Vz.isDark, isFalse,
           reason: 'بار دوم رفتن به روشن هم باید Vz را روشن کند');
+    });
+  });
+
+  group('Touch feedback toggle', () {
+    testWidgets('disabling touch feedback silences the visual effect',
+        (tester) async {
+      final key = GlobalKey<VzThemeState>();
+      var taps = 0;
+
+      await tester.pumpWidget(VzTheme(
+        key: key,
+        child: MaterialApp(home: Scaffold(
+          body: Center(child: VzTappable(
+            onTap: () => taps++,
+            child: const SizedBox(width: 80, height: 80,
+                child: ColoredBox(color: Color(0xFF3366FF))),
+          )),
+        )),
+      ));
+      await tester.pumpAndSettle();
+
+      // روشن: باید کار کند
+      key.currentState!.setClickEnabled(true);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VzTappable));
+      await tester.pumpAndSettle();
+      expect(taps, equals(1), reason: 'ضربه در حالت فعال شمرده نشد');
+
+      // خاموش: باز هم باید ضربه را بگیرد، ولی بدون افکت
+      key.currentState!.setClickEnabled(false);
+      await tester.pumpAndSettle();
+      expect(Vz.clickEnabled, isFalse);
+      await tester.tap(find.byType(VzTappable));
+      await tester.pumpAndSettle();
+      expect(taps, equals(2), reason: 'ضربه در حالت خاموش باید باز هم بگیرد');
+    });
+
+    testWidgets('there is exactly one click-style selection at a time',
+        (tester) async {
+      final key = GlobalKey<VzThemeState>();
+      await tester.pumpWidget(VzTheme(
+        key: key, child: const MaterialApp(home: _Probe())));
+      await tester.pumpAndSettle();
+
+      for (final s in VzClickStyle.values) {
+        key.currentState!.setClickStyle(s);
+        await tester.pumpAndSettle();
+        expect(Vz.clickStyle, equals(s));
+      }
     });
   });
 }

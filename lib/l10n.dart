@@ -480,6 +480,8 @@ class L {
   static String get compactView => _t({'en':'Compact','fa':'فشرده','ar':'مضغوط','ru':'Компактно','zh':'紧凑','ja':'コンパクト','hi':'कॉम्पैक्ट','id':'Ringkas'});
   static String get foldersFirst => _t({'en':'Folders first','fa':'پوشه‌ها اول','ar':'المجلدات أولاً','ru':'Папки сначала','zh':'文件夹优先','ja':'フォルダを先頭に','hi':'फ़ोल्डर पहले','id':'Folder dulu'});
   static String get iconPack => _t({'en':'Icon pack','fa':'پک آیکون','ar':'حزمة الأيقونات','ru':'Набор иконок','zh':'图标包','ja':'アイコンパック','hi':'आइकन पैक','id':'Paket ikon'});
-  static String get animePet => _t({'en':'Anime pet','fa':'پت انیمه','ar':'حيوان أنمي','ru':'Аниме-питомец','zh':'动漫宠物','ja':'アニメペット','hi':'एनीमे पेट','id':'Hewan anime'});
-  static String get animePetDesc => _t({'en':'A little character that walks around and follows your finger','fa':'کاراکتر کوچکی که راه می‌رود و انگشت شما را دنبال می‌کند','ar':'شخصية صغيرة تمشي وتتبع إصبعك','ru':'Маленький персонаж, который ходит за пальцем','zh':'跟随手指走动的小角色','ja':'指を追いかける小さなキャラ','hi':'उंगली का पीछा करने वाला छोटा किरदार','id':'Karakter kecil yang mengikuti jarimu'});
+  static String get touchFx => _t({'en':'Touch feedback','fa':'انیمیشن لمس','ar':'تفاعل اللمس','ru':'Отклик касания','zh':'触摸反馈','ja':'タッチフィードバック','hi':'टच फ़ीडबैक','id':'Umpan balik sentuh'});
+  static String get touchFxDesc => _t({'en':'Visual effect when you tap cards and buttons','fa':'افکت بصری هنگام لمس کارت‌ها و دکمه‌ها','ar':'تأثير بصري عند لمس البطاقات والأزرار','ru':'Визуальный эффект при нажатии карточек и кнопок','zh':'点击卡片和按钮时的视觉效果','ja':'カードやボタンを押したときの視覚効果','hi':'कार्ड और बटन दबाने पर दृश्य प्रभाव','id':'Efek visual saat menyentuh kartu dan tombol'});
+  static String get touchFxStyle => _t({'en':'Effect style','fa':'نوع افکت','ar':'نمط التأثير','ru':'Стиль эффекта','zh':'效果样式','ja':'エフェクトの種類','hi':'प्रभाव शैली','id':'Gaya efek'});
+  static String get touchFxTry => _t({'en':'Tap to try','fa':'برای تست بزن','ar':'اضغط للتجربة','ru':'Нажмите, чтобы попробовать','zh':'点击试用','ja':'タップして試す','hi':'आज़माने के लिए टैप करें','id':'Ketuk untuk mencoba'});
 }

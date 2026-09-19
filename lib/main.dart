@@ -85,6 +85,11 @@ void main() async {
   storeClickSave = (v) async {
     await (await SharedPreferences.getInstance()).setString('app_click_style', v);
   };
+  storeClickOnPrefs = () async =>
+      (await SharedPreferences.getInstance()).getBool('app_click_on');
+  storeClickOnSave = (v) async {
+    await (await SharedPreferences.getInstance()).setBool('app_click_on', v);
+  };
   storeBgPrefs = () async =>
       (await SharedPreferences.getInstance()).getString('app_bg_style');
   storeBgSave = (v) async {
