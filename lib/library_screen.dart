@@ -547,9 +547,10 @@ class _MediaCard extends StatelessWidget {
     final isTile = layout == LibLayout.tiles;
     final radius = isTile ? Rad.s(Rad.sm) : Rad.s(Rad.md);
 
-    return GestureDetector(
+    return VzTappable(
       onTap: _exists ? onTap : null,
       onLongPress: onLongPress,
+      radius: BorderRadius.circular(radius),
       child: VzPopIn(
         from: 0.96,
         child: ClipRRect(

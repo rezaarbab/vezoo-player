@@ -992,9 +992,9 @@ class VzNavDock extends StatelessWidget {
       container: true,
       excludeSemantics: true,
       onTap: () => onSelect(dest),
-      child: GestureDetector(
+      child: VzTappable(
         onTap: () => onSelect(dest),
-        behavior: HitTestBehavior.opaque,
+        radius: Rad.r(Rad.full),
         child: AnimatedContainer(
           duration: Mo.normal,
           curve: Mo.easeOut,

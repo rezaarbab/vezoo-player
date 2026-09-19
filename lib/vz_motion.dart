@@ -439,7 +439,10 @@ class _VzTappableState extends State<VzTappable>
 
   @override void initState() {
     super.initState();
-    if (Vz.animations) {
+    // افکت لمسی مستقل از کلید انیمیشن‌های ترنزیشن است؛ فقط به
+    // Vz.clickEnabled بستگی دارد تا خاموش کردن «انیمیشن‌ها» آن را از کار
+    // نیندازد.
+    if (Vz.clickEnabled) {
       _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
     }
   }
@@ -450,7 +453,7 @@ class _VzTappableState extends State<VzTappable>
 
   void _downAt(Offset p) {
     _origin = p;
-    if (!Vz.animations || !Vz.clickEnabled) return;
+    if (!Vz.clickEnabled) return;
     if (_c != null) _c!.forward(from: 0);
     if (_style == VzClickStyle.spring ||
         _style == VzClickStyle.lift ||
@@ -462,7 +465,7 @@ class _VzTappableState extends State<VzTappable>
   void _up() { if (_down) setState(() => _down = false); }
 
   void _fire() {
-    if (widget.haptic && Vz.animations) HapticFeedback.selectionClick();
+    if (widget.haptic && Vz.clickEnabled) HapticFeedback.selectionClick();
     widget.onTap?.call();
   }
 
@@ -474,7 +477,7 @@ class _VzTappableState extends State<VzTappable>
     final accent = widget.color ?? Vz.accent;
     final radius = widget.radius ?? BorderRadius.zero;
     // افکت بصری فقط وقتی انیمیشن‌ها روشن‌اند و کلید افکت لمسی فعال است.
-    final on = Vz.animations && Vz.clickEnabled && style != VzClickStyle.none;
+    final on = Vz.clickEnabled && style != VzClickStyle.none;
 
     // ── بدنه‌ی پایه + موج (برای ripple) ──
     Widget core = widget.child;

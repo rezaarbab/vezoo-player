@@ -893,8 +893,9 @@ class _VideoTile extends StatelessWidget{
         LibLayout.poster => _poster(context),
         LibLayout.tiles => _tileSquare(context),
       });
-    return GestureDetector(
+    return VzTappable(
       onTap:onTap,onLongPress:onLongPress,
+      radius: Rad.r(layout==LibLayout.tiles?Rad.sm:Rad.md),
       child:anim);
   }
 
@@ -1214,24 +1215,12 @@ class _EnterAnim extends StatelessWidget{
       VzPopIn(index: index, from: 0.94, child: child);
 }
 
-/// فشردن نرم — با کلید انیمیشن کاربر هماهنگ است.
-class _Pressable extends StatefulWidget{
+/// فشردن نرم — از سبک افکت لمسی انتخاب‌شده در تنظیمات پیروی می‌کند.
+class _Pressable extends StatelessWidget{
   final Widget child; final VoidCallback? onTap; final VoidCallback? onLongPress;
   const _Pressable({required this.child,this.onTap,this.onLongPress});
-  @override State<_Pressable> createState()=>_PressableState();
-}
-class _PressableState extends State<_Pressable>{
-  bool _down=false;
-  @override Widget build(BuildContext context)=>GestureDetector(
-    onTap:widget.onTap,
-    onLongPress:widget.onLongPress,
-    onTapDown:widget.onTap==null?null:(_)=>setState(()=>_down=true),
-    onTapUp:(_)=>setState(()=>_down=false),
-    onTapCancel:()=>setState(()=>_down=false),
-    child:AnimatedScale(
-      scale:_down?0.97:1.0,
-      duration:Mo.press,curve:Mo.easeOut,
-      child:widget.child));
+  @override Widget build(BuildContext context) =>
+      VzTappable(onTap: onTap, onLongPress: onLongPress, child: child);
 }
 
 enum LibLayout {

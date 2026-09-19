@@ -715,10 +715,7 @@ class VzRow extends StatelessWidget {
       ]),
     );
     if (onTap == null) return row;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(onTap: onTap, child: row),
-    );
+    return VzTappable(onTap: onTap, radius: Rad.r(Rad.md), child: row);
   }
 }
 
@@ -775,8 +772,9 @@ class _ClickStyleChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return VzTappable(
       onTap: onTap,
+      radius: Rad.r(Rad.sm),
       child: AnimatedContainer(
         duration: Mo.fast, curve: Mo.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
