@@ -119,7 +119,55 @@ void main() {
       expect(probe.style?.color, equals(Vz.text),
           reason: 'ویجت با رنگ کهنه رندر شده');
     });
+
+    testWidgets('dark -> light -> dark never leaves Vz in the wrong mode',
+        (tester) async {
+      // باگ گزارش‌شده: بعد از یک بار dark/light، بار دوم خراب می‌شد. علتش
+      // این بود که MaterialApp هم theme و هم darkTheme را می‌ساخت و
+      // buildVezooTheme وضعیت global Vz را ست می‌کند، پس ساخت darkTheme
+      // (همیشه dark:true) آخرین برنده بود و Vz در تم روشن هم تیره می‌ماند.
+      //
+      // این تست دقیقاً همان چرخه را با MaterialApp واقعی اجرا می‌کند و
+      // می‌سنجد که Vz.isDark با حالت انتخاب‌شده هم‌خوان بماند.
+      final key = GlobalKey<VzThemeState>();
+
+      await tester.pumpWidget(VzTheme(key: key, child: const _RealApp()));
+      await tester.pumpAndSettle();
+      key.currentState!.setMode(VzThemeMode.dark);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isTrue);
+
+      key.currentState!.setMode(VzThemeMode.light);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isFalse,
+          reason: 'بعد از رفتن به روشن، Vz تیره مانده');
+      expect(_contrast(Vz.text, Vz.card), greaterThanOrEqualTo(4.5));
+
+      // و دوباره تیره — بار دوم باید هنوز درست باشد
+      key.currentState!.setMode(VzThemeMode.dark);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isTrue);
+
+      key.currentState!.setMode(VzThemeMode.light);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isFalse,
+          reason: 'بار دوم رفتن به روشن هم باید Vz را روشن کند');
+    });
   });
+}
+
+/// شبیه ساختار واقعی: VzTheme → MaterialApp با theme بر اساس روشن/تیره.
+class _RealApp extends StatelessWidget {
+  const _RealApp();
+  @override
+  Widget build(BuildContext context) {
+    final dark = VzThemeScope.of(context);
+    return MaterialApp(
+      theme: buildVezooTheme(dark: dark),
+      themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+      home: const _Probe(),
+    );
+  }
 }
 
 class _Probe extends StatelessWidget {

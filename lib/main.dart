@@ -138,8 +138,11 @@ class VzThemeScopeBuilder extends StatelessWidget {
       scaffoldMessengerKey: rootScaffoldKey,
       title: 'Vezoo',
       debugShowCheckedModeBanner: false,
+      // فقط یک ThemeData می‌سازیم. قبلاً darkTheme هم ساخته می‌شد و چون
+      // buildVezooTheme وضعیت global Vz را ست می‌کند، ساخت darkTheme
+      // (همیشه dark:true) آخرین اجرا بود و Vz را در تم روشن هم تیره
+      // می‌گذاشت. با ست کردن صریح themeMode، theme کافی است.
       theme: buildVezooTheme(dark: dark),
-      darkTheme: buildVezooTheme(dark: true),
       themeMode: dark ? ThemeMode.dark : ThemeMode.light,
       builder: (ctx, child) {
         final mq = MediaQuery.of(ctx);
