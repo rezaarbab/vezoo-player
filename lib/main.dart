@@ -163,12 +163,15 @@ class _HomeWrapper extends StatefulWidget {
   @override State<_HomeWrapper> createState()=>_HomeWrapperState();
 }
 class _HomeWrapperState extends State<_HomeWrapper>{
-  /// اسپلش کوتاه — تا آماده شدن تنظیمات و چک‌های استارتاپ.
-  bool _splash = true;
+  /// اسپلش فقط یک‌بار در طول عمر پروسه نشان داده می‌شود (نه با هر تغییر تم).
+  static bool _splashShown = false;
+  bool _splash = !_splashShown;
 
   @override void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_)=>_startup());
+    if (!_splash) return;
+    _splashShown = true;
     Future.delayed(Duration(milliseconds: Vz.animations ? 1500 : 300), (){
       if (mounted) setState(()=>_splash = false);
     });
@@ -245,8 +248,6 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     switchOutCurve: Curves.easeInCubic,
     child: _splash
       ? const VzSplash(key: ValueKey('splash'))
-      // کلید وابسته به تم: با هر تغییر تم/حالت/رنگ دانه، کل درخت از نو
-      // ساخته می‌شود تا رنگ‌های Vz.* سراسری کهنه نمانند.
-      : VzShell(key: ValueKey('shell|${Vz.theme.id}|${Vz.isDark}|${Vz.seed}|${Vz.clickStyle}')),
+      : const VzShell(key: ValueKey('shell')),
   );
 }

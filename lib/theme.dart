@@ -490,6 +490,13 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     Vz._setCustomSeed(_customSeed);
     Vz._setDynamicSeed(_dynamicSeed);
     return VzThemeScope(
+      // کلید وابسته به رنگ‌بندی تم: با تغییر تم/حالت/رنگ دانه، scope و کل
+      // زیردرختش (MaterialApp، Navigator و routeهای باز) از نو ساخته
+      // می‌شوند. بدون این، صفحه‌ای که با push باز مانده رنگ تم قبلی را
+      // نگه می‌دارد. انیمیشن و سبک کلیک عمداً در کلید نیستند تا تغییرشان
+      // صفحه‌ی جاری را از دست ندهد.
+      key: ValueKey('vz-scope|${_theme.id}|$dark|${_bg.name}|'
+          '$_customSeed|$_dynamicSeed'),
       isDark: dark,
       mode: _mode,
       themeId: _theme.id,

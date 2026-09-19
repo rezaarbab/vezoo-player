@@ -86,6 +86,39 @@ void main() {
       expect(probe.style?.color, equals(Vz.text),
           reason: 'ویجت با رنگ کهنه رندر شده');
     });
+
+    testWidgets('switching between two dark themes still repaints',
+        (tester) async {
+      // این سناریویی است که کاربر گزارش کرد: هر دو تم تیره‌اند، پس isDark
+      // عوض نمی‌شود؛ فقط themeId و seed. اگر کلید درخت به themeId وابسته
+      // نباشد، ویجت‌ها رنگ تم قبلی را نگه می‌دارند.
+      final key = GlobalKey<VzThemeState>();
+      await tester.pumpWidget(VzTheme(
+        key: key,
+        child: const MaterialApp(home: _Probe()),
+      ));
+      await tester.pumpAndSettle();
+
+      final state = key.currentState!;
+      final first = state.theme;
+      final other = kVzThemes.firstWhere((t) => t.id != first.id);
+
+      state.setTheme(first);
+      await tester.pumpAndSettle();
+      final seedBefore = Vz.seed;
+
+      state.setTheme(other);
+      await tester.pumpAndSettle();
+
+      expect(Vz.theme.id, equals(other.id));
+      // رنگ متن ممکن است در دو تم تیره یکسان بماند، ولی seed باید عوض شود —
+      // و ویجت باید رنگ تازه را دیده باشد.
+      expect(Vz.seed, isNot(equals(seedBefore)),
+          reason: 'seed بعد از تغییر تم عوض نشد');
+      final probe = tester.widget<Text>(find.byKey(const ValueKey('probe')));
+      expect(probe.style?.color, equals(Vz.text),
+          reason: 'ویجت با رنگ کهنه رندر شده');
+    });
   });
 }
 
