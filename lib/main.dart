@@ -156,7 +156,10 @@ class VzThemeScopeBuilder extends StatelessWidget {
           data: mq.copyWith(disableAnimations: !Vz.animations),
           child: Directionality(
             textDirection: langDir(L.current),
-            child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
+            // VzGlobalRipple: موج از نقطه‌ی هر لمس روی کل صفحه، حتی فضای خالی.
+            child: VzGlobalRipple(
+              child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
+            ),
           ),
         );
       },

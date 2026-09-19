@@ -443,14 +443,18 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   }
 
   /// انتخاب تم آماده — پس‌زمینه هم پیش‌فرض همان تم می‌شود.
+  /// حالت روشن/تیره هم با تم هم‌خوان می‌شود تا تم روشن (Day) واقعاً روشن
+  /// باشد و ترکیب ناهماهنگِ «آیکون تیره روی سطح تیره» رخ ندهد.
   Future<void> setTheme(VzThemeDef t) async {
     _theme = t;
     _bg = t.bg;
     _customSeed = null; // تم جدید یعنی seed خودش
+    _mode = t.dark ? VzThemeMode.dark : VzThemeMode.light;
     setState(() {});
     await storeThemeIdSave?.call(t.id);
     await storeBgSave?.call(t.bg.name);
     await storeCustomSeedSave?.call(null);
+    await storeThemeSave?.call(t.dark ? 'dark' : 'light');
   }
 
   Future<void> setBgStyle(VzBgStyle s) async {

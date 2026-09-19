@@ -633,3 +633,110 @@ class _RipplePainter extends CustomPainter {
   bool shouldRepaint(covariant _RipplePainter old) =>
       old.progress != progress || old.origin != origin;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VzGlobalRipple — موج از نقطه‌ی هر لمس روی کل صفحه
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// دور کل اپ می‌پیچد و با هر لمس (هرجای صفحه، حتی فضای خالی) یک موج از
+/// نقطه‌ی لمس می‌کشد. از [Listener] استفاده می‌کند که رویداد را مصرف
+/// نمی‌کند؛ پس دکمه‌ها و ژست‌های زیرش دست‌نخورده می‌مانند.
+///
+/// با [Vz.clickEnabled] و سبک‌های موج‌محور (ripple) فعال می‌شود. برای
+/// سبک‌های دیگر (فنری/درخشش/...) این لایه کار نمی‌کند چون آن‌ها به خودِ
+/// ویجت گره خورده‌اند.
+class VzGlobalRipple extends StatefulWidget {
+  final Widget child;
+  const VzGlobalRipple({super.key, required this.child});
+  @override State<VzGlobalRipple> createState() => _VzGlobalRippleState();
+}
+
+class _VzGlobalRippleState extends State<VzGlobalRipple>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  final List<_TouchBlip> _blips = [];
+
+  @override void initState() {
+    super.initState();
+    // کنترلر همیشه ساخته می‌شود؛ فعال/غیرفعال بودن در زمان لمس و build
+    // چک می‌شود تا تغییر سبک نیازی به rebuild نداشته باشد.
+    _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 520))
+      ..addListener(() { if (mounted) setState(() {}); });
+  }
+
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+
+  bool get _active =>
+      Vz.clickEnabled && Vz.clickStyle == VzClickStyle.ripple;
+
+  void _onDown(PointerDownEvent e) {
+    if (!_active) return;
+    if (_c == null) return;
+    // چند لمس هم‌زمان پشتیبانی می‌شوند.
+    if (_blips.length > 6) _blips.removeAt(0);
+    setState(() => _blips.add(_TouchBlip(e.localPosition)));
+    _c!.forward(from: 0);
+  }
+
+  @override Widget build(BuildContext context) {
+    if (!_active) return widget.child;
+    final t = Curves.easeOut.transform(_c!.value);
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: _onDown,
+      child: Stack(children: [
+        widget.child,
+        if (t < 1)
+          Positioned.fill(child: IgnorePointer(
+            child: CustomPaint(
+              painter: _GlobalRipplePainter(
+                origins: [for (final b in _blips) b.pos],
+                progress: t,
+                color: Vz.accent,
+              ),
+            ),
+          )),
+      ]),
+    );
+  }
+}
+
+class _TouchBlip {
+  final Offset pos;
+  _TouchBlip(this.pos);
+}
+
+class _GlobalRipplePainter extends CustomPainter {
+  final List<Offset> origins;
+  final double progress;
+  final Color color;
+  _GlobalRipplePainter({
+    required this.origins, required this.progress, required this.color,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0 || progress >= 1) return;
+    // حداکثر شعاع = فاصله تا دورترین گوشه از هر نقطه، ولی با سقف معقول
+    // تا روی صفحه‌های بزرگ دایره‌ی غول‌آسا نکشد.
+    final maxR = <double>[
+      (Offset.zero).distance,
+      Offset(size.width, 0).distance,
+      Offset(0, size.height).distance,
+      Offset(size.width, size.height).distance,
+    ].reduce((a, b) => a > b ? a : b);
+    final cap = maxR * 0.6;
+    final r = cap * Curves.easeOut.transform(progress);
+    final paint = Paint()
+      ..color = color.withValues(alpha: (1 - progress) * 0.16);
+    for (final o in origins) {
+      canvas.drawCircle(o, r, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GlobalRipplePainter old) =>
+      old.progress != progress || old.color != color ||
+      old.origins.length != origins.length;
+}

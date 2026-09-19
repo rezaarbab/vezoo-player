@@ -37,6 +37,10 @@ class VzThemeDef {
   /// برای تم‌هایی که رنگ دقیق برند مهم است (سبز Tako، قرمز MHT).
   final Color? accentLock;
 
+  /// حالت پیش‌فرض این تم. تم‌های روشن (مثل Day) این را false می‌گذارند تا
+  /// با انتخاب آن‌ها، حالت سیستم به‌طور خودکار روشن شود.
+  final bool dark;
+
   const VzThemeDef({
     required this.id,
     required this.name,
@@ -46,6 +50,7 @@ class VzThemeDef {
     required this.radiusScale,
     this.bgTint,
     this.accentLock,
+    this.dark = true,
   });
 
   /// رنگ دانه‌ی مؤثر برای ساخت پالت.
@@ -94,6 +99,7 @@ const List<VzThemeDef> kVzThemes = [
     tagline: 'Light · warm · clean',
     seed: Color(0xFF2563EB),
     bg: VzBgStyle.flat, radiusScale: 1.4,
+    dark: false,
   ),
 
   // ── Anime — صورتی موئه، گردترین ──

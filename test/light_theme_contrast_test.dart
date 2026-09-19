@@ -121,6 +121,30 @@ void main() {
           reason: 'ویجت با رنگ کهنه رندر شده');
     });
 
+    testWidgets('choosing a light theme also switches the mode', (tester) async {
+      // تم Day روشن است ولی قبلاً فقط seed بود و حالت را عوض نمی‌کرد؛
+      // نتیجه ترکیب ناهماهنگ «متن/آیکون تیره روی سطح تیره» بود.
+      final key = GlobalKey<VzThemeState>();
+      await tester.pumpWidget(VzTheme(key: key, child: const _RealApp()));
+      await tester.pumpAndSettle();
+
+      final day = kVzThemes.firstWhere((t) => t.id == 'day');
+      expect(day.dark, isFalse, reason: 'تم Day باید روشن باشد');
+
+      key.currentState!.setTheme(day);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isFalse,
+          reason: 'انتخاب تم روشن باید حالت را روشن کند');
+      expect(_contrast(Vz.text, Vz.card), greaterThanOrEqualTo(4.5));
+
+      // و انتخاب تم تیره دوباره تیره می‌کند
+      final tako = kVzThemes.firstWhere((t) => t.id == 'tako');
+      key.currentState!.setTheme(tako);
+      await tester.pumpAndSettle();
+      expect(Vz.isDark, isTrue);
+      expect(_contrast(Vz.text, Vz.card), greaterThanOrEqualTo(4.5));
+    });
+
     testWidgets('dark -> light -> dark never leaves Vz in the wrong mode',
         (tester) async {
       // باگ گزارش‌شده: بعد از یک بار dark/light، بار دوم خراب می‌شد. علتش

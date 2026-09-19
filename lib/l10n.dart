@@ -483,5 +483,4 @@ class L {
   static String get touchFx => _t({'en':'Touch feedback','fa':'انیمیشن لمس','ar':'تفاعل اللمس','ru':'Отклик касания','zh':'触摸反馈','ja':'タッチフィードバック','hi':'टच फ़ीडबैक','id':'Umpan balik sentuh'});
   static String get touchFxDesc => _t({'en':'Visual effect when you tap cards and buttons','fa':'افکت بصری هنگام لمس کارت‌ها و دکمه‌ها','ar':'تأثير بصري عند لمس البطاقات والأزرار','ru':'Визуальный эффект при нажатии карточек и кнопок','zh':'点击卡片和按钮时的视觉效果','ja':'カードやボタンを押したときの視覚効果','hi':'कार्ड और बटन दबाने पर दृश्य प्रभाव','id':'Efek visual saat menyentuh kartu dan tombol'});
   static String get touchFxStyle => _t({'en':'Effect style','fa':'نوع افکت','ar':'نمط التأثير','ru':'Стиль эффекта','zh':'效果样式','ja':'エフェクトの種類','hi':'प्रभाव शैली','id':'Gaya efek'});
-  static String get touchFxTry => _t({'en':'Tap to try','fa':'برای تست بزن','ar':'اضغط للتجربة','ru':'Нажмите, чтобы попробовать','zh':'点击试用','ja':'タップして試す','hi':'आज़माने के लिए टैप करें','id':'Ketuk untuk mencoba'});
 }

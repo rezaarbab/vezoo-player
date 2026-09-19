@@ -108,8 +108,6 @@ class _SettingsScreenState extends State<SettingsScreen>{
                               .findAncestorStateOfType<VzThemeState>()?.setClickStyle(s),
                         ),
                     ]),
-                    const SizedBox(height: Sp.sm),
-                    _ClickPreview(),
                   ]),
                 ),
               ],
@@ -716,41 +714,6 @@ class VzRow extends StatelessWidget {
     );
     if (onTap == null) return row;
     return VzTappable(onTap: onTap, radius: Rad.r(Rad.md), child: row);
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  _ClickPreview — کارت نمونه برای دیدن افکت لمس
-// ─────────────────────────────────────────────────────────────────────────────
-class _ClickPreview extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return VzTappable(
-      radius: Rad.r(Rad.sm),
-      color: Vz.accent,
-      onTap: () => ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(
-          content: Text(L.touchFxTry),
-          duration: const Duration(seconds: 1),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Vz.accent,
-        ),
-      ),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: Sp.md, vertical: 14),
-        decoration: BoxDecoration(
-          color: Vz.cardHi,
-          borderRadius: Rad.r(Rad.sm),
-          border: Border.all(color: Vz.border),
-        ),
-        child: Row(children: [
-          Icon(VzIcons.data('gesture'), size: 18, color: Vz.accent),
-          const SizedBox(width: Sp.sm),
-          Text(L.touchFxTry, style: Ty.label.copyWith(color: Vz.textSec)),
-        ]),
-      ),
-    );
   }
 }
 
