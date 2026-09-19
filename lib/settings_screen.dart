@@ -731,7 +731,14 @@ class _ClickPreview extends StatelessWidget {
     return VzTappable(
       radius: Rad.r(Rad.sm),
       color: Vz.accent,
-      onTap: () => showSnack(context, L.touchFxTry, color: Vz.accent, seconds: 1),
+      onTap: () => ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+        SnackBar(
+          content: Text(L.touchFxTry),
+          duration: const Duration(seconds: 1),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Vz.accent,
+        ),
+      ),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: Sp.md, vertical: 14),
