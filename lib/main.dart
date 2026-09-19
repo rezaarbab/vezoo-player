@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
-import 'browser.dart';
 import 'shell.dart';
 import 'store.dart';
 import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
-import 'vz_motion.dart';
 import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';

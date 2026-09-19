@@ -3,7 +3,6 @@
 // موتور تم به سبک Namida: کاربر یک **تم آماده** برمی‌گزیند یا یک **رنگ دانه**
 // دلخواه می‌دهد؛ کل پالت (سطح، متن، اکسنت) از همان ساخته می‌شود.
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'settings.dart' show ToolsTabBody;
 import 'ai_models_screen.dart';
 import 'vosk_models_screen.dart';
@@ -12,6 +11,8 @@ import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
 import 'vz_icons.dart';
+import 'vz_color_wheel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
