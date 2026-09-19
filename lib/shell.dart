@@ -82,10 +82,12 @@ class _VzShellState extends State<VzShell>{
         child: IndexedStack(
           index: _index,
           children: [
-            KeyedSubtree(key: _browserKey, child: const BrowserScreen()),
-            const IptvScreen(),
-            const LibraryScreen(),
-            const SettingsScreen(),
+            // بدون const — این صفحات باید با عوض شدن تم از نو ساخته شوند،
+            // وگرنه رنگ‌های Vz.* سراسری روی آن‌ها کهنه می‌ماند.
+            KeyedSubtree(key: _browserKey, child: BrowserScreen()),
+            IptvScreen(),
+            LibraryScreen(),
+            SettingsScreen(),
           ],
         ),
       ),

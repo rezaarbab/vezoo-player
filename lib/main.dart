@@ -245,6 +245,8 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     switchOutCurve: Curves.easeInCubic,
     child: _splash
       ? const VzSplash(key: ValueKey('splash'))
-      : const VzShell(key: ValueKey('shell')),
+      // کلید وابسته به تم: با هر تغییر تم/حالت/رنگ دانه، کل درخت از نو
+      // ساخته می‌شود تا رنگ‌های Vz.* سراسری کهنه نمانند.
+      : VzShell(key: ValueKey('shell|${Vz.theme.id}|${Vz.isDark}|${Vz.seed}|${Vz.clickStyle}')),
   );
 }
