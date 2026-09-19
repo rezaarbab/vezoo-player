@@ -202,7 +202,7 @@ class _VzHeroGlowState extends State<VzHeroGlow> with SingleTickerProviderStateM
   }
 }
 
-/// اسپلش متحرک — لوگو با انیمیشن ورود، هاله‌ی چرخان و نوار پیشرفت.
+/// اسپلش متحرک — لوگو، هاله‌ی دولایه، حروف VEZOO یکی‌یکی و نوار پیشرفت.
 class VzSplash extends StatefulWidget {
   const VzSplash({super.key});
   @override State<VzSplash> createState() => _VzSplashState();
@@ -210,79 +210,133 @@ class VzSplash extends StatefulWidget {
 
 class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
-    vsync: this, duration: const Duration(milliseconds: 1600))..forward();
+    vsync: this, duration: const Duration(milliseconds: 2200))..forward();
 
   @override void dispose() { _c.dispose(); super.dispose(); }
 
   @override Widget build(BuildContext context) {
+    final on = Vz.animations;
+    const letters = ['V', 'E', 'Z', 'O', 'O'];
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: DecoratedBox(
         decoration: BoxDecoration(gradient: Vz.bgGradient),
-        child: Center(child: VzAmbientBg(child: Column(
+        child: VzAmbientBg(child: Center(child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // هاله‌ی چرخان پشت لوگو
-            SizedBox(
-              width: 140, height: 140,
+            // ── نشان ──
+            SizedBox(width: 180, height: 180,
               child: Stack(alignment: Alignment.center, children: [
-                if (Vz.animations)
+                // هاله‌ی بیرونی چرخان
+                if (on)
                   RotationTransition(
-                    turns: CurvedAnimation(parent: _c, curve: Curves.easeOutCubic),
-                    child: Container(
-                      width: 120, height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
+                    turns: CurvedAnimation(parent: _c, curve: const Interval(0, 0.75, curve: Curves.easeOutCubic)),
+                    child: Container(width: 170, height: 170,
+                      decoration: BoxDecoration(shape: BoxShape.circle,
                         gradient: SweepGradient(colors: [
                           Vz.accent.withValues(alpha: 0),
-                          Vz.accent.withValues(alpha: 0.6),
+                          Vz.accent.withValues(alpha: 0.55),
                           Vz.accent.withValues(alpha: 0),
-                        ]),
-                      ),
-                    )),
+                        ]))),
+                  ),
+                // هاله‌ی درونی چرخان (معکوس، رنگ دوم)
+                if (on)
+                  RotationTransition(
+                    turns: ReverseAnimation(CurvedAnimation(
+                      parent: _c, curve: const Interval(0.1, 0.9, curve: Curves.easeOutCubic))),
+                    child: Container(width: 140, height: 140,
+                      decoration: BoxDecoration(shape: BoxShape.circle,
+                        gradient: SweepGradient(colors: [
+                          Vz.accentHi.withValues(alpha: 0),
+                          Vz.accentHi.withValues(alpha: 0.35),
+                          Vz.accentHi.withValues(alpha: 0),
+                        ]))),
+                  ),
+                // پالس نبض‌دار پشت لوگو
+                if (on)
+                  AnimatedBuilder(animation: _c, builder: (_, __) {
+                    final t = Curves.easeOut.transform(
+                      const Interval(0.25, 1, curve: Curves.easeOutCubic).transform(_c.value));
+                    return Container(width: 96 + t * 40, height: 96 + t * 40,
+                      decoration: BoxDecoration(shape: BoxShape.circle,
+                        color: Vz.accent.withValues(alpha: 0.12 * (1 - t))));
+                  }),
+                // خود لوگو
                 VzPopIn(
                   from: 0.4,
-                  child: VzHeroGlow(
-                    radius: 26,
-                    child: Container(
-                      width: 84, height: 84,
+                  child: VzHeroGlow(radius: 28,
+                    child: Container(width: 88, height: 88,
                       decoration: BoxDecoration(
                         gradient: Vz.auroraGrad,
                         borderRadius: Rad.r(Rad.lg),
+                        boxShadow: [BoxShadow(
+                          color: Vz.accent.withValues(alpha: 0.45),
+                          blurRadius: 30, spreadRadius: 2)],
                       ),
                       child: Icon(VzIcons.data('play'),
-                        color: Vz.onAccent, size: 46),
-                    ),
-                  ),
+                        color: Vz.onAccent, size: 48))),
                 ),
               ]),
             ),
             const SizedBox(height: Sp.xl),
-            VzFadeSlide(
-              index: 4,
-              child: Text('VEZOO',
-                style: TextStyle(
-                  fontSize: 26, fontWeight: FontWeight.w800,
-                  letterSpacing: 8, color: Vz.text)),
-            ),
+            // ── حروف VEZOO یکی‌یکی ──
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              for (var i = 0; i < letters.length; i++)
+                if (on)
+                  AnimatedBuilder(
+                    animation: _c,
+                    builder: (_, __) {
+                      final t = const Interval(0.30, 0.75, curve: Curves.easeOutBack)
+                          .transform(_c.value);
+                      final batched = ((i * 0.09) + t.clamp(0.0, 1.0)).clamp(0.0, 1.0);
+                      return Opacity(
+                        opacity: batched,
+                        child: Transform.translate(
+                          offset: Offset(0, (1 - batched) * 16),
+                          child: Text(letters[i],
+                            style: TextStyle(
+                              fontSize: 30, fontWeight: FontWeight.w800,
+                              letterSpacing: 6, color: Vz.text)),
+                        ),
+                      );
+                    })
+                else
+                  Text(letters[i],
+                    style: TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.w800,
+                      letterSpacing: 6, color: Vz.text)),
+            ]),
             const SizedBox(height: Sp.xs),
             VzFadeSlide(
               index: 6,
               child: Text(Vz.theme.name.toUpperCase(),
-                style: Ty.overline.copyWith(color: Vz.accent, letterSpacing: 4)),
+                style: Ty.overline.copyWith(color: Vz.accent, letterSpacing: 5)),
             ),
             const SizedBox(height: Sp.xxl),
-            SizedBox(
-              width: 130,
-              child: VzShimmerBox(
-                child: Container(
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: Vz.border,
-                    borderRadius: BorderRadius.circular(999)),
-                ),
-              ),
-            ),
+            // ── نوار پیشرفت ──
+            SizedBox(width: 150, child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: Stack(children: [
+                Container(height: 3, color: Vz.border),
+                if (on)
+                  AnimatedBuilder(animation: _c, builder: (_, __) {
+                    final w = const Interval(0.2, 1, curve: Curves.easeInOut)
+                        .transform(_c.value);
+                    return FractionallySizedBox(
+                      widthFactor: w.clamp(0.0, 1.0),
+                      child: Container(height: 3,
+                        decoration: BoxDecoration(
+                          gradient: Vz.auroraGrad,
+                          borderRadius: BorderRadius.circular(999))));
+                  })
+                else
+                  Container(height: 3,
+                    decoration: BoxDecoration(
+                      gradient: Vz.auroraGrad,
+                      borderRadius: BorderRadius.circular(999))),
+              ]),
+            )),
           ],
         ))),
       ),
@@ -290,17 +344,18 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
   }
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  VzPress — افکت کلیک فنری (scale + haptic)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// هر ویجتی را قابل‌کلیک می‌کند با افکت فشار فنری + لرزش اختیاری.
-/// با کلید انیمیشن کاربر هماهنگ است.
-class VzPress extends StatefulWidget {
+/// هر ویجتی را قابل‌کلیک می‌کند. حالا از سبک کلیک انتخاب‌شده در تنظیمات
+/// ([Vz.clickStyle]) پیروی می‌کند؛ پارامتر [scale] فقط برای سبک فنری است.
+class VzPress extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
-  /// scale هنگام فشار (پیش‌فرض ۰.۹۶)
+  /// scale هنگام فشار (فقط سبک فنری)
   final double scale;
   /// لرزش هنگام کلیک
   final bool haptic;
@@ -308,27 +363,12 @@ class VzPress extends StatefulWidget {
     super.key, required this.child, this.onTap, this.onLongPress,
     this.scale = 0.96, this.haptic = true,
   });
-  @override State<VzPress> createState() => _VzPressState();
-}
-
-class _VzPressState extends State<VzPress> {
-  bool _down = false;
-  @override Widget build(BuildContext context) => GestureDetector(
-    onTapDown: widget.onTap == null ? null : (_) => setState(() => _down = true),
-    onTapCancel: () => setState(() => _down = false),
-    onTapUp: (_) => setState(() => _down = false),
-    onTap: widget.onTap == null ? null : () {
-      if (widget.haptic && Vz.animations) HapticFeedback.selectionClick();
-      widget.onTap!();
-    },
-    onLongPress: widget.onLongPress,
-    child: AnimatedScale(
-      scale: _down ? widget.scale : 1.0,
-      duration: Mo.press, curve: Mo.easeOut,
-      child: widget.child,
-    ),
+  @override Widget build(BuildContext context) => VzTappable(
+    onTap: onTap, onLongPress: onLongPress, haptic: haptic,
+    child: child,
   );
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  VzSlideIn — ورود از کنار (برای لیست‌ها و شیت‌ها)
@@ -372,8 +412,145 @@ class _VzSlideInState extends State<VzSlideIn> with SingleTickerProviderStateMix
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  VzTappable — افکت لمسی انتخاب‌شدنی (۵ مدل) به‌جای پت انیمه
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// دور هر ویجتی می‌پیچد و هنگام لمس، افکت [Vz.clickStyle] را اجرا می‌کند.
+/// سبک از تنظیمات خوانده می‌شود و به‌صورت زنده تغییر می‌کند.
+class VzTappable extends StatefulWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final Color? color;
+  final BorderRadius? radius;
+  final bool haptic;
+  const VzTappable({
+    super.key, required this.child, this.onTap, this.onLongPress,
+    this.color, this.radius, this.haptic = true,
+  });
+  @override State<VzTappable> createState() => _VzTappableState();
+}
+
+class _VzTappableState extends State<VzTappable>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _c;
+  bool _down = false;
+  Offset _origin = Offset.zero;
+
+  @override void initState() {
+    super.initState();
+    if (Vz.animations) {
+      _c = AnimationController(vsync: this, duration: const Duration(milliseconds: 420));
+    }
+  }
+
+  @override void dispose() { _c?.dispose(); super.dispose(); }
+
+  VzClickStyle get _style => Vz.clickStyle;
+
+  void _downAt(Offset p) {
+    _origin = p;
+    if (_c != null) _c!.forward(from: 0);
+    if (_style == VzClickStyle.spring ||
+        _style == VzClickStyle.lift ||
+        _style == VzClickStyle.glow) {
+      setState(() => _down = true);
+    }
+  }
+
+  void _up() { if (_down) setState(() => _down = false); }
+
+  void _fire() {
+    if (widget.haptic && Vz.animations) HapticFeedback.selectionClick();
+    widget.onTap?.call();
+  }
+
+  @override Widget build(BuildContext context) {
+    final enabled = widget.onTap != null || widget.onLongPress != null;
+    if (!enabled) return widget.child;
+
+    final style = _style;
+    final accent = widget.color ?? Vz.accent;
+    final radius = widget.radius ?? BorderRadius.zero;
+    final on = Vz.animations;
+
+    // ── بدنه‌ی پایه + موج (برای ripple) ──
+    Widget core = widget.child;
+
+    if (style == VzClickStyle.ripple && _c != null) {
+      core = ClipRRect(
+        borderRadius: radius,
+        child: Stack(children: [
+          widget.child,
+          Positioned.fill(child: IgnorePointer(
+            child: AnimatedBuilder(animation: _c!, builder: (ctx, _) {
+              final t = Curves.easeOut.transform(_c!.value);
+              return CustomPaint(
+                painter: _RipplePainter(origin: _origin, progress: t, color: accent));
+            }),
+          )),
+        ]),
+      );
+    }
+
+    // ── تبدیل بر اساس سبک ──
+    Widget inner = core;
+    if (on) {
+      switch (style) {
+        case VzClickStyle.spring:
+          inner = AnimatedScale(
+            scale: _down ? 0.94 : 1.0,
+            duration: Mo.press, curve: Mo.easeOut,
+            child: core);
+          break;
+        case VzClickStyle.lift:
+          inner = AnimatedSlide(
+            offset: _down ? const Offset(0, -0.02) : Offset.zero,
+            duration: Mo.press, curve: Mo.easeOut,
+            child: AnimatedContainer(
+              duration: Mo.press, curve: Mo.easeOut,
+              decoration: BoxDecoration(
+                borderRadius: radius,
+                boxShadow: _down
+                  ? [BoxShadow(color: accent.withValues(alpha: 0.30),
+                      blurRadius: 18, offset: const Offset(0, 8))]
+                  : const []),
+              child: core));
+          break;
+        case VzClickStyle.glow:
+          inner = AnimatedContainer(
+            duration: Mo.press, curve: Mo.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: _down
+                ? [BoxShadow(color: accent.withValues(alpha: 0.55),
+                    blurRadius: 22, spreadRadius: 1)]
+                : const []),
+            child: core);
+          break;
+        case VzClickStyle.ripple:
+        case VzClickStyle.none:
+          inner = core;
+          break;
+      }
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: widget.onTap == null ? null : (d) => _downAt(d.localPosition),
+      onTapUp: (_) => _up(),
+      onTapCancel: _up,
+      onTap: widget.onTap == null ? null : _fire,
+      onLongPress: widget.onLongPress,
+      child: inner,
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  VzRipple — موج رنگی هنگام کلیک (سبک Material)
 // ─────────────────────────────────────────────────────────────────────────────
+
 
 class VzRipple extends StatefulWidget {
   final Widget child;

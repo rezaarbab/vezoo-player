@@ -6,6 +6,7 @@ import 'store.dart';
 import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
+import 'vz_motion.dart';
 import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -77,6 +78,12 @@ void main() async {
       (await SharedPreferences.getInstance()).getBool('app_animations');
   storeAnimSave = (v) async {
     await (await SharedPreferences.getInstance()).setBool('app_animations', v);
+  };
+  // سبک انیمیشن کلیک
+  storeClickPrefs = () async =>
+      (await SharedPreferences.getInstance()).getString('app_click_style');
+  storeClickSave = (v) async {
+    await (await SharedPreferences.getInstance()).setString('app_click_style', v);
   };
   storeBgPrefs = () async =>
       (await SharedPreferences.getInstance()).getString('app_bg_style');
@@ -156,9 +163,15 @@ class _HomeWrapper extends StatefulWidget {
   @override State<_HomeWrapper> createState()=>_HomeWrapperState();
 }
 class _HomeWrapperState extends State<_HomeWrapper>{
+  /// اسپلش کوتاه — تا آماده شدن تنظیمات و چک‌های استارتاپ.
+  bool _splash = true;
+
   @override void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_)=>_startup());
+    Future.delayed(Duration(milliseconds: Vz.animations ? 1500 : 300), (){
+      if (mounted) setState(()=>_splash = false);
+    });
   }
 
   Future<void> _startup()async{
@@ -226,6 +239,12 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     ));
   }
 
-  // بدون اسپلش — مستقیم می‌رود داخل اپ.
-  @override Widget build(BuildContext ctx) => const VzShell();
+  @override Widget build(BuildContext ctx) => AnimatedSwitcher(
+    duration: Mo.sheet,
+    switchInCurve: Curves.easeOutCubic,
+    switchOutCurve: Curves.easeInCubic,
+    child: _splash
+      ? const VzSplash(key: ValueKey('splash'))
+      : const VzShell(key: ValueKey('shell')),
+  );
 }

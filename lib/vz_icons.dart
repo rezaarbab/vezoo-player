@@ -542,6 +542,7 @@ const Map<String, IconData> kVzIconMap = {
   'light': Icons.light_mode_rounded,
   'auto': Icons.brightness_auto_rounded,
   'animation': Icons.animation_rounded,
+  'gesture': Icons.touch_app_rounded,
   'sparkle': Icons.auto_awesome_rounded,
   'mascot': Icons.pets_rounded,
   'ai': Icons.auto_awesome_rounded,

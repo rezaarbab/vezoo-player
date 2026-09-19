@@ -75,6 +75,32 @@ class _SettingsScreenState extends State<SettingsScreen>{
               ),
             ),
           ),
+          const SizedBox(height: Sp.sm),
+          // ── سبک انیمیشن کلیک ──
+          VzGlass(
+            padding: EdgeInsets.all(Sp.md),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Icon(VzIcons.data('gesture'), size: 18, color: Vz.accent),
+                const SizedBox(width: 8),
+                Text('انیمیشن کلیک',
+                  style: Ty.body.copyWith(fontWeight: FontWeight.w600)),
+              ]),
+              const SizedBox(height: 4),
+              Text('افکت لمسی کارت‌ها و دکمه‌ها',
+                style: Ty.caption.copyWith(color: Vz.textSec)),
+              const SizedBox(height: Sp.sm),
+              Wrap(spacing: 8, runSpacing: 8, children: [
+                for (final s in VzClickStyle.values)
+                  _ClickStyleChip(
+                    style: s,
+                    selected: VzThemeScope.clickStyleOf(context) == s,
+                    onTap: () => context
+                        .findAncestorStateOfType<VzThemeState>()?.setClickStyle(s),
+                  ),
+              ]),
+            ]),
+          ),
 
 
 
@@ -678,6 +704,51 @@ class VzRow extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(onTap: onTap, child: row),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  _ClickStyleChip — انتخاب سبک انیمیشن کلیک
+// ─────────────────────────────────────────────────────────────────────────────
+class _ClickStyleChip extends StatelessWidget {
+  final VzClickStyle style;
+  final bool selected;
+  final VoidCallback onTap;
+  const _ClickStyleChip({
+    required this.style, required this.selected, required this.onTap,
+  });
+
+  IconData get _icon => switch (style) {
+    VzClickStyle.ripple => Icons.waves_rounded,
+    VzClickStyle.spring => Icons.compress_rounded,
+    VzClickStyle.lift   => Icons.arrow_upward_rounded,
+    VzClickStyle.glow   => Icons.blur_on_rounded,
+    VzClickStyle.none   => Icons.block_rounded,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Mo.fast, curve: Mo.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? Vz.accentSoft : Vz.cardHi,
+          borderRadius: Rad.r(Rad.sm),
+          border: Border.all(
+            color: selected ? Vz.accent : Vz.border,
+            width: selected ? 1.5 : 1),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(_icon, size: 15, color: selected ? Vz.accent : Vz.textSec),
+          const SizedBox(width: 6),
+          Text(style.label, style: Ty.caption.copyWith(
+            color: selected ? Vz.accent : Vz.text,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
+        ]),
+      ),
     );
   }
 }

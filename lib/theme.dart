@@ -26,6 +26,32 @@ export 'vz_anime_themes.dart' show VzThemeDef, kVzThemes, vzThemeById;
 enum VzThemeMode { system, dark, light }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  CLICK STYLE — افکت لمسی روی کارت‌ها/دکمه‌ها (به‌جای پت انیمه)
+// ─────────────────────────────────────────────────────────────────────────────
+enum VzClickStyle {
+  /// موج کلاسیک Material که از نقطه‌ی لمس پخش می‌شود.
+  ripple,
+  /// فشرده‌شدن فنری (scale) با بازگشت کشسان.
+  spring,
+  /// بالا آمدن کارت + سایه‌ی بیشتر هنگام لمس.
+  lift,
+  /// درخشش (glow) اکسنت زیر عنصر.
+  glow,
+  /// هیچ افکت اضافه‌ای — فقط بازخورد لرزشی.
+  none,
+}
+
+extension VzClickStyleLabel on VzClickStyle {
+  String get label => switch (this) {
+    VzClickStyle.ripple => 'موج (Ripple)',
+    VzClickStyle.spring => 'فنری (Spring)',
+    VzClickStyle.lift   => 'بالا آمدن (Lift)',
+    VzClickStyle.glow   => 'درخشش (Glow)',
+    VzClickStyle.none   => 'ساده',
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Vz — runtime palette source
 // ─────────────────────────────────────────────────────────────────────────────
 class Vz {
@@ -33,6 +59,9 @@ class Vz {
 
   static bool _dark = true;
   static bool _anim = true;
+
+  /// سبک انیمیشن کلیک (فلاتر‌وار). از تنظیمات قابل تغییر است.
+  static VzClickStyle _click = VzClickStyle.ripple;
 
   /// تم انتخاب‌شده.
   static VzThemeDef _theme = kVzThemes.first;
@@ -88,9 +117,13 @@ class Vz {
   static bool get isDark => _dark;
   static bool get animations => _anim;
 
+  /// سبک فعال انیمیشن کلیک.
+  static VzClickStyle get clickStyle => _click;
+
   /// Internal setters — فقط VzTheme صدا می‌زند.
   static void _setDark(bool v) { _dark = v; }
   static void _setAnimations(bool v) { _anim = v; }
+  static void _setClickStyle(VzClickStyle v) { _click = v; }
   static void _setTheme(VzThemeDef t) { _theme = t; }
   static void _setBgOverride(VzBgStyle s) { _bgOverride = s; }
   static void _setDynamicSeed(Color? c) { _dynamicSeed = c; }
@@ -264,6 +297,7 @@ class VzThemeScope extends InheritedWidget {
     required this.themeId,
     required this.bgStyle,
     required this.animations,
+    required this.clickStyle,
     required this.dynamicSeed,
     required this.customSeed,
     required super.child,
@@ -274,6 +308,9 @@ class VzThemeScope extends InheritedWidget {
   final String themeId;
   final VzBgStyle bgStyle;
   final bool animations;
+
+  /// سبک انیمیشن کلیک.
+  final VzClickStyle clickStyle;
 
   /// رنگ استخراج‌شده از آرت‌ورک (اگر باشد).
   final Color? dynamicSeed;
@@ -293,6 +330,8 @@ class VzThemeScope extends InheritedWidget {
       maybeOf(context)?.bgStyle ?? Vz.bgStyle;
   static bool animationsOf(BuildContext context) =>
       maybeOf(context)?.animations ?? Vz.animations;
+  static VzClickStyle clickStyleOf(BuildContext context) =>
+      maybeOf(context)?.clickStyle ?? Vz.clickStyle;
   static Color? dynamicSeedOf(BuildContext context) =>
       maybeOf(context)?.dynamicSeed ?? Vz._dynamicSeed;
   static Color? customSeedOf(BuildContext context) =>
@@ -305,6 +344,7 @@ class VzThemeScope extends InheritedWidget {
       themeId != old.themeId ||
       bgStyle != old.bgStyle ||
       animations != old.animations ||
+      clickStyle != old.clickStyle ||
       dynamicSeed != old.dynamicSeed ||
       customSeed != old.customSeed;
 }
@@ -323,6 +363,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeDef _theme = kVzThemes.first;
   VzBgStyle _bg = kVzThemes.first.bg;
   bool _anim = true;
+  VzClickStyle _click = VzClickStyle.ripple;
   Color? _customSeed;
   Color? _dynamicSeed;
 
@@ -330,6 +371,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeDef get theme => _theme;
   VzBgStyle get bgStyle => _bg;
   bool get animations => _anim;
+  VzClickStyle get clickStyle => _click;
   Color? get customSeed => _customSeed;
 
   @override
@@ -365,6 +407,9 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
         (s) => s.name == bgRaw, orElse: () => _theme.bg);
     }
     _anim = await storeAnimPrefs?.call() ?? true;
+    final clickRaw = await storeClickPrefs?.call();
+    _click = VzClickStyle.values.firstWhere(
+      (s) => s.name == clickRaw, orElse: () => VzClickStyle.ripple);
     final cs = await storeCustomSeedPrefs?.call();
     _customSeed = cs == null ? null : Color(cs);
     if (mounted) setState(() {});
@@ -423,6 +468,12 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     await storeAnimSave?.call(v);
   }
 
+  Future<void> setClickStyle(VzClickStyle s) async {
+    _click = s;
+    setState(() {});
+    await storeClickSave?.call(s.name);
+  }
+
   bool get _isDarkNow {
     if (_mode != VzThemeMode.system) return _mode == VzThemeMode.dark;
     return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
@@ -435,6 +486,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     Vz._setAnimations(_anim);
     Vz._setTheme(_theme);
     Vz._setBgOverride(_bg);
+    Vz._setClickStyle(_click);
     Vz._setCustomSeed(_customSeed);
     Vz._setDynamicSeed(_dynamicSeed);
     return VzThemeScope(
@@ -443,6 +495,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       themeId: _theme.id,
       bgStyle: _bg,
       animations: _anim,
+      clickStyle: _click,
       dynamicSeed: _dynamicSeed,
       customSeed: _customSeed,
       child: widget.child,
@@ -459,6 +512,8 @@ Future<String?> Function()? storeBgPrefs;
 Future<void> Function(String)? storeBgSave;
 Future<bool?> Function()? storeAnimPrefs;
 Future<void> Function(bool)? storeAnimSave;
+Future<String?> Function()? storeClickPrefs;
+Future<void> Function(String)? storeClickSave;
 Future<int?> Function()? storeCustomSeedPrefs;
 Future<void> Function(int?)? storeCustomSeedSave;
 
