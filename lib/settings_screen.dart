@@ -12,10 +12,6 @@ import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
 import 'vz_icons.dart';
-import 'vz_icon_gallery.dart';
-import 'vz_color_wheel.dart';
-import 'vz_kawaii.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,25 +19,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen>{
-  bool _petOn = false;
-  VzKawaiiMood _petMood = VzKawaiiMood.blissful;
-  VzKawaiiKind _petKind = VzKawaiiKind.cat;
-
   @override void initState(){
     super.initState();
-    SharedPreferences.getInstance().then((p){
-      if (mounted) {
-        setState((){
-          _petOn = p.getBool('pet_enabled') ?? false;
-          final m = p.getString('pet_mood');
-          _petMood = VzKawaiiMood.values.firstWhere(
-            (x) => x.name == m, orElse: () => VzKawaiiMood.blissful);
-          final k = p.getString('pet_kind');
-          _petKind = VzKawaiiKind.values.firstWhere(
-            (x) => x.name == k, orElse: () => VzKawaiiKind.cat);
-        });
-      }
-    });
   }
 
   @override
@@ -96,123 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen>{
             ),
           ),
 
-          // ── پت انیمه ──
-          VzSectionHeader(title: L.animePet),
-          VzGlass(
-            padding: EdgeInsets.zero,
-            child: Column(children: [
-              VzRow(
-                icon: VzIcons.data('mascot'),
-                title: L.animePet,
-                subtitle: L.animePetDesc,
-                accent: Vz.accent,
-                trailing: Switch(
-                  value: _petOn,
-                  onChanged: (v) async {
-                    setState(() => _petOn = v);
-                    final p = await SharedPreferences.getInstance();
-                    await p.setBool('pet_enabled', v);
-                  },
-                ),
-              ),
-              const Divider(height: 1, indent: 56),
-              // ── انتخاب نوع شخصیت ──
-              Padding(
-                padding: const EdgeInsets.fromLTRB(Sp.md, Sp.md, Sp.md, 0),
-                child: Row(children: [
-                  for (final k in VzKawaiiKind.values) ...[
-                    Expanded(child: GestureDetector(
-                      onTap: () async {
-                        setState(() => _petKind = k);
-                        final p = await SharedPreferences.getInstance();
-                        await p.setString('pet_kind', k.name);
-                      },
-                      child: AnimatedContainer(
-                        duration: Mo.fast, curve: Mo.easeOut,
-                        margin: const EdgeInsets.symmetric(horizontal: 3),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: _petKind == k ? Vz.accentSoft : Vz.cardHi,
-                          borderRadius: Rad.r(Rad.sm),
-                          border: Border.all(
-                            color: _petKind == k ? Vz.accent : Vz.border),
-                        ),
-                        child: Column(children: [
-                          VzKawaii(
-                            kind: k,
-                            mood: _petMood,
-                            color: _petKind == k ? Vz.accent : Vz.textSec,
-                            size: 64),
-                          const SizedBox(height: 4),
-                          Text(k.name, style: Ty.caption.copyWith(fontSize: 9.5),
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        ]),
-                      ),
-                    )),
-                  ],
-                ]),
-              ),
-              const SizedBox(height: Sp.sm),
-              // ── انتخاب چهره ──
-              Padding(
-                padding: const EdgeInsets.fromLTRB(Sp.md, 0, Sp.md, Sp.md),
-                child: SizedBox(
-                  height: 84,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: VzKawaiiMood.values.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
-                    itemBuilder: (ctx, i) {
-                      final m = VzKawaiiMood.values[i];
-                      final sel = _petMood == m;
-                      return GestureDetector(
-                        onTap: () async {
-                          setState(() => _petMood = m);
-                          final p = await SharedPreferences.getInstance();
-                          await p.setString('pet_mood', m.name);
-                        },
-                        child: AnimatedContainer(
-                          duration: Mo.fast, curve: Mo.easeOut,
-                          width: 68,
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          decoration: BoxDecoration(
-                            color: sel ? Vz.accentSoft : Vz.cardHi,
-                            borderRadius: Rad.r(Rad.sm),
-                            border: Border.all(
-                              color: sel ? Vz.accent : Vz.border),
-                          ),
-                          child: Column(children: [
-                            VzKawaii(
-                              kind: _petKind,
-                              mood: m,
-                              color: sel ? Vz.accent : Vz.textSec,
-                              size: 44),
-                            const SizedBox(height: 3),
-                            Text(m.name, style: Ty.caption.copyWith(fontSize: 8.5),
-                              maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ]),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ]),
-          ),
 
-          // ── پک آیکون ──
-          VzSectionHeader(title: L.iconPack),
-          VzGlass(
-            padding: EdgeInsets.zero,
-            child: VzRow(
-              icon: VzIcons.data('sparkle'),
-              title: 'VanFont — ${BiliIconPack.allCodePoints.length} glyphs',
-              subtitle: '${BiliIconPack.known.length} named · tap to label the rest',
-              accent: Vz.accent,
-              onTap: ()=>Navigator.push(context,
-                MaterialPageRoute(builder: (_)=>const VzIconGalleryScreen())),
-            ),
-          ),
 
           // ── ابزارها ──
           VzSectionHeader(title: L.toolsSection),

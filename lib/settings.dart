@@ -512,7 +512,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
             child: const Text('💜', style: TextStyle(fontSize: 20))),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Support Vezoo', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+            Text('Support Vezoo', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14)),
             SizedBox(height: 2),
             Text('If Vezoo has been useful, consider supporting us', style: TextStyle(color: Vz.textSec, fontSize: 11)),
           ])),
@@ -528,7 +528,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
         tileColor: Vz.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         leading: Icon(Icons.record_voice_over_rounded, color: Vz.accent),
-        title: const Text('Vosk — مدل‌های زبان', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text('Vosk — مدل‌های زبان', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),
         subtitle: Text('آفلاین • ۱۸ زبان • زیرنویس زنده بدون اینترنت', style: TextStyle(color: Vz.textDim, fontSize: 11)),
         trailing: Icon(Icons.chevron_right_rounded, color: Vz.textDim),
         onTap: () => Navigator.push(ctx, MaterialPageRoute(builder: (_) => const VoskModelsScreen()))),
@@ -540,7 +540,7 @@ class ToolsTabBodyState extends State<ToolsTabBody> {
           Row(children: [
             Icon(Icons.psychology_rounded, color: Vz.green, size: 18),
             const SizedBox(width: 8),
-            Text(L.backupImport, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+            Text(L.backupImport, style: TextStyle(color: Vz.text, fontSize: 14, fontWeight: FontWeight.bold)),
           ]),
           const SizedBox(height: 4),
           Text(L.backupPath, style: TextStyle(color: Vz.textSec, fontSize: 11)),
@@ -610,7 +610,7 @@ class _YtDlpCardState extends State<_YtDlpCard> {
       Row(children: [
         Icon(Icons.download_for_offline_rounded, color: Vz.accent, size: 18),
         const SizedBox(width: 8),
-        const Text('yt-dlp', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+        Text('yt-dlp', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14)),
         const Spacer(),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -684,7 +684,7 @@ class _IptvVpnBypassCardState extends State<_IptvVpnBypassCard> {
       Row(children: [
         Icon(Icons.vpn_lock_rounded, color: Vz.accent, size: 18),
         const SizedBox(width: 8),
-        const Expanded(child: Text('IPTV VPN Bypass', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+        Expanded(child: Text('IPTV VPN Bypass', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14))),
         Switch(value: _enabled, onChanged: _toggle, activeColor: Vz.accent),
       ]),
       Text('IPTV: Direct connection | Gemini: Through VPN',
@@ -795,7 +795,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
       Row(children: [
         Icon(Icons.translate_rounded, color: Vz.accent, size: 18),
         const SizedBox(width: 8),
-        const Expanded(child: Text('Gemini Live Translation', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
+        Expanded(child: Text('Gemini Live Translation', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 14))),
         if (_key != null && _key!.isNotEmpty) const Icon(Icons.check_circle_rounded, color: Colors.green, size: 16),
         IconButton(icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more, color: Vz.textDim, size: 20),
           onPressed: () => setState(() => _expanded = !_expanded), padding: EdgeInsets.zero, constraints: const BoxConstraints()),
@@ -803,7 +803,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
       Text('Real-time AI dubbing & subtitles', style: TextStyle(color: Vz.textSec, fontSize: 11)),
       const SizedBox(height: 10),
       TextField(controller: _ctrl, obscureText: !_show,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
+        style: TextStyle(color: Vz.text, fontSize: 12),
         decoration: InputDecoration(hintText: 'AIza...', hintStyle: TextStyle(color: Vz.border),
           filled: true, fillColor: Vz.surface,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
@@ -847,30 +847,30 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         Text('Advanced Settings', style: TextStyle(color: Vz.textSec, fontSize: 13, fontWeight: FontWeight.bold)),
         const SizedBox(height: 10),
         Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Silence Duration', style: TextStyle(color: Colors.white, fontSize: 12)),
+          Text('Silence Duration', style: TextStyle(color: Vz.text, fontSize: 12)),
           Text('Delay after speech ends', style: TextStyle(color: Vz.textDim, fontSize: 10)),
         ])), Text('${_silenceMs}ms', style: TextStyle(color: Vz.accent, fontSize: 12))]),
         Slider(value: _silenceMs.toDouble(), min: 100, max: 2000, divisions: 19,
           activeColor: Vz.accent, onChanged: (v) => setState(() => _silenceMs = v.round())),
         Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Prefix Padding', style: TextStyle(color: Colors.white, fontSize: 12)),
+          Text('Prefix Padding', style: TextStyle(color: Vz.text, fontSize: 12)),
           Text('Audio before speech detection', style: TextStyle(color: Vz.textDim, fontSize: 10)),
         ])), Text('${_prefixMs}ms', style: TextStyle(color: Vz.accent, fontSize: 12))]),
         Slider(value: _prefixMs.toDouble(), min: 0, max: 200, divisions: 20,
           activeColor: Vz.accent, onChanged: (v) => setState(() => _prefixMs = v.round())),
-        Row(children: [const Expanded(child: Text('Start Sensitivity', style: TextStyle(color: Colors.white, fontSize: 12))),
+        Row(children: [Expanded(child: Text('Start Sensitivity', style: TextStyle(color: Vz.text, fontSize: 12))),
           DropdownButton<String>(value: _startSens, dropdownColor: Vz.card,
-            style: const TextStyle(color: Colors.white, fontSize: 12), underline: const SizedBox(),
+            style: TextStyle(color: Vz.text, fontSize: 12), underline: const SizedBox(),
             items: _sensMap.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
             onChanged: (v) => setState(() => _startSens = v!))]),
         const SizedBox(height: 8),
-        Row(children: [const Expanded(child: Text('End Sensitivity', style: TextStyle(color: Colors.white, fontSize: 12))),
+        Row(children: [Expanded(child: Text('End Sensitivity', style: TextStyle(color: Vz.text, fontSize: 12))),
           DropdownButton<String>(value: _endSens, dropdownColor: Vz.card,
-            style: const TextStyle(color: Colors.white, fontSize: 12), underline: const SizedBox(),
+            style: TextStyle(color: Vz.text, fontSize: 12), underline: const SizedBox(),
             items: _endMap.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
             onChanged: (v) => setState(() => _endSens = v!))]),
         const SizedBox(height: 8),
-        const Text('Model', style: TextStyle(color: Colors.white, fontSize: 12)),
+        Text('Model', style: TextStyle(color: Vz.text, fontSize: 12)),
         const SizedBox(height: 6),
         DropdownButtonFormField<String>(
           value: _model,
@@ -878,11 +878,11 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
           decoration: InputDecoration(filled: true, fillColor: Vz.surface,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-          style: const TextStyle(color: Colors.white, fontSize: 11),
+          style: TextStyle(color: Vz.text, fontSize: 11),
           items: _models.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
           onChanged: (v) => setState(() => _model = v!)),
         const SizedBox(height: 12),
-        const Text('Accuracy', style: TextStyle(color: Colors.white, fontSize: 12)),
+        Text('Accuracy', style: TextStyle(color: Vz.text, fontSize: 12)),
         const SizedBox(height: 6),
         Row(children: [
           _AccuracyBtn(key: 'fast', label: 'Fast', sub: 'Low latency', selected: _accuracy, onTap: (v) => setState(() => _accuracy = v)),
@@ -899,7 +899,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         Row(children: [
           Icon(Icons.volume_up_rounded, color: Vz.textDim, size: 16),
           const SizedBox(width: 8),
-          const Expanded(child: Text('Dub Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
+          Expanded(child: Text('Dub Volume', style: TextStyle(color: Vz.text, fontSize: 12))),
           Text('${(_dubVolume*100).round()}%', style: TextStyle(color: Vz.accent, fontSize: 12)),
         ]),
         Slider(value: _dubVolume, min: 0, max: 1, divisions: 20,
@@ -911,7 +911,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         Row(children: [
           Icon(Icons.tv_rounded, color: Vz.textDim, size: 16),
           const SizedBox(width: 8),
-          const Expanded(child: Text('Original Volume', style: TextStyle(color: Colors.white, fontSize: 12))),
+          Expanded(child: Text('Original Volume', style: TextStyle(color: Vz.text, fontSize: 12))),
           Text('${(_origVolume*100).round()}%', style: TextStyle(color: Vz.accent, fontSize: 12)),
           const SizedBox(width: 8),
           GestureDetector(
@@ -930,7 +930,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
             const MethodChannel('com.vezoo.player/gemini_live').invokeMethod('setOrigVolume', {'volume': v});
           }),
         const SizedBox(height: 8),
-        Row(children: [const Expanded(child: Text('Chunk Size', style: TextStyle(color: Colors.white, fontSize: 12))),
+        Row(children: [Expanded(child: Text('Chunk Size', style: TextStyle(color: Vz.text, fontSize: 12))),
           ...[50,100,200].map((ms) => GestureDetector(
             onTap: () => setState(() => _chunkMs = ms),
             child: Container(margin: const EdgeInsets.only(left:6), padding: const EdgeInsets.symmetric(horizontal:10,vertical:4),
@@ -945,7 +945,7 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         const SizedBox(height: 8),
         Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Video Seek Back', style: TextStyle(color: Colors.white, fontSize: 12)),
+            Text('Video Seek Back', style: TextStyle(color: Vz.text, fontSize: 12)),
             Text('Seek video back on start to sync dubbing', style: TextStyle(color: Vz.textDim, fontSize: 10)),
           ])),
           Text('${_syncOffsetSec.toStringAsFixed(1)}s', style: TextStyle(color: Vz.accent, fontSize: 12)),
@@ -956,14 +956,14 @@ class _GeminiApiKeyCardState extends State<_GeminiApiKeyCard> {
         const SizedBox(height: 6),
         Row(children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Buffer Pause', style: TextStyle(color: Colors.white, fontSize: 12)),
+            Text('Buffer Pause', style: TextStyle(color: Vz.text, fontSize: 12)),
             Text('Pause video on start to fill dubbing buffer', style: TextStyle(color: Vz.textDim, fontSize: 10)),
           ])),
           Switch(value: _bufferPause, onChanged: (v) => setState(() => _bufferPause = v), activeColor: Vz.accent),
         ]),
         if (_bufferPause) ...[
           Row(children: [
-            const Expanded(child: Text('Pause Duration', style: TextStyle(color: Colors.white, fontSize: 12))),
+            Expanded(child: Text('Pause Duration', style: TextStyle(color: Vz.text, fontSize: 12))),
             Text('${_bufferPauseSec}s', style: TextStyle(color: Vz.accent, fontSize: 12)),
           ]),
           Slider(value: _bufferPauseSec.toDouble(), min: 1, max: 8, divisions: 7,

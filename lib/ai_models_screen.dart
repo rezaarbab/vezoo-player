@@ -278,7 +278,7 @@ class _AiModelsScreenState extends State<AiModelsScreen> {
                 onPressed:()async{
                   final ok=await showDialog<bool>(context:context,builder:(_)=>AlertDialog(
                     backgroundColor:Vz.bgDeep,
-                    title:Text(L.delete,style:TextStyle(color:Colors.white)),
+                    title:Text(L.delete,style:TextStyle(color: Vz.text)),
                     content:Text('${m.name}?',style:TextStyle(color:Vz.textSec)),
                     actions:[
                       TextButton(onPressed:()=>Navigator.pop(context,false),child:Text(L.cancel)),

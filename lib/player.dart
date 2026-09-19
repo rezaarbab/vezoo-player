@@ -234,6 +234,9 @@ class _PlayerState extends State<PlayerScreen>{
   double _scale=1.0,_baseScale=1.0;
   Offset _offset=Offset.zero,_baseOffset=Offset.zero;
   _GMode _mode=_GMode.none;
+  // اگر هنگام ژست بیش از یک انگشت لمس کند، تا پایان ژست تپ/لانگ‌پرس نادیده گرفته می‌شود
+  // (جلوگیری از باز شدن ناخواسته‌ی کنترل‌ها/منو وسط زوم دو انگشتی).
+  bool _multiTouch=false;
   Offset _startFocal=Offset.zero,_doubleTapPos=Offset.zero;
   int _seekStartMs=0,_seekTargetMs=0;
   double _startBrightness=0.5,_startSysVol=0.5;
@@ -1910,6 +1913,7 @@ class _PlayerState extends State<PlayerScreen>{
 
   void _onScaleStart(ScaleStartDetails d){
     if(_locked)return;
+    _multiTouch=false;
     _mode=_GMode.none;_baseScale=_scale;_baseOffset=_offset;
     _startFocal=d.localFocalPoint;_seekStartMs=_position.inMilliseconds;_subPaddingStart=_vs.bottomPadding;
     _getBr().then((b)=>_startBrightness=b);
@@ -1920,6 +1924,7 @@ class _PlayerState extends State<PlayerScreen>{
     if(_locked)return;
     if(d.pointerCount>=2){
       _mode=_GMode.zoom;
+      _multiTouch=true;
       setState((){_scale=(_baseScale*d.scale).clamp(0.05,8.0);_offset=_offset+d.focalPointDelta;});
       return;
     }
@@ -1951,6 +1956,10 @@ class _PlayerState extends State<PlayerScreen>{
   void _onScaleEnd(ScaleEndDetails d){
     if(_mode==_GMode.seek)player.seek(Duration(milliseconds:_seekTargetMs));
     _mode=_GMode.none;
+    // اگر مولتی‌تاچ بود، تا پایان نوار بعدی نشانه‌ها نادیده گرفته شوند.
+    if(_multiTouch)Future.delayed(const Duration(milliseconds:350),(){
+      if(mounted)setState(()=>_multiTouch=false);
+    });
   }
 
   void _toggleOrientation(){
@@ -2137,6 +2146,7 @@ void _cycleSpeed(){
         if(!_locked)Positioned.fill(child:GestureDetector(
           behavior:HitTestBehavior.opaque,
           onTap:(){
+            if(_multiTouch)return;
             if(_fastSeeking&&_fastSeekLocked){_stopFastSeek();return;}
             _toggleControls();
           },
@@ -2146,6 +2156,7 @@ void _cycleSpeed(){
           onScaleUpdate:_onScaleUpdate,
           onScaleEnd:_onScaleEnd,
           onLongPressStart:(d){
+            if(_multiTouch)return;
             final x=d.localPosition.dx;
             // RTL: راست = عقب، چپ = جلو
             if(x>_size.width*2/3)_startFastSeek(false);  // راست → عقب

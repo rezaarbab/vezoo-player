@@ -155,7 +155,7 @@ class _State extends State<LyricsSheet> {
                       decoration:BoxDecoration(color:Vz.accent.withValues(alpha: 0.15),borderRadius:BorderRadius.circular(8)),
                       child: Icon(t.hasSynced ? Icons.lyrics_rounded : Icons.text_fields_rounded,
                         color:t.hasSynced ? Vz.accent : Vz.textDim, size:18)),
-                    title: Text(t.title, style:const TextStyle(fontSize:13,color:Colors.white), maxLines:1, overflow:TextOverflow.ellipsis),
+                    title: Text(t.title, style:TextStyle(fontSize:13,color: Vz.text), maxLines:1, overflow:TextOverflow.ellipsis),
                     subtitle: Text('${t.artist}${t.album.isNotEmpty?" • ${t.album}":""}',
                       style:TextStyle(fontSize:10,color:Vz.textSec), maxLines:1, overflow:TextOverflow.ellipsis),
                     trailing: t.hasSynced

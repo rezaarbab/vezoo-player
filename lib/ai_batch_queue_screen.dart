@@ -120,7 +120,7 @@ class _AiBatchQueueScreenState extends State<AiBatchQueueScreen> {
       appBar: AppBar(
         backgroundColor: Vz.bgDeep,
         title: Text('${L.batchQueue} (${_queue.length})', style: TextStyle(color: Vz.text, fontSize: 14)),
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white),
+        leading: IconButton(icon: Icon(Icons.arrow_back, color: Vz.text),
           onPressed: _running ? null : () => Navigator.pop(context)),
       ),
       body: Column(children: [

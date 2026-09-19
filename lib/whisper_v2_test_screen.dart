@@ -101,7 +101,7 @@ class _State extends State<WhisperV2TestScreen> {
     appBar: AppBar(
       backgroundColor: Vz.bgDeep,
       title: Text('تست AI v2 (native)', style:TextStyle(color: Vz.text, fontSize: 15)),
-      leading: IconButton(icon: const Icon(Icons.arrow_back, color: Colors.white), onPressed: () => Navigator.pop(context)),
+      leading: IconButton(icon: Icon(Icons.arrow_back, color: Vz.text), onPressed: () => Navigator.pop(context)),
     ),
     body: Column(children: [
       Padding(

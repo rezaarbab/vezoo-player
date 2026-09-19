@@ -214,7 +214,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
           color: kCard,
           onSelected: (a) => setState(() => _current = a),
           itemBuilder: (_) => _accounts.map((a) =>
-            PopupMenuItem(value: a, child: Text(a.name, style: const TextStyle(color: Colors.white)))).toList()),
+            PopupMenuItem(value: a, child: Text(a.name, style: TextStyle(color: Vz.text)))).toList()),
         IconButton(icon: Icon(Icons.refresh_rounded, color: Vz.textSec),
           onPressed: _current == null ? null : () => _refresh(manual: true)),
         IconButton(icon: Icon(Icons.timer_rounded, color: Vz.textSec),
@@ -243,7 +243,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
               setState(() { _current = null; });
             }
           }),
-        IconButton(icon: const Icon(Icons.add_rounded, color: Colors.white),
+        IconButton(icon: Icon(Icons.add_rounded, color: Vz.text),
           onPressed: _showAddAccount),
       ],
       bottom: _current == null ? null : TabBar(
@@ -345,7 +345,7 @@ class _LiveTabState extends State<_LiveTab> {
         Padding(padding: EdgeInsets.only(left:10, right:10, top:10, bottom: kb > 0 ? 0 : 10),
           child: Row(children: [
             if (_selCat != null) IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.white),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Vz.text),
               onPressed: () => setState(() { _showGrid = true; _selCat = null; _search = ''; _applyFilter(); }),
               padding: EdgeInsets.zero, constraints: const BoxConstraints()),
             const SizedBox(width: 8),
@@ -489,7 +489,7 @@ class _VodTabState extends State<_VodTab> {
         Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
           child: Row(children: [
             if (_selCat != null) IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.white),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Vz.text),
               onPressed: () => setState(() { _selCat = null; _search = ''; _applyFilter(); }),
               padding: EdgeInsets.zero, constraints: const BoxConstraints()),
             if (_selCat != null) const SizedBox(width: 8),
@@ -613,7 +613,7 @@ class _SeriesTabState extends State<_SeriesTab> {
         Padding(padding: const EdgeInsets.fromLTRB(10,10,10,6),
           child: Row(children: [
             if (_cats.isNotEmpty) IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Colors.white),
+              icon: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Vz.text),
               onPressed: () => setState(() { _showGrid=true; _selCat=null; _search=''; _applyFilter(); }),
               padding: EdgeInsets.zero, constraints: const BoxConstraints()),
             if (_cats.isNotEmpty) const SizedBox(width: 8),

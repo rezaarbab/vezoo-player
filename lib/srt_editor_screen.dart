@@ -57,7 +57,7 @@ class _SrtEditorScreenState extends State<SrtEditorScreen> {
           style: TextStyle(color: Vz.text, fontSize: 14)),
         content: TextField(
           controller: ctrl, autofocus: true,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Vz.text),
           decoration: InputDecoration(hintText: '00:05', hintStyle:TextStyle(color: Vz.textDim)),
         ),
         actions: [

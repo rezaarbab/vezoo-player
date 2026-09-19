@@ -437,7 +437,7 @@ class VzIcons {
 
   /// پک پیش‌فرض: BiliIconPack آیکون‌های موئه‌ی شناسایی‌شده را می‌دهد و بقیه
   /// را از Solar می‌گیرد — پس هیچ صفحه‌ای بی‌آیکون نمی‌ماند.
-  static VzIconPack _pack = const BiliIconPack();
+  static VzIconPack _pack = const SolarIconPack();
 
   /// پک فعال. با ست کردن این، کل اپ آیکون‌های جدید را می‌گیرد.
   static VzIconPack get pack => _pack;
