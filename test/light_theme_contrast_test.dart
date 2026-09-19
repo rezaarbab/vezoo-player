@@ -15,9 +15,9 @@ import 'package:player/theme.dart';
 
 double _lum(Color c) {
   double f(double v) =>
-      v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055);
-  double ch(double x) => (x * 255.0).round() / 255.0;
-  final r = f(ch(c.r)), g = f(ch(c.g)), b = f(ch(c.b));
+      v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) * ((v + 0.055) / 1.055) * ((v + 0.055) / 1.055);
+  // c.r/g/b در Flutter جدید از قبل در بازه‌ی ۰..۱ هستند.
+  final r = f(c.r), g = f(c.g), b = f(c.b);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
