@@ -200,7 +200,7 @@ class VzThemeScopeBuilder extends StatelessWidget {
           ),
         );
       },
-      home: const _HomeWrapper(),
+      home: _HomeWrapper(),
     );
   }
 }
@@ -315,6 +315,6 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     switchOutCurve: Curves.easeInCubic,
     child: _splash
       ? const VzSplash(key: ValueKey('splash'))
-      : const VzShell(key: ValueKey('shell')),
+      : VzShell(key: ValueKey('shell')),
   );
 }

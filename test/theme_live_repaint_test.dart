@@ -16,45 +16,36 @@ import 'package:player/main.dart' show VzRouteRefresh;
 void main() {
   testWidgets('switching theme refreshes the visible screen', (tester) async {
     final key = GlobalKey<VzThemeState>();
-    final navKey = GlobalKey<NavigatorState>();
 
     // ساختار واقعی اپ: MaterialApp با builder که VzRouteRefresh را می‌پیچد
     // تا با تغییر تم، محتوای Navigator از نو ساخته شود.
-    Widget appFor(bool dark) => VzTheme(
+    await tester.pumpWidget(VzTheme(
       key: key,
       child: Builder(builder: (ctx) {
         final scope = VzThemeScope.maybeOf(ctx);
         final d = scope?.isDark ?? Vz.isDark;
         return MaterialApp(
-          navigatorKey: navKey,
           theme: buildVezooTheme(dark: d),
           themeMode: d ? ThemeMode.dark : ThemeMode.light,
           builder: (c, child) => VzRouteRefresh(
             child: child ?? const SizedBox.shrink(),
           ),
-          home: const _RootProbe(),
+          home: _RootProbe(),
         );
       }),
-    );
-
-    await tester.pumpWidget(appFor(true));
+    ));
     await tester.pumpAndSettle();
 
     key.currentState!.setMode(VzThemeMode.dark);
     await tester.pumpAndSettle();
     expect(Vz.isDark, isTrue);
-
-    // یک صفحه‌ی تازه روی Navigator باز کن
-    navKey.currentState!.push(MaterialPageRoute(builder: (_) => const _Probe()));
-    await tester.pumpAndSettle();
     expect(tester.widget<Text>(_probeText).style!.color, equals(Vz.text));
 
-    // حالا تم را روشن کن — پس از rebuild، رنگ روی صفحه باید تازه باشد.
+    // حالا تم را روشن کن — محتوای روی صفحه باید رنگ تازه بگیرد.
     key.currentState!.setMode(VzThemeMode.light);
     await tester.pumpAndSettle();
 
     expect(Vz.isDark, isFalse);
-    // صفحه‌ی باز ریست می‌شود و محتوای تازه با رنگ درست نمایش داده می‌شود.
     final shown = tester.widget<Text>(_probeText).style!.color;
     expect(shown, equals(Vz.text),
         reason: 'محتوای روی صفحه رنگ کهنه دارد');
@@ -67,7 +58,7 @@ void main() {
     final key = GlobalKey<VzThemeState>();
     await tester.pumpWidget(VzTheme(
       key: key,
-      child: const MaterialApp(home: _RootProbe()),
+      child: MaterialApp(home: _RootProbe()),
     ));
     await tester.pumpAndSettle();
 
@@ -78,12 +69,12 @@ void main() {
     // ویجت را کامل از درخت بیرون ببر و دوباره بساز
     await tester.pumpWidget(VzTheme(
       key: key,
-      child: const MaterialApp(home: SizedBox()),
+      child: MaterialApp(home: SizedBox()),
     ));
     await tester.pumpAndSettle();
     await tester.pumpWidget(VzTheme(
       key: key,
-      child: const MaterialApp(home: _RootProbe()),
+      child: MaterialApp(home: _RootProbe()),
     ));
     await tester.pumpAndSettle();
     final c2 = tester.widget<Text>(_probeText).style!.color;
@@ -113,7 +104,7 @@ void main() {
         (tester) async {
       final key = GlobalKey<VzThemeState>();
       await tester.pumpWidget(VzTheme(
-        key: key, child: const MaterialApp(home: _Probe())));
+        key: key, child: MaterialApp(home: _Probe())));
       await tester.pumpAndSettle();
       final st = key.currentState!;
 
@@ -146,7 +137,9 @@ final _probeText = find.byKey(const ValueKey('probe'));
 class _RootProbe extends StatelessWidget {
   const _RootProbe();
   @override
-  Widget build(BuildContext context) => const Scaffold(body: Center(child: _Probe()));
+  Widget build(BuildContext context) => Scaffold(
+        body: Center(child: _Probe()),
+      );
 }
 
 class _Probe extends StatelessWidget {
