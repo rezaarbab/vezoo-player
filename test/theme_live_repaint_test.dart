@@ -6,6 +6,7 @@
 // تغییر تم، رنگ تازه را ببیند — هم در ریشه و هم در یک route که با push
 // باز شده است.
 
+import 'dart:ui' show PictureRecorder;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
