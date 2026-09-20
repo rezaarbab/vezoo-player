@@ -167,7 +167,7 @@ class VzThemeScopeBuilder extends StatelessWidget {
 
     // کلید یکتا: با هر تغییر تم/seed/حالت، MaterialApp از نو ساخته می‌شود
     // تا پالت و theme data هرگز کهنه نمانند.
-    final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle');
+    final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle|${scope?.bubbleStyle}|${scope?.clickStyle}');
 
     return MaterialApp(
       key: themeKey,
@@ -189,7 +189,13 @@ class VzThemeScopeBuilder extends StatelessWidget {
             textDirection: langDir(L.current),
             // VzGlobalBubble: حباب از نقطه‌ی هر تپ روی کل صفحه، حتی فضای خالی.
             child: VzGlobalBubble(
-              child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
+              // VzRouteRefresh: با هر تغییر رنگ‌بندی تم، Navigator و همه‌ی
+              // routeهای باز از نو ساخته می‌شوند. بدون این، صفحه‌ای که با
+              // push باز مانده رنگ تم قبلی را نگه می‌دارد (متن/آیکون ناخوانا).
+              child: VzRouteRefresh(
+                themeKey: '$themeId|$seed|$dark|$bgStyle',
+                child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
+              ),
             ),
           ),
         );
@@ -197,6 +203,20 @@ class VzThemeScopeBuilder extends StatelessWidget {
       home: const _HomeWrapper(),
     );
   }
+}
+
+/// با هر تغییر رنگ‌بندی تم، کل محتوای Navigator (و همه‌ی routeهای باز) را از
+/// نو می‌سازد تا رنگ‌های سراسری Vz.* کهنه نمانند. صفحه‌ی باز با push قربانی
+/// می‌شود و کاربر به خانه برمی‌گردد — که برای تغییر تم پذیرفتنی است.
+class VzRouteRefresh extends StatelessWidget {
+  final String themeKey;
+  final Widget child;
+  const VzRouteRefresh({
+    super.key, required this.themeKey, required this.child,
+  });
+  @override
+  Widget build(BuildContext context) =>
+      KeyedSubtree(key: ValueKey('route-refresh|$themeKey'), child: child);
 }
 
 // ── Wrapper: startup check برای آپدیت و اعلان ──

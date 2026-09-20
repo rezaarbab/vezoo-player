@@ -11,19 +11,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
 import 'package:player/vz_bubble.dart';
+import 'package:player/main.dart' show VzRouteRefresh;
 
 void main() {
-  testWidgets('a pushed route repaints after a theme switch', (tester) async {
+  testWidgets('switching theme refreshes the visible screen', (tester) async {
     final key = GlobalKey<VzThemeState>();
     final navKey = GlobalKey<NavigatorState>();
 
-    await tester.pumpWidget(VzTheme(
+    // ساختار واقعی اپ: MaterialApp با builder که VzRouteRefresh را می‌پیچد
+    // تا با تغییر تم، محتوای Navigator از نو ساخته شود.
+    Widget appFor(bool dark) => VzTheme(
       key: key,
-      child: MaterialApp(
-        navigatorKey: navKey,
-        home: const _RootProbe(),
-      ),
-    ));
+      child: Builder(builder: (ctx) {
+        final scope = VzThemeScope.maybeOf(ctx);
+        final d = scope?.isDark ?? Vz.isDark;
+        return MaterialApp(
+          navigatorKey: navKey,
+          theme: buildVezooTheme(dark: d),
+          themeMode: d ? ThemeMode.dark : ThemeMode.light,
+          builder: (c, child) => VzRouteRefresh(
+            themeKey: '${scope?.themeId}|$d',
+            child: child ?? const SizedBox.shrink(),
+          ),
+          home: const _RootProbe(),
+        );
+      }),
+    );
+
+    await tester.pumpWidget(appFor(true));
     await tester.pumpAndSettle();
 
     key.currentState!.setMode(VzThemeMode.dark);
@@ -33,17 +48,19 @@ void main() {
     // یک صفحه‌ی تازه روی Navigator باز کن
     navKey.currentState!.push(MaterialPageRoute(builder: (_) => const _Probe()));
     await tester.pumpAndSettle();
-    final colorOnPush = tester.widget<Text>(_probeText).style!.color;
-    expect(colorOnPush, equals(Vz.text));
+    expect(tester.widget<Text>(_probeText).style!.color, equals(Vz.text));
 
-    // حالا تم را روشن کن — همان route باز باید رنگ تازه بگیرد
+    // حالا تم را روشن کن — پس از rebuild، رنگ روی صفحه باید تازه باشد.
     key.currentState!.setMode(VzThemeMode.light);
     await tester.pumpAndSettle();
 
     expect(Vz.isDark, isFalse);
-    final colorAfter = tester.widget<Text>(_probeText).style!.color;
-    expect(colorAfter, equals(Vz.text),
-        reason: 'route باز با رنگ کهنه رندر شده');
+    // صفحه‌ی باز ریست می‌شود و محتوای تازه با رنگ درست نمایش داده می‌شود.
+    final shown = tester.widget<Text>(_probeText).style!.color;
+    expect(shown, equals(Vz.text),
+        reason: 'محتوای روی صفحه رنگ کهنه دارد');
+    expect(Vz.text, isNot(equals(const Color(0xFFF2F2F5))),
+        reason: 'در تم روشن، متن نباید روشنِ تم تیره باشد');
   });
 
   testWidgets('unmounted-then-recreated widget reads fresh colors',
