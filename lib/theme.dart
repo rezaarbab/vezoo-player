@@ -597,9 +597,10 @@ class _VzAmbientBgState extends State<VzAmbientBg> with SingleTickerProviderStat
     }
 
     final strength = switch (Vz.bgStyle) {
-      VzBgStyle.glow  => 0.20,
-      VzBgStyle.vivid => 0.30,
-      _               => 0.12,
+      VzBgStyle.flat  => 0.0,
+      VzBgStyle.soft  => 0.18,
+      VzBgStyle.glow  => 0.34,
+      VzBgStyle.vivid => 0.52,
     };
     final a = _c;
     final content = Stack(children: [

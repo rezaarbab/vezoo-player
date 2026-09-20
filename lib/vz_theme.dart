@@ -211,25 +211,25 @@ LinearGradient vzBackground(VzPalette p, VzBgStyle style) {
       return LinearGradient(
         begin: Alignment.topCenter, end: Alignment.bottomCenter,
         colors: [
-          Color.lerp(p.bg, p.accent, p.dark ? 0.10 : 0.07)!,
-          p.bg,
+          Color.lerp(p.bg, p.accent, p.dark ? 0.18 : 0.12)!,
+          Color.lerp(p.bg, p.accent, p.dark ? 0.04 : 0.03)!,
         ]);
     case VzBgStyle.glow:
       return LinearGradient(
         begin: Alignment.topLeft, end: Alignment.bottomRight,
         colors: [
-          Color.lerp(p.bg, p.accent, p.dark ? 0.16 : 0.11)!,
+          Color.lerp(p.bg, p.accent, p.dark ? 0.30 : 0.20)!,
           p.bg,
-          Color.lerp(p.bg, p.accentHi, p.dark ? 0.09 : 0.07)!,
+          Color.lerp(p.bg, p.accentHi, p.dark ? 0.18 : 0.13)!,
         ],
         stops: const [0.0, 0.55, 1.0]);
     case VzBgStyle.vivid:
       return LinearGradient(
         begin: Alignment.topLeft, end: Alignment.bottomRight,
         colors: [
-          Color.lerp(p.bg, p.accent, p.dark ? 0.26 : 0.18)!,
-          p.bg,
-          Color.lerp(p.bg, p.accentHi, p.dark ? 0.18 : 0.13)!,
+          Color.lerp(p.bg, p.accent, p.dark ? 0.46 : 0.32)!,
+          Color.lerp(p.bg, p.accentHi, p.dark ? 0.10 : 0.06)!,
+          Color.lerp(p.bg, p.accent, p.dark ? 0.34 : 0.22)!,
         ],
         stops: const [0.0, 0.5, 1.0]);
   }
