@@ -166,8 +166,9 @@ class VzThemeScopeBuilder extends StatelessWidget {
     ));
 
     // کلید یکتا: با هر تغییر تم/seed/حالت، MaterialApp از نو ساخته می‌شود
-    // تا پالت و theme data هرگز کهنه نمانند.
-    final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle|${scope?.bubbleStyle}|${scope?.clickStyle}');
+    // تا پالت و theme data هرگز کهنه نمانند. سبک کلیک/حباب عمداً اینجا نیست
+    // تا تغییرشان صفحه‌ی جاری را از دست ندهد.
+    final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle');
 
     return MaterialApp(
       key: themeKey,
@@ -193,7 +194,6 @@ class VzThemeScopeBuilder extends StatelessWidget {
               // routeهای باز از نو ساخته می‌شوند. بدون این، صفحه‌ای که با
               // push باز مانده رنگ تم قبلی را نگه می‌دارد (متن/آیکون ناخوانا).
               child: VzRouteRefresh(
-                themeKey: '$themeId|$seed|$dark|$bgStyle',
                 child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
               ),
             ),
@@ -209,14 +209,19 @@ class VzThemeScopeBuilder extends StatelessWidget {
 /// نو می‌سازد تا رنگ‌های سراسری Vz.* کهنه نمانند. صفحه‌ی باز با push قربانی
 /// می‌شود و کاربر به خانه برمی‌گردد — که برای تغییر تم پذیرفتنی است.
 class VzRouteRefresh extends StatelessWidget {
-  final String themeKey;
   final Widget child;
-  const VzRouteRefresh({
-    super.key, required this.themeKey, required this.child,
-  });
+  const VzRouteRefresh({super.key, required this.child});
   @override
-  Widget build(BuildContext context) =>
-      KeyedSubtree(key: ValueKey('route-refresh|$themeKey'), child: child);
+  Widget build(BuildContext context) {
+    // وابستگی مستقیم به scope: باعث می‌شود همین ویجت با تغییر تم rebuild شود،
+    // حتی اگر MaterialApp به‌تنهایی کلیدش را عوض نکند.
+    final scope = VzThemeScope.maybeOf(context);
+    final k = scope == null
+        ? '${Vz.theme.id}|${Vz.isDark}'
+        : '${scope.themeId}|${scope.isDark}|${scope.bgStyle}|'
+          '${scope.dynamicSeed ?? scope.customSeed}';
+    return KeyedSubtree(key: ValueKey('route-refresh|$k'), child: child);
+  }
 }
 
 // ── Wrapper: startup check برای آپدیت و اعلان ──

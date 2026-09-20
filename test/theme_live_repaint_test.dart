@@ -30,7 +30,6 @@ void main() {
           theme: buildVezooTheme(dark: d),
           themeMode: d ? ThemeMode.dark : ThemeMode.light,
           builder: (c, child) => VzRouteRefresh(
-            themeKey: '${scope?.themeId}|$d',
             child: child ?? const SizedBox.shrink(),
           ),
           home: const _RootProbe(),
