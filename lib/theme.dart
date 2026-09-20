@@ -52,6 +52,77 @@ extension VzClickStyleLabel on VzClickStyle {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  BUBBLE STYLE — مدل حبابی که از نقطه‌ی لمس پخش می‌شود (۲۰ مدل)
+// ─────────────────────────────────────────────────────────────────────────────
+enum VzBubbleStyle {
+  /// هسته‌ی توپُر + حلقه — کلاسیک.
+  classic,
+  /// فقط حلقه‌ی نازک.
+  ring,
+  /// دو حلقه‌ی همزمان.
+  pulse,
+  /// سه حلقه‌ی پشت‌سرهم با تأخیر.
+  triple,
+  /// دیسک توپُر بدون حلقه.
+  fill,
+  /// جرقه‌های ریز که به بیرون می‌پرند.
+  sparkle,
+  /// خطوط شعاعی از مرکز.
+  burst,
+  /// ستاره‌ی چهارپر.
+  starburst,
+  /// دو حلقه‌ی متقاطع.
+  cross,
+  /// حلقه‌ی نقطه‌چین.
+  dots,
+  /// چند قوس موج‌دار.
+  wave,
+  /// سه موج هم‌مرکز.
+  ripple3,
+  /// هاله‌ی محو بزرگ.
+  halo,
+  /// حلقه + نقطه‌ی مرکزی هدف‌مانند.
+  target,
+  /// شش‌ضلعی.
+  hex,
+  /// لوزی.
+  diamond,
+  /// مربع چرخان.
+  square,
+  /// قلب (تم انیمه).
+  heart,
+  /// ستاره‌ی پنج‌پر.
+  star,
+  /// ذرات رنگارنگ پخش‌شونده.
+  confetti,
+}
+
+extension VzBubbleStyleLabel on VzBubbleStyle {
+  String get label => switch (this) {
+    VzBubbleStyle.classic   => 'کلاسیک',
+    VzBubbleStyle.ring      => 'حلقه',
+    VzBubbleStyle.pulse     => 'نبض',
+    VzBubbleStyle.triple    => 'سه‌گانه',
+    VzBubbleStyle.fill      => 'توپُر',
+    VzBubbleStyle.sparkle   => 'جرقه',
+    VzBubbleStyle.burst     => 'انفجار',
+    VzBubbleStyle.starburst => 'ستاره‌ای',
+    VzBubbleStyle.cross     => 'متقاطع',
+    VzBubbleStyle.dots      => 'نقطه‌چین',
+    VzBubbleStyle.wave      => 'موج',
+    VzBubbleStyle.ripple3   => 'سه‌موج',
+    VzBubbleStyle.halo      => 'هاله',
+    VzBubbleStyle.target    => 'هدف',
+    VzBubbleStyle.hex       => 'شش‌ضلعی',
+    VzBubbleStyle.diamond   => 'لوزی',
+    VzBubbleStyle.square    => 'مربع',
+    VzBubbleStyle.heart     => 'قلب',
+    VzBubbleStyle.star      => 'ستاره',
+    VzBubbleStyle.confetti  => 'کانفتی',
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Vz — runtime palette source
 // ─────────────────────────────────────────────────────────────────────────────
 class Vz {
@@ -65,6 +136,18 @@ class Vz {
 
   /// آیا افکت لمسی روشن است؟ (مستقل از انتخاب سبک)
   static bool _clickOn = true;
+
+  // ── تنظیمات حباب (مستقل از سبک کلیک) ──
+  /// آیا حباب از نقطه‌ی لمس پخش شود؟
+  static bool _bubbleOn = true;
+  /// مدل حباب (۲۰ مدل).
+  static VzBubbleStyle _bubble = VzBubbleStyle.classic;
+  /// رنگ حباب؛ اگر null باشد از اکسنت تم استفاده می‌شود.
+  static Color? _bubbleColor;
+  /// مقیاس اندازه‌ی حباب (۰.۵ تا ۲.۰).
+  static double _bubbleSize = 1.0;
+  /// سرعت پخش (۰.۵ سریع‌تر تا ۲.۰ آرام‌تر).
+  static double _bubbleSpeed = 1.0;
 
   /// تم انتخاب‌شده.
   static VzThemeDef _theme = kVzThemes.first;
@@ -126,11 +209,25 @@ class Vz {
   /// آیا افکت لمسی فعال است؟
   static bool get clickEnabled => _clickOn;
 
+  /// تنظیمات حباب.
+  static bool get bubbleOn => _bubbleOn;
+  static VzBubbleStyle get bubbleStyle => _bubble;
+  static Color? get bubbleColor => _bubbleColor;
+  static double get bubbleSize => _bubbleSize;
+  static double get bubbleSpeed => _bubbleSpeed;
+  /// رنگ مؤثر حباب (رنگ دلخواه، وگرنه اکسنت).
+  static Color get bubbleEffectiveColor => _bubbleColor ?? pal.accent;
+
   /// Internal setters — فقط VzTheme صدا می‌زند.
   static void _setDark(bool v) { _dark = v; }
   static void _setAnimations(bool v) { _anim = v; }
   static void _setClickStyle(VzClickStyle v) { _click = v; }
   static void _setClickEnabled(bool v) { _clickOn = v; }
+  static void _setBubbleOn(bool v) { _bubbleOn = v; }
+  static void _setBubbleStyle(VzBubbleStyle v) { _bubble = v; }
+  static void _setBubbleColor(Color? c) { _bubbleColor = c; }
+  static void _setBubbleSize(double v) { _bubbleSize = v; }
+  static void _setBubbleSpeed(double v) { _bubbleSpeed = v; }
   static void _setTheme(VzThemeDef t) { _theme = t; }
   static void _setBgOverride(VzBgStyle s) { _bgOverride = s; }
   static void _setDynamicSeed(Color? c) { _dynamicSeed = c; }
@@ -306,6 +403,11 @@ class VzThemeScope extends InheritedWidget {
     required this.animations,
     required this.clickStyle,
     required this.clickEnabled,
+    required this.bubbleOn,
+    required this.bubbleStyle,
+    required this.bubbleColor,
+    required this.bubbleSize,
+    required this.bubbleSpeed,
     required this.dynamicSeed,
     required this.customSeed,
     required super.child,
@@ -322,6 +424,13 @@ class VzThemeScope extends InheritedWidget {
 
   /// آیا افکت لمسی روشن است؟
   final bool clickEnabled;
+
+  /// تنظیمات حباب.
+  final bool bubbleOn;
+  final VzBubbleStyle bubbleStyle;
+  final Color? bubbleColor;
+  final double bubbleSize;
+  final double bubbleSpeed;
 
   /// رنگ استخراج‌شده از آرت‌ورک (اگر باشد).
   final Color? dynamicSeed;
@@ -345,6 +454,16 @@ class VzThemeScope extends InheritedWidget {
       maybeOf(context)?.clickStyle ?? Vz.clickStyle;
   static bool clickEnabledOf(BuildContext context) =>
       maybeOf(context)?.clickEnabled ?? Vz.clickEnabled;
+  static bool bubbleOnOf(BuildContext context) =>
+      maybeOf(context)?.bubbleOn ?? Vz.bubbleOn;
+  static VzBubbleStyle bubbleStyleOf(BuildContext context) =>
+      maybeOf(context)?.bubbleStyle ?? Vz.bubbleStyle;
+  static Color? bubbleColorOf(BuildContext context) =>
+      maybeOf(context)?.bubbleColor ?? Vz.bubbleColor;
+  static double bubbleSizeOf(BuildContext context) =>
+      maybeOf(context)?.bubbleSize ?? Vz.bubbleSize;
+  static double bubbleSpeedOf(BuildContext context) =>
+      maybeOf(context)?.bubbleSpeed ?? Vz.bubbleSpeed;
   static Color? dynamicSeedOf(BuildContext context) =>
       maybeOf(context)?.dynamicSeed ?? Vz._dynamicSeed;
   static Color? customSeedOf(BuildContext context) =>
@@ -359,6 +478,11 @@ class VzThemeScope extends InheritedWidget {
       animations != old.animations ||
       clickStyle != old.clickStyle ||
       clickEnabled != old.clickEnabled ||
+      bubbleOn != old.bubbleOn ||
+      bubbleStyle != old.bubbleStyle ||
+      bubbleColor != old.bubbleColor ||
+      bubbleSize != old.bubbleSize ||
+      bubbleSpeed != old.bubbleSpeed ||
       dynamicSeed != old.dynamicSeed ||
       customSeed != old.customSeed;
 }
@@ -379,6 +503,11 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   bool _anim = true;
   VzClickStyle _click = VzClickStyle.ripple;
   bool _clickOn = true;
+  bool _bubbleOn = true;
+  VzBubbleStyle _bubble = VzBubbleStyle.classic;
+  Color? _bubbleColor;
+  double _bubbleSize = 1.0;
+  double _bubbleSpeed = 1.0;
   Color? _customSeed;
   Color? _dynamicSeed;
 
@@ -388,6 +517,11 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   bool get animations => _anim;
   VzClickStyle get clickStyle => _click;
   bool get clickEnabled => _clickOn;
+  bool get bubbleOn => _bubbleOn;
+  VzBubbleStyle get bubbleStyle => _bubble;
+  Color? get bubbleColor => _bubbleColor;
+  double get bubbleSize => _bubbleSize;
+  double get bubbleSpeed => _bubbleSpeed;
   Color? get customSeed => _customSeed;
 
   @override
@@ -427,6 +561,14 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     _click = VzClickStyle.values.firstWhere(
       (s) => s.name == clickRaw, orElse: () => VzClickStyle.ripple);
     _clickOn = await storeClickOnPrefs?.call() ?? true;
+    _bubbleOn = await storeBubbleOnPrefs?.call() ?? true;
+    final bubRaw = await storeBubblePrefs?.call();
+    _bubble = VzBubbleStyle.values.firstWhere(
+      (s) => s.name == bubRaw, orElse: () => VzBubbleStyle.classic);
+    final bubCol = await storeBubbleColorPrefs?.call();
+    _bubbleColor = bubCol == null ? null : Color(bubCol);
+    _bubbleSize = await storeBubbleSizePrefs?.call() ?? 1.0;
+    _bubbleSpeed = await storeBubbleSpeedPrefs?.call() ?? 1.0;
     final cs = await storeCustomSeedPrefs?.call();
     _customSeed = cs == null ? null : Color(cs);
     if (mounted) setState(() {});
@@ -501,6 +643,36 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     await storeClickOnSave?.call(v);
   }
 
+  Future<void> setBubbleOn(bool v) async {
+    _bubbleOn = v;
+    setState(() {});
+    await storeBubbleOnSave?.call(v);
+  }
+
+  Future<void> setBubbleStyle(VzBubbleStyle s) async {
+    _bubble = s;
+    setState(() {});
+    await storeBubbleSave?.call(s.name);
+  }
+
+  Future<void> setBubbleColor(Color? c) async {
+    _bubbleColor = c;
+    setState(() {});
+    await storeBubbleColorSave?.call(c?.toARGB32());
+  }
+
+  Future<void> setBubbleSize(double v) async {
+    _bubbleSize = v;
+    setState(() {});
+    await storeBubbleSizeSave?.call(v);
+  }
+
+  Future<void> setBubbleSpeed(double v) async {
+    _bubbleSpeed = v;
+    setState(() {});
+    await storeBubbleSpeedSave?.call(v);
+  }
+
   bool get _isDarkNow {
     if (_mode != VzThemeMode.system) return _mode == VzThemeMode.dark;
     return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
@@ -515,6 +687,11 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     Vz._setBgOverride(_bg);
     Vz._setClickStyle(_click);
     Vz._setClickEnabled(_clickOn);
+    Vz._setBubbleOn(_bubbleOn);
+    Vz._setBubbleStyle(_bubble);
+    Vz._setBubbleColor(_bubbleColor);
+    Vz._setBubbleSize(_bubbleSize);
+    Vz._setBubbleSpeed(_bubbleSpeed);
     Vz._setCustomSeed(_customSeed);
     Vz._setDynamicSeed(_dynamicSeed);
     return VzThemeScope(
@@ -532,6 +709,11 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       animations: _anim,
       clickStyle: _click,
       clickEnabled: _clickOn,
+      bubbleOn: _bubbleOn,
+      bubbleStyle: _bubble,
+      bubbleColor: _bubbleColor,
+      bubbleSize: _bubbleSize,
+      bubbleSpeed: _bubbleSpeed,
       dynamicSeed: _dynamicSeed,
       customSeed: _customSeed,
       child: widget.child,
@@ -552,6 +734,17 @@ Future<String?> Function()? storeClickPrefs;
 Future<void> Function(String)? storeClickSave;
 Future<bool?> Function()? storeClickOnPrefs;
 Future<void> Function(bool)? storeClickOnSave;
+// تنظیمات حباب
+Future<bool?> Function()? storeBubbleOnPrefs;
+Future<void> Function(bool)? storeBubbleOnSave;
+Future<String?> Function()? storeBubblePrefs;
+Future<void> Function(String)? storeBubbleSave;
+Future<int?> Function()? storeBubbleColorPrefs;
+Future<void> Function(int?)? storeBubbleColorSave;
+Future<double?> Function()? storeBubbleSizePrefs;
+Future<void> Function(double)? storeBubbleSizeSave;
+Future<double?> Function()? storeBubbleSpeedPrefs;
+Future<void> Function(double)? storeBubbleSpeedSave;
 Future<int?> Function()? storeCustomSeedPrefs;
 Future<void> Function(int?)? storeCustomSeedSave;
 

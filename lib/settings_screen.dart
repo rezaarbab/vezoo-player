@@ -114,7 +114,9 @@ class _SettingsScreenState extends State<SettingsScreen>{
             ]),
           ),
 
-
+          const SizedBox(height: Sp.sm),
+          // ── حباب لمسی (۲۰ مدل + رنگ/اندازه/سرعت) ──
+          const _BubbleSettings(),
 
           // ── ابزارها ──
           VzSectionHeader(title: L.toolsSection),
@@ -756,6 +758,201 @@ class _ClickStyleChip extends StatelessWidget {
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
         ]),
       ),
+    );
+  }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+//  _BubbleSettings — تنظیمات کامل حباب لمسی (۲۰ مدل + رنگ + اندازه + سرعت)
+// ─────────────────────────────────────────────────────────────────────────────
+class _BubbleSettings extends StatelessWidget {
+  const _BubbleSettings();
+
+  static const _swatch = <Color?>[
+    null, // اکسنت تم
+    Color(0xFFFFFFFF), Color(0xFF000000),
+    Color(0xFFFF5A5F), Color(0xFFFF9F43), Color(0xFFFFD93D),
+    Color(0xFF6BCB77), Color(0xFF00D2D3), Color(0xFF4D96FF),
+    Color(0xFF9B59B6), Color(0xFFFF6BCB),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final vzt = context.findAncestorStateOfType<VzThemeState>();
+    final on = VzThemeScope.bubbleOnOf(context);
+
+    return VzGlass(
+      padding: EdgeInsets.zero,
+      child: Column(children: [
+        VzRow(
+          icon: VzIcons.data('background'),
+          title: L.bubble,
+          subtitle: L.bubbleDesc,
+          accent: Vz.accent,
+          trailing: Switch(
+            value: on,
+            onChanged: (v) => vzt?.setBubbleOn(v),
+          ),
+        ),
+        if (on) ...[
+          const Divider(height: 1, indent: 56),
+
+          // ── مدل حباب ──
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Sp.md, Sp.sm, Sp.md, 4),
+            child: Align(alignment: AlignmentDirectional.centerStart,
+              child: Text(L.bubbleStyle,
+                style: Ty.caption.copyWith(color: Vz.textSec))),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+            child: Wrap(spacing: 6, runSpacing: 6, children: [
+              for (final s in VzBubbleStyle.values)
+                _BubbleStyleChip(
+                  style: s,
+                  selected: VzThemeScope.bubbleStyleOf(context) == s,
+                  onTap: () => vzt?.setBubbleStyle(s),
+                ),
+            ]),
+          ),
+
+          // ── رنگ ──
+          const SizedBox(height: Sp.sm),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Sp.md, 0, Sp.md, 4),
+            child: Align(alignment: AlignmentDirectional.centerStart,
+              child: Text(L.bubbleColor,
+                style: Ty.caption.copyWith(color: Vz.textSec))),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+            child: Row(children: [
+              for (final c in _swatch) ...[
+                _Swatch(
+                  color: c ?? Vz.accent,
+                  selected: (VzThemeScope.bubbleColorOf(context) ?? Vz.accent) ==
+                      (c ?? Vz.accent),
+                  auto: c == null,
+                  onTap: () => vzt?.setBubbleColor(c),
+                ),
+                const SizedBox(width: 7),
+              ],
+            ]),
+          ),
+
+          // ── اندازه ──
+          const SizedBox(height: Sp.sm),
+          _Slider(
+            label: L.bubbleSize,
+            value: VzThemeScope.bubbleSizeOf(context),
+            min: 0.5, max: 2.0,
+            onChange: (v) => vzt?.setBubbleSize(v),
+          ),
+
+          // ── سرعت ──
+          _Slider(
+            label: L.bubbleSpeed,
+            value: VzThemeScope.bubbleSpeedOf(context),
+            min: 0.5, max: 2.0,
+            onChange: (v) => vzt?.setBubbleSpeed(v),
+          ),
+          const SizedBox(height: Sp.sm),
+        ],
+      ]),
+    );
+  }
+}
+
+class _BubbleStyleChip extends StatelessWidget {
+  final VzBubbleStyle style;
+  final bool selected;
+  final VoidCallback onTap;
+  const _BubbleStyleChip({
+    required this.style, required this.selected, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return VzTappable(
+      onTap: onTap,
+      radius: Rad.r(Rad.xs),
+      child: AnimatedContainer(
+        duration: Mo.fast, curve: Mo.easeOut,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: selected ? Vz.accentSoft : Vz.cardHi,
+          borderRadius: Rad.r(Rad.xs),
+          border: Border.all(
+            color: selected ? Vz.accent : Vz.border,
+            width: selected ? 1.5 : 1),
+        ),
+        child: Text(style.label, style: Ty.caption.copyWith(
+          color: selected ? Vz.accent : Vz.text,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
+      ),
+    );
+  }
+}
+
+class _Swatch extends StatelessWidget {
+  final Color color;
+  final bool selected;
+  final bool auto;
+  final VoidCallback onTap;
+  const _Swatch({
+    required this.color, required this.selected,
+    required this.onTap, this.auto = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return VzTappable(
+      onTap: onTap,
+      radius: Rad.r(Rad.full),
+      child: Container(
+        width: 30, height: 30,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: selected ? Vz.text : Vz.border,
+            width: selected ? 2.5 : 1),
+        ),
+        child: auto
+          ? Icon(Icons.auto_awesome_rounded, size: 14,
+              color: Vz.onAccent)
+          : (selected
+              ? Icon(Icons.check_rounded, size: 15, color: Colors.white)
+              : null),
+      ),
+    );
+  }
+}
+
+class _Slider extends StatelessWidget {
+  final String label;
+  final double value, min, max;
+  final ValueChanged<double> onChange;
+  const _Slider({
+    required this.label, required this.value,
+    required this.min, required this.max, required this.onChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+      child: Row(children: [
+        SizedBox(width: 74, child: Text(label,
+          style: Ty.caption.copyWith(color: Vz.textSec))),
+        Expanded(child: Slider(
+          value: value.clamp(min, max), min: min, max: max,
+          activeColor: Vz.accent,
+          onChanged: onChange,
+        )),
+        SizedBox(width: 34, child: Text(value.toStringAsFixed(1),
+          textAlign: TextAlign.end,
+          style: Ty.caption.copyWith(color: Vz.text))),
+      ]),
     );
   }
 }

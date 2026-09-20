@@ -90,6 +90,37 @@ void main() async {
   storeClickOnSave = (v) async {
     await (await SharedPreferences.getInstance()).setBool('app_click_on', v);
   };
+  // تنظیمات حباب
+  storeBubbleOnPrefs = () async =>
+      (await SharedPreferences.getInstance()).getBool('app_bubble_on');
+  storeBubbleOnSave = (v) async {
+    await (await SharedPreferences.getInstance()).setBool('app_bubble_on', v);
+  };
+  storeBubblePrefs = () async =>
+      (await SharedPreferences.getInstance()).getString('app_bubble_style');
+  storeBubbleSave = (v) async {
+    await (await SharedPreferences.getInstance()).setString('app_bubble_style', v);
+  };
+  storeBubbleColorPrefs = () async =>
+      (await SharedPreferences.getInstance()).getInt('app_bubble_color');
+  storeBubbleColorSave = (v) async {
+    final p = await SharedPreferences.getInstance();
+    if (v == null) {
+      await p.remove('app_bubble_color');
+    } else {
+      await p.setInt('app_bubble_color', v);
+    }
+  };
+  storeBubbleSizePrefs = () async =>
+      (await SharedPreferences.getInstance()).getDouble('app_bubble_size');
+  storeBubbleSizeSave = (v) async {
+    await (await SharedPreferences.getInstance()).setDouble('app_bubble_size', v);
+  };
+  storeBubbleSpeedPrefs = () async =>
+      (await SharedPreferences.getInstance()).getDouble('app_bubble_speed');
+  storeBubbleSpeedSave = (v) async {
+    await (await SharedPreferences.getInstance()).setDouble('app_bubble_speed', v);
+  };
   storeBgPrefs = () async =>
       (await SharedPreferences.getInstance()).getString('app_bg_style');
   storeBgSave = (v) async {
@@ -156,8 +187,8 @@ class VzThemeScopeBuilder extends StatelessWidget {
           data: mq.copyWith(disableAnimations: !Vz.animations),
           child: Directionality(
             textDirection: langDir(L.current),
-            // VzGlobalRipple: موج از نقطه‌ی هر لمس روی کل صفحه، حتی فضای خالی.
-            child: VzGlobalRipple(
+            // VzGlobalBubble: حباب از نقطه‌ی هر تپ روی کل صفحه، حتی فضای خالی.
+            child: VzGlobalBubble(
               child: VzAmbientBg(child: child ?? const SizedBox.shrink()),
             ),
           ),

@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'theme.dart';
 import 'vz_icons.dart';
+import 'vz_bubble.dart';
 
 /// ورود نرم: fade + اسلاید از پایین.
 class VzFadeSlide extends StatefulWidget {
@@ -634,45 +635,48 @@ class _RipplePainter extends CustomPainter {
       old.progress != progress || old.origin != origin;
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
-//  VzGlobalRipple — موج از نقطه‌ی هر لمس روی کل صفحه
+//  VzGlobalBubble — حباب از نقطه‌ی هر تپ روی کل صفحه (۲۰ مدل)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// دور کل اپ می‌پیچد و با هر **تپ** (هرجای صفحه، حتی فضای خالی) یک حباب
-/// از نقطه‌ی لمس می‌کشد.
+/// از نقطه‌ی لمس می‌کشد. مدل/رنگ/اندازه/سرعت از تنظیمات (`Vz.bubble*`)
+/// خوانده می‌شود.
 ///
 /// از [Listener] استفاده می‌کند که رویداد را مصرف نمی‌کند؛ پس دکمه‌ها و
 /// ژست‌های زیرش دست‌نخورده می‌مانند. فقط تپ واقعی حباب می‌زند: اگر انگشت
 /// بیش از [tapSlop] حرکت کند (درگ/اسکرول)، هیچ حبابی کشیده نمی‌شود.
 ///
-/// با [Vz.clickEnabled] و سبک موج ([VzClickStyle.ripple]) فعال می‌شود.
-class VzGlobalRipple extends StatefulWidget {
+/// مستقل از [VzClickStyle] است؛ کلید خودش [Vz.bubbleOn] است.
+class VzGlobalBubble extends StatefulWidget {
   final Widget child;
   /// حداکثر جابه‌جایی انگشت که هنوز «تپ» شمرده می‌شود.
   final double tapSlop;
-  const VzGlobalRipple({super.key, required this.child, this.tapSlop = 20});
-  @override State<VzGlobalRipple> createState() => _VzGlobalRippleState();
+  const VzGlobalBubble({super.key, required this.child, this.tapSlop = 20});
+  @override State<VzGlobalBubble> createState() => _VzGlobalBubbleState();
 }
 
-/// یک حباب در نقطه‌ای مشخص با کنترلر انیمیشن مستقل خودش.
-class _Bubble {
+class _LiveBubble {
   final Offset pos;
   final AnimationController c;
-  _Bubble(this.pos, this.c);
+  final int seed;
+  _LiveBubble(this.pos, this.c, this.seed);
 }
 
-class _VzGlobalRippleState extends State<VzGlobalRipple>
+class _VzGlobalBubbleState extends State<VzGlobalBubble>
     with TickerProviderStateMixin {
-  final List<_Bubble> _bubbles = [];
+  final List<_LiveBubble> _bubbles = [];
   Offset? _downAt;
   bool _moved = false;
+  int _seedCounter = 0;
 
   @override void dispose() {
     for (final b in _bubbles) { b.c.dispose(); }
     super.dispose();
   }
 
-  bool get _active => Vz.clickEnabled && Vz.clickStyle == VzClickStyle.ripple;
+  bool get _active => Vz.bubbleOn;
 
   void _onDown(PointerDownEvent e) {
     if (!_active) return;
@@ -691,18 +695,19 @@ class _VzGlobalRippleState extends State<VzGlobalRipple>
     _downAt = null;
     if (start == null || _moved) return; // درگ/اسکرول بود → بدون حباب
 
-    // حباب دقیقاً از نقطه‌ی لمس، با کنترلر مستقل تا چند تپ هم‌زمان درست بمانند.
+    // مدت بر اساس سرعت: سرعت بیشتر → کوتاه‌تر.
+    final ms = (620 * Vz.bubbleSpeed).round().clamp(180, 1600);
     final c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 560))..forward();
-    final bubble = _Bubble(start, c);
+      vsync: this, duration: Duration(milliseconds: ms))..forward();
+    final bubble = _LiveBubble(start, c, _seedCounter++);
     c.addStatusListener((s) {
-      if (s == AnimationStatus.completed && mounted) {
-        setState(() { _bubbles.removeWhere((b) => b == bubble); });
+      if (s == AnimationStatus.completed) {
+        if (mounted) setState(() => _bubbles.removeWhere((b) => b == bubble));
         c.dispose();
       }
     });
     setState(() {
-      if (_bubbles.length > 8) {
+      if (_bubbles.length > 10) {
         final old = _bubbles.removeAt(0);
         old.c.dispose();
       }
@@ -725,9 +730,11 @@ class _VzGlobalRippleState extends State<VzGlobalRipple>
             child: AnimatedBuilder(
               animation: Listenable.merge([for (final b in _bubbles) b.c]),
               builder: (ctx, _) => CustomPaint(
-                painter: _GlobalRipplePainter(
-                  bubbles: [for (final b in _bubbles) _BubbleState(b.pos, b.c.value)],
-                  color: Vz.accent,
+                painter: _MultiBubblePainter(
+                  bubbles: _bubbles,
+                  color: Vz.bubbleEffectiveColor,
+                  style: Vz.bubbleStyle,
+                  scale: Vz.bubbleSize,
                 ),
               ),
             ),
@@ -737,38 +744,26 @@ class _VzGlobalRippleState extends State<VzGlobalRipple>
   }
 }
 
-class _BubbleState {
-  final Offset pos;
-  final double t;
-  _BubbleState(this.pos, this.t);
-}
-
-class _GlobalRipplePainter extends CustomPainter {
-  final List<_BubbleState> bubbles;
+class _MultiBubblePainter extends CustomPainter {
+  final List<_LiveBubble> bubbles;
   final Color color;
-  _GlobalRipplePainter({required this.bubbles, required this.color});
+  final VzBubbleStyle style;
+  final double scale;
+  _MultiBubblePainter({
+    required this.bubbles, required this.color,
+    required this.style, required this.scale,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (bubbles.isEmpty) return;
     for (final b in bubbles) {
-      if (b.t <= 0 || b.t >= 1) continue;
-      final e = Curves.easeOut.transform(b.t);
-      // حباب کوچک و متمرکز زیر انگشت (نه دایره‌ی غول‌آسا روی کل صفحه).
-      final maxR = 90.0;
-      final r = maxR * e;
-      // حلقه‌ی توپُر با محو شدن
-      canvas.drawCircle(b.pos, r,
-        Paint()..color = color.withValues(alpha: (1 - b.t) * 0.28));
-      // حلقه‌ی لبه‌ی روشن‌تر
-      canvas.drawCircle(b.pos, r,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..color = color.withValues(alpha: (1 - b.t) * 0.5));
+      VzBubblePainter(
+        origin: b.pos, t: b.c.value, color: color,
+        style: style, scale: scale, seed: b.seed,
+      ).paint(canvas, size);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _GlobalRipplePainter old) => true;
+  bool shouldRepaint(covariant _MultiBubblePainter old) => true;
 }

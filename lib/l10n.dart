@@ -483,4 +483,10 @@ class L {
   static String get touchFx => _t({'en':'Touch feedback','fa':'انیمیشن لمس','ar':'تفاعل اللمس','ru':'Отклик касания','zh':'触摸反馈','ja':'タッチフィードバック','hi':'टच फ़ीडबैक','id':'Umpan balik sentuh'});
   static String get touchFxDesc => _t({'en':'Visual effect when you tap cards and buttons','fa':'افکت بصری هنگام لمس کارت‌ها و دکمه‌ها','ar':'تأثير بصري عند لمس البطاقات والأزرار','ru':'Визуальный эффект при нажатии карточек и кнопок','zh':'点击卡片和按钮时的视觉效果','ja':'カードやボタンを押したときの視覚効果','hi':'कार्ड और बटन दबाने पर दृश्य प्रभाव','id':'Efek visual saat menyentuh kartu dan tombol'});
   static String get touchFxStyle => _t({'en':'Effect style','fa':'نوع افکت','ar':'نمط التأثير','ru':'Стиль эффекта','zh':'效果样式','ja':'エフェクトの種類','hi':'प्रभाव शैली','id':'Gaya efek'});
+  static String get bubble => _t({'en':'Tap bubble','fa':'حباب لمسی','ar':'فقاعة اللمس','ru':'Пузырь касания','zh':'触摸气泡','ja':'タップバブル','hi':'टैप बबल','id':'Gelembung sentuh'});
+  static String get bubbleDesc => _t({'en':'A bubble bursts from wherever you tap, 20 styles','fa':'از هرجا تپ کنی حباب می‌زند، ۲۰ مدل','ar':'فقاعة تنفجر من مكان اللمس، 20 نمطاً','ru':'Пузырь появляется в месте касания, 20 стилей','zh':'在点击处弹出气泡，共20种样式','ja':'タップした場所からバブルが出ます。20種類','hi':'जहाँ टैप करें वहीं बबल फूटे, 20 शैलियाँ','id':'Gelembung muncul di tempat ketuk, 20 gaya'});
+  static String get bubbleStyle => _t({'en':'Bubble style','fa':'مدل حباب','ar':'نمط الفقاعة','ru':'Стиль пузыря','zh':'气泡样式','ja':'バブルの種類','hi':'बबल शैली','id':'Gaya gelembung'});
+  static String get bubbleColor => _t({'en':'Color','fa':'رنگ','ar':'اللون','ru':'Цвет','zh':'颜色','ja':'色','hi':'रंग','id':'Warna'});
+  static String get bubbleSize => _t({'en':'Size','fa':'اندازه','ar':'الحجم','ru':'Размер','zh':'大小','ja':'サイズ','hi':'आकार','id':'Ukuran'});
+  static String get bubbleSpeed => _t({'en':'Speed','fa':'سرعت','ar':'السرعة','ru':'Скорость','zh':'速度','ja':'速度','hi':'गति','id':'Kecepatan'});
 }

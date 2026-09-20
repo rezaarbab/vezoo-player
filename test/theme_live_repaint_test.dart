@@ -9,6 +9,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:player/theme.dart';
+import 'package:player/vz_bubble.dart';
 
 void main() {
   testWidgets('a pushed route repaints after a theme switch', (tester) async {
@@ -72,6 +73,54 @@ void main() {
 
     expect(c1, equals(c2));
     expect(c2, equals(Vz.text));
+  });
+
+  group('Bubble settings', () {
+    test('every bubble style paints without throwing', () {
+      // همه‌ی ۲۰ مدل باید بدون خطا روی بوم رسم شوند.
+      expect(VzBubbleStyle.values.length, equals(20));
+      for (final s in VzBubbleStyle.values) {
+        final recorder = PictureRecorder();
+        final canvas = Canvas(recorder);
+        for (final t in [0.05, 0.5, 0.95]) {
+          VzBubblePainter(
+            origin: const Offset(80, 120), t: t,
+            color: const Color(0xFF2FD97A), style: s,
+          ).paint(canvas, const Size(200, 300));
+        }
+        recorder.endRecording();
+      }
+    });
+
+    testWidgets('bubble style/color/size/speed round-trip through state',
+        (tester) async {
+      final key = GlobalKey<VzThemeState>();
+      await tester.pumpWidget(VzTheme(
+        key: key, child: const MaterialApp(home: _Probe())));
+      await tester.pumpAndSettle();
+      final st = key.currentState!;
+
+      st.setBubbleOn(false);
+      await tester.pumpAndSettle();
+      expect(Vz.bubbleOn, isFalse);
+
+      st.setBubbleStyle(VzBubbleStyle.confetti);
+      await tester.pumpAndSettle();
+      expect(Vz.bubbleStyle, VzBubbleStyle.confetti);
+
+      st.setBubbleColor(const Color(0xFFFF5A5F));
+      await tester.pumpAndSettle();
+      expect(Vz.bubbleColor, const Color(0xFFFF5A5F));
+      expect(Vz.bubbleEffectiveColor, const Color(0xFFFF5A5F));
+
+      st.setBubbleSize(1.6);
+      await tester.pumpAndSettle();
+      expect(Vz.bubbleSize, 1.6);
+
+      st.setBubbleSpeed(0.7);
+      await tester.pumpAndSettle();
+      expect(Vz.bubbleSpeed, 0.7);
+    });
   });
 }
 
