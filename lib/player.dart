@@ -2517,7 +2517,7 @@ void _cycleSpeed(){
                     color:_embeddedSubEnabled?Colors.white:Vz.accent),
               ),
             ),
-          PopupMenuButton<String>(
+          Theme(data:_darkUi(),child:PopupMenuButton<String>(
             icon:Icon(Icons.subtitles_rounded,color:Vz.accent),
             tooltip:L.subtitle,
             onSelected:(v){
@@ -2646,10 +2646,10 @@ void _cycleSpeed(){
                 Icon(Icons.tune_rounded,size:18,color:Vz.oviTextSec),SizedBox(width:10),Text(L.subtitleSettings),
               ])),
             ],
-          ),
+          )),
           _PillBtn(icon:Icons.picture_in_picture_rounded, tip:'PiP', onTap:_enterPip),
           _PillBtn(icon:_landscape?Icons.stay_current_portrait:Icons.screen_rotation, tip:L.rotate, onTap:_toggleOrientation),
-          PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.oviText),
+          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.oviText),
             onSelected:(v){
               switch(v){
                 case 'fit':_cycleFit();break;case 'rotate':_cycleRotation();break;
@@ -2715,7 +2715,7 @@ void _cycleSpeed(){
                 Icon(VzIcons.data('lock'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
                 Text(L.lockScreen)])),
             ],
-          ),
+          )),
         ]),
       )),
 
