@@ -10,7 +10,7 @@ import 'theme.dart';
 import 'vz_icons.dart';
 import 'vz_motion.dart';
 
-export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg, VzClickStyle;
+export 'theme.dart' show Vz, VzScanLine, Sp, Rad, Ty, Mo, VzThemeMode, VzThemeState, VzTheme, VzThemeScope, VzAmbientBg, VzClickStyle, VzBubbleStyle, buildVezooTheme;
 export 'vz_motion.dart' show VzTappable, VzPress, VzRipple, VzPopIn, VzFadeSlide, VzSlideIn, VzHeroGlow, VzShimmerBox, VzTabSwitcher, VzSplash, VzGlobalBubble;
 
 /// Flat surface colours, read once per build.
