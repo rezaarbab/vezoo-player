@@ -2031,7 +2031,13 @@ void _cycleSpeed(){
 
     return Theme(
       data: oviTheme,
-      child: Scaffold(
+      // DefaultTextStyle/IconTheme روشن: هر Text/Iconی که رنگ صریح ندارد
+      // روی پس‌زمینه‌ی تیره‌ی پلیر حتماً دیده می‌شود.
+      child: DefaultTextStyle.merge(
+        style: const TextStyle(color: Vz.oviText, fontSize: 14),
+        child: IconTheme.merge(
+          data: const IconThemeData(color: Vz.oviText),
+          child: Scaffold(
       backgroundColor:Colors.black,
       body:Stack(children:[
         // ── ویدیو ──
@@ -2451,6 +2457,8 @@ void _cycleSpeed(){
           onPressed:()=>setState(()=>_locked=false),child:const Icon(Icons.lock_rounded,color:Vz.oviText),
         ))),
       ]),
+          ),
+        ),
       ),
     );
   }
@@ -2708,7 +2716,13 @@ void _cycleSpeed(){
       )),
 
       // ── وسط ──
-      Expanded(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[
+      Expanded(child:Center(child:Container(
+        padding:const EdgeInsets.symmetric(horizontal:18,vertical:10),
+        decoration:BoxDecoration(
+          color:Colors.black.withValues(alpha:0.32),
+          borderRadius:Rad.r(Rad.lg),
+          border:Border.all(color:Colors.white.withValues(alpha:0.12),width:1)),
+        child:Column(mainAxisSize:MainAxisSize.min,children:[
         _abRow(),const SizedBox(height:8),
         Row(mainAxisAlignment:MainAxisAlignment.center,children:[
           // ۱۰ ثانیه عقب (سبک Tako/YouTube)
@@ -2797,14 +2811,22 @@ void _cycleSpeed(){
               tooltip: 'کانال بعدی'),
           ],
         ]),
-      ])),
+        ]),
+      ))),
 
       // ── نوار پایین با SafeArea کامل ──
       Container(
         decoration:const BoxDecoration(gradient:LinearGradient(
           begin:Alignment.bottomCenter,end:Alignment.topCenter,colors:[Colors.black54,Colors.transparent])),
-        padding:EdgeInsets.fromLTRB(12,0,12,navBottom+4),
-        child:Row(children:[
+        padding:EdgeInsets.fromLTRB(10,0,10,navBottom+6),
+        child:Center(child:Container(
+          // نوار شیشه‌ای — seek و زمان‌ها داخل یک pill جمع می‌شوند
+          padding:const EdgeInsets.symmetric(horizontal:14,vertical:6),
+          decoration:BoxDecoration(
+            color:Colors.black.withValues(alpha:0.42),
+            borderRadius:Rad.r(Rad.full),
+            border:Border.all(color:Colors.white.withValues(alpha:0.14),width:1)),
+          child:Row(children:[
           Text(fmt(_seekDragging?Duration(milliseconds:_seekDragMs.round()):_position),style:const TextStyle(fontSize:12,color:Vz.oviTextSec)),
           Expanded(child:SliderTheme(
             data:SliderTheme.of(context).copyWith(
@@ -2840,7 +2862,8 @@ void _cycleSpeed(){
               },
             ))),
           Text(fmt(_duration),style:const TextStyle(fontSize:12,color:Vz.oviTextSec)),
-        ]),
+          ]),
+        )),
       ),
     ]);
   }

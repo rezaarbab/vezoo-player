@@ -157,6 +157,16 @@ class VzBubblePainter extends CustomPainter {
   }
 
   // ── مدل‌ها ──
+
+  /// پالت شاد — رنگ پایه + دو رنگ مکمل. برای حلقه‌ها/نقاط چندرنگ.
+  List<Color> get _party {
+    final h = HSLColor.fromColor(color).hue;
+    return [
+      color,
+      HSLColor.fromColor(color).withHue((h + 120) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 240) % 360).toColor(),
+    ];
+  }
   void _classic(Canvas c) {
     c.drawCircle(origin, _r, Paint()..color = color.withValues(alpha: _fade * 0.28));
     c.drawCircle(origin, _r, Paint()
@@ -173,25 +183,27 @@ class VzBubblePainter extends CustomPainter {
   }
 
   void _pulse(Canvas c) {
-    for (final k in [0.0, 0.35]) {
+    final pal = _party;
+    for (var i = 0; i < 2; i++) { final k = i == 0 ? 0.0 : 0.35;
       final tt = (t - k).clamp(0.0, 1.0);
       final rr = (26 + 84 * Curves.easeOutCubic.transform(tt)) * scale;
       c.drawCircle(origin, rr, Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
-        ..color = color.withValues(alpha: ((1 - tt) * 0.6)));
+        ..color = pal[i].withValues(alpha: ((1 - tt) * 0.6)));
     }
   }
 
   void _triple(Canvas c) {
-    for (final k in [0.0, 0.2, 0.4]) {
+    final pal = _party;
+    for (var i = 0; i < 3; i++) { final k = i * 0.2;
       final tt = (t - k).clamp(0.0, 1.0);
       if (tt <= 0) continue;
       final rr = (20 + 90 * Curves.easeOutCubic.transform(tt)) * scale;
       c.drawCircle(origin, rr, Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 1.6
-        ..color = color.withValues(alpha: ((1 - tt) * 0.5)));
+        ..color = pal[i].withValues(alpha: ((1 - tt) * 0.5)));
     }
   }
 
@@ -261,12 +273,12 @@ class VzBubblePainter extends CustomPainter {
 
   void _dots(Canvas c) {
     final rr = _r;
-    final paint = Paint()..color = color.withValues(alpha: _fade * 0.7);
+    final pal = _party;
     const n = 16;
     for (var i = 0; i < n; i++) {
       final ang = i * 2 * math.pi / n;
       final p = origin + Offset(math.cos(ang), math.sin(ang)) * rr;
-      c.drawCircle(p, 2.2, paint);
+      c.drawCircle(p, 2.2, Paint()..color = pal[i % pal.length].withValues(alpha: _fade * 0.8));
     }
   }
 
@@ -286,11 +298,12 @@ class VzBubblePainter extends CustomPainter {
         if (i == 0) { path.moveTo(p.dx, p.dy); } else { path.lineTo(p.dx, p.dy); }
       }
       path.close();
-      c.drawPath(path, paint);
+      c.drawPath(path, Paint()..style = PaintingStyle.stroke..strokeWidth = 2..color = pal[k].withValues(alpha: _fade * 0.6));
     }
   }
 
   void _ripple3(Canvas c) {
+    final pal = _party;
     for (var k = 0; k < 3; k++) {
       final tt = (t - k * 0.18).clamp(0.0, 1.0);
       if (tt <= 0) continue;
@@ -298,7 +311,7 @@ class VzBubblePainter extends CustomPainter {
       c.drawCircle(origin, rr, Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2
-        ..color = color.withValues(alpha: ((1 - tt) * 0.5)));
+        ..color = pal[k].withValues(alpha: ((1 - tt) * 0.5)));
     }
   }
 
