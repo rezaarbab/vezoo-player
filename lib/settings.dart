@@ -73,7 +73,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   late bool _s1v, _s2v;
 
   final List<Color> _textColors=const[Colors.white,Color(0xFFFFEB3B),Color(0xFF69F0AE),Color(0xFF40C4FF),Color(0xFFFF8A65),Color(0xFFFF80AB)];
-  final List<Color> _bgColors=[Colors.black,Color(0xFF0D1B2A),Color(0xFF1B2E1B),Color(0xFF2A1B1B),Vz.card,Colors.transparent];
+  final List<Color> _bgColors=[Colors.black,Color(0xFF0D1B2A),Color(0xFF1B2E1B),Color(0xFF2A1B1B),Vz.oviCard,Colors.transparent];
 
   bool _hwDecode=true;
   bool _embeddedSub=true;
@@ -168,8 +168,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       final sel=c.value==_vs.bgColor;
       return GestureDetector(onTap:()=>_ch(()=>_vs.bgColor=c.value),child:Container(width:34,height:34,
         decoration:BoxDecoration(color:c==Colors.transparent?null:c,shape:BoxShape.circle,
-            border:Border.all(color:sel?Colors.white:Vz.border,width:sel?3:1)),
-        child:c==Colors.transparent?Center(child:Icon(Icons.block,size:18,color:Vz.textDim)):null));
+            border:Border.all(color:sel?Colors.white:Vz.oviBorder,width:sel?3:1)),
+        child:c==Colors.transparent?Center(child:Icon(Icons.block,size:18,color:Vz.oviTextDim)):null));
     }).toList()),
     Text('${L.transparency}: ${(_vs.bgOpacity*100).round()}%'),
     Slider(min:0,max:1,value:_vs.bgOpacity,onChanged:(v)=>_ch(()=>_vs.bgOpacity=v)),
@@ -181,7 +181,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       child:Container(
         padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
         decoration:BoxDecoration(
-          color:_vs.fontFamily==f.$2?Vz.accent:Vz.cardHi,
+          color:_vs.fontFamily==f.$2?Vz.accent:Vz.oviCardHi,
           borderRadius:BorderRadius.circular(8),
           border:Border.all(color:_vs.fontFamily==f.$2?Vz.accent:const Color(0xFF3A3A4C))),
         child:Text(f.$1,style:TextStyle(fontFamily:f.$2.isEmpty?null:f.$2,
@@ -268,7 +268,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       child:Container(
         padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
         decoration:BoxDecoration(
-          color:_vs.speed==s?Vz.accent:Vz.cardHi,
+          color:_vs.speed==s?Vz.accent:Vz.oviCardHi,
           borderRadius:BorderRadius.circular(8),
           border:Border.all(color:_vs.speed==s?Vz.accent:const Color(0xFF3A3A4C))),
         child:Text('${s}x',style:TextStyle(color:_vs.speed==s?Colors.white:const Color(0xFFC9D6CC),fontSize:12))),
@@ -292,7 +292,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
           onChanged:(v){setState(()=>_s2v=v);widget.onSub2Visible(v);}),
       OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickSub2();},
           icon:const Icon(Icons.file_open),label:Text(L.loadSubSub2)),
-      if(widget.sub2Path!=null)Text('${L.files}: '+p.basename(widget.sub2Path!),style:TextStyle(fontSize:11,color:Vz.textSec)),
+      if(widget.sub2Path!=null)Text('${L.files}: '+p.basename(widget.sub2Path!),style:TextStyle(fontSize:11,color:Vz.oviTextSec)),
       const SizedBox(height:8),
       SwitchListTile(contentPadding:EdgeInsets.zero,
         title:Text(L.subDragCopy),
@@ -320,11 +320,11 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
 
       // ── رنگ پس‌زمینه ──
       Text(L.bgColor),const SizedBox(height:8),
-      Wrap(spacing:10,children:[Colors.black,Vz.cardHi,const Color(0xFF16213E),Colors.transparent].map((c)=>
+      Wrap(spacing:10,children:[Colors.black,Vz.oviCardHi,const Color(0xFF16213E),Colors.transparent].map((c)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.bgColor=c.value),
-          child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Vz.border:c,shape:BoxShape.circle,
-            border:Border.all(color:c.value==vs2.bgColor?Colors.white:Vz.border,width:c.value==vs2.bgColor?3:1)),
-            child:c==Colors.transparent?Icon(Icons.block,size:18,color:Vz.textDim):null))).toList()),
+          child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Vz.oviBorder:c,shape:BoxShape.circle,
+            border:Border.all(color:c.value==vs2.bgColor?Colors.white:Vz.oviBorder,width:c.value==vs2.bgColor?3:1)),
+            child:c==Colors.transparent?Icon(Icons.block,size:18,color:Vz.oviTextDim):null))).toList()),
       const SizedBox(height:12),
 
       // ── چینش ──
@@ -333,8 +333,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         for(final e in [(L.left,0),(L.center,2),(L.right,1)])...[
           GestureDetector(onTap:()=>ch2(()=>vs2.textAlign=e.$2),
             child:Container(padding:const EdgeInsets.symmetric(horizontal:12,vertical:6),
-              decoration:BoxDecoration(color:vs2.textAlign==e.$2?Vz.accent:Vz.cardHi,borderRadius:BorderRadius.circular(8)),
-              child:Text(e.$1,style:TextStyle(color:vs2.textAlign==e.$2?Colors.white:Vz.textSec,fontSize:12)))),
+              decoration:BoxDecoration(color:vs2.textAlign==e.$2?Vz.accent:Vz.oviCardHi,borderRadius:BorderRadius.circular(8)),
+              child:Text(e.$1,style:TextStyle(color:vs2.textAlign==e.$2?Colors.white:Vz.oviTextSec,fontSize:12)))),
           const SizedBox(width:6),
         ],
       ]),
@@ -350,13 +350,13 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       const SizedBox(height:12),
 
       // ── انتخاب فونت ──
-      Divider(color:Vz.border),
+      Divider(color:Vz.oviBorder),
       Text(L.font,style:TextStyle(fontSize:13)),const SizedBox(height:8),
       Wrap(spacing:8,runSpacing:6,children:['','Vazirmatn','IRANSansMobile','Roboto','Tahoma'].map((f)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.fontFamily=f),
           child:Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
-            decoration:BoxDecoration(color:vs2.fontFamily==f?Vz.accent:Vz.cardHi,borderRadius:BorderRadius.circular(8)),
-            child:Text(f.isEmpty?L.defaultFont:f,style:TextStyle(color:vs2.fontFamily==f?Colors.white:Vz.textSec,fontSize:12,fontFamily:f.isEmpty?null:f))))).toList()),
+            decoration:BoxDecoration(color:vs2.fontFamily==f?Vz.accent:Vz.oviCardHi,borderRadius:BorderRadius.circular(8)),
+            child:Text(f.isEmpty?L.defaultFont:f,style:TextStyle(color:vs2.fontFamily==f?Colors.white:Vz.oviTextSec,fontSize:12,fontFamily:f.isEmpty?null:f))))).toList()),
       const SizedBox(height:12),
 
       // ── دیلی ──
@@ -376,7 +376,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   // ──────── تب سایر ────────
   Widget _otherTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     // ── انتخاب زبان ──
-    Text(L.language, style:TextStyle(color:Vz.textSec,fontSize:13)),
+    Text(L.language, style:TextStyle(color:Vz.oviTextSec,fontSize:13)),
     const SizedBox(height:10),
     Wrap(spacing:8,runSpacing:8,children:[
       for(final lang in kSupportedLangs)
@@ -385,17 +385,17 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
           child:Container(
             padding:const EdgeInsets.symmetric(horizontal:14,vertical:8),
             decoration:BoxDecoration(
-              color:L.current==lang?Vz.accent:Vz.cardHi,
+              color:L.current==lang?Vz.accent:Vz.oviCardHi,
               borderRadius:BorderRadius.circular(20),
               border:Border.all(
-                color:L.current==lang?Vz.accent:Vz.border,
+                color:L.current==lang?Vz.accent:Vz.oviBorder,
                 width:1.5)),
             child:Text(kLangNames[lang]!,style:TextStyle(
-              color:L.current==lang?Colors.white:Vz.textSec,
+              color:L.current==lang?Colors.white:Vz.oviTextSec,
               fontSize:13,fontWeight:L.current==lang?FontWeight.w600:FontWeight.normal))),
         ),
     ]),
-    Divider(height:24,color:Vz.border),
+    Divider(height:24,color:Vz.oviBorder),
     // پیش‌نمایش اسکراب (دسترسی سریع)
     SwitchListTile(contentPadding:EdgeInsets.zero,
       title:Text(L.seekPreview),
@@ -409,7 +409,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         label:Text(L.saveVideoSettings)),
     const SizedBox(height:6),
     Text(L.saveVideoSettingsDesc,
-        style:TextStyle(fontSize:12,color:Vz.textSec)),
+        style:TextStyle(fontSize:12,color:Vz.oviTextSec)),
     const Divider(height:28),
     Text(L.guide,style:TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:8),
     _helpRow(L.swipeHorizontal,L.seekVideo),
@@ -440,10 +440,10 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       onSelectionChanged:(s){setState(()=>_hwDecode=s.first);widget.onHwDecode(s.first);},
     ),
     const SizedBox(height:4),
-    Text('HW: ${L.hwDecode} | SW: ${L.swDecode}',style:TextStyle(fontSize:11,color:Vz.textSec)),
+    Text('HW: ${L.hwDecode} | SW: ${L.swDecode}',style:TextStyle(fontSize:11,color:Vz.oviTextSec)),
     if(widget.videoWidth!=null&&widget.videoHeight!=null)...[
       const Divider(height:18),
-      Text(L.resolution,style:TextStyle(fontSize:12,color:Vz.textSec)),const SizedBox(height:4),
+      Text(L.resolution,style:TextStyle(fontSize:12,color:Vz.oviTextSec)),const SizedBox(height:4),
       Text('${widget.videoWidth}×${widget.videoHeight}',style:const TextStyle(fontSize:14,color:Colors.greenAccent,fontWeight:FontWeight.bold)),
     ],
   ]));
@@ -451,8 +451,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   Widget _helpRow(String key,String val)=>Padding(
     padding:const EdgeInsets.symmetric(vertical:3),
     child:Row(children:[
-      SizedBox(width:160,child:Text(key,style:TextStyle(color:Vz.textSec,fontSize:12))),
-      Text(val,style:TextStyle(color:Vz.textSec,fontSize:12)),
+      SizedBox(width:160,child:Text(key,style:TextStyle(color:Vz.oviTextSec,fontSize:12))),
+      Text(val,style:TextStyle(color:Vz.oviTextSec,fontSize:12)),
     ]),
   );
 }

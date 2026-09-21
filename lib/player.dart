@@ -518,12 +518,12 @@ class _PlayerState extends State<PlayerScreen>{
     if(saved.inSeconds>5&&mounted&&!widget.isLive){
       final resume=await showDialog<bool>(
         context:context,barrierDismissible:false,
-        builder:(ctx)=>AlertDialog(backgroundColor:Vz.oviBg,title:Text(L.continuePlaying),
+        builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(backgroundColor:Vz.oviBg,title:Text(L.continuePlaying),
           content:Text('${L.resumeFrom} (${fmt(saved)})'),
           actions:[
             TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.fromBeginning)),
             FilledButton(onPressed:()=>Navigator.pop(ctx,true),child:Text(L.continue_)),
-          ]),
+          ])),
       );
       if(resume==true&&mounted)await player.seek(saved);
     }
@@ -1148,8 +1148,12 @@ class _PlayerState extends State<PlayerScreen>{
     }
   }
 
+  // پلیر همیشه اورلی تیره دارد؛ Theme محلی هم تیره می‌ماند
+  // (مستقل از تم روشن/تیره اپ) — bugfix: تنظیمات زیرنویس در تم روشن
+  ThemeData _darkUi() => buildVezooTheme(dark: true);
+
   void _showAiLogDialog(){
-    showDialog(context:context,barrierColor:Colors.black54,builder:(ctx)=>StatefulBuilder(
+    showDialog(context:context,barrierColor:Colors.black54,builder:(ctx)=>Theme(data:_darkUi(),child:StatefulBuilder(
       builder:(ctx,ss){
         // آپدیت هر ثانیه
         Future.delayed(const Duration(seconds:1),()=>ss((){}));
@@ -1193,7 +1197,7 @@ class _PlayerState extends State<PlayerScreen>{
             TextButton(onPressed:(){setState((){_aiLog.clear();});ss((){});},
               child:const Text('Clear',style:TextStyle(color:Vz.oviTextSec))),
           ]);
-      }));
+      })));
   }
 
   void _showLogDialog(){
@@ -1375,7 +1379,7 @@ class _PlayerState extends State<PlayerScreen>{
 
   void _showSleepDialog(){
     int min=30;
-    showDialog(context:context,builder:(ctx)=>StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
+    showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
       backgroundColor:Vz.oviBg,title:Text(L.sleepTimer),
       content:Column(mainAxisSize:MainAxisSize.min,children:[
         Text('$min ${L.minutes}',style:const TextStyle(fontSize:24,fontWeight:FontWeight.bold)),
@@ -1393,12 +1397,12 @@ class _PlayerState extends State<PlayerScreen>{
           Navigator.pop(ctx);
         },child:Text(L.start)),
       ],
-    )));
+    ))));
   }
 
   // انتخاب تراک زیرنویس embedded (softsub)
   void _showEmbeddedSubPicker(){
-    showDialog(context:context,builder:(ctx)=>StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
+    showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
       title:Text(L.embeddedSubtitleVideo),
       content:Column(mainAxisSize:MainAxisSize.min,children:[
         // toggle کلی
@@ -1440,12 +1444,12 @@ class _PlayerState extends State<PlayerScreen>{
               style:TextStyle(fontSize:11,color:Vz.accent))),
       ]),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
-    )));
+    ))));
   }
 
   void _showAudioPicker(){
     if(_audioTracks.isEmpty){showSnack(context, L.audioTrackNotFound);return;}
-    showDialog(context:context,builder:(ctx)=>AlertDialog(
+    showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(
       backgroundColor:Vz.oviBg,title:Text(L.selectAudioTrack),
       content:Column(mainAxisSize:MainAxisSize.min,
           children:_audioTracks.map((t)=>ListTile(
@@ -1453,11 +1457,11 @@ class _PlayerState extends State<PlayerScreen>{
             leading:const Icon(Icons.music_note),
             onTap:(){player.setAudioTrack(t);Navigator.pop(ctx);},
           )).toList()),
-    ));
+    )));
   }
 
   void _showVideoInfo(){
-    showDialog(context:context,builder:(ctx)=>AlertDialog(
+    showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(
       title:Text(p.basename(_curPath),style:const TextStyle(fontSize:13)),
       content:Column(mainAxisSize:MainAxisSize.min,crossAxisAlignment:CrossAxisAlignment.start,children:[
         if(_resStr.isNotEmpty)_infoRow(Icons.aspect_ratio_rounded,Vz.accent,L.resolution,_resStr),
@@ -1474,7 +1478,7 @@ class _PlayerState extends State<PlayerScreen>{
         if(_hwDecode)_infoRow(Icons.developer_board_rounded,Vz.accent,L.decoder,L.hwActive),
       ]),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
-    ));
+    )));
   }
 
   Widget _infoRow(IconData icon,Color iconColor,String label,String val)=>Padding(
@@ -1541,11 +1545,11 @@ class _PlayerState extends State<PlayerScreen>{
     }catch(e){
       if(mounted){
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        showDialog(context:context,builder:(ctx)=>AlertDialog(
+        showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(
           title:Text(L.decodeError),
           content:SingleChildScrollView(child:Text(e.toString())),
           actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
-        ));
+        )));
       }
     }
   }
@@ -1743,14 +1747,14 @@ class _PlayerState extends State<PlayerScreen>{
       context: context,
       backgroundColor: Vz.oviBg,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _TranslationInfoPanel(
+      builder: (_) => Theme(data:_darkUi(),child:_TranslationInfoPanel(
         onCancel: () {
           Navigator.pop(context);
           SrtTranslationService.cancel();
           setState((){_translating=false; _translatingStatus='';});
           showSnack(context, L.translationCancelled, color: Vz.amber);
         },
-      ),
+      )),
     );
   }
 
@@ -1759,7 +1763,7 @@ class _PlayerState extends State<PlayerScreen>{
       context: context,
       backgroundColor: Vz.oviBg,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (_) => _LivePanelSheet(
+      builder: (_) => Theme(data:_darkUi(),child:_LivePanelSheet(
         stopwatch: _liveStopwatch,
         onStop: () { Navigator.pop(context); _stopLiveSub(); },
         onSkipChunk: () { Navigator.pop(context); _skipCurrentChunk(); },
@@ -1768,7 +1772,7 @@ class _PlayerState extends State<PlayerScreen>{
           if (_liveSubPaused) { _liveSubPaused = false; player.play(); }
           else player.pause();
         },
-      ),
+      )),
     );
   }
 
@@ -2576,7 +2580,7 @@ void _cycleSpeed(){
                   showModalBottomSheet(
                     context:context,isScrollControlled:true,backgroundColor:Vz.oviBg,
                     shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
-                    builder:(ctx)=>PlayerSettings(
+                    builder:(ctx)=>Theme(data:_darkUi(),child:PlayerSettings(
                       vs:_vs,onChanged:(vs){setState(()=>_vs=vs);},
                       vs2:_vs2,onChanged2:(vs){setState(()=>_vs2=vs);},
                       sub1Visible:_sub1Visible,onSub1Visible:(v)=>setState(()=>_sub1Visible=v),
@@ -2596,7 +2600,7 @@ void _cycleSpeed(){
                       onEmbeddedSubEnabled:(v){setState((){_embeddedSubEnabled=v;if(!v)_embeddedSubText=null;});
                         if(v&&_subtitleTracks.isNotEmpty)player.setSubtitleTrack(_subtitleTracks.first);},
                       videoWidth:_videoWidth,videoHeight:_videoHeight,
-                    ),
+                    )),
                   );
                   break;
                 case 'live':
@@ -3426,7 +3430,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
   }
 
   @override
-  Widget build(BuildContext ctx) => AlertDialog(
+  Widget build(BuildContext ctx) => Theme(data:_darkUi(),child:AlertDialog(
     backgroundColor: Vz.oviSurface,
     title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Colors.white, fontSize: 15)),
     content: SizedBox(width: 300, height: 420, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -3848,7 +3852,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
         }),
         child: const Text('شروع')),
     ],
-  );
+  ));
 }
 
 class _SrtEntry {
