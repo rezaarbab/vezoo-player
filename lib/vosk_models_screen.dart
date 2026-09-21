@@ -134,7 +134,7 @@ class _State extends State<VoskModelsScreen> {
                   child: const Text('✓ نصب شده',
                     style: TextStyle(color: Colors.green, fontSize: 9, fontWeight: FontWeight.bold))),
             ])),
-          const Divider(height: 1, color: Vz.border),
+          Divider(height: 1, color: Vz.border),
           // مدل‌ها
           ...models.map((m) => _modelRow(m)),
           const SizedBox(height: 4),

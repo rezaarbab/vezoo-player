@@ -169,7 +169,7 @@ class _State extends State<OfflineTranslationScreen> {
               SizedBox(width: 40, height: 40, child: CircularProgressIndicator(
                 value: progress, strokeWidth: 3, color: _accent))
             else if (isDownloaded)
-              IconButton(icon: const Icon(Icons.delete_outline_rounded, color: Vz.textDim),
+              IconButton(icon: Icon(Icons.delete_outline_rounded, color: Vz.textDim),
                 onPressed: () => _delete(m))
             else
               FilledButton.icon(

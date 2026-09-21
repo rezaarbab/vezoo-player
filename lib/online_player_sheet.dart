@@ -395,7 +395,7 @@ class _State extends State<OnlinePlayerSheet> {
           Container(width: 40, height: 4, margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: BoxDecoration(color: Vz.border, borderRadius: BorderRadius.circular(2))),
           Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(L.onlineVideo, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Vz.text))),
+            child: Text(L.onlineVideo, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Vz.text))),
           const SizedBox(height: 10),
           // ── input ──
           Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: Row(children: [
