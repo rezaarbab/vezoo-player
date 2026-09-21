@@ -106,12 +106,17 @@ class VzBubblePainter extends CustomPainter {
 
   void _sparkle(Canvas c) {
     final rnd = math.Random(seed);
-    for (var i = 0; i < 10; i++) {
+    final h = HSLColor.fromColor(color).hue;
+    for (var i = 0; i < 22; i++) {
       final ang = rnd.nextDouble() * math.pi * 2;
-      final dist = _r * (0.6 + rnd.nextDouble() * 0.8);
+      final dist = _r * (0.5 + rnd.nextDouble() * 0.9);
       final p = origin + Offset(math.cos(ang), math.sin(ang)) * dist;
-      c.drawCircle(p, (2.5 - t * 2).clamp(0.4, 3.0),
-        Paint()..color = color.withValues(alpha: _fade * 0.85));
+      // جرقه‌ها بین رنگ اصلی و رنگ مکمل می‌چرخند.
+      final col = (i.isEven)
+          ? color
+          : HSLColor.fromColor(color).withHue((h + 160) % 360).toColor();
+      c.drawCircle(p, (3.0 - t * 2.2).clamp(0.5, 3.5),
+        Paint()..color = col.withValues(alpha: _fade * 0.9));
     }
   }
 
@@ -119,13 +124,13 @@ class VzBubblePainter extends CustomPainter {
     final rnd = math.Random(seed);
     final rr = _r;
     final paint = Paint()
-      ..strokeWidth = 2
+      ..strokeWidth = 2.6
       ..strokeCap = StrokeCap.round
-      ..color = color.withValues(alpha: _fade * 0.7);
-    for (var i = 0; i < 8; i++) {
-      final ang = i * math.pi / 4 + rnd.nextDouble() * 0.12;
+      ..color = color.withValues(alpha: _fade * 0.8);
+    for (var i = 0; i < 14; i++) {
+      final ang = i * 2 * math.pi / 14 + rnd.nextDouble() * 0.12;
       final dir = Offset(math.cos(ang), math.sin(ang));
-      c.drawLine(origin + dir * (rr * 0.3), origin + dir * rr, paint);
+      c.drawLine(origin + dir * (rr * 0.25), origin + dir * rr, paint);
     }
   }
 
@@ -272,20 +277,22 @@ class VzBubblePainter extends CustomPainter {
 
   void _confetti(Canvas c) {
     final rnd = math.Random(seed);
+    final h = HSLColor.fromColor(color).hue;
+    // پالت شاد: ۵ رنگ با فاصله‌های hue بزرگ.
     final palette = <Color>[
       color,
-      HSLColor.fromColor(color).withHue(
-        (HSLColor.fromColor(color).hue + 40) % 360).toColor(),
-      HSLColor.fromColor(color).withHue(
-        (HSLColor.fromColor(color).hue + 200) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 60) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 140) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 220) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 300) % 360).withSaturation(0.85).toColor(),
     ];
-    for (var i = 0; i < 18; i++) {
+    for (var i = 0; i < 30; i++) {
       final ang = rnd.nextDouble() * math.pi * 2;
-      final speed = 0.7 + rnd.nextDouble() * 0.9;
+      final speed = 0.5 + rnd.nextDouble() * 1.1;
       final p = origin + Offset(math.cos(ang), math.sin(ang)) * (_r * speed);
       final col = palette[i % palette.length];
-      final sz = 3.0 + rnd.nextDouble() * 3.0;
-      final rot = rnd.nextDouble() * math.pi + t * 6;
+      final sz = 4.0 + rnd.nextDouble() * 4.5;
+      final rot = rnd.nextDouble() * math.pi + t * 8;
       c.save();
       c.translate(p.dx, p.dy);
       c.rotate(rot);

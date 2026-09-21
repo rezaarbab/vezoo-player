@@ -145,7 +145,7 @@ class Vz {
   /// رنگ حباب؛ اگر null باشد از اکسنت تم استفاده می‌شود.
   static Color? _bubbleColor;
   /// مقیاس اندازه‌ی حباب (۰.۵ تا ۲.۰).
-  static double _bubbleSize = 1.0;
+  static double _bubbleSize = 1.15;
   /// سرعت پخش (۰.۵ سریع‌تر تا ۲.۰ آرام‌تر).
   static double _bubbleSpeed = 1.0;
 
@@ -506,7 +506,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   bool _bubbleOn = true;
   VzBubbleStyle _bubble = VzBubbleStyle.classic;
   Color? _bubbleColor;
-  double _bubbleSize = 1.0;
+  double _bubbleSize = 1.15;
   double _bubbleSpeed = 1.0;
   Color? _customSeed;
   Color? _dynamicSeed;
@@ -567,8 +567,8 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       (s) => s.name == bubRaw, orElse: () => VzBubbleStyle.classic);
     final bubCol = await storeBubbleColorPrefs?.call();
     _bubbleColor = bubCol == null ? null : Color(bubCol);
-    _bubbleSize = await storeBubbleSizePrefs?.call() ?? 1.0;
-    _bubbleSpeed = await storeBubbleSpeedPrefs?.call() ?? 1.0;
+    _bubbleSize = await storeBubbleSizePrefs?.call() ?? 1.15;
+    _bubbleSpeed = await storeBubbleSpeedPrefs?.call() ?? 1.15;
     final cs = await storeCustomSeedPrefs?.call();
     _customSeed = cs == null ? null : Color(cs);
     if (mounted) setState(() {});

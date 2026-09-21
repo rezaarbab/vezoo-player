@@ -2017,7 +2017,21 @@ void _cycleSpeed(){
       ]));
     }
 
-    return Scaffold(
+    // پلیر همیشه روی پس‌زمینه‌ی تیره است. یک Theme محلی تیره می‌سازیم تا
+    // آیکون‌ها و متن‌هایی که رنگ صریح تعیین نمی‌کنند (دکمه‌ی بازگشت، PiP،
+    // چرخش، منوی بیشتر) در تم روشن هم تیره روی تیره نشوند.
+    final oviTheme = buildVezooTheme(dark: true).copyWith(
+      iconTheme: const IconThemeData(color: Vz.oviText),
+      textTheme: const TextTheme(
+        bodyMedium: TextStyle(color: Vz.oviText),
+        bodySmall: TextStyle(color: Vz.oviTextSec),
+        titleMedium: TextStyle(color: Vz.oviText),
+      ),
+    );
+
+    return Theme(
+      data: oviTheme,
+      child: Scaffold(
       backgroundColor:Colors.black,
       body:Stack(children:[
         // ── ویدیو ──
@@ -2437,6 +2451,7 @@ void _cycleSpeed(){
           onPressed:()=>setState(()=>_locked=false),child:const Icon(Icons.lock_rounded,color:Vz.oviText),
         ))),
       ]),
+      ),
     );
   }
 
@@ -2620,10 +2635,9 @@ void _cycleSpeed(){
               ])),
             ],
           ),
-          IconButton(icon:const Icon(Icons.picture_in_picture_rounded),
-              tooltip:'PiP',onPressed:_enterPip),
-          IconButton(icon:Icon(_landscape?Icons.stay_current_portrait:Icons.screen_rotation),onPressed:_toggleOrientation),
-          PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded),
+          _PillBtn(icon:Icons.picture_in_picture_rounded, tip:'PiP', onTap:_enterPip),
+          _PillBtn(icon:_landscape?Icons.stay_current_portrait:Icons.screen_rotation, tip:L.rotate, onTap:_toggleOrientation),
+          PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.oviText),
             onSelected:(v){
               switch(v){
                 case 'fit':_cycleFit();break;case 'rotate':_cycleRotation();break;
@@ -3830,4 +3844,37 @@ class _SrtEntry {
     }
     return '$idx\n${_fmt(start)} --> ${_fmt(end)}\n$text\n';
   }
+}
+
+/// دکمه‌ی گردِ کوچک با پس‌زمینه‌ی نیمه‌شفاف — برای کنترل‌های شناور پلیر.
+/// روی هر ویدیویی خوانا می‌ماند و به تم وابسته نیست.
+class _PillBtn extends StatelessWidget {
+  final IconData icon;
+  final String tip;
+  final VoidCallback onTap;
+  const _PillBtn({required this.icon, required this.tip, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Tooltip(
+    message: tip,
+    child: Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withValues(alpha: 0.38),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.18), width: 1),
+            ),
+            child: Icon(icon, size: 18, color: Vz.oviText),
+          ),
+        ),
+      ),
+    ),
+  );
 }
