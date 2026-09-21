@@ -56,7 +56,7 @@ FxParams fxParams(VzTapFx fx) {
   final l = fx.level.toDouble();
   switch (fx.family) {
     case 'ripple':   return FxParams(0.6 + l * 0.09, 1, 1.0, 1.0, 0);
-    case 'rings':    return FxParams(0.8, 2 + (l / 2).floor(), 1.0, 1.0, 40 + l * 12);
+    case 'rings':    return FxParams(0.8, 2.0 + (l / 2).floor(), 1.0, 1.0, 40 + l * 12);
     case 'burst':    return FxParams(0.7 + l * 0.05, 6 + l * 2, 1.0, 1.0, 30 + l * 10);
     case 'sparkle':  return FxParams(0.9, 8 + l * 4, 0.9, 1.0, 60 + l * 10);
     case 'shapes':   return FxParams(0.8, 3 + l, 0.8, 1.0, 90);
@@ -85,7 +85,7 @@ class VzTapFxPainter extends CustomPainter {
   double _r(FxParams p) => _rBase * p.size * Curves.easeOutCubic.transform(t) * scale;
   double get _fade => (1 - t).clamp(0.0, 1.0);
 
-  Color _shift(int deg) {
+  Color _shift(double deg) {
     final h = HSLColor.fromColor(color).hue;
     return HSLColor.fromColor(color).withHue((h + deg) % 360).toColor();
   }
@@ -118,7 +118,7 @@ class VzTapFxPainter extends CustomPainter {
           if (tt <= 0) continue;
           canvas.drawCircle(origin, _rBase * p.size * Curves.easeOutCubic.transform(tt) * scale,
             Paint()..style = PaintingStyle.stroke..strokeWidth = 2
-              ..color = _shift(p.hueSpread * i / math.max(1, p.count - 1))
+              ..color = _shift(p.hueSpread * i / math.max(1.0, p.count - 1))
                 .withValues(alpha: (1 - tt) * 0.6));
         }
         break;

@@ -751,7 +751,7 @@ class _MultiBubblePainter extends CustomPainter {
   final VzTapFx fx;
   _MultiBubblePainter({
     required this.bubbles, required this.color,
-    required this.fx,
+    required this.scale, required this.fx,
   });
 
   @override

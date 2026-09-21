@@ -968,10 +968,14 @@ class _TapFxPickerSheetState extends State<_TapFxPickerSheet>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this, duration: const Duration(milliseconds: 900))..repeat();
-  late int _sel = 0;
-  String? _family = VzTapFx.all[widget.current.clamp(0, 99)].family;
+  int _sel = 0;
+  String? _family;
 
-  @override void initState() { super.initState(); _sel = widget.current; }
+  @override void initState() {
+    super.initState();
+    _sel = widget.current.clamp(0, 99);
+    _family = VzTapFx.all[_sel].family;
+  }
   @override void dispose() { _c.dispose(); super.dispose(); }
 
   @override
@@ -1026,7 +1030,6 @@ class _TapFxPickerSheetState extends State<_TapFxPickerSheet>
                   onTap: () { setState(() => _sel = i); Navigator.pop(context, i); },
                 );
               },
-            ),
           );
         },
       ),
