@@ -158,6 +158,12 @@ class Vz {
   static bool _bubbleOn = true;
   /// مدل حباب (۲۰ مدل).
   static VzBubbleStyle _bubble = VzBubbleStyle.classic;
+
+  /// طرح افکت لمس — ایندکس در VzTapFx.all (۱۰۰ طرح).
+  static int _tapFx = 0;
+
+  /// طرح افکت لمس — ایندکس در VzTapFx.all (۱۰۰ طرح).
+  static int _tapFx = 0;
   /// رنگ حباب؛ اگر null باشد از اکسنت تم استفاده می‌شود.
   static Color? _bubbleColor;
   /// مقیاس اندازه‌ی حباب (۰.۵ تا ۲.۰).
@@ -219,6 +225,10 @@ class Vz {
   static bool get isDark => _dark;
   static bool get animations => _anim;
 
+  /// هم‌ترازسازی اجباری وضعیت سراسری با تم فعال. هر جا (مثل یک Theme محلی)
+  /// وضعیت را جابه‌جا کرده باشد، این در ریشه‌ی اپ اصلاحش می‌کند.
+  static void syncDark(bool v) { _dark = v; }
+
   /// رنگ تینت پس‌زمینه و اکسنت قفل‌شده — برای ساختن پالت مستقل (پلیر).
   static Color? get bgTint => _bgTint;
   static Color? get accentLock => _accentLock;
@@ -235,6 +245,8 @@ class Vz {
   static Color? get bubbleColor => _bubbleColor;
   static double get bubbleSize => _bubbleSize;
   static double get bubbleSpeed => _bubbleSpeed;
+  static int get tapFx => _tapFx;
+  static int get tapFx => _tapFx;
   /// رنگ مؤثر حباب (رنگ دلخواه، وگرنه اکسنت).
   static Color get bubbleEffectiveColor => _bubbleColor ?? pal.accent;
 
@@ -248,6 +260,8 @@ class Vz {
   static void _setBubbleColor(Color? c) { _bubbleColor = c; }
   static void _setBubbleSize(double v) { _bubbleSize = v; }
   static void _setBubbleSpeed(double v) { _bubbleSpeed = v; }
+  static void _setTapFx(int v) { _tapFx = v.clamp(0, 99); }
+  static void _setTapFx(int v) { _tapFx = v.clamp(0, 99); }
   static void _setTheme(VzThemeDef t) { _theme = t; }
   static void _setBgOverride(VzBgStyle s) { _bgOverride = s; }
   static void _setDynamicSeed(Color? c) { _dynamicSeed = c; }
@@ -428,6 +442,7 @@ class VzThemeScope extends InheritedWidget {
     required this.bubbleColor,
     required this.bubbleSize,
     required this.bubbleSpeed,
+    required this.tapFx,
     required this.dynamicSeed,
     required this.customSeed,
     required super.child,
@@ -451,6 +466,9 @@ class VzThemeScope extends InheritedWidget {
   final Color? bubbleColor;
   final double bubbleSize;
   final double bubbleSpeed;
+
+  /// طرح افکت لمس (ایندکس ۰..۹۹).
+  final int tapFx;
 
   /// رنگ استخراج‌شده از آرت‌ورک (اگر باشد).
   final Color? dynamicSeed;
@@ -528,6 +546,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Color? _bubbleColor;
   double _bubbleSize = 1.15;
   double _bubbleSpeed = 1.0;
+  int _tapFx = 0;
   Color? _customSeed;
   Color? _dynamicSeed;
 
@@ -542,6 +561,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Color? get bubbleColor => _bubbleColor;
   double get bubbleSize => _bubbleSize;
   double get bubbleSpeed => _bubbleSpeed;
+  int get tapFx => _tapFx;
   Color? get customSeed => _customSeed;
 
   @override
@@ -589,6 +609,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     _bubbleColor = bubCol == null ? null : Color(bubCol);
     _bubbleSize = await storeBubbleSizePrefs?.call() ?? 1.15;
     _bubbleSpeed = await storeBubbleSpeedPrefs?.call() ?? 1.15;
+    _tapFx = (await storeTapFxPrefs?.call() ?? 0).clamp(0, 99);
     final cs = await storeCustomSeedPrefs?.call();
     _customSeed = cs == null ? null : Color(cs);
     if (mounted) setState(() {});
@@ -693,6 +714,12 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     await storeBubbleSpeedSave?.call(v);
   }
 
+  Future<void> setTapFx(int i) async {
+    _tapFx = i.clamp(0, 99);
+    setState(() {});
+    await storeTapFxSave?.call(_tapFx);
+  }
+
   bool get _isDarkNow {
     if (_mode != VzThemeMode.system) return _mode == VzThemeMode.dark;
     return WidgetsBinding.instance.platformDispatcher.platformBrightness == Brightness.dark;
@@ -712,6 +739,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     Vz._setBubbleColor(_bubbleColor);
     Vz._setBubbleSize(_bubbleSize);
     Vz._setBubbleSpeed(_bubbleSpeed);
+    Vz._setTapFx(_tapFx);
     Vz._setCustomSeed(_customSeed);
     Vz._setDynamicSeed(_dynamicSeed);
     return VzThemeScope(
@@ -734,6 +762,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
       bubbleColor: _bubbleColor,
       bubbleSize: _bubbleSize,
       bubbleSpeed: _bubbleSpeed,
+      tapFx: _tapFx,
       dynamicSeed: _dynamicSeed,
       customSeed: _customSeed,
       child: widget.child,
@@ -765,6 +794,8 @@ Future<double?> Function()? storeBubbleSizePrefs;
 Future<void> Function(double)? storeBubbleSizeSave;
 Future<double?> Function()? storeBubbleSpeedPrefs;
 Future<void> Function(double)? storeBubbleSpeedSave;
+Future<int?> Function()? storeTapFxPrefs;
+Future<void> Function(int)? storeTapFxSave;
 Future<int?> Function()? storeCustomSeedPrefs;
 Future<void> Function(int?)? storeCustomSeedSave;
 

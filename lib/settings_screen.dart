@@ -11,6 +11,7 @@ import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
 import 'vz_icons.dart';
+import 'vz_tapfx.dart';
 import 'vz_color_wheel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -291,7 +292,8 @@ class VzThemeGallery extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 2),
         itemCount: kVzThemes.length,
         separatorBuilder: (_, __) => const SizedBox(width: Sp.md),
-        itemBuilder: (ctx, i) {
+itemBuilder: (ctx, i) {
+
           final t = kVzThemes[i];
           return _ThemeCard(
             def: t, dark: dark,
@@ -452,7 +454,8 @@ class VzSeedPicker extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: Sp.md),
             itemCount: kVzSeeds.length + 1,
             separatorBuilder: (_, __) => const SizedBox(width: Sp.sm),
-            itemBuilder: (ctx, i) {
+itemBuilder: (ctx, i) {
+
               // آخرین آیتم: چرخ رنگ دلخواه
               if (i == kVzSeeds.length) {
                 return _CustomSeedSwatch(
@@ -796,25 +799,36 @@ class _BubbleSettings extends StatelessWidget {
         if (on) ...[
           const Divider(height: 1, indent: 56),
 
-          // ── مدل حباب ──
-          Padding(
-            padding: const EdgeInsets.fromLTRB(Sp.md, Sp.sm, Sp.md, 4),
-            child: Align(alignment: AlignmentDirectional.centerStart,
-              child: Text(L.bubbleStyle,
-                style: Ty.caption.copyWith(color: Vz.textSec))),
-          ),
+          // ── انتخاب طرح (۱۰۰ طرح در شیت کشویی) ──
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Sp.md),
-            child: Wrap(spacing: 6, runSpacing: 6, children: [
-              for (final s in VzBubbleStyle.values)
-                _BubbleStyleChip(
-                  style: s,
-                  selected: VzThemeScope.bubbleStyleOf(context) == s,
-                  onTap: () => vzt?.setBubbleStyle(s),
-                ),
-            ]),
+            child: VzTappable(
+              radius: Rad.r(Rad.sm),
+              onTap: () async {
+                final picked = await showVzTapFxPicker(context,
+                  current: VzThemeScope.tapFxOf(context));
+                if (picked != null) await vzt?.setTapFx(picked);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: Sp.md, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Vz.cardHi,
+                  borderRadius: Rad.r(Rad.sm),
+                  border: Border.all(color: Vz.border)),
+                child: Row(children: [
+                  Icon(VzIcons.data('gesture'), size: 18, color: Vz.accent),
+                  const SizedBox(width: Sp.sm),
+                  Expanded(child: Text('انتخاب طرح ( طرح)',
+                    style: Ty.label)),
+                  Text(VzTapFx.all[VzThemeScope.tapFxOf(context).clamp(0, 99)].name,
+                    style: Ty.caption.copyWith(color: Vz.textSec)),
+                  const SizedBox(width: 6),
+                  Icon(VzIcons.data('chevron-right'), size: 16, color: Vz.textDim),
+                ]),
+              ),
+            ),
           ),
-
           // ── رنگ ──
           const SizedBox(height: Sp.sm),
           Padding(
@@ -953,6 +967,161 @@ class _Slider extends StatelessWidget {
           textAlign: TextAlign.end,
           style: Ty.caption.copyWith(color: Vz.text))),
       ]),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  انتخابگر طرح لمس — شیت کشویی با ۱۰۰ طرح و پیشنمایش زنده
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// شیت کشویی: شبکه‌ی ۱۰۰ طرح با پیشنمایش انیمیتشده. طرح انتخابی را
+/// برمی‌گرداند (ایندکس) یا null اگر کاربر فقط بست.
+Future<int?> showVzTapFxPicker(BuildContext context, {required int current}) {
+  return showModalBottomSheet<int>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Vz.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
+    builder: (ctx) => _TapFxPickerSheet(current: current),
+  );
+}
+
+class _TapFxPickerSheet extends StatefulWidget {
+  final int current;
+  const _TapFxPickerSheet({required this.current});
+  @override State<_TapFxPickerSheet> createState() => _TapFxPickerSheetState();
+}
+
+class _TapFxPickerSheetState extends State<_TapFxPickerSheet>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this, duration: const Duration(milliseconds: 900))..repeat();
+  late int _sel = widget.current;
+  String? _family = VzTapFx.all[widget.current.clamp(0, 99)].family;
+
+  @override void dispose() { _c.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.78,
+      child: Column(children: [
+        const SizedBox(height: 12),
+        const Center(child: VzSheetHandle()),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+          child: Row(children: [
+            Text('انتخاب طرح لمس', style: Ty.heading),
+            const Spacer(),
+            IconButton(
+              icon: Icon(VzIcons.data('close'), size: 20, color: Vz.textSec),
+              onPressed: () => Navigator.pop(context)),
+          ]),
+        ),
+        // فیلتر خانواده
+        SizedBox(
+          height: 44,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: Sp.md),
+            children: [
+              _famChip(null, 'همه'),
+              for (final f in VzTapFx.families) _famChip(f, VzTapFx.familyLabels[f] ?? f),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: AnimatedBuilder(
+            animation: _c,
+        builder: (ctx, _) {
+          final items = <int>[
+            for (var i = 0; i < VzTapFx.all.length; i++)
+              if (_family == null || VzTapFx.all[i].family == _family) i,
+          ];
+          return GridView.builder(
+              padding: const EdgeInsets.all(Sp.md),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, mainAxisSpacing: 10, crossAxisSpacing: 10),
+              itemCount: items.length,
+              itemBuilder: (ctx, idx) {
+                final i = items[idx];
+                final fx = VzTapFx.all[i];
+                }
+                return _FxTile(
+                  fx: fx, selected: i == _sel, t: _c.value,
+                  onTap: () { setState(() => _sel = i); Navigator.pop(context, i); },
+                );
+              },
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _famChip(String? fam, String label) {
+    final sel = _family == fam;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: VzTappable(
+        onTap: () => setState(() => _family = fam),
+        radius: Rad.r(Rad.full),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: sel ? Vz.accentSoft : Vz.cardHi,
+            borderRadius: Rad.r(Rad.full),
+            border: Border.all(color: sel ? Vz.accent : Vz.border)),
+          child: Text(label, style: Ty.caption.copyWith(
+            color: sel ? Vz.accent : Vz.textSec)),
+        ),
+      ),
+    );
+  }
+}
+
+class _FxTile extends StatelessWidget {
+  final VzTapFx fx;
+  final bool selected;
+  final double t;
+  final VoidCallback onTap;
+  const _FxTile({
+    required this.fx, required this.selected, required this.t, required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Vz.card,
+          borderRadius: Rad.r(Rad.sm),
+          border: Border.all(
+            color: selected ? Vz.accent : Vz.border,
+            width: selected ? 2 : 1)),
+        child: Column(children: [
+          Expanded(
+            child: CustomPaint(
+              painter: VzTapFxPainter(
+                origin: const Offset(40, 30), t: (t * 1.4) % 1.0,
+                fx: fx, color: Vz.accent, scale: 0.42),
+              child: const SizedBox.expand(),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(fx.name, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: Ty.caption.copyWith(
+                fontSize: 9,
+                color: selected ? Vz.accent : Vz.textSec)),
+          ),
+        ]),
+      ),
     );
   }
 }

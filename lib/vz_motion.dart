@@ -15,6 +15,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'theme.dart';
 import 'vz_icons.dart';
 import 'vz_bubble.dart';
+import 'vz_tapfx.dart';
 
 /// ورود نرم: fade + اسلاید از پایین.
 class VzFadeSlide extends StatefulWidget {
@@ -358,6 +359,7 @@ class VzPress extends StatelessWidget {
   final VoidCallback? onLongPress;
   /// scale هنگام فشار (فقط سبک فنری)
   final double scale;
+  final VzTapFx fx;
   /// لرزش هنگام کلیک
   final bool haptic;
   const VzPress({
@@ -735,6 +737,7 @@ class _VzGlobalBubbleState extends State<VzGlobalBubble>
                   color: Vz.bubbleEffectiveColor,
                   style: Vz.bubbleStyle,
                   scale: Vz.bubbleSize,
+                  fx: VzTapFx.all[Vz.tapFx.clamp(0, 99)],
                 ),
               ),
             ),
@@ -749,17 +752,19 @@ class _MultiBubblePainter extends CustomPainter {
   final Color color;
   final VzBubbleStyle style;
   final double scale;
+  final VzTapFx fx;
   _MultiBubblePainter({
     required this.bubbles, required this.color,
     required this.style, required this.scale,
+    required this.fx,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final b in bubbles) {
-      VzBubblePainter(
-        origin: b.pos, t: b.c.value, color: color,
-        style: style, scale: scale, seed: b.seed,
+      VzTapFxPainter(
+        origin: b.pos, t: b.c.value, fx: fx,
+        color: color, scale: scale,
       ).paint(canvas, size);
     }
   }

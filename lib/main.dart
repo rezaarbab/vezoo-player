@@ -7,6 +7,7 @@ import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
 import 'vz_motion.dart';
+import 'vz_tapfx.dart';
 import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -121,6 +122,12 @@ void main() async {
   storeBubbleSpeedSave = (v) async {
     await (await SharedPreferences.getInstance()).setDouble('app_bubble_speed', v);
   };
+  // طرح افکت لمس
+  storeTapFxPrefs = () async =>
+      (await SharedPreferences.getInstance()).getInt('app_tap_fx');
+  storeTapFxSave = (v) async {
+    await (await SharedPreferences.getInstance()).setInt('app_tap_fx', v);
+  };
   storeBgPrefs = () async =>
       (await SharedPreferences.getInstance()).getString('app_bg_style');
   storeBgSave = (v) async {
@@ -168,6 +175,9 @@ class VzThemeScopeBuilder extends StatelessWidget {
     // کلید یکتا: با هر تغییر تم/seed/حالت، MaterialApp از نو ساخته می‌شود
     // تا پالت و theme data هرگز کهنه نمانند. سبک کلیک/حباب عمداً اینجا نیست
     // تا تغییرشان صفحه‌ی جاری را از دست ندهد.
+    // نگهبان خودترمیم: هر رندر، وضعیت سراسری را با تم فعال هم‌تراز می‌کند
+    // تا هیچ Theme محلی یا باگی نتواند تم کاربر را خراب بگذارد.
+    if (Vz.isDark != dark) Vz.syncDark(dark);
     final themeKey = ValueKey('$themeId|$seed|$dark|$bgStyle');
 
     return MaterialApp(
