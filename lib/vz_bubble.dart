@@ -283,10 +283,7 @@ class VzBubblePainter extends CustomPainter {
   }
 
   void _wave(Canvas c) {
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..color = color.withValues(alpha: _fade * 0.6);
+    final pal = _party;
     for (var k = 0; k < 3; k++) {
       final rr = _r * (0.5 + k * 0.25);
       final path = Path();
