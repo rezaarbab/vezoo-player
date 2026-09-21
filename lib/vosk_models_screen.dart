@@ -134,7 +134,7 @@ class _State extends State<VoskModelsScreen> {
                   child: const Text('✓ نصب شده',
                     style: TextStyle(color: Colors.green, fontSize: 9, fontWeight: FontWeight.bold))),
             ])),
-          const Divider(height: 1, color: Colors.white10),
+          const Divider(height: 1, color: Vz.border),
           // مدل‌ها
           ...models.map((m) => _modelRow(m)),
           const SizedBox(height: 4),
@@ -196,7 +196,7 @@ class _State extends State<VoskModelsScreen> {
             borderRadius: BorderRadius.circular(3),
             child: LinearProgressIndicator(
               value: prog, minHeight: 3,
-              backgroundColor: Colors.white10, color: _acc)),
+              backgroundColor: Vz.cardHi, color: _acc)),
           const SizedBox(height: 3),
           Text('${(prog! * 100).toStringAsFixed(0)}%${prog > 0.87 ? " — در حال extract..." : ""}',
             style: TextStyle(color: Vz.textDim, fontSize: 9)),

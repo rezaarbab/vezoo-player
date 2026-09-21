@@ -154,7 +154,7 @@ class _State extends State<OfflineTranslationScreen> {
               color: isSelected ? _accent : Vz.textDim, size: 18),
             const SizedBox(width: 10),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(m.name, style: TextStyle(color: isSelected ? Colors.white : Vz.textSec,
+              Text(m.name, style: TextStyle(color: isSelected ? _accent : Vz.textSec,
                 fontWeight: FontWeight.bold, fontSize: 14)),
               Text(m.desc, style: TextStyle(color: Vz.textDim, fontSize: 11)),
               Row(children: [
@@ -169,7 +169,7 @@ class _State extends State<OfflineTranslationScreen> {
               SizedBox(width: 40, height: 40, child: CircularProgressIndicator(
                 value: progress, strokeWidth: 3, color: _accent))
             else if (isDownloaded)
-              IconButton(icon: const Icon(Icons.delete_outline_rounded, color: Colors.white30),
+              IconButton(icon: const Icon(Icons.delete_outline_rounded, color: Vz.textDim),
                 onPressed: () => _delete(m))
             else
               FilledButton.icon(
@@ -196,7 +196,7 @@ class _State extends State<OfflineTranslationScreen> {
             Wrap(spacing: 4, runSpacing: 4,
               children: m.langCodes.map((l) => Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.07), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(color: Vz.accent.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(4)),
                 child: Text(langNames[l] ?? l, style: TextStyle(color: Vz.textDim, fontSize: 9)))).toList()),
           ],
         ])));

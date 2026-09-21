@@ -590,7 +590,7 @@ class _State extends State<AiSubtitleSheet> {
           border:Border.all(color:active?Vz.accent:Vz.border),
         ),
         child:Column(children:[
-          Text(label,style:TextStyle(color:active?Colors.white:Vz.textSec,fontSize:13,fontWeight:FontWeight.bold)),
+          Text(label,style:TextStyle(color:active?Vz.accent:Vz.textSec,fontSize:13,fontWeight:FontWeight.bold)),
           const SizedBox(height:2),
           Text(sub,style:TextStyle(color:active?Vz.textSec:Vz.textDim,fontSize:10)),
         ]),
