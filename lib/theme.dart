@@ -95,6 +95,17 @@ enum VzBubbleStyle {
   star,
   /// ذرات رنگارنگ پخش‌شونده.
   confetti,
+  // ── واریانت‌های کانفتی ──
+  /// کانفتی فشرده — ذرات ریز متراکم.
+  confettiDense,
+  /// کانفتی حلقه‌ای — ذرات روی یک دایره.
+  confettiRing,
+  /// کانفتی پراکنده — پخش وسیع با ذرات درشت.
+  confettiWide,
+  /// باران کانفتی — ذرات به سمت پایین می‌ریزند.
+  confettiRain,
+  /// کانفتی انفجاری — پرتاب به بیرون با سرعت بالا.
+  confettiBurst,
 }
 
 extension VzBubbleStyleLabel on VzBubbleStyle {
@@ -119,6 +130,11 @@ extension VzBubbleStyleLabel on VzBubbleStyle {
     VzBubbleStyle.heart     => 'قلب',
     VzBubbleStyle.star      => 'ستاره',
     VzBubbleStyle.confetti  => 'کانفتی',
+    VzBubbleStyle.confettiDense => 'کانفتی فشرده',
+    VzBubbleStyle.confettiRing  => 'کانفتی حلقه',
+    VzBubbleStyle.confettiWide  => 'کانفتی پراکنده',
+    VzBubbleStyle.confettiRain  => 'باران کانفتی',
+    VzBubbleStyle.confettiBurst => 'کانفتی انفجاری',
   };
 }
 
@@ -202,6 +218,10 @@ class Vz {
 
   static bool get isDark => _dark;
   static bool get animations => _anim;
+
+  /// رنگ تینت پس‌زمینه و اکسنت قفل‌شده — برای ساختن پالت مستقل (پلیر).
+  static Color? get bgTint => _bgTint;
+  static Color? get accentLock => _accentLock;
 
   /// سبک فعال انیمیشن کلیک.
   static VzClickStyle get clickStyle => _click;
@@ -869,8 +889,12 @@ SystemUiOverlayStyle _overlay(bool dark) => SystemUiOverlayStyle(
 );
 
 ThemeData buildVezooTheme({bool dark = true}) {
-  Vz._setDark(dark);
-  final p = Vz.pal;
+  // هشدار: این تابع عمداً وضعیت global را تغییر نمی‌دهد. قبلاً اینجا
+  // Vz._setDark(dark) صدا زده می‌شد و چون پلیر یک تم تیره‌ی محلی هم می‌سازد،
+  // پلیر Vz را تیره می‌گذاشت و بعد از خروج از آن، تم روشن کاربر خراب
+  // می‌ماند. رنگ‌ها اکنون از vzBuildPalette مستقیم می‌آیند.
+  final p = vzBuildPalette(Vz.seed, dark: dark,
+    bgTint: Vz.bgTint, accentLock: Vz.accentLock);
   final scheme = ColorScheme(
     brightness: dark ? Brightness.dark : Brightness.light,
     primary: p.accent,

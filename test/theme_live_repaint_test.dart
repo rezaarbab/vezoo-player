@@ -86,7 +86,7 @@ void main() {
   group('Bubble settings', () {
     test('every bubble style paints without throwing', () {
       // همه‌ی ۲۰ مدل باید بدون خطا روی بوم رسم شوند.
-      expect(VzBubbleStyle.values.length, equals(20));
+      expect(VzBubbleStyle.values.length, equals(25));
       for (final s in VzBubbleStyle.values) {
         final recorder = PictureRecorder();
         final canvas = Canvas(recorder);

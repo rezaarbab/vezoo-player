@@ -56,6 +56,103 @@ class VzBubblePainter extends CustomPainter {
       case VzBubbleStyle.heart:     _heart(canvas); break;
       case VzBubbleStyle.star:      _star(canvas, 5); break;
       case VzBubbleStyle.confetti:  _confetti(canvas); break;
+      case VzBubbleStyle.confettiDense: _confettiDense(canvas); break;
+      case VzBubbleStyle.confettiRing:  _confettiRing(canvas); break;
+      case VzBubbleStyle.confettiWide:  _confettiWide(canvas); break;
+      case VzBubbleStyle.confettiRain:  _confettiRain(canvas); break;
+      case VzBubbleStyle.confettiBurst: _confettiBurst(canvas); break;
+    }
+  }
+
+  /// پالت شاد مشترک — ۵ رنگ از hue رنگ پایه.
+  List<Color> _partyPalette() {
+    final h = HSLColor.fromColor(color).hue;
+    return [
+      color,
+      HSLColor.fromColor(color).withHue((h + 60) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 140) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 220) % 360).toColor(),
+      HSLColor.fromColor(color).withHue((h + 300) % 360).withSaturation(0.85).toColor(),
+    ];
+  }
+
+  /// رسم یک تکه‌ی کانفتی چرخان.
+  void _piece(Canvas c, Offset p, Color col, double sz, double rot, double alpha) {
+    c.save();
+    c.translate(p.dx, p.dy);
+    c.rotate(rot);
+    c.drawRect(Rect.fromCenter(center: Offset.zero, width: sz, height: sz * 0.6),
+      Paint()..color = col.withValues(alpha: alpha));
+    c.restore();
+  }
+
+  // ── واریانت‌های کانفتی ──
+
+  void _confettiDense(Canvas c) {
+    final rnd = math.Random(seed);
+    final palette = _partyPalette();
+    for (var i = 0; i < 60; i++) {
+      final ang = rnd.nextDouble() * math.pi * 2;
+      final speed = 0.3 + rnd.nextDouble() * 0.9;
+      final p = origin + Offset(math.cos(ang), math.sin(ang)) * (_r * speed);
+      final col = palette[i % palette.length];
+      _piece(c, p, col, 3.0 + rnd.nextDouble() * 2.5,
+        rnd.nextDouble() * math.pi + t * 9, _fade * 0.9);
+    }
+  }
+
+  void _confettiRing(Canvas c) {
+    final rnd = math.Random(seed);
+    final palette = _partyPalette();
+    const n = 26;
+    for (var i = 0; i < n; i++) {
+      final ang = i * 2 * math.pi / n;
+      final jitter = 0.9 + rnd.nextDouble() * 0.2;
+      final p = origin + Offset(math.cos(ang), math.sin(ang)) * _r * jitter;
+      final col = palette[i % palette.length];
+      _piece(c, p, col, 5.0, ang + t * 6, _fade * 0.9);
+    }
+  }
+
+  void _confettiWide(Canvas c) {
+    final rnd = math.Random(seed);
+    final palette = _partyPalette();
+    for (var i = 0; i < 40; i++) {
+      final ang = rnd.nextDouble() * math.pi * 2;
+      final speed = 0.8 + rnd.nextDouble() * 1.3;
+      final p = origin + Offset(math.cos(ang), math.sin(ang)) * (_r * speed);
+      final col = palette[i % palette.length];
+      _piece(c, p, col, 5.0 + rnd.nextDouble() * 4.0,
+        rnd.nextDouble() * math.pi + t * 5, _fade * 0.85);
+    }
+  }
+
+  void _confettiRain(Canvas c) {
+    final rnd = math.Random(seed);
+    final palette = _partyPalette();
+    // ذرات از نقطه‌ی لمس بالا می‌روند و مثل باران با گرانش پایین می‌آیند.
+    for (var i = 0; i < 34; i++) {
+      final fx = rnd.nextDouble() * 2 - 1;
+      final dropT = t * (1.2 + rnd.nextDouble() * 0.6);
+      final px = origin.dx + fx * _r * 0.9;
+      final py = origin.dy - _r * 0.6 + dropT * _r * 2.2;
+      final col = palette[i % palette.length];
+      _piece(c, Offset(px, py), col, 3.5 + rnd.nextDouble() * 2.5,
+        rnd.nextDouble() * math.pi + t * 7, _fade * 0.9);
+    }
+  }
+
+  void _confettiBurst(Canvas c) {
+    final rnd = math.Random(seed);
+    final palette = _partyPalette();
+    for (var i = 0; i < 36; i++) {
+      final ang = rnd.nextDouble() * math.pi * 2;
+      final speed = 0.9 + rnd.nextDouble() * 1.4;
+      final p = origin + Offset(math.cos(ang), math.sin(ang)) *
+          (_r * speed * Curves.easeOutQuart.transform(t));
+      final col = palette[i % palette.length];
+      _piece(c, p, col, 4.0 + rnd.nextDouble() * 3.0,
+        rnd.nextDouble() * math.pi + t * 10, _fade * 0.9);
     }
   }
 
