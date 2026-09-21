@@ -876,36 +876,6 @@ class _BubbleSettings extends StatelessWidget {
   }
 }
 
-class _BubbleStyleChip extends StatelessWidget {
-  final VzBubbleStyle style;
-  final bool selected;
-  final VoidCallback onTap;
-  const _BubbleStyleChip({
-    required this.style, required this.selected, required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return VzTappable(
-      onTap: onTap,
-      radius: Rad.r(Rad.xs),
-      child: AnimatedContainer(
-        duration: Mo.fast, curve: Mo.easeOut,
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? Vz.accentSoft : Vz.cardHi,
-          borderRadius: Rad.r(Rad.xs),
-          border: Border.all(
-            color: selected ? Vz.accent : Vz.border,
-            width: selected ? 1.5 : 1),
-        ),
-        child: Text(style.label, style: Ty.caption.copyWith(
-          color: selected ? Vz.accent : Vz.text,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
-      ),
-    );
-  }
-}
 
 class _Swatch extends StatelessWidget {
   final Color color;
@@ -998,9 +968,10 @@ class _TapFxPickerSheetState extends State<_TapFxPickerSheet>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this, duration: const Duration(milliseconds: 900))..repeat();
-  late int _sel = widget.current;
+  late int _sel = 0;
   String? _family = VzTapFx.all[widget.current.clamp(0, 99)].family;
 
+  @override void initState() { super.initState(); _sel = widget.current; }
   @override void dispose() { _c.dispose(); super.dispose(); }
 
   @override
@@ -1050,14 +1021,15 @@ class _TapFxPickerSheetState extends State<_TapFxPickerSheet>
               itemBuilder: (ctx, idx) {
                 final i = items[idx];
                 final fx = VzTapFx.all[i];
-                }
                 return _FxTile(
                   fx: fx, selected: i == _sel, t: _c.value,
                   onTap: () { setState(() => _sel = i); Navigator.pop(context, i); },
                 );
               },
             ),
-          ),
+          );
+        },
+      ),
         ),
       ]),
     );

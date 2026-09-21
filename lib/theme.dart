@@ -163,7 +163,6 @@ class Vz {
   static int _tapFx = 0;
 
   /// طرح افکت لمس — ایندکس در VzTapFx.all (۱۰۰ طرح).
-  static int _tapFx = 0;
   /// رنگ حباب؛ اگر null باشد از اکسنت تم استفاده می‌شود.
   static Color? _bubbleColor;
   /// مقیاس اندازه‌ی حباب (۰.۵ تا ۲.۰).
@@ -246,7 +245,6 @@ class Vz {
   static double get bubbleSize => _bubbleSize;
   static double get bubbleSpeed => _bubbleSpeed;
   static int get tapFx => _tapFx;
-  static int get tapFx => _tapFx;
   /// رنگ مؤثر حباب (رنگ دلخواه، وگرنه اکسنت).
   static Color get bubbleEffectiveColor => _bubbleColor ?? pal.accent;
 
@@ -260,7 +258,6 @@ class Vz {
   static void _setBubbleColor(Color? c) { _bubbleColor = c; }
   static void _setBubbleSize(double v) { _bubbleSize = v; }
   static void _setBubbleSpeed(double v) { _bubbleSpeed = v; }
-  static void _setTapFx(int v) { _tapFx = v.clamp(0, 99); }
   static void _setTapFx(int v) { _tapFx = v.clamp(0, 99); }
   static void _setTheme(VzThemeDef t) { _theme = t; }
   static void _setBgOverride(VzBgStyle s) { _bgOverride = s; }
@@ -492,6 +489,8 @@ class VzThemeScope extends InheritedWidget {
       maybeOf(context)?.clickStyle ?? Vz.clickStyle;
   static bool clickEnabledOf(BuildContext context) =>
       maybeOf(context)?.clickEnabled ?? Vz.clickEnabled;
+  static int tapFxOf(BuildContext context) =>
+      maybeOf(context)?.tapFx ?? Vz.tapFx;
   static bool bubbleOnOf(BuildContext context) =>
       maybeOf(context)?.bubbleOn ?? Vz.bubbleOn;
   static VzBubbleStyle bubbleStyleOf(BuildContext context) =>

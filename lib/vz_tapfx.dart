@@ -43,12 +43,13 @@ class VzTapFx {
 
 /// پارامترهای مشتق‌شده از خانواده/سطح — برای painter و پیشنمایش.
 class FxParams {
-  final double size;    // ضریب شعاع
-  final int count;      // تعداد عناصر
-  final double spread;  // پراکندگی
-  final double speed;   // ضریب سرعت
-  final int hueSpread;  // گسترهی رنگ
-  FxParams(this.size, this.count, this.spread, this.speed, this.hueSpread);
+  final double size;
+  final double count;
+  final double spread;
+  final double speed;
+  final double hueSpread;
+  const FxParams(this.size, this.count, this.spread, this.speed, this.hueSpread);
+  int get n => count.round();
 }
 
 FxParams fxParams(VzTapFx fx) {
@@ -112,7 +113,7 @@ class VzTapFxPainter extends CustomPainter {
             ..color = color.withValues(alpha: _fade * 0.6));
         break;
       case 'rings':
-        for (var i = 0; i < p.count; i++) {
+        for (var i = 0; i < p.n; i++) {
           final tt = (t - i * 0.14).clamp(0.0, 1.0);
           if (tt <= 0) continue;
           canvas.drawCircle(origin, _rBase * p.size * Curves.easeOutCubic.transform(tt) * scale,
@@ -122,8 +123,8 @@ class VzTapFxPainter extends CustomPainter {
         }
         break;
       case 'burst':
-        for (var i = 0; i < p.count; i++) {
-          final ang = i * 2 * math.pi / p.count + rnd.nextDouble() * 0.1;
+        for (var i = 0; i < p.n; i++) {
+          final ang = i * 2 * math.pi / p.n + rnd.nextDouble() * 0.1;
           final dir = Offset(math.cos(ang), math.sin(ang));
           final rr = _r(p);
           canvas.drawLine(origin + dir * (rr * 0.25), origin + dir * rr, Paint()
@@ -132,7 +133,7 @@ class VzTapFxPainter extends CustomPainter {
         }
         break;
       case 'sparkle':
-        for (var i = 0; i < p.count; i++) {
+        for (var i = 0; i < p.n; i++) {
           final ang = rnd.nextDouble() * math.pi * 2;
           final dist = _r(p) * (0.5 + rnd.nextDouble() * p.spread);
           canvas.drawCircle(origin + Offset(math.cos(ang), math.sin(ang)) * dist,
@@ -142,7 +143,7 @@ class VzTapFxPainter extends CustomPainter {
         break;
       case 'shapes':
         // چندضلعی چرخان با تعداد اضلاع متغیر؛ سطوح بالا ستاره.
-        final sides = 3 + (p.count / 2).floor().clamp(3, 8);
+        final sides = 3 + (p.n / 2).floor().clamp(3, 8);
         final rr = _r(p);
         final star = fx.level >= 8;
         final path = Path();
@@ -159,7 +160,7 @@ class VzTapFxPainter extends CustomPainter {
           ..color = _shift(p.hueSpread).withValues(alpha: _fade * 0.8));
         break;
       case 'firework':
-        for (var i = 0; i < p.count; i++) {
+        for (var i = 0; i < p.n; i++) {
           final ang = rnd.nextDouble() * math.pi * 2;
           final speed = 0.6 + rnd.nextDouble() * 1.1;
           final pt = origin + Offset(math.cos(ang), math.sin(ang)) *
@@ -178,8 +179,8 @@ class VzTapFxPainter extends CustomPainter {
           ]).createShader(Rect.fromCircle(center: origin, radius: rr)));
         break;
       case 'bolt':
-        for (var i = 0; i < p.count; i++) {
-          final ang = i * 2 * math.pi / p.count + rnd.nextDouble() * 0.3;
+        for (var i = 0; i < p.n; i++) {
+          final ang = i * 2 * math.pi / p.n + rnd.nextDouble() * 0.3;
           final rr = _r(p);
           final path = Path();
           path.moveTo(origin.dx, origin.dy);
@@ -197,8 +198,8 @@ class VzTapFxPainter extends CustomPainter {
       case 'orbit':
         final rr = _r(p);
         final pal = List.generate(3, (i) => _shift(p.hueSpread * i / 2));
-        for (var i = 0; i < p.count; i++) {
-          final ang = i * 2 * math.pi / p.count + t * math.pi;
+        for (var i = 0; i < p.n; i++) {
+          final ang = i * 2 * math.pi / p.n + t * math.pi;
           canvas.drawCircle(origin + Offset(math.cos(ang), math.sin(ang)) * rr,
             3.0, Paint()..color = pal[i % pal.length].withValues(alpha: _fade * 0.85));
         }
@@ -214,7 +215,7 @@ class VzTapFxPainter extends CustomPainter {
           canvas.rotate(ang);
           canvas.drawOval(
             Rect.fromCenter(center: Offset(rr * 0.6, 0), width: rr * 0.9, height: rr * 0.4),
-            Paint()..color = _shift(p.hueSpread * i / n).withValues(alpha: _fade * 0.7));
+            Paint()..color = _shift(p.hueSpread * i / p.n).withValues(alpha: _fade * 0.7));
           canvas.restore();
         }
         canvas.drawCircle(origin, rr * 0.18,

@@ -7,7 +7,6 @@ import 'l10n.dart';
 import 'api_service.dart';
 import 'theme.dart';
 import 'vz_motion.dart';
-import 'vz_tapfx.dart';
 import 'vz_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
