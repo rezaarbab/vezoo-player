@@ -3430,7 +3430,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
   }
 
   @override
-  Widget build(BuildContext ctx) => Theme(data:_darkUi(),child:AlertDialog(
+  Widget build(BuildContext ctx) => Theme(data:buildVezooTheme(dark: true),child:AlertDialog(
     backgroundColor: Vz.oviSurface,
     title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Colors.white, fontSize: 15)),
     content: SizedBox(width: 300, height: 420, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
