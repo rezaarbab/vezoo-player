@@ -1165,7 +1165,7 @@ class _PlayerState extends State<PlayerScreen>{
           title:Row(children:[
             Icon(Icons.bug_report_rounded,color:_dgActive?Colors.green:Vz.textDim,size:18),
             const SizedBox(width:8),
-            Text('AI Subtitle Log',style:const TextStyle(color:Vz.text,fontSize:14)),
+            Text('AI Subtitle Log',style:TextStyle(color:Vz.text,fontSize:14)),
             const Spacer(),
             Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:2),
               decoration:BoxDecoration(
@@ -1174,7 +1174,7 @@ class _PlayerState extends State<PlayerScreen>{
               child:Text(_dgActive?'ACTIVE':'OFF',style:TextStyle(
                 color:_dgActive?Colors.green:Colors.red,fontSize:10,fontWeight:FontWeight.bold))),
             const SizedBox(width:8),
-            IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:18),
+            IconButton(icon:Icon(Icons.close,color:Vz.textSec,size:18),
               padding:EdgeInsets.zero,constraints:const BoxConstraints(),
               onPressed:()=>Navigator.pop(ctx)),
           ]),
@@ -1195,7 +1195,7 @@ class _PlayerState extends State<PlayerScreen>{
                 })),
           actions:[
             TextButton(onPressed:(){setState((){_aiLog.clear();});ss((){});},
-              child:const Text('Clear',style:TextStyle(color:Vz.textSec))),
+              child:Text('Clear',style:TextStyle(color:Vz.textSec))),
           ]);
       })));
   }
@@ -1210,15 +1210,15 @@ class _PlayerState extends State<PlayerScreen>{
         title:Row(children:[
           Icon(Icons.terminal_rounded,color:Vz.accent,size:18),
           const SizedBox(width:8),
-          const Text('Live Stream Log',style:TextStyle(color:Vz.text,fontSize:14)),
+          Text('Live Stream Log',style:TextStyle(color:Vz.text,fontSize:14)),
           const Spacer(),
-          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:18),
+          IconButton(icon:Icon(Icons.close,color:Vz.textSec,size:18),
             padding:EdgeInsets.zero,constraints:const BoxConstraints(),
             onPressed:()=>Navigator.pop(ctx)),
         ]),
         content:SizedBox(width:double.maxFinite,height:300,
           child:_liveLog.isEmpty
-            ?const Center(child:Text('No logs yet...',style:TextStyle(color:Vz.textDim)))
+            ?Center(child:Text('No logs yet...',style:TextStyle(color:Vz.textDim)))
             :ListView.builder(
               reverse:true,
               itemCount:_liveLog.length,
@@ -1232,7 +1232,7 @@ class _PlayerState extends State<PlayerScreen>{
               })),
         actions:[
           TextButton(onPressed:(){setState((){_liveLog.clear();});ss((){});},
-            child:const Text('Clear',style:TextStyle(color:Vz.textSec))),
+            child:Text('Clear',style:TextStyle(color:Vz.textSec))),
         ])));
   }
 
@@ -1734,7 +1734,7 @@ class _PlayerState extends State<PlayerScreen>{
             backgroundColor:Vz.surface,
             title:const Text('خطای AI زیرنویس', style:TextStyle(color:Colors.red, fontSize:14)),
             content:SingleChildScrollView(child:SelectableText(fullErr,
-              style:const TextStyle(color:Vz.textSec, fontSize:11, fontFamily:'monospace'))),
+              style:TextStyle(color:Vz.textSec, fontSize:11, fontFamily:'monospace'))),
             actions:[TextButton(onPressed:()=>Navigator.pop(context), child:Text('بستن', style:TextStyle(color:Vz.accent)))],
           ));
         }
@@ -2649,7 +2649,7 @@ void _cycleSpeed(){
           )),
           _PillBtn(icon:Icons.picture_in_picture_rounded, tip:'PiP', onTap:_enterPip),
           _PillBtn(icon:_landscape?Icons.stay_current_portrait:Icons.screen_rotation, tip:L.rotate, onTap:_toggleOrientation),
-          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.text),
+          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:Icon(Icons.more_vert_rounded,color:Vz.text),
             onSelected:(v){
               switch(v){
                 case 'fit':_cycleFit();break;case 'rotate':_cycleRotation();break;
@@ -3030,11 +3030,11 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
           const Icon(Icons.fiber_smart_record,color:Colors.red,size:18),
           const SizedBox(width:8),
           Expanded(child:Text(L.liveRunning,style:TextStyle(color:Vz.text,fontSize:15,fontWeight:FontWeight.bold))),
-          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:20),
+          IconButton(icon:Icon(Icons.close,color:Vz.textSec,size:20),
             onPressed:()=>Navigator.pop(ctx),constraints:const BoxConstraints(),padding:const EdgeInsets.all(4)),
         ]),
         const SizedBox(height:12),
-        const Divider(color:Vz.border),
+        Divider(color:Vz.border),
         const SizedBox(height:12),
 
         // ── زمان این تکه (ریست میشه) ──
@@ -3066,7 +3066,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         _row('🔗 Overlap', LiveSubState.useOverlap ? L.active : L.disabled),
         const SizedBox(height:16),
 
-        const Divider(color:Vz.border),
+        Divider(color:Vz.border),
         const SizedBox(height:12),
 
         Row(children:[
@@ -3074,7 +3074,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
             onPressed:widget.onToggleVideo,
             icon:const Icon(Icons.pause,size:16),
             label:Text(L.playPause,style:TextStyle(fontSize:12)),
-            style:OutlinedButton.styleFrom(side:const BorderSide(color:Vz.textDim)))),
+            style:OutlinedButton.styleFrom(side:BorderSide(color:Vz.textDim)))),
           const SizedBox(width:8),
           Expanded(child:OutlinedButton.icon(
             onPressed:widget.onSkipChunk,
@@ -3090,7 +3090,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
               backgroundColor:Vz.surface,
               title:Text(L.cancelLive,style:TextStyle(color:Vz.text,fontSize:15)),
               content:Text('${_fmt(transcribed)} saved',
-                style:const TextStyle(color:Vz.textSec,fontSize:12)),
+                style:TextStyle(color:Vz.textSec,fontSize:12)),
               actions:[
                 TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.continue_)),
                 FilledButton(onPressed:()=>Navigator.pop(ctx,true),
@@ -3110,9 +3110,9 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
   }
 
   Widget _row(String label, String value) => Row(children:[
-    Text(label,style:const TextStyle(color:Vz.textSec,fontSize:13)),
+    Text(label,style:TextStyle(color:Vz.textSec,fontSize:13)),
     const Spacer(),
-    Text(value,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
+    Text(value,style:TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
   ]);
 }
 
@@ -3148,11 +3148,11 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
           Icon(Icons.translate,color:Vz.accent,size:18),
           const SizedBox(width:8),
           Expanded(child:Text(L.translateOnline,style:TextStyle(color:Vz.text,fontSize:15,fontWeight:FontWeight.bold))),
-          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:20),
+          IconButton(icon:Icon(Icons.close,color:Vz.textSec,size:20),
             onPressed:()=>Navigator.pop(ctx),constraints:const BoxConstraints(),padding:const EdgeInsets.all(4)),
         ]),
         const SizedBox(height:12),
-        const Divider(color:Vz.border),
+        Divider(color:Vz.border),
         const SizedBox(height:12),
 
         ValueListenableBuilder<int>(
@@ -3162,7 +3162,7 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
               Icon(Icons.translate,color:Vz.accent,size:14),
               const SizedBox(width:6),
               Text(L.targetLang,style:TextStyle(color:Vz.textSec,fontSize:13)),
-              Text(lang,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
+              Text(lang,style:TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
             ]),
             const SizedBox(height:8),
             _row('⏱', _fmt(elapsed)),
@@ -3176,11 +3176,11 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
               backgroundColor:Vz.border,color:Vz.accent),
             const SizedBox(height:4),
             Text(SrtTranslationServiceStatus.lastStatus,
-              style:const TextStyle(color:Vz.textSec,fontSize:11)),
+              style:TextStyle(color:Vz.textSec,fontSize:11)),
           ]),
         ),
         const SizedBox(height:16),
-        const Divider(color:Vz.border),
+        Divider(color:Vz.border),
         const SizedBox(height:12),
         SizedBox(width:double.infinity,child:FilledButton.icon(
           onPressed:widget.onCancel,
@@ -3193,9 +3193,9 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
   }
 
   Widget _row(String label, String value) => Row(children:[
-    Text(label,style:const TextStyle(color:Vz.textSec,fontSize:13)),
+    Text(label,style:TextStyle(color:Vz.textSec,fontSize:13)),
     const Spacer(),
-    Text(value,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
+    Text(value,style:TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
   ]);
 }
 
@@ -3432,7 +3432,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
   @override
   Widget build(BuildContext ctx) => Theme(data:buildVezooTheme(dark: Vz.isDark),child:AlertDialog(
     backgroundColor: Vz.surface,
-    title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Vz.text, fontSize: 15)),
+    title: Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Vz.text, fontSize: 15)),
     content: SizedBox(width: 300, height: 420, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
       // ── Gemini DUB ──
       Container(
@@ -3451,7 +3451,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
             Switch(value: _geminiEnabled, onChanged: (v) => setState(() { _geminiEnabled = v; if (v) { _voskEnabled = false; _androidEnabled = false; } }), activeColor: Vz.green),
           ])),
           if (_geminiEnabled) ...[
-            const Divider(color: Vz.border, height: 1),
+            Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.fromLTRB(12, 8, 12, 4), child: Row(children: [
               Expanded(child: GestureDetector(
                 onTap: () => setState(() => _geminiSubMode = false),
@@ -3481,7 +3481,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     Text('زیرنویس', style: TextStyle(color: _geminiSubMode ? Colors.white : Vz.textDim, fontSize: 12, fontWeight: FontWeight.bold)),
                   ])))),
             ])),
-            const Divider(color: Vz.border, height: 1),
+            Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // Voice — فقط برای دوبله
               // نمایش زیرنویس همزمان با دوبله
@@ -3494,12 +3494,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               ]),
               const SizedBox(height: 6),
               if (!_geminiSubMode) Row(children: [
-                const Text('Voice', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+                Text('Voice', style: TextStyle(color: Vz.textSec, fontSize: 11)),
                 const SizedBox(width: 8),
                 Expanded(child: DropdownButton<String>(
                   value: _geminiVoice, isExpanded: true,
                   dropdownColor: Vz.surface,
-                  style: const TextStyle(color: Vz.text, fontSize: 12),
+                  style: TextStyle(color: Vz.text, fontSize: 12),
                   underline: const SizedBox(),
                   items: _geminiVoices.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _geminiVoice = v!))),
@@ -3507,7 +3507,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 6),
               // Target Language
               // Model
-              const Text('Model', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+              Text('Model', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiModel,
@@ -3515,14 +3515,14 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                style: const TextStyle(color: Vz.text, fontSize: 11),
+                style: TextStyle(color: Vz.text, fontSize: 11),
                 items: const [
                   DropdownMenuItem(value: 'gemini-3.5-live-translate-preview', child: Text('Gemini 3.5 Live Translate (DUB + SUB)')),
                   DropdownMenuItem(value: 'gemini-2.5-flash-preview-native-audio-dialog', child: Text('Gemini 2.5 Flash (Experimental)')),
                 ],
                 onChanged: (v) => setState(() => _geminiModel = v!)),
               const SizedBox(height: 8),
-              const Text('Target Language', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+              Text('Target Language', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
@@ -3530,7 +3530,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                style: const TextStyle(color: Vz.text, fontSize: 12),
+                style: TextStyle(color: Vz.text, fontSize: 12),
                 items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: (v) => setState(() => _translateTo = v!)),
             ])),
@@ -3555,9 +3555,9 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
             Switch(value: _voskEnabled, onChanged: (v) => setState(() { _voskEnabled = v; if (v) _androidEnabled = false; }), activeColor: Vz.accent),
           ])),
           if (_voskEnabled) ...[
-            const Divider(color: Vz.border, height: 1),
+            Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+              Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               () {
                 final langs = _downloadedVoskModels.map((m) => m.langCode as String).toSet().toList();
@@ -3569,7 +3569,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Vz.text, fontSize: 12),
+                  style: TextStyle(color: Vz.text, fontSize: 12),
                   items: langs.map<DropdownMenuItem<String>>((l) {
                     final m = _downloadedVoskModels.firstWhere((x) => x.langCode == l);
                     return DropdownMenuItem<String>(value: l, child: Text('${m.name} ($l)'));
@@ -3578,7 +3578,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               }(),
               const SizedBox(height: 8),
               Row(children: [
-                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
+                Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
                 Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: Vz.accent),
               ]),
               if (_translate) ...[
@@ -3592,7 +3592,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Vz.text, fontSize: 12),
+                  style: TextStyle(color: Vz.text, fontSize: 12),
                   items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _translateTo = v!)),
                 const SizedBox(height: 8),
@@ -3612,9 +3612,9 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
-                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
+                        Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
+                          Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3652,7 +3652,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                style: const TextStyle(color: Vz.text, fontSize: 13),
+                style: TextStyle(color: Vz.text, fontSize: 13),
                 items: const [
                   DropdownMenuItem(value: 100, child: Text('سریع (پیش‌فرض) — 100ms')),
                   DropdownMenuItem(value: 200, child: Text('متوسط — 200ms')),
@@ -3661,7 +3661,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 onChanged: (v) => setState(() => _pollMs = v!)),
               const SizedBox(height: 8),
               // زمان نمایش
-              const Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+              Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 6),
               Row(children: [
                 Expanded(child: GestureDetector(
@@ -3712,9 +3712,9 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
             Switch(value: _androidEnabled, onChanged: (v) => setState(() { _androidEnabled = v; if (v) _voskEnabled = false; }), activeColor: Vz.accent),
           ])),
           if (_androidEnabled) ...[
-            const Divider(color: Vz.border, height: 1),
+            Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+              Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: AndroidSttService.supportedLangs.containsKey(_lang) ? _lang : 'en',
@@ -3722,12 +3722,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                style: const TextStyle(color: Vz.text, fontSize: 12),
+                style: TextStyle(color: Vz.text, fontSize: 12),
                 items: AndroidSttService.supportedLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: (v) => setState(() => _lang = v!)),
               const SizedBox(height: 8),
               Row(children: [
-                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
+                Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
                 Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: Vz.accent),
               ]),
               if (_translate) ...[
@@ -3741,7 +3741,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Vz.text, fontSize: 12),
+                  style: TextStyle(color: Vz.text, fontSize: 12),
                   items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _translateTo = v!)),
                 const SizedBox(height: 8),
@@ -3761,9 +3761,9 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
-                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
+                        Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
+                          Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3791,7 +3791,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 ]),
                 const SizedBox(height: 8),
                 // زمان نمایش
-                const Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
+                Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
                 const SizedBox(height: 6),
                 Row(children: [
                   Expanded(child: GestureDetector(
