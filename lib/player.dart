@@ -3896,9 +3896,9 @@ class _PillBtn extends StatelessWidget {
               shape: BoxShape.circle,
               color: Colors.black.withValues(alpha: 0.38),
               border: Border.all(
-                color: Vz.text.withValues(alpha: 0.18), width: 1),
+                color: Vz.oviText.withValues(alpha: 0.18), width: 1),
             ),
-            child: Icon(icon, size: 18, color: Vz.text),
+            child: Icon(icon, size: 18, color: Vz.oviText),
           ),
         ),
       ),

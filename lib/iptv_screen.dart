@@ -204,7 +204,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
 
   @override Widget build(BuildContext context) => Scaffold(
     resizeToAvoidBottomInset: true,
-    backgroundColor: kBg,
+    backgroundColor: Colors.transparent, // پس‌زمینه شفاف برای دیده‌شدن Ambient
     appBar: AppBar(
       backgroundColor: kBg,
       title: Text('IPTV', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),

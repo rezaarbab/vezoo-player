@@ -281,8 +281,8 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
               ]),
             ),
             const SizedBox(height: Sp.xl),
-            // ── حروف VEZOO یکی‌یکی ──
-            Row(mainAxisSize: MainAxisSize.min, children: [
+            // ── حروف VEZOO یکی‌یکی ── (LTR اجباری — در فارسی برعکس نشود)
+            Directionality(textDirection: TextDirection.ltr, child: Row(mainAxisSize: MainAxisSize.min, children: [
               for (var i = 0; i < letters.length; i++)
                 if (on)
                   AnimatedBuilder(
@@ -307,7 +307,7 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
                     style: TextStyle(
                       fontSize: 30, fontWeight: FontWeight.w800,
                       letterSpacing: 6, color: Vz.text)),
-            ]),
+              ])),
             const SizedBox(height: Sp.xs),
             VzFadeSlide(
               index: 6,
