@@ -420,7 +420,6 @@ Future<void> _openVideoByPath(String path)async{
         extendBody:true,
         // پس‌زمینه شفاف تا گرادیان Ambient (سبک‌های bg) پیدایش شود
         backgroundColor: Colors.transparent,
-        extendBody:true,
         appBar:_selectMode?_selectBar():_normalBar(isSaved),
         body:_buildBody(),
       ),
