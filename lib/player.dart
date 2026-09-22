@@ -1180,7 +1180,7 @@ class _PlayerState extends State<PlayerScreen>{
           ]),
           content:SizedBox(width:double.maxFinite,height:300,
             child:_aiLog.isEmpty
-              ?const Center(child:Text('Press AI button to start\nThen tap this log to see status',
+              ?Center(child:Text('Press AI button to start\nThen tap this log to see status',
                 style:TextStyle(color:Vz.textDim,fontSize:12),textAlign:TextAlign.center))
               :ListView.builder(
                 reverse:true,
@@ -3444,7 +3444,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.record_voice_over_rounded, size: 16, color: Vz.green),
             const SizedBox(width: 8),
-            const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Gemini DUB', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('AI Live dubbing — Needs API key', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
@@ -3486,7 +3486,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               // Voice — فقط برای دوبله
               // نمایش زیرنویس همزمان با دوبله
               if (!_geminiSubMode) Row(children: [
-                const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('Show Subtitle', style: TextStyle(color: Vz.text, fontSize: 12)),
                   Text('Display translated text while dubbing', style: TextStyle(color: Vz.textDim, fontSize: 10)),
                 ])),
@@ -3548,7 +3548,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.subtitles_rounded, size: 16, color: Vz.accent),
             const SizedBox(width: 8),
-            const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Vosk Subtitle', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('Offline · Local model', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
@@ -3583,7 +3583,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
-                const Align(alignment: Alignment.centerRight,
+                Align(alignment: Alignment.centerRight,
                   child: Text('ترجمه به', style: TextStyle(color: Vz.textSec, fontSize: 11))),
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
@@ -3634,7 +3634,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                         color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
                         border: Border.all(color: !_useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
-                      child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.textSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         SizedBox(height: 3),
                         Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.textDim, fontSize: 9)),
@@ -3643,7 +3643,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               ],
               const SizedBox(height: 6),
               // سرعت بروزرسانی
-              const Align(alignment: Alignment.centerRight,
+              Align(alignment: Alignment.centerRight,
                 child: Text('سرعت بروزرسانی', style: TextStyle(color: Vz.textSec, fontSize: 11))),
               const SizedBox(height: 4),
               if (_engine != 'gemini') DropdownButtonFormField<int>(
@@ -3705,7 +3705,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.android_rounded, size: 16, color: Vz.accent),
             const SizedBox(width: 8),
-            const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('Android STT', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
               Text('Online · More languages', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
@@ -3732,7 +3732,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
-                const Align(alignment: Alignment.centerRight,
+                Align(alignment: Alignment.centerRight,
                   child: Text('ترجمه به', style: TextStyle(color: Vz.textSec, fontSize: 11))),
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
@@ -3783,7 +3783,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                         color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
                         border: Border.all(color: !_useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
-                      child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.textSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         SizedBox(height: 3),
                         Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.textDim, fontSize: 9)),
