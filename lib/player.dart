@@ -518,7 +518,7 @@ class _PlayerState extends State<PlayerScreen>{
     if(saved.inSeconds>5&&mounted&&!widget.isLive){
       final resume=await showDialog<bool>(
         context:context,barrierDismissible:false,
-        builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(backgroundColor:Vz.oviBg,title:Text(L.continuePlaying),
+        builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(backgroundColor:Vz.surface,title:Text(L.continuePlaying),
           content:Text('${L.resumeFrom} (${fmt(saved)})'),
           actions:[
             TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.fromBeginning)),
@@ -692,7 +692,7 @@ class _PlayerState extends State<PlayerScreen>{
     }
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('📺 ${ch['name'] ?? ''}'),
-      backgroundColor: Vz.oviBg,
+      backgroundColor: Vz.surface,
       duration: const Duration(seconds: 2),
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.only(bottom: 100, left: 16, right: 16),
@@ -1150,7 +1150,7 @@ class _PlayerState extends State<PlayerScreen>{
 
   // پلیر همیشه اورلی تیره دارد؛ Theme محلی هم تیره می‌ماند
   // (مستقل از تم روشن/تیره اپ) — bugfix: تنظیمات زیرنویس در تم روشن
-  ThemeData _darkUi() => buildVezooTheme(dark: true);
+  ThemeData _darkUi() => buildVezooTheme(dark: Vz.isDark);
 
   void _showAiLogDialog(){
     showDialog(context:context,barrierColor:Colors.black54,builder:(ctx)=>Theme(data:_darkUi(),child:StatefulBuilder(
@@ -1158,14 +1158,14 @@ class _PlayerState extends State<PlayerScreen>{
         // آپدیت هر ثانیه
         Future.delayed(const Duration(seconds:1),()=>ss((){}));
         return AlertDialog(
-          backgroundColor:Vz.oviBg,
+          backgroundColor:Vz.surface,
           insetPadding:const EdgeInsets.all(16),
           titlePadding:const EdgeInsets.fromLTRB(16,16,16,0),
           contentPadding:const EdgeInsets.all(12),
           title:Row(children:[
-            Icon(Icons.bug_report_rounded,color:_dgActive?Colors.green:Vz.oviTextDim,size:18),
+            Icon(Icons.bug_report_rounded,color:_dgActive?Colors.green:Vz.textDim,size:18),
             const SizedBox(width:8),
-            Text('AI Subtitle Log',style:const TextStyle(color:Colors.white,fontSize:14)),
+            Text('AI Subtitle Log',style:const TextStyle(color:Vz.text,fontSize:14)),
             const Spacer(),
             Container(padding:const EdgeInsets.symmetric(horizontal:8,vertical:2),
               decoration:BoxDecoration(
@@ -1174,14 +1174,14 @@ class _PlayerState extends State<PlayerScreen>{
               child:Text(_dgActive?'ACTIVE':'OFF',style:TextStyle(
                 color:_dgActive?Colors.green:Colors.red,fontSize:10,fontWeight:FontWeight.bold))),
             const SizedBox(width:8),
-            IconButton(icon:const Icon(Icons.close,color:Vz.oviTextSec,size:18),
+            IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:18),
               padding:EdgeInsets.zero,constraints:const BoxConstraints(),
               onPressed:()=>Navigator.pop(ctx)),
           ]),
           content:SizedBox(width:double.maxFinite,height:300,
             child:_aiLog.isEmpty
               ?const Center(child:Text('Press AI button to start\nThen tap this log to see status',
-                style:TextStyle(color:Vz.oviTextDim,fontSize:12),textAlign:TextAlign.center))
+                style:TextStyle(color:Vz.textDim,fontSize:12),textAlign:TextAlign.center))
               :ListView.builder(
                 reverse:true,
                 itemCount:_aiLog.length,
@@ -1189,13 +1189,13 @@ class _PlayerState extends State<PlayerScreen>{
                   final log=_aiLog[_aiLog.length-1-i];
                   final color=log.contains('❌')?Vz.red:
                     log.contains('✓')?Colors.greenAccent:
-                    log.contains('🔗')?Colors.blueAccent:Vz.oviTextSec;
+                    log.contains('🔗')?Colors.blueAccent:Vz.textSec;
                   return Padding(padding:const EdgeInsets.only(bottom:3),
                     child:Text(log,style:TextStyle(color:color,fontSize:10,fontFamily:'monospace')));
                 })),
           actions:[
             TextButton(onPressed:(){setState((){_aiLog.clear();});ss((){});},
-              child:const Text('Clear',style:TextStyle(color:Vz.oviTextSec))),
+              child:const Text('Clear',style:TextStyle(color:Vz.textSec))),
           ]);
       })));
   }
@@ -1203,22 +1203,22 @@ class _PlayerState extends State<PlayerScreen>{
   void _showLogDialog(){
     showDialog(context:context,barrierColor:Colors.black54,builder:(ctx)=>StatefulBuilder(
       builder:(ctx,ss)=>AlertDialog(
-        backgroundColor:Vz.oviBg,
+        backgroundColor:Vz.surface,
         insetPadding:const EdgeInsets.all(16),
         titlePadding:const EdgeInsets.fromLTRB(16,16,16,0),
         contentPadding:const EdgeInsets.all(12),
         title:Row(children:[
           Icon(Icons.terminal_rounded,color:Vz.accent,size:18),
           const SizedBox(width:8),
-          const Text('Live Stream Log',style:TextStyle(color:Colors.white,fontSize:14)),
+          const Text('Live Stream Log',style:TextStyle(color:Vz.text,fontSize:14)),
           const Spacer(),
-          IconButton(icon:const Icon(Icons.close,color:Vz.oviTextSec,size:18),
+          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:18),
             padding:EdgeInsets.zero,constraints:const BoxConstraints(),
             onPressed:()=>Navigator.pop(ctx)),
         ]),
         content:SizedBox(width:double.maxFinite,height:300,
           child:_liveLog.isEmpty
-            ?const Center(child:Text('No logs yet...',style:TextStyle(color:Vz.oviTextDim)))
+            ?const Center(child:Text('No logs yet...',style:TextStyle(color:Vz.textDim)))
             :ListView.builder(
               reverse:true,
               itemCount:_liveLog.length,
@@ -1226,13 +1226,13 @@ class _PlayerState extends State<PlayerScreen>{
                 final log=_liveLog[_liveLog.length-1-i];
                 final color=log.contains('▶')?Vz.green:
                   log.contains('Error')||log.contains('error')?Vz.red:
-                  log.contains('Buffering')?Vz.amber:Vz.oviTextSec;
+                  log.contains('Buffering')?Vz.amber:Vz.textSec;
                 return Padding(padding:const EdgeInsets.only(bottom:4),
                   child:Text(log,style:TextStyle(color:color,fontSize:11,fontFamily:'monospace')));
               })),
         actions:[
           TextButton(onPressed:(){setState((){_liveLog.clear();});ss((){});},
-            child:const Text('Clear',style:TextStyle(color:Vz.oviTextSec))),
+            child:const Text('Clear',style:TextStyle(color:Vz.textSec))),
         ])));
   }
 
@@ -1380,7 +1380,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showSleepDialog(){
     int min=30;
     showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:StatefulBuilder(builder:(ctx,ss)=>AlertDialog(
-      backgroundColor:Vz.oviBg,title:Text(L.sleepTimer),
+      backgroundColor:Vz.surface,title:Text(L.sleepTimer),
       content:Column(mainAxisSize:MainAxisSize.min,children:[
         Text('$min ${L.minutes}',style:const TextStyle(fontSize:24,fontWeight:FontWeight.bold)),
         Slider(min:1,max:180,divisions:179,value:min.toDouble(),onChanged:(v)=>ss(()=>min=v.round())),
@@ -1420,11 +1420,11 @@ class _PlayerState extends State<PlayerScreen>{
         if(_subtitleTracks.isEmpty)Padding(
           padding:EdgeInsets.all(12),
           child:Text(L.noEmbeddedSubtitle,
-              style:TextStyle(color:Vz.oviTextDim),textAlign:TextAlign.center)),
+              style:TextStyle(color:Vz.textDim),textAlign:TextAlign.center)),
         ..._subtitleTracks.asMap().entries.map((entry){
           final t=entry.value;
           return ListTile(dense:true,
-            leading:Icon(Icons.subtitles,size:18,color:Vz.oviTextDim),
+            leading:Icon(Icons.subtitles,size:18,color:Vz.textDim),
             title:Text(t.title??t.language??'Track ${t.id}'),
             subtitle:Text('${L.language}: ${t.language??""}',style:const TextStyle(fontSize:11)),
             trailing:FilledButton(
@@ -1450,7 +1450,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showAudioPicker(){
     if(_audioTracks.isEmpty){showSnack(context, L.audioTrackNotFound);return;}
     showDialog(context:context,builder:(ctx)=>Theme(data:_darkUi(),child:AlertDialog(
-      backgroundColor:Vz.oviBg,title:Text(L.selectAudioTrack),
+      backgroundColor:Vz.surface,title:Text(L.selectAudioTrack),
       content:Column(mainAxisSize:MainAxisSize.min,
           children:_audioTracks.map((t)=>ListTile(
             title:Text(t.title??t.language??'Track ${t.id}'),
@@ -1471,10 +1471,10 @@ class _PlayerState extends State<PlayerScreen>{
 
         if(_isHDR)_infoRow(Icons.hdr_on_rounded,Vz.green,'HDR',L.activeTick),
         if(_pixelFmtStr.isNotEmpty)_infoRow(Icons.palette_rounded,Vz.accent,'Pixel Format',_pixelFmtStr),
-        _infoRow(Icons.timer_outlined,Vz.oviTextDim,L.duration,fmt(_duration)),
-        _infoRow(Icons.memory_rounded,Vz.oviTextDim,L.decoder,_hwDecode?L.hwDecode:L.swDecode),
+        _infoRow(Icons.timer_outlined,Vz.textDim,L.duration,fmt(_duration)),
+        _infoRow(Icons.memory_rounded,Vz.textDim,L.decoder,_hwDecode?L.hwDecode:L.swDecode),
         if(_audioTracks.isNotEmpty)
-          _infoRow(Icons.music_note_rounded,Vz.oviTextDim,L.audioTracks,'${_audioTracks.length} ${L.audioTracks}'),
+          _infoRow(Icons.music_note_rounded,Vz.textDim,L.audioTracks,'${_audioTracks.length} ${L.audioTracks}'),
         if(_hwDecode)_infoRow(Icons.developer_board_rounded,Vz.accent,L.decoder,L.hwActive),
       ]),
       actions:[TextButton(onPressed:()=>Navigator.pop(ctx),child:Text(L.close))],
@@ -1487,7 +1487,7 @@ class _PlayerState extends State<PlayerScreen>{
       Container(padding:const EdgeInsets.all(5),decoration:BoxDecoration(color:iconColor.withValues(alpha: 0.1),borderRadius:BorderRadius.circular(6)),
           child:Icon(icon,size:13,color:iconColor)),
       const SizedBox(width:10),
-      Text('$label',style:TextStyle(color:Vz.oviTextDim,fontSize:12)),
+      Text('$label',style:TextStyle(color:Vz.textDim,fontSize:12)),
       const Spacer(),
       Text(val,style:const TextStyle(fontSize:12,fontWeight:FontWeight.w500)),
     ]),
@@ -1731,10 +1731,10 @@ class _PlayerState extends State<PlayerScreen>{
           // نمایش خطای کامل در dialog
           final fullErr = e.toString();
           showDialog(context:context, builder:(_)=>AlertDialog(
-            backgroundColor:Vz.oviSurface,
+            backgroundColor:Vz.surface,
             title:const Text('خطای AI زیرنویس', style:TextStyle(color:Colors.red, fontSize:14)),
             content:SingleChildScrollView(child:SelectableText(fullErr,
-              style:const TextStyle(color:Vz.oviTextSec, fontSize:11, fontFamily:'monospace'))),
+              style:const TextStyle(color:Vz.textSec, fontSize:11, fontFamily:'monospace'))),
             actions:[TextButton(onPressed:()=>Navigator.pop(context), child:Text('بستن', style:TextStyle(color:Vz.accent)))],
           ));
         }
@@ -1745,7 +1745,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showTranslationPanel() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Vz.oviBg,
+      backgroundColor: Vz.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Theme(data:_darkUi(),child:_TranslationInfoPanel(
         onCancel: () {
@@ -1761,7 +1761,7 @@ class _PlayerState extends State<PlayerScreen>{
   void _showLivePanel() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Vz.oviBg,
+      backgroundColor: Vz.surface,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (_) => Theme(data:_darkUi(),child:_LivePanelSheet(
         stopwatch: _liveStopwatch,
@@ -2578,7 +2578,7 @@ void _cycleSpeed(){
                   break;
                 case 'settings':
                   showModalBottomSheet(
-                    context:context,isScrollControlled:true,backgroundColor:Vz.oviBg,
+                    context:context,isScrollControlled:true,backgroundColor:Vz.surface,
                     shape:const RoundedRectangleBorder(borderRadius:BorderRadius.vertical(top:Radius.circular(20))),
                     builder:(ctx)=>Theme(data:_darkUi(),child:PlayerSettings(
                       vs:_vs,onChanged:(vs){setState(()=>_vs=vs);},
@@ -2649,7 +2649,7 @@ void _cycleSpeed(){
           )),
           _PillBtn(icon:Icons.picture_in_picture_rounded, tip:'PiP', onTap:_enterPip),
           _PillBtn(icon:_landscape?Icons.stay_current_portrait:Icons.screen_rotation, tip:L.rotate, onTap:_toggleOrientation),
-          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.oviText),
+          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:const Icon(Icons.more_vert_rounded,color:Vz.text),
             onSelected:(v){
               switch(v){
                 case 'fit':_cycleFit();break;case 'rotate':_cycleRotation();break;
@@ -2670,49 +2670,49 @@ void _cycleSpeed(){
             itemBuilder:(_)=>[
               // ── نمایش تصویر ──
               PopupMenuItem(value:'fit',child:Row(children:[
-                Icon(VzIcons.data('fullscreen'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('fullscreen'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.ratio}: ${_fit==BoxFit.contain?L.fit:_fit==BoxFit.cover?L.fill:L.stretch}')])),
               PopupMenuItem(value:'rotate',child:Row(children:[
-                Icon(VzIcons.data('rotate'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('rotate'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.rotate}: ${_rotationDeg.toInt()}°')])),
               PopupMenuItem(value:'night',child:Row(children:[
-                Icon(VzIcons.data('brightness'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('brightness'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(_vs.nightOpacity>0?L.disableNightMode:L.nightMode)])),
               const PopupMenuDivider(),
               // ── پخش ──
               PopupMenuItem(value:'repeat',child:Row(children:[
-                Icon(VzIcons.data('replay'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('replay'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.repeat}: ${_repeatMode==_Repeat.none?"off":_repeatMode==_Repeat.all?"all":"one"}')])),
               PopupMenuItem(value:'speed',child:Row(children:[
-                Icon(VzIcons.data('speed'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('speed'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.speed}: ${_vs.speed}x')])),
               PopupMenuItem(value:'mute',child:Row(children:[
-                Icon(VzIcons.data(_muted?'mute':'volume'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data(_muted?'mute':'volume'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(_muted?L.unmute:L.mute)])),
               PopupMenuItem(value:'audio',child:Row(children:[
-                Icon(VzIcons.data('audio'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('audio'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.audioTracks)])),
               const PopupMenuDivider(),
               // ── زیرنویس و ابزار ──
               PopupMenuItem(value:'embsub',child:Row(children:[
-                Icon(VzIcons.data('subtitle'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('subtitle'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.embeddedSubtitle)])),
               PopupMenuItem(value:'copy',child:Row(children:[
-                Icon(VzIcons.data('copy'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('copy'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.copySub)])),
               PopupMenuItem(value:'sleep',child:Row(children:[
-                Icon(VzIcons.data('sleep'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('sleep'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.sleepTimer)])),
               PopupMenuItem(value:'screenshot',child:Row(children:[
-                Icon(VzIcons.data('screen'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('screen'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.screenshot)])),
               PopupMenuItem(value:'info',child:Row(children:[
-                Icon(VzIcons.data('info'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('info'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.videoInfo)])),
               const PopupMenuDivider(),
               // ── قفل صفحه ──
               PopupMenuItem(value:'lock',child:Row(children:[
-                Icon(VzIcons.data('lock'),size:17,color:Vz.oviTextSec),const SizedBox(width:10),
+                Icon(VzIcons.data('lock'),size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.lockScreen)])),
             ],
           )),
@@ -3029,12 +3029,12 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         Row(children:[
           const Icon(Icons.fiber_smart_record,color:Colors.red,size:18),
           const SizedBox(width:8),
-          Expanded(child:Text(L.liveRunning,style:TextStyle(color:Colors.white,fontSize:15,fontWeight:FontWeight.bold))),
-          IconButton(icon:const Icon(Icons.close,color:Vz.oviTextSec,size:20),
+          Expanded(child:Text(L.liveRunning,style:TextStyle(color:Vz.text,fontSize:15,fontWeight:FontWeight.bold))),
+          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:20),
             onPressed:()=>Navigator.pop(ctx),constraints:const BoxConstraints(),padding:const EdgeInsets.all(4)),
         ]),
         const SizedBox(height:12),
-        const Divider(color:Vz.oviBorder),
+        const Divider(color:Vz.border),
         const SizedBox(height:12),
 
         // ── زمان این تکه (ریست میشه) ──
@@ -3042,7 +3042,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         const SizedBox(height:4),
         LinearProgressIndicator(
           value: chunkSec > 0 ? (LiveSubState.chunkElapsedSec / chunkSec).clamp(0.0,1.0) : 0,
-          backgroundColor:Vz.oviBorder, color:Vz.amber),
+          backgroundColor:Vz.border, color:Vz.amber),
         const SizedBox(height:10),
 
         // ── کل زمان (ریست نمیشه) ──
@@ -3050,7 +3050,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         const SizedBox(height:4),
         LinearProgressIndicator(
           value: totalSec>0 ? (transcribed/totalSec).clamp(0.0,1.0) : 0,
-          backgroundColor:Vz.oviBorder, color:Colors.red),
+          backgroundColor:Vz.border, color:Colors.red),
         const SizedBox(height:12),
 
         _row('📊', '${done}/${total}'),
@@ -3066,7 +3066,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         _row('🔗 Overlap', LiveSubState.useOverlap ? L.active : L.disabled),
         const SizedBox(height:16),
 
-        const Divider(color:Vz.oviBorder),
+        const Divider(color:Vz.border),
         const SizedBox(height:12),
 
         Row(children:[
@@ -3074,7 +3074,7 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
             onPressed:widget.onToggleVideo,
             icon:const Icon(Icons.pause,size:16),
             label:Text(L.playPause,style:TextStyle(fontSize:12)),
-            style:OutlinedButton.styleFrom(side:const BorderSide(color:Vz.oviTextDim)))),
+            style:OutlinedButton.styleFrom(side:const BorderSide(color:Vz.textDim)))),
           const SizedBox(width:8),
           Expanded(child:OutlinedButton.icon(
             onPressed:widget.onSkipChunk,
@@ -3087,10 +3087,10 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
         SizedBox(width:double.infinity,child:FilledButton.icon(
           onPressed:() async {
             final ok = await showDialog<bool>(context:ctx,builder:(_)=>AlertDialog(
-              backgroundColor:Vz.oviBg,
-              title:Text(L.cancelLive,style:TextStyle(color:Colors.white,fontSize:15)),
+              backgroundColor:Vz.surface,
+              title:Text(L.cancelLive,style:TextStyle(color:Vz.text,fontSize:15)),
               content:Text('${_fmt(transcribed)} saved',
-                style:const TextStyle(color:Vz.oviTextSec,fontSize:12)),
+                style:const TextStyle(color:Vz.textSec,fontSize:12)),
               actions:[
                 TextButton(onPressed:()=>Navigator.pop(ctx,false),child:Text(L.continue_)),
                 FilledButton(onPressed:()=>Navigator.pop(ctx,true),
@@ -3110,9 +3110,9 @@ class _LivePanelSheetState extends State<_LivePanelSheet> {
   }
 
   Widget _row(String label, String value) => Row(children:[
-    Text(label,style:const TextStyle(color:Vz.oviTextSec,fontSize:13)),
+    Text(label,style:const TextStyle(color:Vz.textSec,fontSize:13)),
     const Spacer(),
-    Text(value,style:const TextStyle(color:Colors.white,fontSize:13,fontWeight:FontWeight.bold)),
+    Text(value,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
   ]);
 }
 
@@ -3147,12 +3147,12 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
         Row(children:[
           Icon(Icons.translate,color:Vz.accent,size:18),
           const SizedBox(width:8),
-          Expanded(child:Text(L.translateOnline,style:TextStyle(color:Colors.white,fontSize:15,fontWeight:FontWeight.bold))),
-          IconButton(icon:const Icon(Icons.close,color:Vz.oviTextSec,size:20),
+          Expanded(child:Text(L.translateOnline,style:TextStyle(color:Vz.text,fontSize:15,fontWeight:FontWeight.bold))),
+          IconButton(icon:const Icon(Icons.close,color:Vz.textSec,size:20),
             onPressed:()=>Navigator.pop(ctx),constraints:const BoxConstraints(),padding:const EdgeInsets.all(4)),
         ]),
         const SizedBox(height:12),
-        const Divider(color:Vz.oviBorder),
+        const Divider(color:Vz.border),
         const SizedBox(height:12),
 
         ValueListenableBuilder<int>(
@@ -3161,8 +3161,8 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
             Row(children:[
               Icon(Icons.translate,color:Vz.accent,size:14),
               const SizedBox(width:6),
-              Text(L.targetLang,style:TextStyle(color:Vz.oviTextSec,fontSize:13)),
-              Text(lang,style:const TextStyle(color:Colors.white,fontSize:13,fontWeight:FontWeight.bold)),
+              Text(L.targetLang,style:TextStyle(color:Vz.textSec,fontSize:13)),
+              Text(lang,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
             ]),
             const SizedBox(height:8),
             _row('⏱', _fmt(elapsed)),
@@ -3173,14 +3173,14 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
             const SizedBox(height:6),
             LinearProgressIndicator(
               value: total>0 ? (done/total).clamp(0.0,1.0) : null,
-              backgroundColor:Vz.oviBorder,color:Vz.accent),
+              backgroundColor:Vz.border,color:Vz.accent),
             const SizedBox(height:4),
             Text(SrtTranslationServiceStatus.lastStatus,
-              style:const TextStyle(color:Vz.oviTextSec,fontSize:11)),
+              style:const TextStyle(color:Vz.textSec,fontSize:11)),
           ]),
         ),
         const SizedBox(height:16),
-        const Divider(color:Vz.oviBorder),
+        const Divider(color:Vz.border),
         const SizedBox(height:12),
         SizedBox(width:double.infinity,child:FilledButton.icon(
           onPressed:widget.onCancel,
@@ -3193,9 +3193,9 @@ class _TranslationInfoPanelState extends State<_TranslationInfoPanel> {
   }
 
   Widget _row(String label, String value) => Row(children:[
-    Text(label,style:const TextStyle(color:Vz.oviTextSec,fontSize:13)),
+    Text(label,style:const TextStyle(color:Vz.textSec,fontSize:13)),
     const Spacer(),
-    Text(value,style:const TextStyle(color:Colors.white,fontSize:13,fontWeight:FontWeight.bold)),
+    Text(value,style:const TextStyle(color:Vz.text,fontSize:13,fontWeight:FontWeight.bold)),
   ]);
 }
 
@@ -3430,41 +3430,41 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
   }
 
   @override
-  Widget build(BuildContext ctx) => Theme(data:buildVezooTheme(dark: true),child:AlertDialog(
-    backgroundColor: Vz.oviSurface,
-    title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Colors.white, fontSize: 15)),
+  Widget build(BuildContext ctx) => Theme(data:buildVezooTheme(dark: Vz.isDark),child:AlertDialog(
+    backgroundColor: Vz.surface,
+    title: const Text('تنظیمات زیرنویس زنده', style: TextStyle(color: Vz.text, fontSize: 15)),
     content: SizedBox(width: 300, height: 420, child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
       // ── Gemini DUB ──
       Container(
         decoration: BoxDecoration(
-          color: _geminiEnabled ? Vz.green.withValues(alpha: 0.1) : Vz.oviSurface,
+          color: _geminiEnabled ? Vz.green.withValues(alpha: 0.1) : Vz.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _geminiEnabled ? Vz.green : Vz.oviBorder)),
+          border: Border.all(color: _geminiEnabled ? Vz.green : Vz.border)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.record_voice_over_rounded, size: 16, color: Vz.green),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Gemini DUB', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-              Text('AI Live dubbing — Needs API key', style: TextStyle(color: Vz.oviTextDim, fontSize: 10)),
+              Text('Gemini DUB', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('AI Live dubbing — Needs API key', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
             Switch(value: _geminiEnabled, onChanged: (v) => setState(() { _geminiEnabled = v; if (v) { _voskEnabled = false; _androidEnabled = false; } }), activeColor: Vz.green),
           ])),
           if (_geminiEnabled) ...[
-            const Divider(color: Vz.oviBorder, height: 1),
+            const Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.fromLTRB(12, 8, 12, 4), child: Row(children: [
               Expanded(child: GestureDetector(
                 onTap: () => setState(() => _geminiSubMode = false),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: !_geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.oviSurface,
-                    border: Border.all(color: !_geminiSubMode ? Vz.green : Vz.oviBorder),
+                    color: !_geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.surface,
+                    border: Border.all(color: !_geminiSubMode ? Vz.green : Vz.border),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
-                    Icon(Icons.record_voice_over_rounded, size: 18, color: !_geminiSubMode ? Vz.green : Vz.oviTextDim),
+                    Icon(Icons.record_voice_over_rounded, size: 18, color: !_geminiSubMode ? Vz.green : Vz.textDim),
                     const SizedBox(height: 4),
-                    Text('دوبله', style: TextStyle(color: !_geminiSubMode ? Colors.white : Vz.oviTextDim, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('دوبله', style: TextStyle(color: !_geminiSubMode ? Colors.white : Vz.textDim, fontSize: 12, fontWeight: FontWeight.bold)),
                   ])))),
               const SizedBox(width: 8),
               Expanded(child: GestureDetector(
@@ -3472,34 +3472,34 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                    color: _geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.oviSurface,
-                    border: Border.all(color: _geminiSubMode ? Vz.green : Vz.oviBorder),
+                    color: _geminiSubMode ? Vz.green.withValues(alpha: 0.2) : Vz.surface,
+                    border: Border.all(color: _geminiSubMode ? Vz.green : Vz.border),
                     borderRadius: BorderRadius.circular(8)),
                   child: Column(children: [
-                    Icon(Icons.subtitles_rounded, size: 18, color: _geminiSubMode ? Vz.green : Vz.oviTextDim),
+                    Icon(Icons.subtitles_rounded, size: 18, color: _geminiSubMode ? Vz.green : Vz.textDim),
                     const SizedBox(height: 4),
-                    Text('زیرنویس', style: TextStyle(color: _geminiSubMode ? Colors.white : Vz.oviTextDim, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text('زیرنویس', style: TextStyle(color: _geminiSubMode ? Colors.white : Vz.textDim, fontSize: 12, fontWeight: FontWeight.bold)),
                   ])))),
             ])),
-            const Divider(color: Vz.oviBorder, height: 1),
+            const Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               // Voice — فقط برای دوبله
               // نمایش زیرنویس همزمان با دوبله
               if (!_geminiSubMode) Row(children: [
                 const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Show Subtitle', style: TextStyle(color: Colors.white, fontSize: 12)),
-                  Text('Display translated text while dubbing', style: TextStyle(color: Vz.oviTextDim, fontSize: 10)),
+                  Text('Show Subtitle', style: TextStyle(color: Vz.text, fontSize: 12)),
+                  Text('Display translated text while dubbing', style: TextStyle(color: Vz.textDim, fontSize: 10)),
                 ])),
                 Switch(value: _geminiShowSub, onChanged: (v) => setState(() => _geminiShowSub = v), activeColor: Vz.green),
               ]),
               const SizedBox(height: 6),
               if (!_geminiSubMode) Row(children: [
-                const Text('Voice', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+                const Text('Voice', style: TextStyle(color: Vz.textSec, fontSize: 11)),
                 const SizedBox(width: 8),
                 Expanded(child: DropdownButton<String>(
                   value: _geminiVoice, isExpanded: true,
-                  dropdownColor: Vz.oviSurface,
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  dropdownColor: Vz.surface,
+                  style: const TextStyle(color: Vz.text, fontSize: 12),
                   underline: const SizedBox(),
                   items: _geminiVoices.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _geminiVoice = v!))),
@@ -3507,30 +3507,30 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               const SizedBox(height: 6),
               // Target Language
               // Model
-              const Text('Model', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+              const Text('Model', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiModel,
-                dropdownColor: Vz.oviSurface,
-                decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                dropdownColor: Vz.surface,
+                decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                style: const TextStyle(color: Colors.white, fontSize: 11),
+                style: const TextStyle(color: Vz.text, fontSize: 11),
                 items: const [
                   DropdownMenuItem(value: 'gemini-3.5-live-translate-preview', child: Text('Gemini 3.5 Live Translate (DUB + SUB)')),
                   DropdownMenuItem(value: 'gemini-2.5-flash-preview-native-audio-dialog', child: Text('Gemini 2.5 Flash (Experimental)')),
                 ],
                 onChanged: (v) => setState(() => _geminiModel = v!)),
               const SizedBox(height: 8),
-              const Text('Target Language', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+              const Text('Target Language', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                dropdownColor: Vz.oviSurface,
-                decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                dropdownColor: Vz.surface,
+                decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Vz.text, fontSize: 12),
                 items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: (v) => setState(() => _translateTo = v!)),
             ])),
@@ -3541,23 +3541,23 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Vosk Subtitle ──
       Container(
         decoration: BoxDecoration(
-          color: _voskEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.oviSurface,
+          color: _voskEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _voskEnabled ? Vz.accent : Vz.oviBorder)),
+          border: Border.all(color: _voskEnabled ? Vz.accent : Vz.border)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.subtitles_rounded, size: 16, color: Vz.accent),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Vosk Subtitle', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-              Text('Offline · Local model', style: TextStyle(color: Vz.oviTextDim, fontSize: 10)),
+              Text('Vosk Subtitle', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('Offline · Local model', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
             Switch(value: _voskEnabled, onChanged: (v) => setState(() { _voskEnabled = v; if (v) _androidEnabled = false; }), activeColor: Vz.accent),
           ])),
           if (_voskEnabled) ...[
-            const Divider(color: Vz.oviBorder, height: 1),
+            const Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('زبان صحبت', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+              const Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               () {
                 final langs = _downloadedVoskModels.map((m) => m.langCode as String).toSet().toList();
@@ -3565,11 +3565,11 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 final valid = langs.contains(_lang) ? _lang : langs.first;
                 return DropdownButtonFormField<String>(
                   value: valid,
-                  dropdownColor: Vz.oviSurface,
-                  decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                  dropdownColor: Vz.surface,
+                  decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  style: const TextStyle(color: Vz.text, fontSize: 12),
                   items: langs.map<DropdownMenuItem<String>>((l) {
                     final m = _downloadedVoskModels.firstWhere((x) => x.langCode == l);
                     return DropdownMenuItem<String>(value: l, child: Text('${m.name} ($l)'));
@@ -3578,21 +3578,21 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
               }(),
               const SizedBox(height: 8),
               Row(children: [
-                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Colors.white, fontSize: 13))),
+                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
                 Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: Vz.accent),
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
                 const Align(alignment: Alignment.centerRight,
-                  child: Text('ترجمه به', style: TextStyle(color: Vz.oviTextSec, fontSize: 11))),
+                  child: Text('ترجمه به', style: TextStyle(color: Vz.textSec, fontSize: 11))),
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                  dropdownColor: Vz.oviSurface,
-                  decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                  dropdownColor: Vz.surface,
+                  decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  style: const TextStyle(color: Vz.text, fontSize: 12),
                   items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _translateTo = v!)),
                 const SizedBox(height: 8),
@@ -3606,15 +3606,15 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
-                        border: Border.all(color: _useOffline ? Vz.accent : Vz.oviBorder),
+                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
+                        border: Border.all(color: _useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
-                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.oviTextDim, fontSize: 9)),
+                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.oviTextSec, fontSize: 9, fontWeight: FontWeight.bold)))
+                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3631,28 +3631,28 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
-                        border: Border.all(color: !_useOffline ? Vz.accent : Vz.oviBorder),
+                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
+                        border: Border.all(color: !_useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.oviTextSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.textSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         SizedBox(height: 3),
-                        Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.oviTextDim, fontSize: 9)),
+                        Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                       ])))),
                 ]),
               ],
               const SizedBox(height: 6),
               // سرعت بروزرسانی
               const Align(alignment: Alignment.centerRight,
-                child: Text('سرعت بروزرسانی', style: TextStyle(color: Vz.oviTextSec, fontSize: 11))),
+                child: Text('سرعت بروزرسانی', style: TextStyle(color: Vz.textSec, fontSize: 11))),
               const SizedBox(height: 4),
               if (_engine != 'gemini') DropdownButtonFormField<int>(
                 value: _pollMs,
-                dropdownColor: Vz.oviSurface,
-                decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                dropdownColor: Vz.surface,
+                decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+                style: const TextStyle(color: Vz.text, fontSize: 13),
                 items: const [
                   DropdownMenuItem(value: 100, child: Text('سریع (پیش‌فرض) — 100ms')),
                   DropdownMenuItem(value: 200, child: Text('متوسط — 200ms')),
@@ -3661,7 +3661,7 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                 onChanged: (v) => setState(() => _pollMs = v!)),
               const SizedBox(height: 8),
               // زمان نمایش
-              const Text('زمان نمایش', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+              const Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 6),
               Row(children: [
                 Expanded(child: GestureDetector(
@@ -3669,12 +3669,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: !_translateOnFinish ? Vz.green : Vz.oviSurface,
+                      color: !_translateOnFinish ? Vz.green : Vz.surface,
                       borderRadius: BorderRadius.circular(8)),
                     child: Column(children: [
-                      Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Vz.oviTextDim),
+                      Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Vz.textDim),
                       const SizedBox(height: 3),
-                      Text('همزمان با صدا', style: TextStyle(color: !_translateOnFinish ? Colors.white : Vz.oviTextDim, fontSize: 11)),
+                      Text('همزمان با صدا', style: TextStyle(color: !_translateOnFinish ? Colors.white : Vz.textDim, fontSize: 11)),
                     ])))),
                 const SizedBox(width: 8),
                 Expanded(child: GestureDetector(
@@ -3682,12 +3682,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(
-                      color: _translateOnFinish ? Vz.green : Vz.oviSurface,
+                      color: _translateOnFinish ? Vz.green : Vz.surface,
                       borderRadius: BorderRadius.circular(8)),
                     child: Column(children: [
-                      Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Vz.oviTextDim),
+                      Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Vz.textDim),
                       const SizedBox(height: 3),
-                      Text('بعد از پایان صدا', style: TextStyle(color: _translateOnFinish ? Colors.white : Vz.oviTextDim, fontSize: 11)),
+                      Text('بعد از پایان صدا', style: TextStyle(color: _translateOnFinish ? Colors.white : Vz.textDim, fontSize: 11)),
                     ])))),
               ]),
             ])),
@@ -3698,50 +3698,50 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
       // ── Android STT ──
       Container(
         decoration: BoxDecoration(
-          color: _androidEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.oviSurface,
+          color: _androidEnabled ? Vz.accent.withValues(alpha: 0.1) : Vz.surface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: _androidEnabled ? Vz.accent : Vz.oviBorder)),
+          border: Border.all(color: _androidEnabled ? Vz.accent : Vz.border)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Row(children: [
             Icon(Icons.android_rounded, size: 16, color: Vz.accent),
             const SizedBox(width: 8),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Android STT', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-              Text('Online · More languages', style: TextStyle(color: Vz.oviTextDim, fontSize: 10)),
+              Text('Android STT', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 13)),
+              Text('Online · More languages', style: TextStyle(color: Vz.textDim, fontSize: 10)),
             ])),
             Switch(value: _androidEnabled, onChanged: (v) => setState(() { _androidEnabled = v; if (v) _voskEnabled = false; }), activeColor: Vz.accent),
           ])),
           if (_androidEnabled) ...[
-            const Divider(color: Vz.oviBorder, height: 1),
+            const Divider(color: Vz.border, height: 1),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('زبان صحبت', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+              const Text('زبان صحبت', style: TextStyle(color: Vz.textSec, fontSize: 11)),
               const SizedBox(height: 4),
               DropdownButtonFormField<String>(
                 value: AndroidSttService.supportedLangs.containsKey(_lang) ? _lang : 'en',
-                dropdownColor: Vz.oviSurface,
-                decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                dropdownColor: Vz.surface,
+                decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
-                style: const TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Vz.text, fontSize: 12),
                 items: AndroidSttService.supportedLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                 onChanged: (v) => setState(() => _lang = v!)),
               const SizedBox(height: 8),
               Row(children: [
-                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Colors.white, fontSize: 13))),
+                const Expanded(child: Text('ترجمه real-time', style: TextStyle(color: Vz.text, fontSize: 13))),
                 Switch(value: _translate, onChanged: (v) => setState(() => _translate = v), activeColor: Vz.accent),
               ]),
               if (_translate) ...[
                 const SizedBox(height: 8),
                 const Align(alignment: Alignment.centerRight,
-                  child: Text('ترجمه به', style: TextStyle(color: Vz.oviTextSec, fontSize: 11))),
+                  child: Text('ترجمه به', style: TextStyle(color: Vz.textSec, fontSize: 11))),
                 const SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _geminiLangs.containsKey(_translateTo) ? _translateTo : 'fa',
-                  dropdownColor: Vz.oviSurface,
-                  decoration: InputDecoration(filled: true, fillColor: Vz.oviBg,
+                  dropdownColor: Vz.surface,
+                  decoration: InputDecoration(filled: true, fillColor: Vz.surface,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  style: const TextStyle(color: Vz.text, fontSize: 12),
                   items: _geminiLangs.entries.map((e) => DropdownMenuItem(value: e.key, child: Text(e.value))).toList(),
                   onChanged: (v) => setState(() => _translateTo = v!)),
                 const SizedBox(height: 8),
@@ -3755,15 +3755,15 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
-                        border: Border.all(color: _useOffline ? Vz.accent : Vz.oviBorder),
+                        color: _useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
+                        border: Border.all(color: _useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        Row(children: [Icon(Icons.wifi_off_rounded, size: 13, color: Vz.accent), SizedBox(width: 5), Text('Offline (ML Kit)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         const SizedBox(height: 3),
-                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.oviTextDim, fontSize: 9)),
+                        const Text('Fast · 30 languages · ~30MB per language', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                         if (_useOffline && _mlkitReady == true)
-                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.oviTextSec, fontSize: 9, fontWeight: FontWeight.bold)))
+                          const Padding(padding: EdgeInsets.only(top:4), child: Text('✅ Model ready', style: TextStyle(color: Vz.textSec, fontSize: 9, fontWeight: FontWeight.bold)))
                         else if (_useOffline && _mlkitReady == false)
                           TextButton(
                             onPressed: () async {
@@ -3780,18 +3780,18 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.oviSurface,
-                        border: Border.all(color: !_useOffline ? Vz.accent : Vz.oviBorder),
+                        color: !_useOffline ? Vz.accent.withValues(alpha: 0.15) : Vz.surface,
+                        border: Border.all(color: !_useOffline ? Vz.accent : Vz.border),
                         borderRadius: BorderRadius.circular(10)),
                       child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.oviTextSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12))]),
+                        Row(children: [Icon(Icons.cloud_rounded, size: 13, color: Vz.textSec), SizedBox(width: 5), Text('Online (AI)', style: TextStyle(color: Vz.text, fontWeight: FontWeight.bold, fontSize: 12))]),
                         SizedBox(height: 3),
-                        Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.oviTextDim, fontSize: 9)),
+                        Text('92 languages · Cloudflare Worker', style: TextStyle(color: Vz.textDim, fontSize: 9)),
                       ])))),
                 ]),
                 const SizedBox(height: 8),
                 // زمان نمایش
-                const Text('زمان نمایش', style: TextStyle(color: Vz.oviTextSec, fontSize: 11)),
+                const Text('زمان نمایش', style: TextStyle(color: Vz.textSec, fontSize: 11)),
                 const SizedBox(height: 6),
                 Row(children: [
                   Expanded(child: GestureDetector(
@@ -3799,12 +3799,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: !_translateOnFinish ? Vz.green : Vz.oviSurface,
+                        color: !_translateOnFinish ? Vz.green : Vz.surface,
                         borderRadius: BorderRadius.circular(8)),
                       child: Column(children: [
-                        Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Vz.oviTextDim),
+                        Icon(Icons.flash_on_rounded, size: 16, color: !_translateOnFinish ? Colors.white : Vz.textDim),
                         const SizedBox(height: 3),
-                        Text('همزمان با صدا', style: TextStyle(color: !_translateOnFinish ? Colors.white : Vz.oviTextDim, fontSize: 11)),
+                        Text('همزمان با صدا', style: TextStyle(color: !_translateOnFinish ? Colors.white : Vz.textDim, fontSize: 11)),
                       ])))),
                   const SizedBox(width: 8),
                   Expanded(child: GestureDetector(
@@ -3812,12 +3812,12 @@ class _VoskSettingsDialogState extends State<_VoskSettingsDialog> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
-                        color: _translateOnFinish ? Vz.green : Vz.oviSurface,
+                        color: _translateOnFinish ? Vz.green : Vz.surface,
                         borderRadius: BorderRadius.circular(8)),
                       child: Column(children: [
-                        Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Vz.oviTextDim),
+                        Icon(Icons.pause_circle_rounded, size: 16, color: _translateOnFinish ? Colors.white : Vz.textDim),
                         const SizedBox(height: 3),
-                        Text('بعد از پایان صدا', style: TextStyle(color: _translateOnFinish ? Colors.white : Vz.oviTextDim, fontSize: 11)),
+                        Text('بعد از پایان صدا', style: TextStyle(color: _translateOnFinish ? Colors.white : Vz.textDim, fontSize: 11)),
                       ])))),
                 ]),
               ],
@@ -3896,9 +3896,9 @@ class _PillBtn extends StatelessWidget {
               shape: BoxShape.circle,
               color: Colors.black.withValues(alpha: 0.38),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.18), width: 1),
+                color: Vz.text.withValues(alpha: 0.18), width: 1),
             ),
-            child: Icon(icon, size: 18, color: Vz.oviText),
+            child: Icon(icon, size: 18, color: Vz.text),
           ),
         ),
       ),
