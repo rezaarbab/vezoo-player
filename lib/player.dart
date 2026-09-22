@@ -2649,7 +2649,7 @@ void _cycleSpeed(){
           )),
           _PillBtn(icon:Icons.picture_in_picture_rounded, tip:'PiP', onTap:_enterPip),
           _PillBtn(icon:_landscape?Icons.stay_current_portrait:Icons.screen_rotation, tip:L.rotate, onTap:_toggleOrientation),
-          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:Icon(Icons.more_vert_rounded,color:Vz.text),
+          Theme(data:_darkUi(),child:PopupMenuButton<String>(icon:Icon(Icons.more_vert_rounded,color:Vz.oviText),
             onSelected:(v){
               switch(v){
                 case 'fit':_cycleFit();break;case 'rotate':_cycleRotation();break;
