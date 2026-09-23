@@ -2615,15 +2615,20 @@ void _cycleSpeed(){
               }
             },
             itemBuilder:(_)=>[
+              // ── تنظیمات زیرنویس (پرکاربردترین — اول) ──
+              PopupMenuItem(value:'settings',child:Row(children:[
+                Icon(Icons.tune_rounded,size:18,color:Vz.accent),SizedBox(width:10),Text(L.subtitleSettings),
+              ])),
+              const PopupMenuDivider(),
               if (_liveSubActive)
                 PopupMenuItem(value:'live',child:Row(children:[
                   Icon(Icons.fiber_smart_record,size:18,color:Vz.red),
                   const SizedBox(width:10),
-                  Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
+                  Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
                     Text(L.liveRunning),
                     Text('${LiveSubState.chunksDone}/${LiveSubState.chunksTotal}',
-                      style:const TextStyle(color:Vz.oviTextDim,fontSize:11)),
-                  ]),
+                      style:TextStyle(color:Vz.textDim,fontSize:11)),
+                  ])),
                 ]))
               else
                 PopupMenuItem(value:'live',child:Row(children:[
@@ -2637,13 +2642,10 @@ void _cycleSpeed(){
               ])),
               if(_sub1Path!=null)
                 PopupMenuItem(value:'translate',child:Row(children:[
-                  Icon(Icons.translate,size:18,color:Vz.accent),SizedBox(width:10),Text(L.translateSub),
+                  Icon(Icons.translate_rounded,size:18,color:Vz.accent),SizedBox(width:10),Text(L.translateSub),
                 ])),
-                PopupMenuItem(value:'lyrics',child:Row(children:[
-                  Icon(Icons.music_note_rounded,size:18,color:Vz.green),SizedBox(width:10),Text(L.musicSubtitle),
-                ])),
-              PopupMenuItem(value:'settings',child:Row(children:[
-                Icon(Icons.tune_rounded,size:18,color:Vz.oviTextSec),SizedBox(width:10),Text(L.subtitleSettings),
+              PopupMenuItem(value:'lyrics',child:Row(children:[
+                Icon(Icons.library_music_rounded,size:18,color:Vz.green),SizedBox(width:10),Text(L.musicSubtitle),
               ])),
             ],
           )),
@@ -2668,51 +2670,55 @@ void _cycleSpeed(){
               }
             },
             itemBuilder:(_)=>[
-              // ── نمایش تصویر ──
+              // ── نمایش ──
               PopupMenuItem(value:'fit',child:Row(children:[
-                Icon(VzIcons.data('fullscreen'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.crop_free_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.ratio}: ${_fit==BoxFit.contain?L.fit:_fit==BoxFit.cover?L.fill:L.stretch}')])),
               PopupMenuItem(value:'rotate',child:Row(children:[
-                Icon(VzIcons.data('rotate'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.screen_rotation_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.rotate}: ${_rotationDeg.toInt()}°')])),
               PopupMenuItem(value:'night',child:Row(children:[
-                Icon(VzIcons.data('brightness'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.dark_mode_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(_vs.nightOpacity>0?L.disableNightMode:L.nightMode)])),
               const PopupMenuDivider(),
               // ── پخش ──
-              PopupMenuItem(value:'repeat',child:Row(children:[
-                Icon(VzIcons.data('replay'),size:17,color:Vz.textSec),const SizedBox(width:10),
-                Text('${L.repeat}: ${_repeatMode==_Repeat.none?"off":_repeatMode==_Repeat.all?"all":"one"}')])),
               PopupMenuItem(value:'speed',child:Row(children:[
-                Icon(VzIcons.data('speed'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.speed_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text('${L.speed}: ${_vs.speed}x')])),
+              PopupMenuItem(value:'repeat',child:Row(children:[
+                Icon(Icons.repeat_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
+                Text('${L.repeat}: ${_repeatMode==_Repeat.none?"off":_repeatMode==_Repeat.all?"all":"one"}')])),
+              const PopupMenuDivider(),
+              // ── صدا ──
               PopupMenuItem(value:'mute',child:Row(children:[
-                Icon(VzIcons.data(_muted?'mute':'volume'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(_muted?Icons.volume_off_rounded:Icons.volume_up_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(_muted?L.unmute:L.mute)])),
               PopupMenuItem(value:'audio',child:Row(children:[
-                Icon(VzIcons.data('audio'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.graphic_eq_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.audioTracks)])),
               const PopupMenuDivider(),
-              // ── زیرنویس و ابزار ──
+              // ── زیرنویس ──
               PopupMenuItem(value:'embsub',child:Row(children:[
-                Icon(VzIcons.data('subtitle'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.closed_caption_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.embeddedSubtitle)])),
               PopupMenuItem(value:'copy',child:Row(children:[
-                Icon(VzIcons.data('copy'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.copy_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.copySub)])),
-              PopupMenuItem(value:'sleep',child:Row(children:[
-                Icon(VzIcons.data('sleep'),size:17,color:Vz.textSec),const SizedBox(width:10),
-                Text(L.sleepTimer)])),
-              PopupMenuItem(value:'screenshot',child:Row(children:[
-                Icon(VzIcons.data('screen'),size:17,color:Vz.textSec),const SizedBox(width:10),
-                Text(L.screenshot)])),
-              PopupMenuItem(value:'info',child:Row(children:[
-                Icon(VzIcons.data('info'),size:17,color:Vz.textSec),const SizedBox(width:10),
-                Text(L.videoInfo)])),
               const PopupMenuDivider(),
-              // ── قفل صفحه ──
+              // ── ابزارها ──
+              PopupMenuItem(value:'screenshot',child:Row(children:[
+                Icon(Icons.photo_camera_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
+                Text(L.screenshot)])),
+              PopupMenuItem(value:'sleep',child:Row(children:[
+                Icon(Icons.bedtime_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
+                Text(L.sleepTimer)])),
+              const PopupMenuDivider(),
+              // ── سیستم ──
+              PopupMenuItem(value:'info',child:Row(children:[
+                Icon(Icons.info_outline_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
+                Text(L.videoInfo)])),
               PopupMenuItem(value:'lock',child:Row(children:[
-                Icon(VzIcons.data('lock'),size:17,color:Vz.textSec),const SizedBox(width:10),
+                Icon(Icons.lock_outline_rounded,size:17,color:Vz.textSec),const SizedBox(width:10),
                 Text(L.lockScreen)])),
             ],
           )),
