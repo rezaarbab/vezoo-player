@@ -96,16 +96,39 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
 
   void _ch(VoidCallback fn){fn();setState((){});widget.onChanged(_vs);}
 
+  /// سرتیتر بخش — نوار اکسنت + عنوان بولد
+  Widget _sec(String t)=>Container(
+    margin:const EdgeInsets.fromLTRB(0,12,0,6),
+    child:Row(children:[
+      Container(width:3,height:14,decoration:BoxDecoration(color:Vz.accent,borderRadius:BorderRadius.circular(2))),
+      const SizedBox(width:8),
+      Text(t,style:TextStyle(color:Vz.text,fontWeight:FontWeight.w700,fontSize:12.5)),
+    ]));
+
+
+
   @override
   Widget build(BuildContext context){
     return Column(mainAxisSize:MainAxisSize.min,children:[
       const SizedBox(height:10),
       const Center(child:VzSheetHandle()),
-      TabBar(controller:_tab,isScrollable:true,tabs:[
-        Tab(text:L.subtitle,icon:Icon(Icons.subtitles,size:16)),
-        Tab(text:L.playback,icon:Icon(Icons.volume_up,size:16)),
-        Tab(text:L.subtitle2,icon:Icon(Icons.subtitles_outlined,size:16)),
-        Tab(text:L.other,icon:Icon(Icons.more_horiz,size:16)),
+      Padding(padding:const EdgeInsets.fromLTRB(16,8,8,0),child:Row(children:[
+        Icon(Icons.tune_rounded,color:Vz.accent,size:18),
+        const SizedBox(width:8),
+        Expanded(child:Text(L.subtitleSettings,
+          style:TextStyle(color:Vz.text,fontWeight:FontWeight.w800,fontSize:15))),
+        IconButton(icon:const Icon(Icons.close_rounded,color:Vz.textSec,size:20),
+          onPressed:()=>Navigator.pop(context),
+          constraints:const BoxConstraints(minWidth:32,minHeight:32),padding:EdgeInsets.zero),
+      ])),
+      Divider(color:Vz.border,height:1),
+      TabBar(controller:_tab,isScrollable:true,dividerColor:Colors.transparent,
+        labelColor:Vz.text,unselectedLabelColor:Vz.textDim,
+        tabs:[
+        Tab(text:L.subtitle,icon:Icon(Icons.subtitles_rounded,size:16)),
+        Tab(text:L.playback,icon:Icon(Icons.speed_rounded,size:16)),
+        Tab(text:L.subtitle2,icon:Icon(Icons.closed_caption_rounded,size:16)),
+        Tab(text:L.other,icon:Icon(Icons.widgets_rounded,size:16)),
       ]),
       SizedBox(height:MediaQuery.of(context).size.height*0.48,child:TabBarView(controller:_tab,children:[
         _sub1Tab(),_audioTab(),_sub2Tab(),_otherTab(),
@@ -124,31 +147,32 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         value:_vs.showSubToolbar,
         onChanged:(v)=>_ch(()=>_vs.showSubToolbar=v)),
 
-    // اندازه فونت
-    Text('${L.fontSize}: ${_vs.fontSize.round()}'),
+    _sec(L.fontSize);
+    Text('${_vs.fontSize.round()} ${L.px}',style:TextStyle(color:Vz.textSec,fontSize:11)),
     Slider(min:6,max:100,value:_vs.fontSize,onChanged:(v)=>_ch(()=>_vs.fontSize=v)),
 
     SwitchListTile(contentPadding:EdgeInsets.zero,title:Text(L.boldLabel),value:_vs.bold,
         onChanged:(v)=>_ch(()=>_vs.bold=v)),
 
     // دیلی زیرنویس با عدد
-    Text(L.subDelay),const SizedBox(height:6),
+    _sec(L.subDelay);
     Row(children:[
-      IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_sd1-=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+      IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1-=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
       Expanded(child:TextField(controller:_d1Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
         textAlign:TextAlign.center,
         onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd1=n);widget.onSubDelayMs(n);}},
         decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
-      IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_sd1+=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+      IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1+=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
     ]),
     Slider(min:-10000,max:10000,value:_sd1.toDouble().clamp(-10000,10000),
         onChanged:(v){setState(()=>_sd1=v.round());widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
 
     // موقعیت
-    Text('${L.position}: ${_vs.bottomPadding.round()}px'),
+    _sec(L.position);
+    Text('${_vs.bottomPadding.round()} ${L.px}',style:TextStyle(color:Vz.textSec,fontSize:11)),
     Slider(min:0,max:900,value:_vs.bottomPadding.clamp(0,900),onChanged:(v)=>_ch(()=>_vs.bottomPadding=v)),
 
-    const SizedBox(height:8),Text(L.alignment),const SizedBox(height:8),
+    _sec(L.alignment);
     SegmentedButton<int>(
       segments:[
         ButtonSegment(value:1,label:Text(L.right),icon:Icon(Icons.format_align_right,size:16)),
@@ -158,12 +182,12 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       selected:{_vs.textAlign},onSelectionChanged:(s)=>_ch(()=>_vs.textAlign=s.first),
     ),
 
-    const SizedBox(height:12),Text(L.textColor),const SizedBox(height:8),
+    _sec(L.textColor);
     Wrap(spacing:10,children:_textColors.map((c)=>GestureDetector(onTap:()=>_ch(()=>_vs.textColor=c.value),
       child:Container(width:34,height:34,decoration:BoxDecoration(color:c,shape:BoxShape.circle,
           border:Border.all(color:c.value==_vs.textColor?Colors.white:Colors.transparent,width:3))))).toList()),
 
-    const SizedBox(height:12),Text(L.bgColor),const SizedBox(height:8),
+    _sec(L.bgColor);
     Wrap(spacing:10,children:_bgColors.map((c){
       final sel=c.value==_vs.bgColor;
       return GestureDetector(onTap:()=>_ch(()=>_vs.bgColor=c.value),child:Container(width:34,height:34,
@@ -174,7 +198,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     Text('${L.transparency}: ${(_vs.bgOpacity*100).round()}%'),
     Slider(min:0,max:1,value:_vs.bgOpacity,onChanged:(v)=>_ch(()=>_vs.bgOpacity=v)),
 
-    const Divider(height:20),Text(L.font),const SizedBox(height:8),
+    _sec(L.font);
     // فونت‌های پیش‌فرض
     Wrap(spacing:6,runSpacing:6,children:kDefaultFonts.map(((String label,String family) f)=>GestureDetector(
       onTap:()=>_ch(()=>_vs.fontFamily=f.$2),
@@ -183,19 +207,19 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         decoration:BoxDecoration(
           color:_vs.fontFamily==f.$2?Vz.accent:Vz.cardHi,
           borderRadius:BorderRadius.circular(8),
-          border:Border.all(color:_vs.fontFamily==f.$2?Vz.accent:const Color(0xFF3A3A4C))),
+          border:Border.all(color:_vs.fontFamily==f.$2?Vz.accent:Vz.border)),
         child:Text(f.$1,style:TextStyle(fontFamily:f.$2.isEmpty?null:f.$2,
-          color:_vs.fontFamily==f.$2?Colors.white:const Color(0xFFC9D6CC),fontSize:12))),
+          color:_vs.fontFamily==f.$2?Colors.white:Vz.textSec,fontSize:12))),
     )).toList()),
     const SizedBox(height:8),
     OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickFont();},
-        icon:const Icon(Icons.font_download),label:Text(L.customFont)),
+        icon:const Icon(Icons.font_download_rounded,size:16),label:Text(L.customFont)),
 
     const Divider(height:20),
     // border و سایه
     Row(children:[
       Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        Text('Border: ${_vs.borderSize.toStringAsFixed(1)}',style:const TextStyle(fontSize:12)),
+        Text('${L.border}: ${_vs.borderSize.toStringAsFixed(1)}',style:TextStyle(fontSize:12,color:Vz.textSec)),
         Slider(min:0,max:8,divisions:16,value:_vs.borderSize,
           onChanged:(v)=>_ch(()=>_vs.borderSize=v)),
       ])),
@@ -210,16 +234,16 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     // ابزارهای زیرنویس زنده
     Text(L.liveSubtitleTools),const SizedBox(height:8),
     Row(children:[
-      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.copy,size:16),label:Text(L.copy),
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.copy_rounded,size:16),label:Text(L.copy),
           onPressed:(){Navigator.pop(context);})),
       const SizedBox(width:8),
-      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.translate,size:16),label:Text(L.translationLabel),
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.translate_rounded,size:16),label:Text(L.translationLabel),
           onPressed:(){
             Navigator.pop(context);
             showSnack(context, L.translatePaste);
           })),
       const SizedBox(width:8),
-      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.book,size:16),label:Text(L.dictionary),
+      Expanded(child:OutlinedButton.icon(icon:const Icon(Icons.menu_book_rounded,size:16),label:Text(L.dictionary),
           onPressed:(){
             Navigator.pop(context);
             showSnack(context, L.dictionarySearch);
@@ -228,21 +252,21 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
 
     const Divider(height:20),
     OutlinedButton.icon(onPressed:(){Navigator.pop(context);widget.onPickSub1();},
-        icon:const Icon(Icons.file_open),label:Text(L.chooseSub1)),
+        icon:const Icon(Icons.folder_open_rounded,size:16),label:Text(L.chooseSub1)),
   ]));
 
   // ──────── تب صدا / پخش ────────
   Widget _audioTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     // دیلی صدا
-    Text(L.audioDelay),const SizedBox(height:6),
+    _sec(L.audioDelay);
     Row(children:[
-      IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_ad-=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+      IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad-=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
       Expanded(child:TextField(controller:_adCtrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
         textAlign:TextAlign.center,
         onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_ad=n);widget.onAudioDelayMs(n);}},
         decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true,
             helperText:L.hwDecode))),
-      IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_ad+=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+      IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad+=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
     ]),
 
     const Divider(height:24),
@@ -270,8 +294,8 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         decoration:BoxDecoration(
           color:_vs.speed==s?Vz.accent:Vz.cardHi,
           borderRadius:BorderRadius.circular(8),
-          border:Border.all(color:_vs.speed==s?Vz.accent:const Color(0xFF3A3A4C))),
-        child:Text('${s}x',style:TextStyle(color:_vs.speed==s?Colors.white:const Color(0xFFC9D6CC),fontSize:12))),
+          border:Border.all(color:_vs.speed==s?Vz.accent:Vz.border)),
+        child:Text('${s}x',style:TextStyle(color:_vs.speed==s?Colors.white:Vz.textSec,fontSize:12))),
     )).toList()),
 
     const Divider(height:24),
@@ -300,26 +324,27 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         value:vs2.showSubToolbar,
         onChanged:(v)=>ch2(()=>vs2.showSubToolbar=v)),
       const SizedBox(height:8),
-      Text(L.fontSize),const SizedBox(height:4),
+      _sec(L.fontSize);
+      const SizedBox(height:2),
       Row(children:[
-        IconButton(icon:const Icon(Icons.remove),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize-1).clamp(8,80));}),
+        IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize-1).clamp(8,80));}),
         Expanded(child:Slider(min:8,max:80,value:vs2.fontSize,onChanged:(v)=>ch2(()=>vs2.fontSize=v))),
         Text('${vs2.fontSize.round()}',style:const TextStyle(fontWeight:FontWeight.bold)),
-        IconButton(icon:const Icon(Icons.add),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize+1).clamp(8,80));}),
+        IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize+1).clamp(8,80));}),
       ]),
       SwitchListTile(contentPadding:EdgeInsets.zero,title:const Text('Bold'),value:vs2.bold,onChanged:(v)=>ch2(()=>vs2.bold=v)),
-      Text(L.textColor),const SizedBox(height:8),
+      _sec(L.textColor);
       Wrap(spacing:10,children:[Colors.white,const Color(0xFFFFFF99),const Color(0xFFFFEB3B),const Color(0xFF69F0AE),const Color(0xFF40C4FF),const Color(0xFFFF8A65)].map((c)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.textColor=c.value),
           child:Container(width:34,height:34,decoration:BoxDecoration(color:c,shape:BoxShape.circle,
             border:Border.all(color:c.value==vs2.textColor?Colors.white:Colors.transparent,width:3))))).toList()),
       const SizedBox(height:12),
-      Text(L.transparency),
+      _sec(L.transparency);
       Slider(min:0,max:1,value:vs2.bgOpacity,onChanged:(v)=>ch2(()=>vs2.bgOpacity=v)),
       const SizedBox(height:8),
 
       // ── رنگ پس‌زمینه ──
-      Text(L.bgColor),const SizedBox(height:8),
+      _sec(L.bgColor);
       Wrap(spacing:10,children:[Colors.black,Vz.cardHi,const Color(0xFF16213E),Colors.transparent].map((c)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.bgColor=c.value),
           child:Container(width:34,height:34,decoration:BoxDecoration(color:c==Colors.transparent?Vz.border:c,shape:BoxShape.circle,
@@ -328,7 +353,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       const SizedBox(height:12),
 
       // ── چینش ──
-      Text(L.alignment),const SizedBox(height:8),
+      _sec(L.alignment);
       Row(mainAxisAlignment:MainAxisAlignment.start,children:[
         for(final e in [(L.left,0),(L.center,2),(L.right,1)])...[
           GestureDetector(onTap:()=>ch2(()=>vs2.textAlign=e.$2),
@@ -351,7 +376,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
 
       // ── انتخاب فونت ──
       Divider(color:Vz.border),
-      Text(L.font,style:TextStyle(fontSize:13)),const SizedBox(height:8),
+      _sec(L.font);
       Wrap(spacing:8,runSpacing:6,children:['','Vazirmatn','IRANSansMobile','Roboto','Tahoma'].map((f)=>
         GestureDetector(onTap:()=>ch2(()=>vs2.fontFamily=f),
           child:Container(padding:const EdgeInsets.symmetric(horizontal:10,vertical:6),
@@ -360,14 +385,14 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       const SizedBox(height:12),
 
       // ── دیلی ──
-      Text(L.subDelay2),const SizedBox(height:6),
+      _sec(L.subDelay2);
       Row(children:[
-        IconButton(icon:const Icon(Icons.remove),onPressed:(){setState(()=>_sd2-=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+        IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2-=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
         Expanded(child:TextField(controller:_d2Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
           textAlign:TextAlign.center,
           onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd2=n);widget.onSubDelay2Ms(n);}},
           decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
-        IconButton(icon:const Icon(Icons.add),onPressed:(){setState(()=>_sd2+=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+        IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2+=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
       ]),
       Slider(min:-10000,max:10000,value:_sd2.toDouble().clamp(-10000,10000),
         onChanged:(v){setState(()=>_sd2=v.round());widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
@@ -376,7 +401,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
   // ──────── تب سایر ────────
   Widget _otherTab()=>SingleChildScrollView(padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
     // ── انتخاب زبان ──
-    Text(L.language, style:TextStyle(color:Vz.textSec,fontSize:13)),
+    _sec(L.language);
     const SizedBox(height:10),
     Wrap(spacing:8,runSpacing:8,children:[
       for(final lang in kSupportedLangs)
