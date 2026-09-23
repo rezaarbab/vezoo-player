@@ -148,7 +148,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
         onChanged:(v)=>_ch(()=>_vs.showSubToolbar=v)),
 
     _sec(L.fontSize),
-    Text('${_vs.fontSize.round()} ${L.px}',style:TextStyle(color:Vz.textSec,fontSize:11)),
+    Text('${_vs.fontSize.round()}px',style:TextStyle(color:Vz.textSec,fontSize:11)),
     Slider(min:6,max:100,value:_vs.fontSize,onChanged:(v)=>_ch(()=>_vs.fontSize=v)),
 
     SwitchListTile(contentPadding:EdgeInsets.zero,title:Text(L.boldLabel),value:_vs.bold,
@@ -157,19 +157,19 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     // دیلی زیرنویس با عدد
     _sec(L.subDelay),
     Row(children:[
-      IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1-=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+      IconButton(icon:Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1-=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
       Expanded(child:TextField(controller:_d1Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
         textAlign:TextAlign.center,
         onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd1=n);widget.onSubDelayMs(n);}},
         decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
-      IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1+=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
+      IconButton(icon:Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd1+=100);widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
     ]),
     Slider(min:-10000,max:10000,value:_sd1.toDouble().clamp(-10000,10000),
         onChanged:(v){setState(()=>_sd1=v.round());widget.onSubDelayMs(_sd1);_d1Ctrl.text='$_sd1';}),
 
     // موقعیت
     _sec(L.position),
-    Text('${_vs.bottomPadding.round()} ${L.px}',style:TextStyle(color:Vz.textSec,fontSize:11)),
+    Text('${_vs.bottomPadding.round()}px',style:TextStyle(color:Vz.textSec,fontSize:11)),
     Slider(min:0,max:900,value:_vs.bottomPadding.clamp(0,900),onChanged:(v)=>_ch(()=>_vs.bottomPadding=v)),
 
     _sec(L.alignment),
@@ -219,7 +219,7 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     // border و سایه
     Row(children:[
       Expanded(child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[
-        Text('${L.border}: ${_vs.borderSize.toStringAsFixed(1)}',style:TextStyle(fontSize:12,color:Vz.textSec)),
+        Text('Border: ${_vs.borderSize.toStringAsFixed(1)}',style:TextStyle(fontSize:12,color:Vz.textSec)),
         Slider(min:0,max:8,divisions:16,value:_vs.borderSize,
           onChanged:(v)=>_ch(()=>_vs.borderSize=v)),
       ])),
@@ -260,13 +260,13 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
     // دیلی صدا
     _sec(L.audioDelay),
     Row(children:[
-      IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad-=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+      IconButton(icon:Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad-=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
       Expanded(child:TextField(controller:_adCtrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
         textAlign:TextAlign.center,
         onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_ad=n);widget.onAudioDelayMs(n);}},
         decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true,
             helperText:L.hwDecode))),
-      IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad+=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
+      IconButton(icon:Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_ad+=100);widget.onAudioDelayMs(_ad);_adCtrl.text='$_ad';}),
     ]),
 
     const Divider(height:24),
@@ -327,10 +327,10 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       _sec(L.fontSize),
       const SizedBox(height:2),
       Row(children:[
-        IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize-1).clamp(8,80));}),
+        IconButton(icon:Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize-1).clamp(8,80));}),
         Expanded(child:Slider(min:8,max:80,value:vs2.fontSize,onChanged:(v)=>ch2(()=>vs2.fontSize=v))),
         Text('${vs2.fontSize.round()}',style:const TextStyle(fontWeight:FontWeight.bold)),
-        IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize+1).clamp(8,80));}),
+        IconButton(icon:Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){ch2(()=>vs2.fontSize=(vs2.fontSize+1).clamp(8,80));}),
       ]),
       SwitchListTile(contentPadding:EdgeInsets.zero,title:const Text('Bold'),value:vs2.bold,onChanged:(v)=>ch2(()=>vs2.bold=v)),
       _sec(L.textColor),
@@ -387,12 +387,12 @@ class _SettingsState extends State<PlayerSettings> with SingleTickerProviderStat
       // ── دیلی ──
       _sec(L.subDelay2),
       Row(children:[
-        IconButton(icon:const Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2-=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+        IconButton(icon:Icon(Icons.remove_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2-=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
         Expanded(child:TextField(controller:_d2Ctrl,keyboardType:const TextInputType.numberWithOptions(signed:true),
           textAlign:TextAlign.center,
           onChanged:(v){final n=int.tryParse(v);if(n!=null){setState(()=>_sd2=n);widget.onSubDelay2Ms(n);}},
           decoration:InputDecoration(suffixText:'ms',border:OutlineInputBorder(),isDense:true))),
-        IconButton(icon:const Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2+=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
+        IconButton(icon:Icon(Icons.add_circle_outline_rounded,size:20,color:Vz.textSec),onPressed:(){setState(()=>_sd2+=100);widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
       ]),
       Slider(min:-10000,max:10000,value:_sd2.toDouble().clamp(-10000,10000),
         onChanged:(v){setState(()=>_sd2=v.round());widget.onSubDelay2Ms(_sd2);_d2Ctrl.text='$_sd2';}),
