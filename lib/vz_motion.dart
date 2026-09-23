@@ -11,6 +11,7 @@
 //   VzHeroGlow    — درخشش نبض‌دار برای عناصر قهرمان
 //   VzSplash      — اسپلش متحرک با لوگو
 import 'package:flutter/material.dart';
+import 'vz_anime_themes.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'theme.dart';
 import 'vz_icons.dart';
@@ -217,7 +218,8 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
 
   @override Widget build(BuildContext context) {
     final on = Vz.animations;
-    const letters = ['V', 'E', 'Z', 'O', 'O'];
+    // حروف لوگو از تم فعال — هر تم برند خودش را دارد
+    final letters = Vz.theme.splashLetters.split('');
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -275,7 +277,7 @@ class _VzSplashState extends State<VzSplash> with SingleTickerProviderStateMixin
                           color: Vz.accent.withValues(alpha: 0.45),
                           blurRadius: 30, spreadRadius: 2)],
                       ),
-                      child: Icon(VzIcons.data('play'),
+                      child: Icon(VzIcons.data(Vz.theme.logoGlyph),
                         color: Vz.onAccent, size: 48))),
                 ),
               ]),

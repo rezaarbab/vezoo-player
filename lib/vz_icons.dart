@@ -516,6 +516,13 @@ const Map<String, IconData> kVzIconMap = {
   'favorite': Icons.favorite_rounded,
   'favorite-off': Icons.favorite_border_rounded,
   'star': Icons.star_rounded,
+  'fav': Icons.favorite_rounded,
+  'ai': Icons.auto_awesome_rounded,
+  'voice': Icons.record_voice_over_rounded,
+  'update': Icons.system_update_rounded,
+  'telegram': Icons.send_rounded,
+  'bug': Icons.bug_report_rounded,
+
   'star-off': Icons.star_outline_rounded,
   'check': Icons.check_rounded,
   'check-circle': Icons.check_circle_rounded,

@@ -41,6 +41,15 @@ class VzThemeDef {
   /// با انتخاب آن‌ها، حالت سیستم به‌طور خودکار روشن شود.
   final bool dark;
 
+  /// حروف لوگوی اسپلش (پیش‌فرض VEZOO) — هر تم می‌تواند برند خودش را داشته باشد.
+  final String splashLetters;
+
+  /// حرف‌های الل کوتاه — گوشه‌ی شیت‌ها/هدرها؛ خالی = از [splashLetters].
+  final String monogram;
+
+  /// آیکون‌شناسهی برند اپ برای این تم (نام VzIcons) — وقتی خالی باشد پیش‌فرض.
+  final String logoGlyph;
+
   const VzThemeDef({
     required this.id,
     required this.name,
@@ -51,6 +60,9 @@ class VzThemeDef {
     this.bgTint,
     this.accentLock,
     this.dark = true,
+    this.splashLetters = 'VEZOO',
+    this.monogram = '',
+    this.logoGlyph = 'play',
   });
 
   /// رنگ دانه‌ی مؤثر برای ساخت پالت.
@@ -69,6 +81,7 @@ const List<VzThemeDef> kVzThemes = [
     tagline: 'Neon green · dark navy',
     seed: Color(0xFF2FD97A),
     bg: VzBgStyle.soft, radiusScale: 1.15,
+    splashLetters: 'TAKO', monogram: 'T', logoGlyph: 'play',
     // پس‌زمینه‌ی سرد سرمه‌ای، نه خنثی
     bgTint: Color(0xFF0B0F14),
     // اکسنت دقیقاً سبز نئونی، نه مشتق از seed
@@ -83,6 +96,7 @@ const List<VzThemeDef> kVzThemes = [
     bg: VzBgStyle.vivid, radiusScale: 1.25,
     bgTint: Color(0xFF0A0507),
     accentLock: Color(0xFFE11D2E),
+    splashLetters: 'MHT', monogram: 'M', logoGlyph: 'fav',
   ),
 
   // ── Shade — تیره‌ی Namida ──
@@ -91,6 +105,7 @@ const List<VzThemeDef> kVzThemes = [
     tagline: 'Dark · neutral · dynamic',
     seed: Color(0xFF00AEEC),
     bg: VzBgStyle.soft, radiusScale: 1.4,
+    splashLetters: 'VEZOO', monogram: 'V', logoGlyph: 'movie',
   ),
 
   // ── Day — روشنِ Namida ──
@@ -100,6 +115,7 @@ const List<VzThemeDef> kVzThemes = [
     seed: Color(0xFF2563EB),
     bg: VzBgStyle.flat, radiusScale: 1.4,
     dark: false,
+    splashLetters: 'VEZOO', monogram: 'V', logoGlyph: 'light',
   ),
 
   // ── Anime — صورتی موئه، گردترین ──
@@ -108,6 +124,7 @@ const List<VzThemeDef> kVzThemes = [
     tagline: 'Moe · sakura · max round',
     seed: Color(0xFFFB7299),
     bg: VzBgStyle.vivid, radiusScale: 2.0,
+    splashLetters: 'SAKURA', monogram: 'S', logoGlyph: 'sparkle',
   ),
 ];
 

@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 
 import 'vz_theme.dart';
 import 'vz_anime_themes.dart';
+import 'vz_icons.dart';
 
 export 'vz_theme.dart'
     show VzPalette, VzBgStyle, vzBuildPalette, vzBackground, vzOnColor,
@@ -630,6 +631,12 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   Future<void> setTheme(VzThemeDef t) async {
     _theme = t;
     _bg = t.bg;
+    // پک آیکون ویژه‌ی هر تم — فقط تم انیمه پک موئه فعال می‌کند
+    if (t.id == 'anime') {
+      VzIcons.pack = const BiliIconPack();
+    } else {
+      VzIcons.pack = const SolarIconPack();
+    }
     _customSeed = null; // تم جدید یعنی seed خودش
     _mode = t.dark ? VzThemeMode.dark : VzThemeMode.light;
     setState(() {});
