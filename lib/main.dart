@@ -47,8 +47,6 @@ void main() async {
   await L.load(); // بارگذاری زبان ذخیره‌شده
   await Store.load();
   await ApiService.init();
-  // پیش‌بارگیری تم (id + bg + پک آیکون) قبل از اولین فریم تا اسپلش برند درست را نشان دهد
-  await VzThemeState.preBoot();
 
   // ── Theme persistence hooks (wired to SharedPreferences) ──
   storeThemePrefs = () async {
@@ -134,6 +132,10 @@ void main() async {
   storeBgSave = (v) async {
     await (await SharedPreferences.getInstance()).setString('app_bg_style', v);
   };
+
+  // پیش‌بارگیری تم (id + bg + پک آیکون) — بعد از وصل شدن همه‌ی hooks
+  // تا اسپلش حروف/لوگوی برند تمِ انتخابی کاربر را از اولین فریم نشان دهد
+  await VzThemeState.preBoot();
 
   runApp(const MyApp());
 }
