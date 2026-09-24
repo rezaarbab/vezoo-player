@@ -206,7 +206,7 @@ class _IptvScreenState extends State<IptvScreen> with SingleTickerProviderStateM
     resizeToAvoidBottomInset: true,
     backgroundColor: Colors.transparent, // پس‌زمینه شفاف برای دیده‌شدن Ambient
     appBar: AppBar(
-      backgroundColor: kBg,
+      backgroundColor: Colors.transparent,
       title: Text('IPTV', style:TextStyle(color: Vz.text, fontWeight: FontWeight.bold)),
       actions: [
         if (_accounts.isNotEmpty) PopupMenuButton<IptvAccount>(

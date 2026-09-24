@@ -75,6 +75,8 @@ class _VzShellState extends State<VzShell>{
   Widget build(BuildContext context){
     return Scaffold(
       extendBody: true,
+      // پس‌زمینه شفاف تا گرادیان Ambient دیده شود (سبک‌های bg واقعاً کار کنند)
+      backgroundColor: Colors.transparent,
       // IndexedStack: state هر تب حفظ می‌شود و هیچ صفحه‌ای با opacity صفر
       // در هر فریم composite نمی‌شود.
       body: VzTabSwitcher(
