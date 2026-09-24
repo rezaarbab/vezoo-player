@@ -47,6 +47,8 @@ void main() async {
   await L.load(); // بارگذاری زبان ذخیره‌شده
   await Store.load();
   await ApiService.init();
+  // پیش‌بارگیری تم (id + bg + پک آیکون) قبل از اولین فریم تا اسپلش برند درست را نشان دهد
+  await VzThemeState.preBoot();
 
   // ── Theme persistence hooks (wired to SharedPreferences) ──
   storeThemePrefs = () async {
@@ -323,7 +325,7 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     switchInCurve: Curves.easeOutCubic,
     switchOutCurve: Curves.easeInCubic,
     child: _splash
-      ? const VzSplash(key: ValueKey('splash'))
-      : VzShell(key: ValueKey('shell')),
+      ? VzSplash(key: const ValueKey('splash'))
+      : VzShell(key: const ValueKey('shell')),
   );
 }

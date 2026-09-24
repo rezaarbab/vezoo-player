@@ -190,7 +190,7 @@ class Vz {
       _customSeed ?? _dynamicSeed ?? _theme.effectiveSeed;
 
   /// تم فعال.
-  static VzThemeDef get theme => _theme;
+  /// تم فعال.
 
   /// سبک پس‌زمینه‌ی مؤثر.
   static VzBgStyle get bgStyle => _bgOverride;
@@ -580,6 +580,25 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     if (_mode == VzThemeMode.system) setState(() {});
+  }
+
+  /// پیش‌بارگیری هم‌زمانی تم از prefs — در main قبل از runApp صدا می‌خورد
+  /// تا اسپلش حروف/لوگو/رنگ برند همان تم فعال را نشان دهد (نه تم پیش‌فرض).
+  static Future<void> preBoot() async {
+    final p = await storeThemeIdPrefs?.call();
+    _theme = vzThemeById(p);
+    _bg = _theme.bg;
+    final bgRaw = await storeBgPrefs?.call();
+    if (bgRaw != null) {
+      _bg = VzBgStyle.values.firstWhere(
+          (s) => s.name == bgRaw, orElse: () => _theme.bg);
+    }
+    // پک آیکون برند
+    if (_theme.id == 'anime') {
+      VzIcons.pack = const BiliIconPack();
+    } else {
+      VzIcons.pack = const SolarIconPack();
+    }
   }
 
   Future<void> _load() async {
