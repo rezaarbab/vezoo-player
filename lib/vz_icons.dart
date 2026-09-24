@@ -435,20 +435,23 @@ class _VzAnimatedIconState extends State<VzAnimatedIcon>
 class VzIcons {
   VzIcons._();
 
-  /// پک پیش‌فرض: BiliIconPack آیکون‌های موئه‌ی شناسایی‌شده را می‌دهد و بقیه
-  /// را از Solar می‌گیرد — پس هیچ صفحه‌ای بی‌آیکون نمی‌ماند.
+  /// پک پیش‌فرض.
   static VzIconPack _pack = const SolarIconPack();
 
-  /// پک فعال. با ست کردن این، کل اپ آیکون‌های جدید را می‌گیرد.
+  /// پک فعال.
   static VzIconPack get pack => _pack;
   static set pack(VzIconPack p) => _pack = p;
 
-  /// وضعیت کلید انیمیشن — در main.dart وصل می‌شود.
-  /// این callback به‌جای import مستقیم theme.dart است تا چرخه‌ی import
-    static bool Function() animationsEnabled = () => true;
+  /// مپ آیکون‌های مخصوصِ تم فعال — هر تم می‌تواند چند آیکون کلیدی را
+  /// با گلیف/شکل مخصوص خودش جایگزین کند. توسط VzThemeState.preBoot /
+  /// setTheme تنظیم می‌شود.
+  static Map<String, IconData> themeOverrides = const {};
 
-  /// خواندن یک آیکون به‌صورت IconData.
-  static IconData data(String name) => _pack.fallback(name);
+  /// وضعیت کلید انیمیشن — در main.dart وصل می‌شود.
+  static bool Function() animationsEnabled = () => true;
+
+  /// خواندن یک آیکون به‌صورت IconData — اول override هر تم، وگرنه پک فعال.
+  static IconData data(String name) => themeOverrides[name] ?? _pack.fallback(name);
 
   /// سازنده‌ی سریع ویجت.
   static Widget widget(String name, {double? size, Color? color, bool animated = false}) =>

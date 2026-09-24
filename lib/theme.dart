@@ -534,6 +534,49 @@ class VzTheme extends StatefulWidget {
 }
 
 /// Public state so Settings can drive the theme.
+
+// ──────── آیکون‌های ویژه‌ی هر برند ────────
+// چند کلید حسّی (لوگو/هدر/اسپلش/پلیر) که در هر تم با گلیف مخصوص همان برند
+// جایگزین می‌شوند — بقیه از پک فعال (Solar برای همه، Bili برای انیمه) می‌آیند.
+const Map<String, IconData> kTakoIcons = {
+  'play':  Icons.play_circle_fill_rounded,
+  'home':  Icons.smart_display_rounded,
+  'live':  Icons.live_tv_sharp,
+};
+
+const Map<String, IconData> kMhtIcons = {
+  'play':     Icons.play_arrow_sharp,
+  'favorite': Icons.favorite_sharp,
+  'logo':     Icons.favorite_rounded,
+  'star':     Icons.star_sharp,
+};
+
+const Map<String, IconData> kShadeIcons = {};
+
+const Map<String, IconData> kDayIcons = {
+  'play': Icons.play_circle_fill_rounded,
+  'live': Icons.campaign_rounded,
+};
+
+const Map<String, IconData> kAnimeIcons = {
+  'play':        Icons.play_arrow_rounded,
+  'settings':    Icons.palette_rounded,
+  'star':        Icons.star_rounded,
+  'home':        Icons.animation_rounded,
+  'sparkle':     Icons.auto_awesome_rounded,
+};
+
+/// مپ برند آیکون‌ها از روی id تم.
+Map<String, IconData> vzIconsForTheme(String id) {
+  switch (id) {
+    case 'tako':  return kTakoIcons;
+    case 'mht':   return kMhtIcons;
+    case 'day':   return kDayIcons;
+    case 'anime': return kAnimeIcons;
+    default:      return kShadeIcons;
+  }
+}
+
 class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
   VzThemeMode _mode = VzThemeMode.system;
   VzThemeDef _theme = kVzThemes.first;
@@ -601,6 +644,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     } else {
       VzIcons.pack = const SolarIconPack();
     }
+    VzIcons.themeOverrides = vzIconsForTheme(t.id);
   }
 
   Future<void> _load() async {
@@ -658,6 +702,7 @@ class VzThemeState extends State<VzTheme> with WidgetsBindingObserver {
     } else {
       VzIcons.pack = const SolarIconPack();
     }
+    VzIcons.themeOverrides = vzIconsForTheme(t.id);
     _customSeed = null; // تم جدید یعنی seed خودش
     _mode = t.dark ? VzThemeMode.dark : VzThemeMode.light;
     setState(() {});
