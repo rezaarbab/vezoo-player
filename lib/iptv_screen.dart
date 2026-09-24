@@ -361,7 +361,7 @@ class _LiveTabState extends State<_LiveTab> {
                 contentPadding: const EdgeInsets.symmetric(vertical: 8)))),
           ])),
         Expanded(child: ListView.builder(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.only(bottom: 16 + MediaQuery.viewPaddingOf(context).bottom),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           itemCount: _filtered.length,
           itemBuilder: (_, i) {

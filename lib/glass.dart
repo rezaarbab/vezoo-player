@@ -965,8 +965,11 @@ class VzNavDock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ارتفاع نوار سیستم (دکمه‌های گوشی) + فاصله استاندارد — تا داک
+    // هرگز زیر دکمه‌های home/back خود گوشی نرود.
+    final sysNav = MediaQuery.viewPaddingOf(context).bottom;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md),
+      padding: EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.md + sysNav),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: Sp.xs, vertical: Sp.xs),
         decoration: BoxDecoration(
