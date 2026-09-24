@@ -2776,7 +2776,7 @@ void _cycleSpeed(){
                   transitionBuilder:(c,a)=>ScaleTransition(
                     scale: Tween(begin:0.7,end:1.0).animate(a), child:c),
                   child: Icon(
-                    _playing?Icons.pause_rounded:Icons.play_arrow_rounded,
+                    _playing?VzIcons.data('pause'):VzIcons.data('play'),
                     key: ValueKey(_playing),
                     color:_playing?Colors.white:Vz.onAccent,
                     size:52),

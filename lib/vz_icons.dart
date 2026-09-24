@@ -350,6 +350,12 @@ class VzIcon extends StatelessWidget {
     final c = color ?? IconTheme.of(context).color;
     final s = size ?? IconTheme.of(context).size ?? 24;
 
+    // ۰) override برند تم — اولویت اول
+    final ov = VzIcons.themeOverrides[name];
+    if (ov != null) {
+      return Icon(ov, size: s, color: c);
+    }
+
     // ۱) پک فعال کاربر (مثلاً انیمه)
     final custom = VzIcons.pack.build(name, size: s, color: c);
     if (custom != null) {
@@ -366,7 +372,7 @@ class VzIcon extends StatelessWidget {
 
     // ۳) استاتیک
     return Icon(
-      VzIcons.pack.fallback(name),
+      VzIcons.data(name),
       size: s,
       color: c,
       semanticLabel: semanticLabel,
