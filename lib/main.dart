@@ -243,15 +243,13 @@ class _HomeWrapper extends StatefulWidget {
   @override State<_HomeWrapper> createState()=>_HomeWrapperState();
 }
 class _HomeWrapperState extends State<_HomeWrapper>{
-  /// اسپلش فقط یک‌بار در طول عمر پروسه نشان داده می‌شود (نه با هر تغییر تم).
-  static bool _splashShown = false;
-  bool _splash = !_splashShown;
+  bool _splash = true;
 
   @override void initState(){
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_)=>_startup());
-    if (!_splash) return;
-    _splashShown = true;
+    // اسپلش همیشه با هر launch (حتی از back-stackLe اندروید) از نو رندر می‌شود
+    // با برند تمِ فعال — اسپلش برند = آیکون‌های ویژه + حروف لوگوی تم.
     Future.delayed(Duration(milliseconds: Vz.animations ? 1500 : 300), (){
       if (mounted) setState(()=>_splash = false);
     });
@@ -327,7 +325,7 @@ class _HomeWrapperState extends State<_HomeWrapper>{
     switchInCurve: Curves.easeOutCubic,
     switchOutCurve: Curves.easeInCubic,
     child: _splash
-      ? VzSplash(key: const ValueKey('splash'))
-      : VzShell(key: const ValueKey('shell')),
+      ? VzSplash(key: ValueKey('splash|' + Vz.theme.id))
+      : const VzShell(key: ValueKey('shell')),
   );
 }
