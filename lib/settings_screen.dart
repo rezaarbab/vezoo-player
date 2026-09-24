@@ -843,18 +843,20 @@ class _BubbleSettings extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: Sp.md),
-            child: Row(children: [
-              for (final c in _swatch) ...[
-                _Swatch(
-                  color: c ?? Vz.accent,
-                  selected: (VzThemeScope.bubbleColorOf(context) ?? Vz.accent) ==
-                      (c ?? Vz.accent),
-                  auto: c == null,
-                  onTap: () => vzt?.setBubbleColor(c),
-                ),
-                const SizedBox(width: 7),
+            child: Wrap(
+              spacing: 7,
+              runSpacing: 7,
+              children: [
+                for (final c in _swatch)
+                  _Swatch(
+                    color: c ?? Vz.accent,
+                    selected: (VzThemeScope.bubbleColorOf(context) ?? Vz.accent) ==
+                        (c ?? Vz.accent),
+                    auto: c == null,
+                    onTap: () => vzt?.setBubbleColor(c),
+                  ),
               ],
-            ]),
+            ),
           ),
 
           // ── اندازه ──

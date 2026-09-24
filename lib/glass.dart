@@ -1083,7 +1083,7 @@ Future<T?> showVzDialog<T>({
         Row(children: [
           if (cancelLabel != null)
             Expanded(child: VzMintButton(
-              onTap: () => Navigator.pop(ctx),
+              onTap: () => Navigator.pop<T?>(ctx, false),
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text(cancelLabel, textAlign: TextAlign.center),
             )),
@@ -1098,7 +1098,7 @@ Future<T?> showVzDialog<T>({
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: Rad.r(Rad.sm),
-                  onTap: () { Navigator.pop(ctx); onConfirm?.call(); },
+                  onTap: () { Navigator.pop<T?>(ctx, true); onConfirm?.call(); },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(confirmLabel, textAlign: TextAlign.center,
