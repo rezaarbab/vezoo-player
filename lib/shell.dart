@@ -21,7 +21,7 @@ class _VzShellState extends State<VzShell>{
   VzNavDest _dest = VzNavDest.home;
 
   /// ترتیب تب‌های واقعی — Discover در این لیست نیست چون مودال است.
-  static const _tabs = [VzNavDest.home, VzNavDest.live, VzNavDest.library, VzNavDest.settings];
+  static const _tabs = [VzNavDest.home, VzNavDest.live, VzNavDest.library, VzNavDest.sponsors, VzNavDest.settings];
 
   int get _index {
     final i = _tabs.indexOf(_dest);
@@ -89,6 +89,7 @@ class _VzShellState extends State<VzShell>{
             KeyedSubtree(key: _browserKey, child: BrowserScreen()),
             IptvScreen(),
             LibraryScreen(),
+            SponsorsScreen(),
             SettingsScreen(),
           ],
         ),

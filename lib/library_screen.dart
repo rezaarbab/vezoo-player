@@ -422,83 +422,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
 
   // ── تب اسپانسرها — برندها از سرور ──
   // در switch tab: 5 => _sponsorTab()
-  Widget _sponsorTab(){
-    return FutureBuilder<List<Map<String,dynamic>>>(
-      future: ApiService.getSponsors(),
-      builder: (ctx, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator(color: Vz.accent));
-        }
-        final list = snap.data ?? const [];
-        if (list.isEmpty) {
-          return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Vz.card, borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Vz.border)),
-              child: Icon(VzIcons.data('star'), size: 32, color: Vz.textDim)),
-            const SizedBox(height: 12),
-            Text(L.noSponsors, style: TextStyle(color: Vz.textSec)),
-          ]));
-        }
-        return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.lg, 120),
-          itemCount: list.length,
-          itemBuilder: (_, i) {
-            final s = list[i];
-            final isFemale = (s['gender'] ?? 'male') == 'female';
-            final hasAvatar = (s['avatar_url'] ?? '').isNotEmpty;
-            final hasLink = (s['link'] ?? '').isNotEmpty;
-            return VzGlass(
-              margin: const EdgeInsets.only(bottom: Sp.md),
-              padding: const EdgeInsets.all(Sp.md),
-              child: Row(children: [
-                Container(
-                  width: 56, height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: isFemale
-                      ? [const Color(0xFFC76B93), const Color(0xFFC76B93)]
-                      : [Vz.accent, Vz.accentHi]),
-                    shape: BoxShape.circle),
-                  child: hasAvatar
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: Image.network(s['avatar_url'], width: 56, height: 56,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                            Icon(Icons.face_rounded, color: Colors.white, size: 28)))
-                    : Icon(Icons.face_rounded, color: Colors.white, size: 28)),
-                const SizedBox(width: 14),
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(s['name'] ?? '', style: TextStyle(
-                    color: Vz.text, fontWeight: FontWeight.bold, fontSize: 15)),
-                  if ((s['description'] ?? '').isNotEmpty) Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(s['description'],
-                      style: TextStyle(fontSize: 12, color: Vz.textSec))),
-                ])),
-                if (hasLink) ...[
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      minimumSize: const Size(0, 36),
-                      backgroundColor: Vz.accent),
-                    onPressed: () => ul.launchUrl(Uri.parse(s['link']),
-                      mode: ul.LaunchMode.externalApplication),
-                    child: Text(L.view, style: TextStyle(fontSize: 12))),
-                ],
-              ]),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _emptyFor(String iconName) => VzEmpty(
+Widget _emptyFor(String iconName) => VzEmpty(
     icon: VzIcons.data(iconName),
     title: L.nothingYet,
     hint: switch(_tab){ 4 => L.pinFolderHint, _ => null });
@@ -894,3 +818,91 @@ class _TileRow extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  اسپانسرها — صفحه‌ی مستقل (در Dock پایین کنار Library)
+// ─────────────────────────────────────────────────────────────────────────────
+class SponsorsScreen extends StatefulWidget {
+  const SponsorsScreen({super.key});
+  @override State<SponsorsScreen> createState() => _SponsorsScreenState();
+}
+
+class _SponsorsScreenState extends State<SponsorsScreen> {
+  @override
+  Widget build(BuildContext context){
+    return FutureBuilder<List<Map<String,dynamic>>>(
+      future: ApiService.getSponsors(),
+      builder: (ctx, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(color: Vz.accent));
+        }
+        final list = snap.data ?? const [];
+        if (list.isEmpty) {
+          return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Vz.card, borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Vz.border)),
+              child: Icon(VzIcons.data('star'), size: 32, color: Vz.textDim)),
+            const SizedBox(height: 12),
+            Text(L.noSponsors, style: TextStyle(color: Vz.textSec)),
+          ]));
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.lg, 120),
+          itemCount: list.length,
+          itemBuilder: (_, i) {
+            final s = list[i];
+            final isFemale = (s['gender'] ?? 'male') == 'female';
+            final hasAvatar = (s['avatar_url'] ?? '').isNotEmpty;
+            final hasLink = (s['link'] ?? '').isNotEmpty;
+            return VzGlass(
+              margin: const EdgeInsets.only(bottom: Sp.md),
+              padding: const EdgeInsets.all(Sp.md),
+              child: Row(children: [
+                Container(
+                  width: 56, height: 56,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: isFemale
+                      ? [const Color(0xFFC76B93), const Color(0xFFC76B93)]
+                      : [Vz.accent, Vz.accentHi]),
+                    shape: BoxShape.circle),
+                  child: hasAvatar
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Image.network(s['avatar_url'], width: 56, height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                            Icon(Icons.face_rounded, color: Colors.white, size: 28)))
+                    : Icon(Icons.face_rounded, color: Colors.white, size: 28)),
+                const SizedBox(width: 14),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(s['name'] ?? '', style: TextStyle(
+                    color: Vz.text, fontWeight: FontWeight.bold, fontSize: 15)),
+                  if ((s['description'] ?? '').isNotEmpty) Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(s['description'],
+                      style: TextStyle(fontSize: 12, color: Vz.textSec))),
+                ])),
+                if (hasLink) ...[
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(0, 36),
+                      backgroundColor: Vz.accent),
+                    onPressed: () => ul.launchUrl(Uri.parse(s['link']),
+                      mode: ul.LaunchMode.externalApplication),
+                    child: Text(L.view, style: TextStyle(fontSize: 12))),
+                ],
+              ]),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
