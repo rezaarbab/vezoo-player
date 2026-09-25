@@ -4,10 +4,9 @@
 // تمام ویدیوهای register شده در MediaStore با thumbnail + duration در یک‌بار.
 // در روش «هر ویدیو یکی‌یکی بگردي» (MX/VLC style) هم داده آماده است.
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-import 'store.dart';
 
 class GalVideo {
   final String path;
@@ -25,7 +24,7 @@ class GalVideo {
     required this.modifiedAt,
   });
 
-  String get durText => formatDur(durationMs);
+  String get durText => GalService.formatDur(durationMs);
 }
 
 class GalFolder {

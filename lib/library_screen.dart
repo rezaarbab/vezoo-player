@@ -421,6 +421,8 @@ class _LibraryScreenState extends State<LibraryScreen>{
   }
 
   // ── تب اسپانسرها — برندها از سرور ──
+  Widget _sponsorTab() => const SponsorsScreen();
+
   // در switch tab: 5 => _sponsorTab()
 Widget _emptyFor(String iconName) => VzEmpty(
     icon: VzIcons.data(iconName),
