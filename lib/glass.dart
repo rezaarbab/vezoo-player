@@ -948,7 +948,7 @@ class VzPrimaryButton extends StatelessWidget {
 //  NAV DOCK — ناوبری اصلی اپ
 // ─────────────────────────────────────────────────────────────────────────────
 
-enum VzNavDest { home, live, discover, library, sponsors, settings }
+enum VzNavDest { home, live, discover, gallery, library, sponsors, settings }
 
 class VzNavDock extends StatelessWidget {
   final VzNavDest current;
@@ -959,6 +959,7 @@ class VzNavDock extends StatelessWidget {
     (VzNavDest.home,     'home'),
     (VzNavDest.live,     'live'),
     (VzNavDest.discover, 'discover'),
+    (VzNavDest.gallery,  'grid'),
     (VzNavDest.library,  'library'),
     (VzNavDest.sponsors, 'star'),
     (VzNavDest.settings, 'settings'),
@@ -1031,6 +1032,7 @@ extension VzNavDestX on VzNavDest {
     VzNavDest.home => 'Home',
     VzNavDest.live => 'Live',
     VzNavDest.discover => 'Discover',
+    VzNavDest.gallery => 'Gallery',
     VzNavDest.library => 'Library',
     VzNavDest.sponsors => 'Sponsors',
     VzNavDest.settings => 'Settings',

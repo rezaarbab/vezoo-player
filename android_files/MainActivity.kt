@@ -120,6 +120,77 @@ class MainActivity : FlutterActivity() {
         createNotifChannel()
         requestNotifPermission()
 
+        // ── MediaStore Gallery (scanVideos + thumbnailFor) ──
+        io.flutter.plugin.common.MethodChannel(fe.dartExecutor.binaryMessenger, "com.vezoo.player/media")
+            .setMethodCallHandler { call, mediaResult ->
+                when (call.method) {
+                    "scanVideos" -> {
+                        try {
+                            val list = mutableListOf<Map<String, Any?>>()
+                            val proj = arrayOf(
+                                android.provider.MediaStore.Video.Media._ID,
+                                android.provider.MediaStore.Video.Media.DATA,
+                                android.provider.MediaStore.Video.Media.DISPLAY_NAME,
+                                android.provider.MediaStore.Video.Media.DURATION,
+                                android.provider.MediaStore.Video.Media.SIZE,
+                                android.provider.MediaStore.Video.Media.DATE_MODIFIED
+                            )
+                            val sel = "${android.provider.MediaStore.Video.Media.DURATION} > 0"
+                            val cr = contentResolver
+                            cr.query(
+                                android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                                proj, sel, null,
+                                "${android.provider.MediaStore.Video.Media.DATE_MODIFIED} DESC"
+                            )?.use { c ->
+                                val iData  = c.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DATA)
+                                val iName  = c.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DISPLAY_NAME)
+                                val iDur   = c.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DURATION)
+                                val iSize  = c.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.SIZE)
+                                val iMod   = c.getColumnIndexOrThrow(android.provider.MediaStore.Video.Media.DATE_MODIFIED)
+                                while (c.moveToNext()) {
+                                    val path = c.getString(iData) ?: continue
+                                    if (path.isEmpty()) continue
+                                    val file = java.io.File(path)
+                                    if (!file.exists()) continue
+                                    val folder = file.parent ?: ""
+                                    if (folder.isEmpty()) continue
+                                    list.add(mapOf(
+                                        "path" to path,
+                                        "displayName" to (c.getString(iName) ?: file.name),
+                                        "folder" to folder,
+                                        "duration" to (c.getLong(iDur)),
+                                        "size" to (c.getLong(iSize)),
+                                        "modified" to (c.getLong(iMod)) * 1000L
+                                    ))
+                                }
+                            }
+                            mediaResult.success(list)
+                        } catch (ex: Exception) {
+                            mediaResult.error("SCAN_FAIL", ex.message, null)
+                        }
+                    }
+                    "thumbnailFor" -> {
+                        val path = call.argument<String>("path") ?: ""
+                        try {
+                            val mmr = MediaMetadataRetriever()
+                            mmr.setDataSource(path)
+                            val bmp = mmr.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                            mmr.release()
+                            if (bmp != null) {
+                                val out = java.io.ByteArrayOutputStream()
+                                bmp.compress(Bitmap.CompressFormat.JPEG, 55, out)
+                                bmp.recycle()
+                                mediaResult.success(out.toByteArray())
+                            } else mediaResult.success(null)
+                        } catch (ex: Exception) {
+                            mediaResult.success(null)
+                        }
+                    }
+                    else -> mediaResult.notImplemented()
+                }
+            }
+
+
         // ── Network VPN Bypass ──
         val connectivityMgr = getSystemService(android.net.ConnectivityManager::class.java)
         io.flutter.plugin.common.MethodChannel(fe.dartExecutor.binaryMessenger, "com.vezoo.player/network")

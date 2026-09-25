@@ -244,6 +244,14 @@ class L {
   static String get noPlaylist => _t({'en':'Create a playlist first','fa':'ابتدا یک پلی‌لیست بسازید','ar':'أنشئ قائمة أولاً','ru':'Сначала создайте плейлист','zh':'请先创建播放列表','ja':'プレイリストを作成してください','hi':'पहले प्लेलिस्ट बनाएं','id':'Create a playlist first'});
   static String get addedTo => _t({'en':'Added to','fa':'اضافه شد به','ar':'أضيف إلى','ru':'Добавлено в','zh':'已添加到','ja':'に追加','hi':'में जोड़ा','id':'Added to'});
   static String get deleteAll => _t({'en':'Delete all','fa':'حذف همه','ar':'حذف الكل','ru':'Удалить все','zh':'删除全部','ja':'すべて削除','hi':'सभी हटाएं','id':'Delete all'});
+  static String get gallery => _t({'en':'Gallery','fa':'گالری','ar':'المعرض','ru':'Галерея','zh':'画廊','ja':'ギャラリー','hi':'गैलरी','id':'Galeri'});
+  static String get galleryAll => _t({'en':'All videos','fa':'همه ویدیوها','ar':'كل الفيديو','ru':'Все видео','zh':'所有视频','ja':'すべてのビデオ','hi':'सभी वीडियो','id':'Semua video'});
+  static String get gallerySearch => _t({'en':'Search videos…','fa':'جستجوی ویدیو…','ar':'ابحث عن فيديو…','ru':'Поиск видео…','zh':'搜索视频…','ja':'ビデオを検索…','hi':'वीडियो खोजें…','id':'Cari video…'});
+  static String get galleryModePoster => _t({'en':'Poster view','fa':'نمای پوستر','ar':'عرض ملصق','ru':'Вид постеров','zh':'海报视图','ja':'ポスター表示','hi':'पोस्टर दृश्य','id':'Poster'});
+  static String get galleryModeFolder => _t({'en':'Folder view','fa':'نمای پوشه','ar':'عرض المجلد','ru':'Вид папок','zh':'文件夹视图','ja':'フォルダビュー','id':'View folder'});
+  static String get galleryVideos => _t({'en':'videos','fa':'ویدیو','ar':'فيديو','ru':'видео','zh':'视频','ja':'ビデオ','hi':'वीडियो','id':'video'});
+  static String get galleryPermission => _t({'en':'To see your videos, allow access to media','fa':'برای دیدن ویدیوها به حافظه دسترسی بده','ar':'لعرض الفيديو، اسمح بالوصول إلى الوسائط','ru':'Чтобы увидеть видео, разрешите доступ к носителю','zh':'要观看视频，请授予媒体权限','ja':'ビデオを表示するにはメディアへのアクセスを許可してください','hi':'वीडियो देखने के लिए मीडिया की अनुमति दें','id':'Untuk melihat video, izinkan akses media'});
+
   static String get deleteAllHistory => _t({'en':'Delete all history?','fa':'حذف همه تاریخچه؟','ar':'حذف كل السجل؟','ru':'Удалить всю историю?','zh':'删除所有历史?','ja':'すべての履歴を削除?','hi':'सभी इतिहास हटाएं?','id':'Delete all history?'});
   static String get nothingYet => _t({'en':'Nothing yet','fa':'هنوز چیزی نیست','ar':'لا يوجد شيء بعد','ru':'Пока ничего','zh':'暂无内容','ja':'まだありません','hi':'अभी कुछ नहीं','id':'Nothing yet'});
   static String get noSavedFolders => _t({'en':'No saved folders','fa':'پوشه‌ای ذخیره نشده','ar':'لا توجد مجلدات محفوظة','ru':'Нет сохранённых папок','zh':'无已保存文件夹','ja':'保存済みフォルダなし','hi':'कोई फ़ोल्डर नहीं','id':'No saved folders'});

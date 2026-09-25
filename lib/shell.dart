@@ -6,6 +6,7 @@ import 'browser.dart' show BrowserScreen, BrowserScreenState;
 import 'iptv_screen.dart' show IptvScreen;
 import 'online_player_sheet.dart' show OnlinePlayerSheet;
 import 'library_screen.dart';
+import 'gallery_screen.dart';
 import 'settings_screen.dart';
 import 'signals.dart';
 import 'glass.dart';
@@ -21,7 +22,7 @@ class _VzShellState extends State<VzShell>{
   VzNavDest _dest = VzNavDest.home;
 
   /// ترتیب تب‌های واقعی — Discover در این لیست نیست چون مودال است.
-  static const _tabs = [VzNavDest.home, VzNavDest.live, VzNavDest.library, VzNavDest.sponsors, VzNavDest.settings];
+  static const _tabs = [VzNavDest.home, VzNavDest.live, VzNavDest.gallery, VzNavDest.library, VzNavDest.sponsors, VzNavDest.settings];
 
   int get _index {
     final i = _tabs.indexOf(_dest);
@@ -88,6 +89,7 @@ class _VzShellState extends State<VzShell>{
             // وگرنه رنگ‌های Vz.* سراسری روی آن‌ها کهنه می‌ماند.
             KeyedSubtree(key: _browserKey, child: BrowserScreen()),
             IptvScreen(),
+            GalleryScreen(),
             LibraryScreen(),
             SponsorsScreen(),
             SettingsScreen(),
