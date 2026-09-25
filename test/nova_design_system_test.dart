@@ -172,7 +172,7 @@ void main() {
       expect(find.byIcon(VzIcons.data('play')), findsOneWidget);
     });
 
-    testWidgets('VzNavDock renders 5 destinations and fires onSelect', (tester) async {
+    testWidgets('VzNavDock renders 7 destinations and fires onSelect', (tester) async {
       VzNavDest? selected;
       await tester.pumpWidget(MaterialApp(
         theme: buildVezooTheme(),
@@ -189,8 +189,8 @@ void main() {
         expect(find.bySemanticsLabel(d.label), findsOneWidget,
             reason: 'مقصد ${d.name} در داک نیست');
       }
-      // ۵ مقصد
-      expect(find.byType(VzIcon), findsNWidgets(5));
+      // ۷ مقصد: home, live, discover, gallery, library, sponsors, settings
+      expect(find.byType(VzIcon), findsNWidgets(7));
 
       await tester.tap(find.bySemanticsLabel(VzNavDest.live.label));
       await tester.pumpAndSettle();
