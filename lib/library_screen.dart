@@ -16,6 +16,8 @@ import 'vz_icons.dart';
 import 'vz_motion.dart';
 import 'main.dart' show showSnack;
 import 'signals.dart';
+import 'api_service.dart';
+import 'package:url_launcher/url_launcher.dart' as ul;
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -106,7 +108,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
                 _chip(2, L.favorites, 'favorite'),
                 _chip(3, L.playlist, 'queue'),
                 _chip(4, L.folders, 'pin'),
-              ],
+                 _chip(5, L.sponsors, 'star'),              ],
             ),
           ),
         ),
@@ -125,6 +127,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
                  onRemove:(path)async{ await Store.toggleFavorite(path); if(mounted) setState((){}); }),
             3 => _playlistTab(),
             4 => _folderTab(),
+            5 => _sponsorTab(),
             _ => const SizedBox.shrink(),
           },
         )),
@@ -140,7 +143,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
         label: label,
         icon: VzIcons.data(iconName),
         selected: active,
-        color: [Vz.accentHi, Vz.amber, Vz.magenta, Vz.accent, Vz.green][idx],
+        color: [Vz.accentHi, Vz.amber, Vz.magenta, Vz.accent, Vz.green, Vz.amber][idx.clamp(0,5)],
         onTap: ()=>setState(()=>_tab=idx),
       ),
     );
@@ -415,6 +418,84 @@ class _LibraryScreenState extends State<LibraryScreen>{
   void _openFolder(String path){
     vzOpenFolderSignal.value = path;
     vzOpenFolderSignal.notifyListeners();
+  }
+
+  // ── تب اسپانسرها — برندها از سرور ──
+  // در switch tab: 5 => _sponsorTab()
+  Widget _sponsorTab(){
+    return FutureBuilder<List<Map<String,dynamic>>>(
+      future: ApiService.getSponsors(),
+      builder: (ctx, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator(color: Vz.accent));
+        }
+        final list = snap.data ?? const [];
+        if (list.isEmpty) {
+          return Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Vz.card, borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Vz.border)),
+              child: Icon(VzIcons.data('star'), size: 32, color: Vz.textDim)),
+            const SizedBox(height: 12),
+            Text(L.noSponsors, style: TextStyle(color: Vz.textSec)),
+          ]));
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.lg, 120),
+          itemCount: list.length,
+          itemBuilder: (_, i) {
+            final s = list[i];
+            final isFemale = (s['gender'] ?? 'male') == 'female';
+            final hasAvatar = (s['avatar_url'] ?? '').isNotEmpty;
+            final hasLink = (s['link'] ?? '').isNotEmpty;
+            return VzGlass(
+              margin: const EdgeInsets.only(bottom: Sp.md),
+              padding: const EdgeInsets.all(Sp.md),
+              child: Row(children: [
+                Container(
+                  width: 56, height: 56,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: isFemale
+                      ? [const Color(0xFFC76B93), const Color(0xFFC76B93)]
+                      : [Vz.accent, Vz.accentHi]),
+                    shape: BoxShape.circle),
+                  child: hasAvatar
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Image.network(s['avatar_url'], width: 56, height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                            Icon(Icons.face_rounded, color: Colors.white, size: 28)))
+                    : Icon(Icons.face_rounded, color: Colors.white, size: 28)),
+                const SizedBox(width: 14),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(s['name'] ?? '', style: TextStyle(
+                    color: Vz.text, fontWeight: FontWeight.bold, fontSize: 15)),
+                  if ((s['description'] ?? '').isNotEmpty) Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(s['description'],
+                      style: TextStyle(fontSize: 12, color: Vz.textSec))),
+                ])),
+                if (hasLink) ...[
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      minimumSize: const Size(0, 36),
+                      backgroundColor: Vz.accent),
+                    onPressed: () => ul.launchUrl(Uri.parse(s['link']),
+                      mode: ul.LaunchMode.externalApplication),
+                    child: Text(L.view, style: TextStyle(fontSize: 12))),
+                ],
+              ]),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _emptyFor(String iconName) => VzEmpty(
