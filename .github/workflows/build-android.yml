@@ -99,9 +99,12 @@ jobs:
             # ── Permissions لازم برای گالری (MediaStore) ──
             MANIFEST_P="android/app/src/main/AndroidManifest.xml"
             if ! grep -q "READ_MEDIA_VIDEO" "$MANIFEST_P"; then
-              sed -i 's|<uses-permission android:name="android.permission.INTERNET"/>|<uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>|' "$MANIFEST_P" || true
-              echo "=== Media permissions added to AndroidManifest ==="
-              grep -c "uses-permission" "$MANIFEST_P"
+              if grep -q 'android.permission.INTERNET' "$MANIFEST_P"; then
+                sed -i 's|\(<uses-permission android:name="android.permission.INTERNET" */>\)|\1\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>|' "$MANIFEST_P" || true
+              else
+                sed -i 's|<application|\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>\n    <application|' "$MANIFEST_P" || true
+              fi
+              echo "=== Media permissions in manifest: $(grep -c 'uses-permission' "$MANIFEST_P" || true) ==="
             fi
 
       - name: Setup C crypto library
