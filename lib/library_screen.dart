@@ -1,8 +1,8 @@
-// lib/library_screen.dart — کتابخانه: تاریخچه، بوکمارک، علاقه‌مندی، پلی‌لیست، پوشه‌ها
+// lib/library_screen.dart � ????????: ???????? ???????? ??????????? ????????? ???????
 //
-// بازطراحی VOID: کارت‌های واقعی رسانه (پوستر/تامبنیل)، چیدمان قابل‌انتخاب
-// (گرید / لیست / فشرده) که بین همه‌ی تب‌ها مشترک است، هدر با شمارنده،
-// و همه‌ی آیکون‌ها از لایه‌ی VzIcons.
+// ???????? VOID: ???????? ????? ????? (?????/???????)? ?????? ???????????
+// (???? / ???? / ?????) ?? ??? ????? ????? ????? ???? ??? ?? ????????
+// ? ????? ???????? ?? ?????? VzIcons.
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
@@ -28,6 +28,13 @@ class _LibraryScreenState extends State<LibraryScreen>{
   int _tab = 0; // 0=history 1=bookmarks 2=favorites 3=playlists 4=folders
   LibLayout _layout = LibLayout.grid;
   bool _posWarmed = false;
+
+  // ?? ???? ???? � ?? existsSync ?? ?? build ???? ?? ???? ??????? ?????? (??????? ?? ????)
+  static final Map<String,bool> _existsCache = {};
+  static bool _pathExists(String path) {
+    if (path.startsWith('http')) return true;
+    return _existsCache.putIfAbsent(path, ()=>File(path).existsSync());
+  }
 
   @override
   void initState(){
@@ -64,7 +71,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
     return SafeArea(
       bottom: false,
       child: Column(children: [
-        // ── هدر: عنوان + شمارنده + دکمه چیدمان ──
+        // -- ???: ????? + ??????? + ???? ?????? --
         Padding(
           padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.md + 4, Sp.lg, 0),
           child: Row(children: [
@@ -81,7 +88,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
                 style: Ty.mono.copyWith(fontSize: 11, color: Vz.accent)),
             ),
             const Spacer(),
-            // دکمه چیدمان — تپ = چرخش، نگه‌داشتن = شیت
+            // ???? ?????? � ?? = ????? ????????? = ???
             GestureDetector(
               onTap: _cycleLayout,
               onLongPress: ()=>_showLayoutSheet(context),
@@ -95,7 +102,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
         ),
         const SizedBox(height: Sp.sm),
 
-        // ── تب‌ها ──
+        // -- ????? --
         Padding(
           padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.sm),
           child: SizedBox(
@@ -166,13 +173,13 @@ class _LibraryScreenState extends State<LibraryScreen>{
       ])));
   }
 
-  // ── باز کردن یک مسیر ──
+  // -- ??? ???? ?? ???? --
   void _openVideoByPath(String path){
     final isUrl = path.startsWith('http://') || path.startsWith('https://');
     if(!isUrl){
       final f = File(path);
       if(!f.existsSync()){ showSnack(context, L.fileNotFound); return; }
-      // پخش مستقیم (صفحه‌ی جزئیات از منوی نگه‌داشتن در دسترس است)
+      // ??? ?????? (?????? ?????? ?? ???? ????????? ?? ????? ???)
       Navigator.push(context, MaterialPageRoute(builder: (_)=>
         PlayerScreen(playlist:[f], playlistIndex:0,
           subtitlePath: matchSubtitle(path))));
@@ -182,26 +189,25 @@ class _LibraryScreenState extends State<LibraryScreen>{
       PlayerScreen(playlist:[File(path)], playlistIndex:0, isOnlineUrl: true)));
   }
 
-  // ── تاریخچه ──
+  // -- ??????? --
   Widget _historyTab(){
     final list = Store.watchHistory;
     if(list.isEmpty) return _emptyFor('history');
 
-    // موقعیت پخش را در کش بارگذاری کن تا نوار پیشرفت پر شود
+    // ?????? ??? ?? ?? ?? ???????? ?? ?? ???? ?????? ?? ???
     if (!_posWarmed && list.isNotEmpty) {
       _posWarmed = true;
-      for (final p0 in list.take(30)) {
-        Store.getDur(p0).then((_){}).catchError((_){});
-        Store.warmPos(p0).then((_){ if (mounted) setState((){}); });
-      }
+      Future.wait([for (final p0 in list.take(30)) ...[Store.getDur(p0), Store.warmPos(p0)]])
+        .then((_){ if (mounted) setState((){}); })
+        .catchError((_){});
     }
 
-    // آخرین مورد را بزرگ نشان بده (Continue watching) و بقیه را در چیدمان انتخابی
+    // ????? ???? ?? ???? ???? ??? (Continue watching) ? ???? ?? ?? ?????? ???????
     final latest = list.first;
     final rest = list.length > 1 ? list.sublist(1) : <String>[];
 
     return Column(children: [
-      // ── Continue watching ──
+      // -- Continue watching --
       if(_layout != LibLayout.compact)
         Padding(
           padding: const EdgeInsets.fromLTRB(Sp.lg, 0, Sp.lg, Sp.sm),
@@ -212,7 +218,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
             _ContinueCard(path: latest, onTap: ()=>_openVideoByPath(latest)),
           ]),
         ),
-      // ── بقیه ──
+      // -- ???? --
       if(rest.isNotEmpty) ...[
         Padding(
           padding: const EdgeInsets.fromLTRB(Sp.lg, Sp.sm, Sp.lg, 0),
@@ -239,7 +245,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
     ]);
   }
 
-  // ── لیست عمومی ویدیو (history/bookmarks/favorites) ──
+  // -- ???? ????? ????? (history/bookmarks/favorites) --
   Widget _vListTab(List<String> paths, String iconName, Color color,
       {void Function(String)? onRemove}){
     if(paths.isEmpty) return _emptyFor(iconName);
@@ -251,7 +257,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
     );
   }
 
-  /// لیست رسانه با چیدمان انتخاب‌شده — مشترک بین همه‌ی تب‌ها.
+  /// ???? ????? ?? ?????? ?????????? � ????? ??? ????? ?????.
   Widget _mediaList(
     List<String> paths, {
     Color? accent,
@@ -330,7 +336,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
     }
   }
 
-  // ── پلی‌لیست‌ها ──
+  // -- ??????????? --
   Widget _playlistTab(){
     final playlists = Store.playlists;
     if(playlists.isEmpty) return ListView(children: [
@@ -392,7 +398,7 @@ class _LibraryScreenState extends State<LibraryScreen>{
     );
   }
 
-  // ── پوشه‌های ذخیره‌شده ──
+  // -- ???????? ????????? --
   Widget _folderTab(){
     final folders = Store.savedFolders;
     if(folders.isEmpty) return _emptyFor('pin');
@@ -420,10 +426,10 @@ class _LibraryScreenState extends State<LibraryScreen>{
     vzOpenFolderSignal.notifyListeners();
   }
 
-  // ── تب اسپانسرها — برندها از سرور ──
-  Widget _sponsorTab() => const SponsorsScreen();
+  // -- ?? ????????? � ?????? ?? ???? --
+  Widget _sponsorTab() => const SponsorsList();
 
-  // در switch tab: 5 => _sponsorTab()
+  // ?? switch tab: 5 => _sponsorTab()
 Widget _emptyFor(String iconName) => VzEmpty(
     icon: VzIcons.data(iconName),
     title: L.nothingYet,
@@ -431,9 +437,9 @@ Widget _emptyFor(String iconName) => VzEmpty(
 
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  کارت ادامه‌ی تماشا — قهرمان تب تاریخچه
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ???? ??????? ????? � ?????? ?? ???????
+// -----------------------------------------------------------------------------
 class _ContinueCard extends StatelessWidget {
   final String path;
   final VoidCallback onTap;
@@ -445,14 +451,14 @@ class _ContinueCard extends StatelessWidget {
     final name = isUrl
       ? Uri.parse(path).pathSegments.lastWhere((s)=>s.isNotEmpty, orElse:()=>path)
       : p.basename(path);
-    final progress = Store.getProgress(path); // 0..1 (اگر نبود ۰)
+    final progress = Store.getProgress(path); // 0..1 (??? ???? ?)
     final thumb = browserThumbFuture(path);
 
     return VzGlass(
       padding: EdgeInsets.zero,
       onTap: onTap,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // پوستر عریض
+        // ????? ????
         ClipRRect(
           borderRadius: BorderRadius.vertical(top: Radius.circular(Rad.s(Rad.md))),
           child: SizedBox(
@@ -471,12 +477,12 @@ class _ContinueCard extends StatelessWidget {
                     child: Icon(VzIcons.data('movie'), size: 42, color: Vz.accent),
                   );
                 }),
-              // اسکریم
+              // ??????
               Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter, end: Alignment.center,
                   colors: [Vz.scrimBot, Colors.transparent])))),
-              // دکمه پخش با نفس‌کشیدن
+              // ???? ??? ?? ?????????
               Center(child: VzBreathing(child: Container(
                 width: 54, height: 54,
                 decoration: BoxDecoration(
@@ -488,7 +494,7 @@ class _ContinueCard extends StatelessWidget {
             ]),
           ),
         ),
-        // نوار پیشرفت
+        // ???? ??????
         if (progress > 0)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -500,7 +506,7 @@ class _ContinueCard extends StatelessWidget {
                 backgroundColor: Vz.border,
                 color: Vz.accent)),
             ),
-        // عنوان
+        // ?????
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -524,9 +530,9 @@ class _ContinueCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  کارت رسانه — گرید / پوستر / کاشی
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ???? ????? � ???? / ????? / ????
+// -----------------------------------------------------------------------------
 class _MediaCard extends StatelessWidget {
   final String path;
   final Color color;
@@ -544,12 +550,12 @@ class _MediaCard extends StatelessWidget {
     ? Uri.parse(path).pathSegments.lastWhere((s)=>s.isNotEmpty, orElse:()=>path)
     : p.basename(path);
   String get _sub => _isUrl ? path : p.dirname(path);
-  bool get _exists => _isUrl || File(path).existsSync();
+  bool get _exists => _LibraryScreenState._pathExists(path);
   int? get _dur => Store.getCachedDur(path);
 
   @override
   Widget build(BuildContext context){
-    // پوستر: کارت عریض تک‌ستونه | tiles: مربع | گرید: ۰.۷۸
+    // ?????: ???? ???? ???????? | tiles: ???? | ????: ?.??
     final isPoster = layout == LibLayout.poster;
     final isTile = layout == LibLayout.tiles;
     final radius = isTile ? Rad.s(Rad.sm) : Rad.s(Rad.md);
@@ -558,12 +564,10 @@ class _MediaCard extends StatelessWidget {
       onTap: _exists ? onTap : null,
       onLongPress: onLongPress,
       radius: BorderRadius.circular(radius),
-      child: VzPopIn(
-        from: 0.96,
-        child: ClipRRect(
+      child: ClipRRect(
           borderRadius: BorderRadius.circular(radius),
           child: Stack(fit: StackFit.expand, children: [
-            // تصویر
+            // ?????
             FutureBuilder<dynamic>(
               future: browserThumbFuture(path),
               builder: (ctx, snap){
@@ -582,7 +586,7 @@ class _MediaCard extends StatelessWidget {
                     color: _exists ? color.withValues(alpha: 0.7) : Vz.textDim),
                 );
               }),
-            // اسکریم
+            // ??????
             Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.bottomCenter, end: Alignment.topCenter,
@@ -591,7 +595,7 @@ class _MediaCard extends StatelessWidget {
                      Colors.black.withValues(alpha:0.15), Colors.transparent]
                   : [Vz.scrimBot, Vz.scrimMid, Colors.transparent],
                 stops: const [0.0, 0.5, 1.0])))),
-            // بج‌ها
+            // ?????
             if (isPoster)
               Positioned(left: 8, top: 8, child: Row(children: [
                 if (!_exists) _pill('warning', Vz.red),
@@ -602,7 +606,7 @@ class _MediaCard extends StatelessWidget {
                 if (!_exists) _pill('warning', Vz.red),
                 if (_isUrl) ...[const SizedBox(width:3), _pill('link', Vz.accent)],
               ])),
-            // دکمه پخش (فقط پوستر و گرید)
+            // ???? ??? (??? ????? ? ????)
             if (!isTile) Center(child: Container(
               width: isPoster ? 48 : 36,
               height: isPoster ? 48 : 36,
@@ -612,7 +616,7 @@ class _MediaCard extends StatelessWidget {
                 border: Border.all(color: Colors.white.withValues(alpha: 0.24))),
               child: Icon(VzIcons.data('play'),
                 color: Colors.white, size: isPoster ? 28 : 22))),
-            // مدت‌زمان
+            // ????????
             if (_dur != null && _dur! > 0 && !isTile)
               Positioned(right: 6, bottom: isPoster ? 8 : 6,
                 child: Container(
@@ -623,7 +627,7 @@ class _MediaCard extends StatelessWidget {
                     style: TextStyle(fontSize: 10, color: Vz.oviText,
                       fontWeight: FontWeight.w600,
                       fontFeatures: const [FontFeature.tabularFigures()])))),
-            // عنوان
+            // ?????
             Positioned(left: 8, right: 8, bottom: isPoster ? 8 : (isTile ? 4 : 6),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min, children: [
@@ -640,12 +644,11 @@ class _MediaCard extends StatelessWidget {
                     style: TextStyle(fontSize: 10,
                       color: Colors.white.withValues(alpha: 0.7))),
                 ],
-              ])),
-          ]),
-        ),
-      ),
-    );
-  }
+               ])),
+           ]),
+       ),
+     );
+   }
   static String _fmtDur(int seconds){
     final d = Duration(seconds: seconds);
     final h = d.inHours, m = d.inMinutes % 60, s = d.inSeconds % 60;
@@ -660,9 +663,9 @@ class _MediaCard extends StatelessWidget {
     child: Center(child: VzIcon(iconName, size: 12, color: c)));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  ردیف رسانه — لیست با تامبنیل
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ???? ????? � ???? ?? ???????
+// -----------------------------------------------------------------------------
 class _MediaRow extends StatelessWidget {
   final String path;
   final Color color;
@@ -677,7 +680,7 @@ class _MediaRow extends StatelessWidget {
     ? Uri.parse(path).pathSegments.lastWhere((s)=>s.isNotEmpty, orElse:()=>path)
     : p.basename(path);
   String get _sub => _isUrl ? path : p.dirname(path);
-  bool get _exists => _isUrl || File(path).existsSync();
+  bool get _exists => _LibraryScreenState._pathExists(path);
   int? get _dur => Store.getCachedDur(path);
 
   @override
@@ -687,7 +690,7 @@ class _MediaRow extends StatelessWidget {
       onTap: _exists ? onTap : null,
       onLongPress: onLongPress,
       child: Row(children: [
-        // تامبنیل
+        // ???????
         ClipRRect(
           borderRadius: BorderRadius.circular(Rad.s(Rad.xs)),
           child: SizedBox(
@@ -737,9 +740,9 @@ class _MediaRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  ردیف فشرده — سبک و سریع
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ???? ????? � ??? ? ????
+// -----------------------------------------------------------------------------
 class _CompactRow extends StatelessWidget {
   final String path;
   final Color color;
@@ -753,7 +756,7 @@ class _CompactRow extends StatelessWidget {
   String get _name => _isUrl
     ? Uri.parse(path).pathSegments.lastWhere((s)=>s.isNotEmpty, orElse:()=>path)
     : p.basename(path);
-  bool get _exists => _isUrl || File(path).existsSync();
+  bool get _exists => _LibraryScreenState._pathExists(path);
 
   @override
   Widget build(BuildContext context){
@@ -783,9 +786,9 @@ class _CompactRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  ردیف کاشی‌مانند (پلی‌لیست / پوشه) — آیکون‌باکس + عنوان + زیرعنوان + اکشن
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ???? ?????????? (???????? / ????) � ?????????? + ????? + ???????? + ????
+// -----------------------------------------------------------------------------
 class _TileRow extends StatelessWidget {
   final String iconName;
   final Color color;
@@ -821,9 +824,9 @@ class _TileRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  اسپانسرها — صفحه‌ی مستقل (در Dock پایین کنار Library)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
+//  ????????? � ?????? ????? (?? Dock ????? ???? Library)
+// -----------------------------------------------------------------------------
 class SponsorsScreen extends StatefulWidget {
   const SponsorsScreen({super.key});
   @override State<SponsorsScreen> createState() => _SponsorsScreenState();
@@ -832,8 +835,38 @@ class SponsorsScreen extends StatefulWidget {
 class _SponsorsScreenState extends State<SponsorsScreen> {
   @override
   Widget build(BuildContext context){
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        title: Text(L.sponsors, style: Ty.title.copyWith(fontSize: 17))),
+      body: const SponsorsList(),
+    );
+  }
+}
+
+/// لیست اسپانسرها — Future یک‌بار در initState گرفته می‌شود تا هر rebuild
+/// باعث ری‌فچ و پرش/فلش لیست نشود. هم به‌عنوان تب Library و هم صفحه‌ی مستقل.
+class SponsorsList extends StatefulWidget {
+  const SponsorsList({super.key});
+  @override State<SponsorsList> createState() => _SponsorsListState();
+}
+
+class _SponsorsListState extends State<SponsorsList> {
+  late Future<List<Map<String,dynamic>>> _fut;
+
+  @override
+  void initState(){
+    super.initState();
+    _fut = ApiService.getSponsors();
+  }
+
+  @override
+  Widget build(BuildContext context){
     return FutureBuilder<List<Map<String,dynamic>>>(
-      future: ApiService.getSponsors(),
+      future: _fut,
       builder: (ctx, snap) {
         if (snap.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator(color: Vz.accent));

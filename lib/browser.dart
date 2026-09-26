@@ -111,6 +111,7 @@ class BrowserScreenState extends State<BrowserScreen>{
       final vids=items.whereType<File>().where(
           (f)=>kVideoExt.contains(p.extension(f.path).toLowerCase())).toList();
       dirs.sort((a,b)=>p.basename(a.path).toLowerCase().compareTo(p.basename(b.path).toLowerCase()));
+      _warmFileMeta(vids);
       setState((){_path=path;_dirs=dirs;_videos=vids;_selectMode=false;
         _selected.clear();_searching=false;_searchQuery='';_searchCtrl.clear();
         _searchResults=[];_globalSearch=false;});
@@ -124,12 +125,24 @@ class BrowserScreenState extends State<BrowserScreen>{
   void openPath(String path){ if(Directory(path).existsSync()) _loadDir(path); }
 
   int _sd(int v)=>_sortDesc?-v:v;
+  // متادیتای فایل‌ها یک‌بار هنگام loadDir خوانده می‌شود — IO همزمان داخل
+  // مقایسه‌گرِ sort (هر build × N log N) عامل اصلی جَنگ بود.
+  final Map<String,DateTime> _modCache={};
+  final Map<String,int> _sizeCache={};
+  DateTime _modOf(File f)=>_modCache[f.path]??DateTime.fromMillisecondsSinceEpoch(0);
+  int _sizeOf(File f)=>_sizeCache[f.path]??0;
+  void _warmFileMeta(List<File> files){
+    for(final f in files){
+      try{_modCache[f.path]=f.lastModifiedSync();}catch(_){}
+      try{_sizeCache[f.path]=f.lengthSync();}catch(_){}
+    }
+  }
   List<File> get _sortedVideos{
     final s=List<File>.from(_videos);
     switch(_sortBy){
       case _SortBy.name:s.sort((a,b)=>_sd(p.basename(a.path).toLowerCase().compareTo(p.basename(b.path).toLowerCase())));break;
-      case _SortBy.date:s.sort((a,b){try{return _sd(a.lastModifiedSync().compareTo(b.lastModifiedSync()));}catch(_){return 0;}});break;
-      case _SortBy.size:s.sort((a,b){try{return _sd(a.lengthSync().compareTo(b.lengthSync()));}catch(_){return 0;}});break;
+      case _SortBy.date:s.sort((a,b)=>_sd(_modOf(a).compareTo(_modOf(b))));break;
+      case _SortBy.size:s.sort((a,b)=>_sd(_sizeOf(a).compareTo(_sizeOf(b))));break;
       case _SortBy.type:s.sort((a,b)=>_sd(p.extension(a.path).compareTo(p.extension(b.path))));break;
     }
     return s;

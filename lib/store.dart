@@ -387,11 +387,21 @@ class Store {
     if (watchHistory.length>100) watchHistory=watchHistory.sublist(0,100);
     _save('watchHistory',watchHistory);
   }
+  // ⚠️ حذف تاریخچه — از prefs تازه می‌خوانیم تا ریسورکشن (برگشتن آیتم بعد از حذف)
+  // در برخورد با Store.load() (مثلاً pull-to-refresh) رخ ندهد.
   static Future<void> removeFromHistory(String path) async {
-    watchHistory.remove(path); _save('watchHistory',watchHistory);
+    watchHistory.remove(path);
+    final sp = await SharedPreferences.getInstance();
+    final cur = sp.getStringList('watchHistory') ?? List<String>.from(watchHistory);
+    cur.remove(path);
+    watchHistory = cur;
+    await sp.setStringList('watchHistory', cur);
   }
   static Future<void> clearHistory() async {
-    watchHistory.clear(); _save('watchHistory',[]);
+    watchHistory.clear();
+    final sp = await SharedPreferences.getInstance();
+    watchHistory = [];
+    await sp.setStringList('watchHistory', []);
   }
   static Future<void> saveRating(String path, int rating) async {
     rating==0?ratings.remove(path):ratings[path]=rating;

@@ -110,14 +110,17 @@ class GalService {
   }
 
   /// thumbnail از کاش اندروید (MethodChannel thumbnailFor) — سریع؛ اگر نبود fallback رنگی.
-  static Future<ImageProvider<Object>?> thumbFor(GalVideo v) async {
-    try {
-      final bytes = await _ch.invokeMethod<List<dynamic>>(
-        'thumbnailFor', {'path': v.path});
-      if (bytes is List && bytes.isNotEmpty) {
-        return MemoryImage(Uint8List.fromList(bytes.cast<int>()));
-      }
-    } on PlatformException { /* ignore */ }
-    return null;
-  }
+  /// کش Future per-path تا هر rebuild دوباره به native نرود.
+  static final Map<String, Future<ImageProvider<Object>?>> _thumbFuts = {};
+  static Future<ImageProvider<Object>?> thumbFor(GalVideo v) =>
+      _thumbFuts.putIfAbsent(v.path, () async {
+        try {
+          final bytes = await _ch.invokeMethod<List<dynamic>>(
+            'thumbnailFor', {'path': v.path});
+          if (bytes is List && bytes.isNotEmpty) {
+            return MemoryImage(Uint8List.fromList(bytes.cast<int>()));
+          }
+        } on PlatformException { /* ignore */ }
+        return null;
+      });
 }
