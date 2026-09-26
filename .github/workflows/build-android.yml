@@ -95,17 +95,8 @@ jobs:
             cp android_files/MainActivity.kt android/app/src/main/kotlin/com/vezoo/player/MainActivity.kt
           fi
             head -3 "${MAKT:-android/app/src/main/kotlin/com/vezoo/player/MainActivity.kt}"
-
-            # ── Permissions لازم برای گالری (MediaStore) ──
-            MANIFEST_P="android/app/src/main/AndroidManifest.xml"
-            if ! grep -q "READ_MEDIA_VIDEO" "$MANIFEST_P"; then
-              if grep -q 'android.permission.INTERNET' "$MANIFEST_P"; then
-                sed -i 's|\(<uses-permission android:name="android.permission.INTERNET" */>\)|\1\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>|' "$MANIFEST_P" || true
-              else
-                sed -i 's|<application|\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>\n    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>\n    <application|' "$MANIFEST_P" || true
-              fi
-              echo "=== Media permissions in manifest: $(grep -c 'uses-permission' "$MANIFEST_P" || true) ==="
-            fi
+            # NOTE: Media permissions در step «Add storage permissions, PiP and
+            # notifications» تزریق می‌شوند — اینجا فقط یکبار متمرکز است تا duplicate نشود.
 
       - name: Setup C crypto library
         run: |
@@ -163,6 +154,12 @@ jobs:
             # جلوگیری از خطای libffmpeg.zip.so و libpython.zip.so
             perl -i -0pe 's|(android\s*\{)|$1\n    packaging { jniLibs { useLegacyPackaging = true } }|' "$BAPP"
             echo "=== youtubedl-android + useLegacyPackaging added ==="
+          fi
+          # NDK 28 سعی می‌کند zip.so ها را strip کند → llvm-strip error.
+          # doNotStrip (داخل همان packaging.jniLibs) این را خاموش می‌کند.
+          if ! grep -q "doNotStrip" "$BAPP"; then
+            perl -i -0pe 's#(useLegacyPackaging = true)#$1\n            doNotStrip ".*libffmpeg.zip.so"\n            doNotStrip ".*libpython.zip.so"#' "$BAPP" || true
+            echo "=== doNotStrip for zip.so added ==="
           fi
           if ! grep -q "activity-ktx" "$BAPP"; then
             echo 'dependencies { implementation("androidx.activity:activity-ktx:1.8.0") }' >> "$BAPP"
@@ -284,6 +281,8 @@ jobs:
           fi
           S=android/app/src/main/res/values/strings.xml
           sed -i 's|<string name="app_name">.*</string>|<string name="app_name">Vezoo</string>|' "$S" || true
+          # ایمنی: حذف uses-permission تکراری (اولین رخداد حفظ می‌شود)
+          awk -F'"' '/<uses-permission/{ if (seen[$2]++) next } { print }' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
           echo "=== Manifest check ==="; cat "$M" | grep -E "pip|NOTIF|STORAGE|INTERNET|label" || true
 
       - name: Force compileSdk 36 everywhere
