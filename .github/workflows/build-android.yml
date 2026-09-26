@@ -158,7 +158,7 @@ jobs:
           # NDK 28 سعی می‌کند zip.so ها را strip کند → llvm-strip error.
           # doNotStrip (داخل همان packaging.jniLibs) این را خاموش می‌کند.
           if ! grep -q "doNotStrip" "$BAPP"; then
-            perl -i -0pe 's#(useLegacyPackaging = true)#$1\n            doNotStrip ".*libffmpeg.zip.so"\n            doNotStrip ".*libpython.zip.so"#' "$BAPP" || true
+            perl -i -0pe 's#(useLegacyPackaging = true)#$1\n            doNotStrip(".*libffmpeg.zip.so")\n            doNotStrip(".*libpython.zip.so")#' "$BAPP" || true
             echo "=== doNotStrip for zip.so added ==="
           fi
           if ! grep -q "activity-ktx" "$BAPP"; then
