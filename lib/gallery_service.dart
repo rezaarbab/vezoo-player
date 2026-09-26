@@ -39,22 +39,26 @@ class GalService {
   static const _ch = MethodChannel('com.vezoo.player/media');
 
   static Future<bool> ensurePermission() async {
-    var ok = await Permission.videos.isGranted ||
-             await Permission.storage.isGranted;
-    if (!ok) {
-      final r = await Permission.videos.request();
-      ok = r.isGranted;
+    // ۱) چک سریع — اگر یکی Granted است تایید
+    if (await Permission.videos.isGranted ||
+        await Permission.storage.isGranted ||
+        await Permission.manageExternalStorage.isGranted) {
+      return true;
     }
-    if (!ok) {
-      final r2 = await Permission.storage.request();
-      ok = r2.isGranted;
-    }
-    if (!ok) {
-      // آخرین گزینه: ManageAllFiles (پرمیژن قدیمی)
-      final r3 = await Permission.manageExternalStorage.request();
-      ok = r3.isGranted;
-    }
-    return ok;
+    // ۲) Permission واژه‌نامه‌های جدید (اندروید ۱۳+)
+    final r = await Permission.videos.request();
+    if (r.isGranted) return true;
+    // ۳) Permission قدیمی (اندروید ≤۱۲)
+    final r2 = await Permission.storage.request();
+    if (r2.isGranted) return true;
+    // ۴) All-files access — مثل مسیر Browser (صفحه‌ی سیستمی
+    //    مدیریت پرونده باز می‌شود؛ پس از grant کاربر در دفعه‌ی بعد Granted است)
+    final r3 = await Permission.manageExternalStorage.request();
+    if (r3.isGranted) return true;
+    // ۵) شانس آخر: شاید در پس‌زمینه granted شده باشد
+    return await Permission.videos.isGranted ||
+           await Permission.storage.isGranted ||
+           await Permission.manageExternalStorage.isGranted;
   }
 
   /// اسکن MediaStore — در یک بار از channel می‌آید…

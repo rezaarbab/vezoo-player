@@ -23,7 +23,7 @@ class GalleryScreen extends StatefulWidget {
   @override State<GalleryScreen> createState() => _GalleryScreenState();
 }
 
-class _GalleryScreenState extends State<GalleryScreen> {
+class _GalleryScreenState extends State<GalleryScreen> with WidgetsBindingObserver {
   static List<GalVideo> _all = const [];
   bool _loading = true;
   bool _granted = false;
@@ -34,7 +34,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   @override void initState(){
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _boot();
+  }
+
+  // برگشت از صفحه‌ی تنظیمات مجوز (All files access) → چک دوباره
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state){
+    if (state == AppLifecycleState.resumed && !_granted) _boot();
   }
 
   Future<void> _boot() async {
@@ -55,6 +62,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   @override void dispose(){
+    WidgetsBinding.instance.removeObserver(this);
     _searchCtrl.dispose();
     super.dispose();
   }
